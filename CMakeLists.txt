@@ -33,7 +33,7 @@ add_executable(Engine main.cpp)
 
 find_package(OpenGL REQUIRED)
 
-# link SDL2, OpenGL, ImGUI, and GLM
+# link SDL2, OpenGL, ImGUI, GLM, and JSON
 target_link_libraries(Engine 
     PUBLIC SDL2-static ${OPENGL_gl_LIBRARY} ${CMAKE_DL_LIBS} SDL2_image IMGUI glew glm nlohmann_json
 )
