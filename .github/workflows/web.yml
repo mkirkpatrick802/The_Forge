@@ -1,0 +1,50 @@
+name: WEB-EMSCRIPTEN
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+
+env:
+  BUILD_TYPE: MinSizeRel
+
+jobs:
+  linux-emscripten:
+    runs-on: ubuntu-latest
+    container: emscripten/emsdk
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Cache
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            /emsdk/upstream/emscripten/cache/
+            bin-emscripten/_deps
+            bin-emscripten/libs
+          key: emscripten
+
+      - name: Rsync
+        run: apt update
+
+      - name: Rsync
+        run: apt install -y rsync
+
+      - name: Emscripten Build
+        run: ./scripts/emscripten-build.sh
+
+      - name: Clean emscripten bin assets
+        run: rm -rf bin-emscripten/bin/assets/ bin-emscripten/bin/*.a
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: bin-emscripten/bin/ # The folder the action should deploy.
+          single-commit: true
