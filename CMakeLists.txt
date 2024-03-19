@@ -6,7 +6,7 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 
 # create project
-project(MyProject)
+project(The_Forge)
 
 # set where the compiled files goes
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/libs)
@@ -22,22 +22,24 @@ include(external/cpm.cmake)
 include(external/glew.cmake)
 include(external/sdl.cmake)
 include(external/imgui.cmake)
+include(external/glm.cmake)
+include(external/json.cmake)
 
 find_package(protobuf CONFIG REQUIRED)
 find_package(GameNetworkingSockets CONFIG REQUIRED)
 
 # add executable
-add_executable(demo main.cpp)
+add_executable(Engine main.cpp)
 
 find_package(OpenGL REQUIRED)
 
-# link SDL2, OpenGL, and ImGUI
-target_link_libraries(demo 
-    PUBLIC SDL2-static ${OPENGL_gl_LIBRARY} ${CMAKE_DL_LIBS} SDL2_image IMGUI glew
+# link SDL2, OpenGL, ImGUI, and GLM
+target_link_libraries(Engine 
+    PUBLIC SDL2-static ${OPENGL_gl_LIBRARY} ${CMAKE_DL_LIBS} SDL2_image IMGUI glew glm nlohmann_json
 )
 
 # link GameNetworkingSockets
-target_link_libraries(demo
+target_link_libraries(Engine
     PRIVATE GameNetworkingSockets::static GameNetworkingSockets::GameNetworkingSockets
     PRIVATE protobuf::libprotobuf
 )
