@@ -1,0 +1,2 @@
+
+string(TIMESTAMP BEFORE "%s")
