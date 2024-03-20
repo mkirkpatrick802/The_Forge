@@ -1,0 +1,14 @@
+{
+  "Components": [
+    {
+      "ID": 0
+    },
+    {
+      "ID": 1,
+      "Sorting Layer": 0,
+      "Texture": "assets/test_ship.png"
+    }
+  ],
+  "Name": "Player",
+  "Position": "0 0"
+}

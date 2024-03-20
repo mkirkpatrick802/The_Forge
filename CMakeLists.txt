@@ -29,7 +29,12 @@ find_package(protobuf CONFIG REQUIRED)
 find_package(GameNetworkingSockets CONFIG REQUIRED)
 
 # add executable
-add_executable(Engine main.cpp)
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/public/*.cpp")
+file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "src/private/*.hpp")
+
+add_executable(Engine ${SOURCES})
+
+target_include_directories(Engine PRIVATE "src/private")
 
 find_package(OpenGL REQUIRED)
 
