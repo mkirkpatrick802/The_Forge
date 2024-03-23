@@ -12,7 +12,7 @@
 #include "ext/scalar_uint_sized.hpp"
 #include "GameData.h"
 
-const std::string LEVEL_FILE = "game-data/level.json";
+const std::string LEVEL_FILE = "assets/game-data/level.json";
 
 using json = nlohmann::json;
 

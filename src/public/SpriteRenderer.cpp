@@ -54,6 +54,6 @@ void SpriteRenderer::LoadData(const json &data)
     std::istringstream iss(size);
     iss >> _size.x >> _size.y;
 
-    _shader.Compile("shaders/Sprite.vert", "shaders/Sprite.frag");
+    _shader.Compile("assets/shaders/Sprite.vert", "assets/shaders/Sprite.frag");
 
 }

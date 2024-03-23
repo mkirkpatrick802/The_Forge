@@ -57,3 +57,15 @@ target_link_libraries(Engine
     PRIVATE GameNetworkingSockets::static GameNetworkingSockets::GameNetworkingSockets
     PRIVATE protobuf::libprotobuf
 )
+
+add_custom_command(TARGET Engine POST_BUILD
+
+        # Remove the existing directory first
+        COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets"
+
+        # Then copy the new directory contents over
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/assets" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets"
+
+        COMMENT "Replacing asset data in the build folder"
+)
