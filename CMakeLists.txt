@@ -5,8 +5,6 @@ if(COMMAND cmake_policy)
     cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
 
-execute_process(COMMAND vcpkg_setup.bat)
-
 # create project
 project(The_Forge)
 
@@ -27,14 +25,7 @@ include(external/imgui.cmake)
 include(external/glm.cmake)
 include(external/json.cmake)
 
-# set(OPENSSL_ROOT_DIR vcpkg/packages/openssl_x64-windows)
-
-# set(protobuf_DIR vcpkg/packages/protobuf_x64-windows/share/protobuf)
-# set(Protobuf_INCLUDE_DIR vcpkg/packages/protobuf_x64-windows/include)
-
-# set(GameNetworkingSockets_DIR vcpkg/packages/gamenetworkingsockets_x64-windows/share/gamenetworkingsockets)
-
-find_package(protobuf CONFIG REQUIRED)
+find_package(Protobuf CONFIG REQUIRED)
 find_package(GameNetworkingSockets CONFIG REQUIRED)
 
 # add executable
