@@ -19,5 +19,3 @@ call .\vcpkg\vcpkg install protobuf --triplet=x64-windows
 call .\vcpkg\vcpkg install protobuf --triplet x86-windows
 
 popd
-echo Finished...
-pause

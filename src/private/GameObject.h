@@ -45,10 +45,10 @@ private:
 public:
 
     GameObjectSettings settings;
+    Transform _transform;
 
 private:
 
-    Transform _transform;
     std::string _name;
 
     std::vector<Component*> _attachedComponents;

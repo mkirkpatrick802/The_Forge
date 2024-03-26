@@ -9,10 +9,9 @@
 #include "Component.h"
 #include <SDL_render.h>
 #include "Shader.h"
+#include "Texture.h"
 
 class Renderer;
-
-typedef SDL_Texture Texture;
 
 class SpriteRenderer : public Component {
 
@@ -33,6 +32,8 @@ private:
 private:
 
     Shader       _shader;
+    Texture      _texture;
+
     unsigned int _quadVAO;
 
     //Texture2D     _texture;

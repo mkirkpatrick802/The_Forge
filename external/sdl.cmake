@@ -67,6 +67,7 @@ CPMAddPackage(GITHUB_REPOSITORY libsdl-org/SDL_image
 )
 find_package(SDL_image REQUIRED)
 include_directories(${SDL_image_SOURCE_DIR})
+
 string(TIMESTAMP AFTER "%s")
 math(EXPR DELTASDL_image "${AFTER} - ${BEFORE}")
 MESSAGE(STATUS "SDL_image TIME: ${DELTASDL_image}s")

@@ -25,6 +25,8 @@ include(external/imgui.cmake)
 include(external/glm.cmake)
 include(external/json.cmake)
 
+execute_process(COMMAND cmd /C "${CMAKE_SOURCE_DIR}/vcpkg_setup.bat")
+
 find_package(Protobuf CONFIG REQUIRED)
 find_package(GameNetworkingSockets CONFIG REQUIRED)
 
@@ -34,7 +36,7 @@ file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "src/private/*.hpp")
 
 add_executable(Engine ${SOURCES})
 
-target_include_directories(Engine PRIVATE "src/private")
+target_include_directories(Engine PRIVATE "src/private" "src/libs")
 
 find_package(OpenGL REQUIRED)
 
@@ -59,4 +61,10 @@ add_custom_command(TARGET Engine POST_BUILD
         "${CMAKE_SOURCE_DIR}/assets" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets"
 
         COMMENT "Replacing asset data in the build folder"
+)
+
+add_custom_command(TARGET Engine POST_BUILD
+
+        COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_SOURCE_DIR}/out"
+        COMMENT "Deleting extra out folder"
 )

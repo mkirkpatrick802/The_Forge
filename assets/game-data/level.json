@@ -4,7 +4,6 @@
       "Components": [
         {
           "ID": 1,
-          "Size": "640 360",
           "Sorting Layer": -1,
           "Texture": "assets/background.png"
         }

@@ -43,9 +43,6 @@ void UIManager::Render(EditorSettings &editorSettings, GameObjectSettings *selec
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
-    bool isOpen = true;
-    ImGui::ShowDemoWindow(&isOpen);
-
     //ImGui::Begin("Menu");
 
     /*if (ImGui::CollapsingHeader("Editor Settings")) {
