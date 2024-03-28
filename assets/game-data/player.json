@@ -6,7 +6,7 @@
     {
       "ID": 1,
       "Sorting Layer": 0,
-      "Texture": "assets/test_ship.png"
+      "Texture": "assets/sprites/test_ship.png"
     }
   ],
   "Name": "Player",

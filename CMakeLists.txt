@@ -51,7 +51,7 @@ target_link_libraries(Engine
     PRIVATE protobuf::libprotobuf
 )
 
-add_custom_command(TARGET Engine POST_BUILD
+add_custom_command(TARGET Engine PRE_BUILD
 
         # Remove the existing directory first
         COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets"
@@ -63,7 +63,7 @@ add_custom_command(TARGET Engine POST_BUILD
         COMMENT "Replacing asset data in the build folder"
 )
 
-add_custom_command(TARGET Engine POST_BUILD
+add_custom_command(TARGET Engine PRE_BUILD
 
         COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_SOURCE_DIR}/out"
         COMMENT "Deleting extra out folder"

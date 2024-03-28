@@ -71,21 +71,21 @@ void Shader::Compile(const char* vertexSource, const char* fragmentSource, const
     CheckCompileErrors(sFragment, "FRAGMENT");
 
     // if geometry shader source code is given, also compile geometry shader
-    /*GLuint gShader = NULL;
+    GLuint gShader = NULL;
     if (geometrySource != nullptr)
     {
         gShader = glCreateShader(GL_GEOMETRY_SHADER);
         glShaderSource(gShader, 1, &gShaderCode, nullptr);
         glCompileShader(gShader);
         CheckCompileErrors(gShader, "GEOMETRY");
-    }*/
+    }
 
     // shader program
     ID = glCreateProgram();
     glAttachShader(ID, sVertex);
     glAttachShader(ID, sFragment);
-    /*if (geometrySource != nullptr)
-        glAttachShader(ID, gShader);*/
+    if (geometrySource != nullptr)
+        glAttachShader(ID, gShader);
 
     glLinkProgram(ID);
     CheckCompileErrors(ID, "PROGRAM");
@@ -93,8 +93,8 @@ void Shader::Compile(const char* vertexSource, const char* fragmentSource, const
     // delete the shaders as they're linked into our program now and no longer necessary
     glDeleteShader(sVertex);
     glDeleteShader(sFragment);
-    /*if (geometrySource != nullptr)
-        glDeleteShader(gShader);*/
+    if (geometrySource != nullptr)
+        glDeleteShader(gShader);
 }
 
 void Shader::SetFloat(const char* name, float value, bool useShader)
@@ -142,7 +142,6 @@ void Shader::SetMatrix4(const char* name, const glm::mat4& matrix, bool useShade
     if (useShader) Use();
     glUniformMatrix4fv(glGetUniformLocation(ID, name), 1, false, glm::value_ptr(matrix));
 }
-
 
 void Shader::CheckCompileErrors(const GLuint object, const std::string& type) const
 {

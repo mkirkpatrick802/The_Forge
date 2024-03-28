@@ -5,7 +5,7 @@
         {
           "ID": 1,
           "Sorting Layer": -1,
-          "Texture": "assets/background.png"
+          "Texture": "assets/sprites/background.png"
         }
       ],
       "Name": "Background",

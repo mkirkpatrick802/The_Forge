@@ -22,25 +22,27 @@ void SpriteRenderer::Init()
     // configure VAO/VBO
     unsigned int VBO;
     float vertices[] = {
-        // pos      // tex
-        0.0f, 1.0f, 0.0f, 1.0f,
-        1.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 0.0f,
+            // pos              // tex
+            0.0f, 1.0f, 0.0f, 1.0f,
+            1.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 0.0f,
 
-        0.0f, 1.0f, 0.0f, 1.0f,
-        1.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 0.0f, 1.0f, 0.0f
+            0.0f, 1.0f, 0.0f, 1.0f,
+            1.0f, 1.0f, 1.0f, 1.0f,
+            1.0f, 0.0f, 1.0f, 0.0f
     };
 
-    glGenVertexArrays(1, &_quadVAO);
-    glGenBuffers(1, &VBO);
 
+    glGenVertexArrays(1, &_quadVAO);
+    glBindVertexArray(_quadVAO);
+
+    glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glBindVertexArray(_quadVAO);
-    glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
@@ -48,6 +50,8 @@ void SpriteRenderer::Init()
 void SpriteRenderer::DrawSprite()
 {
     float rotation = 0;
+
+    //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
     _shader.Use();
     glm::mat4 model = glm::mat4(1.0f);
@@ -63,15 +67,13 @@ void SpriteRenderer::DrawSprite()
 
     _texture.Bind();
 
-    auto color = glm::vec3(1,1,1);
     _shader.SetMatrix4("model", model);
     _shader.SetMatrix4("projection", projection);
-    _shader.SetVector3f("sprite_color", color);
     _shader.SetInteger("image", _texture.ID);
 
     glBindVertexArray(_quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(0);
+    //glBindVertexArray(0);
 }
 
 void SpriteRenderer::LoadData(const json &data)
