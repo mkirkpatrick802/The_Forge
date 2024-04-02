@@ -26,7 +26,7 @@ Renderer::Renderer(): _context(nullptr), _window(nullptr)
 
 void Renderer::CreateRenderer()
 {
-    const char* glsl_version = "#version 130";
+    const auto glsl_version = "#version 130";
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -36,7 +36,7 @@ void Renderer::CreateRenderer()
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-    const SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+    const auto window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI | ImGuiWindowFlags_NoBringToFrontOnFocus);
     _window = SDL_CreateWindow("The Forge", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _editorWidth, _editorHeight, window_flags);
     if (_window == nullptr)
     {
@@ -61,7 +61,7 @@ void Renderer::CreateSpriteRenderer(GameObject* go, const json& data = nullptr) 
 
     go->AddComponent(spriteRenderer);
 
-    auto pairPTR = new std::pair<int16, SpriteRenderer*>(spriteRenderer->_sortingLayer, spriteRenderer);
+    const auto pairPTR = new std::pair(spriteRenderer->_sortingLayer, spriteRenderer);
     _renderList.push_back(pairPTR);
 
     SortRenderList();
@@ -69,44 +69,43 @@ void Renderer::CreateSpriteRenderer(GameObject* go, const json& data = nullptr) 
 
 void Renderer::SortRenderList() {
 
-    std::sort(_renderList.begin(), _renderList.end(), [](auto &left, auto &right){
+    std::ranges::sort(_renderList, [](auto &left, auto &right){
         return left->first < right->first;
     });
 }
 
 Vector2D Renderer::ConvertScreenToWorld(const Vector2D screenPos) {
-    Vector2D worldLocation = Vector2D(screenPos.x - (_editorWidth / 2), screenPos.y - (_editorHeight / 2));
+	const auto worldLocation = Vector2D(screenPos.x - (_editorWidth / 2), screenPos.y - (_editorHeight / 2));
     return {worldLocation.x / 2, -worldLocation.y / 2};
 }
 
-GameObject* Renderer::GetTopGameObject(std::vector<GameObject*> goList) {
-
-    RenderListPair reversedList (_renderList.rbegin(), _renderList.rend());
-    for (auto renderItem : reversedList)
-        for (auto go : goList)
+GameObject* Renderer::GetTopGameObject(const std::vector<GameObject*>& goList) {
+	const RenderListPair reversedList (_renderList.rbegin(), _renderList.rend());
+    for (const auto renderItem : reversedList)
+        for (const auto go : goList)
             if (renderItem->second->gameObject == go)
                 return go;
 
     return nullptr;
 }
 
-void Renderer::Render()
+void Renderer::Render() const
 {
-    ImGuiIO& io = ImGui::GetIO();
+	const ImGuiIO& io = ImGui::GetIO();
     glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
     glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	if (!_renderList.empty())
 		for (const auto &pair : _renderList)
             pair->second->DrawSprite();
 
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
         SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
-        SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
+        const SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault();
         SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
@@ -118,11 +117,11 @@ void Renderer::Render()
 
 void Renderer::CleanUpSpriteRenderer(GameObject* go)
 {
-    if(SpriteRenderer* renderer = go->GetComponent<SpriteRenderer>())
+    if(const auto renderer = go->GetComponent<SpriteRenderer>())
     {
         for (auto &pair : _renderList) {
             if(pair->second == renderer)
-                _renderList.erase(std::remove(_renderList.begin(), _renderList.end(), pair), _renderList.end());
+                std::erase(_renderList, pair);
         }
 
         _spriteRendererPool.Delete(renderer);

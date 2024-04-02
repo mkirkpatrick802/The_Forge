@@ -14,15 +14,17 @@
 
 SpriteRenderer::SpriteRenderer()
 {
-
+    // TODO: Get this from renderer
+    _projection = glm::ortho(0.0f, 1280.f, 720.f, 0.0f, -1.0f, 1.0f);
 }
 
 void SpriteRenderer::Init()
 {
     // configure VAO/VBO
     unsigned int VBO;
-    float vertices[] = {
-            // pos              // tex
+    const float vertices[] = {
+
+            // pos      // tex
             0.0f, 1.0f, 0.0f, 1.0f,
             1.0f, 0.0f, 1.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 0.0f,
@@ -49,12 +51,10 @@ void SpriteRenderer::Init()
 
 void SpriteRenderer::DrawSprite()
 {
-    float rotation = 0;
-
-    //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+	const float rotation = 0;
 
     _shader.Use();
-    glm::mat4 model = glm::mat4(1.0f);
+	auto model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(gameObject->_transform.position, 0.0f));
 
     model = glm::translate(model, glm::vec3(0.5f * _size.x, 0.5f * _size.y, 0.0f));
@@ -63,22 +63,20 @@ void SpriteRenderer::DrawSprite()
 
     model = glm::scale(model, glm::vec3(_size, 1.0f));
 
-    glm::mat4 projection = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f);
-
     _texture.Bind();
 
     _shader.SetMatrix4("model", model);
-    _shader.SetMatrix4("projection", projection);
+    _shader.SetMatrix4("projection", _projection);
     _shader.SetInteger("image", _texture.ID);
 
     glBindVertexArray(_quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
-    //glBindVertexArray(0);
+    glBindVertexArray(0);
 }
 
 void SpriteRenderer::LoadData(const json &data)
 {
-    std::string texture = data["Texture"];
+	const std::string texture = data["Texture"];
 
     int width, height, nrChannels;
     unsigned char* textureData = stbi_load(texture.c_str(), &width, &height, &nrChannels, 0);

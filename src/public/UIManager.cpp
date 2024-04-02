@@ -43,9 +43,9 @@ void UIManager::Render(EditorSettings &editorSettings, GameObjectSettings *selec
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
-    //ImGui::Begin("Menu");
+    ImGui::Begin("Menu");
 
-    /*if (ImGui::CollapsingHeader("Editor Settings")) {
+    if (ImGui::CollapsingHeader("Editor Settings")) {
         if(ImGui::Checkbox("Edit Mode", &editorSettings.editMode))
             editorSettings.editModeChanged = true;
     }
@@ -53,7 +53,7 @@ void UIManager::Render(EditorSettings &editorSettings, GameObjectSettings *selec
     if(selectedGameObjectSettings != nullptr) {
 
         ImGui::Text(" ");
-        ImGui::Text(selectedGameObjectSettings->name->c_str());
+        ImGui::Text("%s", selectedGameObjectSettings->name->c_str());
 
         if (ImGui::CollapsingHeader("Game Object Settings")) {
             std::string currentName = *selectedGameObjectSettings->name;
@@ -70,30 +70,28 @@ void UIManager::Render(EditorSettings &editorSettings, GameObjectSettings *selec
             ImGui::InputFloat2("Position", position);
             *selectedGameObjectSettings->position = Vector2D(position[0], position[1]);
         }
-    }*/
+    }
 
-    //ImGui::End();
-
+    ImGui::End();
     ImGui::Render();
 }
 
-void UIManager::CleanUp() {
-
-    //ImGui_ImplSDLRenderer2_Shutdown();
-    //ImGui_ImplSDL2_Shutdown();
-    //ImGui::DestroyContext();
+void UIManager::CleanUp()
+{
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
 }
 
-bool UIManager::HoveringUI() {
-
-    bool isWindowHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow);
-    bool isItemHovered = ImGui::IsAnyItemHovered();
+bool UIManager::HoveringUI()
+{
+	const bool isWindowHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow);
+	const bool isItemHovered = ImGui::IsAnyItemHovered();
     return isWindowHovered || isItemHovered;
 }
 
-void UIManager::ClearFrame() {
-
+void UIManager::ClearFrame()
+{
     ImGui::NewFrame();
     ImGui::Render();
-    
 }

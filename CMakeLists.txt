@@ -63,8 +63,8 @@ add_custom_command(TARGET Engine PRE_BUILD
         COMMENT "Replacing asset data in the build folder"
 )
 
-add_custom_command(TARGET Engine PRE_BUILD
+# add_custom_command(TARGET Engine PRE_BUILD
 
-        COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_SOURCE_DIR}/out"
-        COMMENT "Deleting extra out folder"
-)
+        # COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_SOURCE_DIR}/out"
+        # COMMENT "Deleting extra out folder"
+# )

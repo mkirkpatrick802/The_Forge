@@ -27,9 +27,9 @@ public:
     void CreateSpriteRenderer(GameObject* go, const json& data);
     void SortRenderList();
 
-    GameObject* GetTopGameObject(std::vector<GameObject*> goList);
+    GameObject* GetTopGameObject(const std::vector<GameObject*>& goList);
 
-    void Render();
+    void Render() const;
 
     void CleanUpSpriteRenderer(GameObject* go);
     void CleanUp();
