@@ -19,4 +19,6 @@ typedef glm::vec2 Vector2D;
 
 const uint32 MAX_GAMEOBJECTS = 30;
 
+
+
 #endif //THE_FORGE_GAMEDATA_H

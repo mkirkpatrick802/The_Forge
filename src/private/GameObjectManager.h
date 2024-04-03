@@ -9,10 +9,10 @@
 #include <vector>
 #include "ComponentPool.h"
 #include "PlayerController.h"
-#include "ext/scalar_uint_sized.hpp"
 #include "GameData.h"
 
 const std::string LEVEL_FILE = "assets/game-data/level.json";
+const std::string PLAYER_FILE = "assets/game-data/player.json";
 
 using json = nlohmann::json;
 
@@ -49,6 +49,8 @@ public:
 
     void CleanUp();
     bool SaveGameObjectInfo();
+
+	void SpawnPlayer();
 
 private:
 

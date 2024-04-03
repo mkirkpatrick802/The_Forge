@@ -1,11 +1,16 @@
 #define SDL_MAIN_HANDLED true
 
+#include <iostream>
+#include <thread>
+
 #include "Renderer.h"
 #include "UIManager.h"
 #include "System.h"
 #include "InputManager.h"
 #include "PlayEngine.h"
 #include "EditorEngine.h"
+#include "Server.h"
+#include "Client.h"
 
 // Managers
 Renderer renderer;
@@ -26,6 +31,7 @@ int main(int argc, char* argv[]) {
     renderer = Renderer();
     inputManager = InputManager();
 
+    StartingGameOptions();
     GameplayLoop();
 
     inputManager.CleanUp();
@@ -33,18 +39,7 @@ int main(int argc, char* argv[]) {
     system.CleanUp();
 }
 
-/*NetCode::Init();
-if (const auto client = dynamic_cast<Client*>(netcode))
-{
-    printf("Connecting To Server... \n");
-    while (!client->isConnected)
-    {
-        client->Update();
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-}*/
-
-/*void StartingGameOptions()
+void StartingGameOptions()
 {
 
     printf("Build Play Mode? \n");
@@ -52,6 +47,8 @@ if (const auto client = dynamic_cast<Client*>(netcode))
 
     if(buildPlayMode) 
     {
+        NetCode::Init();
+
         bool isServer;
 
         printf("Would You Like to Host a Game? \n");
@@ -75,8 +72,18 @@ if (const auto client = dynamic_cast<Client*>(netcode))
         }
 
         netcode->Start();
+
+        if (const auto client = dynamic_cast<Client*>(netcode))
+        {
+            printf("Connecting To Server... \n");
+            while (!client->isConnected)
+            {
+                client->Update();
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
+        }
     }
-}*/
+}
 
 void GameplayLoop()
 {

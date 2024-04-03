@@ -164,6 +164,22 @@ bool GameObjectManager::SaveGameObjectInfo() {
     return true;
 }
 
+void GameObjectManager::SpawnPlayer()
+{
+    std::ifstream file(PLAYER_FILE);
+
+    if (!file.is_open()) {
+        std::cerr << "Could not open file for reading!\n";
+        assert(0);
+    }
+
+    json playerData;
+    file >> playerData;
+    file.close();
+
+	CreateGameObjectFromJSON(playerData);
+}
+
 void GameObjectManager::CleanUp() {
 
     uint32 size = _currentGameObjects.size();

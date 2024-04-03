@@ -50,6 +50,10 @@ void UIManager::Render(EditorSettings &editorSettings, GameObjectSettings *selec
             editorSettings.editModeChanged = true;
     }
 
+    if (ImGui::CollapsingHeader("Player Settings")) {
+
+    }
+
     if(selectedGameObjectSettings != nullptr) {
 
         ImGui::Text(" ");
