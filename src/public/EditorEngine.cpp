@@ -1,7 +1,3 @@
-//
-// Created by mKirkpatrick on 2/27/2024.
-//
-
 #include "EditorEngine.h"
 
 #include <SDL_mouse.h>
@@ -12,79 +8,90 @@
 #include "GameObjectManager.h"
 #include "UIManager.h"
 
-EditorEngine::EditorEngine(Renderer &renderer, InputManager &inputManager, UIManager &uiManager) : Engine(renderer, inputManager) {
-    _uiManager = &uiManager;
-    _selectedGameObjectSettings = nullptr;
-
-    uiManager.Attach(_gameObjectManager);
+EditorEngine::EditorEngine(Renderer& renderer, InputManager& inputManager) :
+	Engine(renderer, inputManager)
+{
+	_editorUI.Attach(_gameObjectManager);
+	_uiManager->AddUIWindow(&_editorUI);
 }
 
-void EditorEngine::GameLoop() {
+void EditorEngine::GameLoop()
+{
+	// Gameplay Loop
+	while (_inputManager->StartProcessInputs(*_renderer)) 
+	{
+		if (SDL_GetTicks64() - frameStart >= 16) 
+		{
+			//Frame Rate Management
+			deltaTime = (SDL_GetTicks64() - frameStart);
+			frameStart = SDL_GetTicks64();
 
-    // Gameplay Loop
-    while (_inputManager->StartProcessInputs(*_renderer)) {
-        if(SDL_GetTicks64() - frameStart >= 16) {
+			// Display frame rate in console
+			if (_inputManager->GetKey(SDL_SCANCODE_APOSTROPHE))
+				printf("%f FPS \n", 1000 / deltaTime);
 
-            //Frame Rate Management
-            deltaTime = (SDL_GetTicks64() - frameStart);
-            frameStart = SDL_GetTicks64();
+			// Get UI Data
+			_details.editorSettings = _editorUI.GetEditorSettings();
 
-            // Display frame rate in console
-            if(_inputManager->GetKey(SDL_SCANCODE_APOSTROPHE))
-                printf("%f FPS \n", 1000 / deltaTime);
+			// Check if player is clicking game objects
+			ClickObject();
 
-            // Check if player is clicking game objects
-            ClickObject();
+			// Update game objects if game is not in editor mode
+			if (!_details.editorSettings.editMode)
+				_gameObjectManager->Update(deltaTime);
 
-            // Update game objects if game is not in editor mode
-            if(!_editorSettings.editMode)
-                _gameObjectManager->Update(deltaTime);
+			// Render game objects and UI
+			_uiManager->Render();
+			_renderer->Render();
 
-            // Render game objects and UI
-            _uiManager->Render(_editorSettings, _selectedGameObjectSettings);
-            _renderer->Render();
+			// End input poll
+			_inputManager->EndProcessInputs();
 
-            // End input poll
-            _inputManager->EndProcessInputs();
-
-            if(!_editorSettings.editMode) {
-                _selectedGameObjectSettings = nullptr;
-            }
-
-            if(_editorSettings.editModeChanged) {
-                _editorSettings.editModeChanged = false;
-                _gameObjectManager->ToggleEditorMode(_editorSettings.editMode);
-            }
-        }
-    }
+			/*if (_editorSettings.editModeChanged) 
+			{
+				_editorSettings.editModeChanged = false;
+				_gameObjectManager->ToggleEditorMode(_editorSettings.editMode);
+			}*/
+		}
+	}
 }
 
-void EditorEngine::ClickObject() {
+void EditorEngine::ClickObject()
+{
+	if (!_details.editorSettings.editMode)
+	{
+		_editorUI.SetSelectedGameObject(nullptr);
+	}
 
-    Vector2D mouseClickPosition = Vector2D();
-    if(_inputManager->GetButtonDown(SDL_BUTTON_LEFT, mouseClickPosition) && _editorSettings.editMode) {
+	Vector2D mouseClickPosition = Vector2D();
+	if (_inputManager->GetButtonDown(SDL_BUTTON_LEFT, mouseClickPosition) && _details.editorSettings.editMode)
+	{
+		if (UIManager::HoveringUI()) return;
+		mouseClickPosition = Renderer::ConvertScreenToWorld(mouseClickPosition);
+		const auto clickedObjects = _gameObjectManager->GetClickedObjects(mouseClickPosition);
+		if (!clickedObjects->empty()) 
+		{
+			const auto go = _renderer->GetTopGameObject(*clickedObjects);
+			if (_details.gameObjectSettings != &go->settings)
+				UIManager::ClearFrame();
 
-        if(_uiManager->HoveringUI()) return;
-    	mouseClickPosition = Renderer::ConvertScreenToWorld(mouseClickPosition);
-        const auto clickedObjects = _gameObjectManager->GetClickedObjects(mouseClickPosition);
-        if (!clickedObjects->empty()) {
+			_editorUI.SetSelectedGameObject(&go->settings);
+		}
 
-            auto go = _renderer->GetTopGameObject(*clickedObjects);
-            if(_selectedGameObjectSettings != &go->settings)
-                UIManager::ClearFrame();
+		delete clickedObjects;
+	}
+}
 
-            _selectedGameObjectSettings = &go->settings;
-        }
+void EditorEngine::OnEvent(EventType event)
+{
 
-        delete clickedObjects;
-    }
 }
 
 void EditorEngine::CleanUp()
 {
-    if(_editorSettings.editMode)
-        _gameObjectManager->SaveGameObjectInfo();
+	if (_details.editorSettings.editMode)
+		_gameObjectManager->SaveGameObjectInfo();
 
-    _gameObjectManager->CleanUp();
-    delete _gameObjectManager;
+	_gameObjectManager->CleanUp();
+	delete _gameObjectManager;
 }

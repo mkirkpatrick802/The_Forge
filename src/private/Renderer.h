@@ -1,9 +1,4 @@
-//
-// Created by mKirkpatrick on 1/22/2024.
-//
-
-#ifndef THE_FORGE_RENDERER_H
-#define THE_FORGE_RENDERER_H
+#pragma once
 
 #include <vector>
 
@@ -35,8 +30,8 @@ public:
     void CleanUp();
 
     // Getters
-    SDL_GLContext GetDefaultContext() { return _context; }
-    SDL_Window* GetDefaultWindow() {return _window;}
+    SDL_GLContext GetDefaultContext() const { return _context; }
+    SDL_Window* GetDefaultWindow() const { return _window; }
 
     static Vector2D ConvertScreenToWorld(const Vector2D screenPos);
     static Vector2D ConvertWorldToScreen(const Vector2D worldPos);
@@ -62,6 +57,3 @@ private:
 
     ComponentPool<SpriteRenderer> _spriteRendererPool;
 };
-
-
-#endif //THE_FORGE_RENDERER_H

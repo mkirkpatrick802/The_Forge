@@ -1,7 +1,3 @@
-//
-// Created by mKirkpatrick on 1/22/2024.
-//
-
 #include <iostream>
 #include <windows.h>
 #include <winuser.h>
@@ -77,7 +73,8 @@ void Renderer::SortRenderList()
 Vector2D Renderer::ConvertScreenToWorld(const Vector2D screenPos)
 {
 	const auto worldLocation = Vector2D(screenPos.x - (float)_editorWidth / 2, screenPos.y - (float)_editorHeight / 2);
-    return {worldLocation.x / 2, -worldLocation.y / 2};
+    const auto finalLocation = Vector2D(worldLocation.x, -worldLocation.y);
+    return finalLocation;
 }
 
 Vector2D Renderer::ConvertWorldToScreen(const Vector2D worldPos)

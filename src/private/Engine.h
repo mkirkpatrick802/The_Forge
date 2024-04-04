@@ -1,5 +1,6 @@
 #pragma once
 
+class UIManager;
 class Renderer;
 class InputManager;
 class GameObjectManager;
@@ -7,8 +8,8 @@ class GameObjectManager;
 class Engine
 {
 public:
-	virtual ~Engine() = default;
 
+	virtual ~Engine() = default;
 	Engine(Renderer &renderer, InputManager &inputManager);
 
     virtual void GameLoop() = 0;
@@ -18,6 +19,7 @@ protected:
 
     // References
     Renderer* _renderer;
+    UIManager* _uiManager;
     InputManager* _inputManager;
     GameObjectManager* _gameObjectManager;
 

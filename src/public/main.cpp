@@ -4,13 +4,13 @@
 #include <thread>
 
 #include "Renderer.h"
-#include "UIManager.h"
 #include "System.h"
 #include "InputManager.h"
 #include "PlayEngine.h"
 #include "EditorEngine.h"
 #include "Server.h"
 #include "Client.h"
+#include "UIManager.h"
 
 // Managers
 Renderer renderer;
@@ -35,6 +35,7 @@ int main(int argc, char* argv[]) {
     GameplayLoop();
 
     inputManager.CleanUp();
+    UIManager::CleanUp();
     renderer.CleanUp();
     system.CleanUp();
 }
@@ -87,27 +88,21 @@ void StartingGameOptions()
 
 void GameplayLoop()
 {
+    renderer.CreateRenderer();
+    UIManager::Init(renderer);
+
     if(!buildPlayMode)
     {
         printf("Entering Editor.. \n");
 
-        renderer.CreateRenderer();
-
-        UIManager uiManager = UIManager(renderer);
-        EditorEngine engine = EditorEngine(renderer, inputManager, uiManager);
+        EditorEngine engine = EditorEngine(renderer, inputManager);
         engine.GameLoop();
-
-        engine.CleanUp();
-        uiManager.CleanUp();
     }
     else
     {
         printf("Building Play Mode... \n");
 
-        renderer.CreateRenderer();
         PlayEngine engine = PlayEngine(renderer, inputManager, netcode);
         engine.GameLoop();
-
-        engine.CleanUp();
     }
 }

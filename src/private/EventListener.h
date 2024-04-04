@@ -1,7 +1,9 @@
 #pragma once
 
-enum class EventType {
-    ET_SpawnPlayer
+enum class EventType
+{
+	ET_SpawnPlayer,
+	ET_DetailsChanged
 };
 
 class EventListener 

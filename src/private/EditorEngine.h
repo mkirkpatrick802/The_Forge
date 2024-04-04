@@ -1,34 +1,26 @@
-//
-// Created by mKirkpatrick on 2/27/2024.
-//
+#pragma once
 
-#ifndef THE_FORGE_EDITORENGINE_H
-#define THE_FORGE_EDITORENGINE_H
-
+#include "EditorUIWindow.h"
 #include "Engine.h"
 #include "UIStructs.h"
 
 class UIManager;
 
-class EditorEngine : public Engine {
-
+class EditorEngine : public Engine, public EventListener
+{
 public:
 
-    EditorEngine(Renderer &renderer, InputManager &inputManager, UIManager &uiManager);
+    EditorEngine(Renderer &renderer, InputManager &inputManager);
 
-    void GameLoop();
+    virtual void GameLoop() override;
+    virtual void CleanUp() override;
 
     void ClickObject();
 
-    void CleanUp() override;
+    virtual void OnEvent(EventType event) override;
 
 private:
 
-    EditorSettings _editorSettings;
-    GameObjectSettings* _selectedGameObjectSettings;
-
-    UIManager* _uiManager;
+    Details _details;
+    EditorUIWindow _editorUI;
 };
-
-
-#endif //THE_FORGE_EDITORENGINE_H

@@ -5,8 +5,9 @@ class EventDispatcher
 {
 
 public:
+	virtual ~EventDispatcher() = default;
 
-    void Attach(EventListener* listener) 
+	void Attach(EventListener* listener) 
     {
         listeners.push_back(listener);
     }
@@ -20,7 +21,6 @@ public:
     {
         for (EventListener* listener : listeners) 
             listener->OnEvent(event);
-        
     }
 
 

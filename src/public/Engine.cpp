@@ -1,10 +1,9 @@
-//
-// Created by mKirkpatrick on 1/22/2024.
-//
-
 #include "Engine.h"
 #include "GameObjectManager.h"
+#include "UIManager.h"
 
-Engine::Engine(Renderer& renderer, InputManager& inputManager) : _renderer(&renderer), _inputManager(&inputManager) {
-    _gameObjectManager = new GameObjectManager(&renderer, &inputManager);
+Engine::Engine(Renderer& renderer, InputManager& inputManager) : _renderer(&renderer), _inputManager(&inputManager), frameStart(0), deltaTime(0)
+{
+	_uiManager = UIManager::GetInstance();
+	_gameObjectManager = new GameObjectManager(&renderer, &inputManager);
 }

@@ -1,27 +1,33 @@
 #pragma once
 
-#include "Renderer.h"
 #include "UIStructs.h"
-#include "EventDispatcher.h"
+#include "UIWindow.h"
 
-class UIManager : public EventDispatcher
+class Renderer;
+
+class UIManager
 {
 public:
 
-    UIManager(Renderer& renderer);
+    static void Init(const Renderer& renderer);
+    static UIManager* GetInstance();
 
-    bool HoveringUI();
+    void AddUIWindow(UIWindow* window);
+    void RemoveUIWindow(UIWindow* window);
 
-    void Render(EditorSettings &editorSettings, const GameObjectSettings* selectedGameObjectSettings);
-    void CleanUp();
+    void Render() const;
 
+    static bool HoveringUI();
     static void ClearFrame();
+
+    static void CleanUp();
 
 private:
 
-    Renderer _renderer;
+    UIManager(const Renderer& renderer);
 
-    // Conditional Logic
-    bool _playerSpawned = false;
+private:
 
+    static UIManager* _instance;
+    std::vector<UIWindow*> _uiWindows;
 };

@@ -1,34 +1,36 @@
-//
-// Created by mKirkpatrick on 2/13/2024.
-//
-
-#ifndef THE_FORGE_UISTRUCTS_H
-#define THE_FORGE_UISTRUCTS_H
+#pragma once
 
 #include <string>
 #include <vector>
 #include "GameData.h"
 
-struct EditorSettings {
+struct EditorSettings
+{
     bool editMode = true;
-    bool editModeChanged = false;
 };
 
-struct ComponentSettings {
+struct ComponentSettings
+{
     uint32 ID;
 };
 
-struct SpriteRendererSettings : public ComponentSettings{
+struct SpriteRendererSettings : public ComponentSettings
+{
     string texture;
     Vector2D size;
     int16 sortingLayer;
 };
 
-struct GameObjectSettings {
+struct GameObjectSettings
+{
     std::string* name;
     Vector2D* position;
 
     std::vector<ComponentSettings> componentSettings;
 };
 
-#endif //THE_FORGE_UISTRUCTS_H
+struct Details
+{
+    EditorSettings editorSettings;
+    GameObjectSettings* gameObjectSettings;
+};
