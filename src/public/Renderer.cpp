@@ -26,11 +26,10 @@ Renderer::Renderer(): _context(nullptr), _window(nullptr)
 
 void Renderer::CreateRenderer()
 {
-    const auto glsl_version = "#version 130";
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
@@ -51,8 +50,8 @@ void Renderer::CreateRenderer()
     glewInit();
 }
 
-void Renderer::CreateSpriteRenderer(GameObject* go, const json& data = nullptr) {
-
+void Renderer::CreateSpriteRenderer(GameObject* go, const json& data = nullptr)
+{
     SpriteRenderer* spriteRenderer = _spriteRendererPool.New(go);
     spriteRenderer->Init();
 
@@ -67,19 +66,28 @@ void Renderer::CreateSpriteRenderer(GameObject* go, const json& data = nullptr) 
     SortRenderList();
 }
 
-void Renderer::SortRenderList() {
-
-    std::ranges::sort(_renderList, [](auto &left, auto &right){
+void Renderer::SortRenderList()
+{
+    std::ranges::sort(_renderList, [](auto &left, auto &right)
+        {
         return left->first < right->first;
     });
 }
 
-Vector2D Renderer::ConvertScreenToWorld(const Vector2D screenPos) {
-	const auto worldLocation = Vector2D(screenPos.x - (_editorWidth / 2), screenPos.y - (_editorHeight / 2));
+Vector2D Renderer::ConvertScreenToWorld(const Vector2D screenPos)
+{
+	const auto worldLocation = Vector2D(screenPos.x - (float)_editorWidth / 2, screenPos.y - (float)_editorHeight / 2);
     return {worldLocation.x / 2, -worldLocation.y / 2};
 }
 
-GameObject* Renderer::GetTopGameObject(const std::vector<GameObject*>& goList) {
+Vector2D Renderer::ConvertWorldToScreen(const Vector2D worldPos)
+{
+    const auto screenLocation = Vector2D(worldPos.x + (float)_editorWidth / 2, worldPos.y + (float)_editorHeight / 2);
+    return screenLocation;
+}
+
+GameObject* Renderer::GetTopGameObject(const std::vector<GameObject*>& goList)
+{
 	const RenderListPair reversedList (_renderList.rbegin(), _renderList.rend());
     for (const auto renderItem : reversedList)
         for (const auto go : goList)

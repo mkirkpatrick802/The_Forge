@@ -49,11 +49,13 @@ std::vector<Component *> GameObject::GetAttachedComponents() {
     return _attachedComponents;
 }
 
-Vector2D GameObject::GetPosition() {
+Vector2D GameObject::GetPosition() const
+{
     return _transform.position;
 }
 
-string GameObject::GetPositionString() {
+string GameObject::GetPositionString() const
+{
     std::stringstream ss;
     ss << _transform.position.x << " " << _transform.position.y;
     return ss.str();

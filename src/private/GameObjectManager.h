@@ -1,13 +1,9 @@
-//
-// Created by mKirkpatrick on 1/30/2024.
-//
-
-#ifndef THE_FORGE_GAMEOBJECTMANAGER_H
-#define THE_FORGE_GAMEOBJECTMANAGER_H
+#pragma once
 
 #include <unordered_map>
 #include <vector>
 #include "ComponentPool.h"
+#include "EventListener.h"
 #include "PlayerController.h"
 #include "GameData.h"
 
@@ -23,12 +19,11 @@ class InputManager;
 
 typedef void (GameObjectManager::*componentFn)(GameObject* go, const json& data);
 
-class GameObjectManager {
-
+class GameObjectManager : public EventListener
+{
 public:
 
     GameObjectManager();
-
     GameObjectManager(Renderer* renderer, InputManager* inputManager);
 
     // File Serialization
@@ -49,6 +44,10 @@ public:
 
     void CleanUp();
     bool SaveGameObjectInfo();
+    void SavePlayerObjectInfo(const GameObject* player);
+
+    // Events
+    void OnEvent(EventType event) override;
 
 	void SpawnPlayer();
 
@@ -73,6 +72,3 @@ private:
     ComponentPool<PlayerController> _playerControllerPool;
 
 };
-
-
-#endif //THE_FORGE_GAMEOBJECTMANAGER_H

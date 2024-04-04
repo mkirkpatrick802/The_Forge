@@ -1,27 +1,17 @@
-//
-// Created by mKirkpatrick on 1/22/2024.
-//
 
 #include "UIManager.h"
 #include "imgui.h"
 #include "backends/imgui_impl_sdl2.h"
 #include "backends/imgui_impl_opengl3.h"
-#include "SDL_opengl.h"
 
 UIManager::UIManager(Renderer& renderer) {
 
-    // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-    // Setup Dear ImGui style
     ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
 
     _renderer = renderer;
 
@@ -31,41 +21,57 @@ UIManager::UIManager(Renderer& renderer) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
-	// Setup Platform/Renderer backends
     ImGui_ImplSDL2_InitForOpenGL(renderer.GetDefaultWindow(), renderer.GetDefaultContext());
     ImGui_ImplOpenGL3_Init(glsl_version);
 
 }
 
-void UIManager::Render(EditorSettings &editorSettings, GameObjectSettings *selectedGameObjectSettings) {
-
+void UIManager::Render(EditorSettings &editorSettings, const GameObjectSettings *selectedGameObjectSettings)
+{
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
     ImGui::Begin("Menu");
 
-    if (ImGui::CollapsingHeader("Editor Settings")) {
+    if (ImGui::CollapsingHeader("Editor Settings")) 
+    {
         if(ImGui::Checkbox("Edit Mode", &editorSettings.editMode))
+        {
             editorSettings.editModeChanged = true;
+            if (!editorSettings.editMode)
+            {
+                _playerSpawned = false;
+            }
+        }
     }
 
-    if (ImGui::CollapsingHeader("Player Settings")) {
+    if (ImGui::CollapsingHeader("Player Settings")) 
+    {
+        if (ImGui::Button("Spawn Player"))
+        {
+            if(!_playerSpawned)
+				Notify(EventType::ET_SpawnPlayer);
 
+            _playerSpawned = true;
+        }
     }
 
-    if(selectedGameObjectSettings != nullptr) {
+    if(selectedGameObjectSettings != nullptr) 
+    {
 
         ImGui::Text(" ");
         ImGui::Text("%s", selectedGameObjectSettings->name->c_str());
 
-        if (ImGui::CollapsingHeader("Game Object Settings")) {
+        if (ImGui::CollapsingHeader("Game Object Settings")) 
+        {
             std::string currentName = *selectedGameObjectSettings->name;
             char buf[256];
             strncpy_s(buf, currentName.c_str(), sizeof(buf));
             buf[sizeof(buf) - 1] = 0;
 
-            if (ImGui::InputText("Name", buf, sizeof(buf))) {
+            if (ImGui::InputText("Name", buf, sizeof(buf))) 
+            {
                 currentName = std::string(buf);
                 *selectedGameObjectSettings->name = currentName;
             }
@@ -96,6 +102,10 @@ bool UIManager::HoveringUI()
 
 void UIManager::ClearFrame()
 {
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
+
     ImGui::Render();
+    ImGui::UpdatePlatformWindows();
 }

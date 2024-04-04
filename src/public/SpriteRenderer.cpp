@@ -4,11 +4,11 @@
 
 #include "SpriteRenderer.h"
 #include "ext/matrix_transform.hpp"
-#include <sstream>
 #include <glm/glm.hpp>
 #include "GameObject.h"
 
 #define STB_IMAGE_IMPLEMENTATION
+#include "Renderer.h"
 #include "stb_image/stb_image.h"
 #include "ext/matrix_clip_space.hpp"
 
@@ -52,10 +52,11 @@ void SpriteRenderer::Init()
 void SpriteRenderer::DrawSprite()
 {
 	const float rotation = 0;
+	const auto position = Vector2D(gameObject->_transform.position.x - _size.x / PIXEL_SCALE, (gameObject->_transform.position.y * -1) - _size.y / PIXEL_SCALE);
 
     _shader.Use();
 	auto model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(gameObject->_transform.position, 0.0f));
+    model = glm::translate(model, glm::vec3(Renderer::ConvertWorldToScreen(position), 0.0f));
 
     model = glm::translate(model, glm::vec3(0.5f * _size.x, 0.5f * _size.y, 0.0f));
     model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -63,11 +64,11 @@ void SpriteRenderer::DrawSprite()
 
     model = glm::scale(model, glm::vec3(_size, 1.0f));
 
-    _texture.Bind();
+    glBindTextureUnit(0, _texture.ID);
 
     _shader.SetMatrix4("model", model);
     _shader.SetMatrix4("projection", _projection);
-    _shader.SetInteger("image", _texture.ID);
+    _shader.SetInteger("image", 0);
 
     glBindVertexArray(_quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -81,7 +82,7 @@ void SpriteRenderer::LoadData(const json &data)
     int width, height, nrChannels;
     unsigned char* textureData = stbi_load(texture.c_str(), &width, &height, &nrChannels, 0);
     _texture.Generate(width, height, textureData);
-    _size = Vector2D(width, height);
+    _size = Vector2D(width * PIXEL_SCALE, height * PIXEL_SCALE);
 
     stbi_image_free(textureData);
 

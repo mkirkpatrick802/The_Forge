@@ -39,6 +39,7 @@ public:
     SDL_Window* GetDefaultWindow() {return _window;}
 
     static Vector2D ConvertScreenToWorld(const Vector2D screenPos);
+    static Vector2D ConvertWorldToScreen(const Vector2D worldPos);
 
 private:
 

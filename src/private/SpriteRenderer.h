@@ -13,6 +13,8 @@
 
 class Renderer;
 
+const int PIXEL_SCALE = 2;
+
 class SpriteRenderer : public Component {
 
     friend class Renderer;

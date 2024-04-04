@@ -12,23 +12,25 @@
 
 #include "Renderer.h"
 
-GameObjectManager::GameObjectManager() : _renderer(nullptr), _inputManager(nullptr) {
+GameObjectManager::GameObjectManager() : _renderer(nullptr), _inputManager(nullptr)
+{
 
 }
 
-GameObjectManager::GameObjectManager(Renderer* renderer, InputManager* inputManager) : _renderer(renderer), _inputManager(inputManager) {
-
+GameObjectManager::GameObjectManager(Renderer* renderer, InputManager* inputManager) : _renderer(renderer), _inputManager(inputManager)
+{
     RegisterComponentFns();
     LoadLevel();
 }
 
-void GameObjectManager::RegisterComponentFns() {
-
+void GameObjectManager::RegisterComponentFns()
+{
     componentCreationMap[SPRITE_RENDERER] = &GameObjectManager::CreateSpriteRenderer;
     componentCreationMap[PLAYER_CONTROLLER] = &GameObjectManager::CreatePlayerController;
 }
 
-void GameObjectManager::LoadLevel() {
+void GameObjectManager::LoadLevel()
+{
 
     std::ifstream file(LEVEL_FILE);
 
@@ -46,7 +48,8 @@ void GameObjectManager::LoadLevel() {
         CreateGameObjectFromJSON(gameObject);
 }
 
-void GameObjectManager::CreateGameObjectFromJSON(const json &gameObject) {
+void GameObjectManager::CreateGameObjectFromJSON(const json &gameObject)
+{
 
     GameObject* go = CreateGameObject();
     if(go == nullptr)
@@ -66,7 +69,8 @@ void GameObjectManager::CreateGameObjectFromJSON(const json &gameObject) {
     go->ObjectCreated();
 }
 
-void GameObjectManager::CreateComponentFromJSON(GameObject* go, const json &component) {
+void GameObjectManager::CreateComponentFromJSON(GameObject* go, const json &component)
+{
 
     int componentID = component["ID"];
     auto it = componentCreationMap.find(componentID);
@@ -76,7 +80,8 @@ void GameObjectManager::CreateComponentFromJSON(GameObject* go, const json &comp
     (this->*componentCreationMap[componentID])(go, component);
 }
 
-GameObject* GameObjectManager::CreateGameObject() {
+GameObject* GameObjectManager::CreateGameObject()
+{
 
     if(_currentGameObjects.size() >= MAX_GAMEOBJECTS)
         return nullptr;
@@ -86,7 +91,8 @@ GameObject* GameObjectManager::CreateGameObject() {
     return newObject;
 }
 
-bool GameObjectManager::AddComponent(GameObject *go, uint32 componentID) {
+bool GameObjectManager::AddComponent(GameObject *go, uint32 componentID)
+{
 
     auto it = componentCreationMap.find(componentID);
     if(it == componentCreationMap.end())
@@ -96,13 +102,15 @@ bool GameObjectManager::AddComponent(GameObject *go, uint32 componentID) {
     return true;
 }
 
-void GameObjectManager::CreateSpriteRenderer(GameObject *go, const json& data = nullptr) {
+void GameObjectManager::CreateSpriteRenderer(GameObject *go, const json& data = nullptr)
+{
     if(_renderer != nullptr)
         _renderer->CreateSpriteRenderer(go, data);
 }
 
 
-void GameObjectManager::CreatePlayerController(GameObject *go, const json &data = nullptr) {
+void GameObjectManager::CreatePlayerController(GameObject *go, const json &data = nullptr)
+{
     PlayerController* playerController = _playerControllerPool.New(go);
     playerController->SetInputManager(_inputManager);
 
@@ -112,11 +120,13 @@ void GameObjectManager::CreatePlayerController(GameObject *go, const json &data 
         playerController->LoadData(data);
 }
 
-void GameObjectManager::Update(float deltaTime) {
+void GameObjectManager::Update(float deltaTime)
+{
     _playerControllerPool.Update(deltaTime);
 }
 
-std::vector<GameObject*>* GameObjectManager::GetClickedObjects(Vector2D mousePos) {
+std::vector<GameObject*>* GameObjectManager::GetClickedObjects(Vector2D mousePos)
+{
 
     auto clickedGameObjects = new std::vector<GameObject*>();
     for (auto go : _currentGameObjects)
@@ -127,20 +137,23 @@ std::vector<GameObject*>* GameObjectManager::GetClickedObjects(Vector2D mousePos
 }
 
 
-void GameObjectManager::ToggleEditorMode(bool inEditorMode) {
+void GameObjectManager::ToggleEditorMode(bool inEditorMode)
+{
 
-    if(inEditorMode) {
+    if(inEditorMode) 
+    {
         CleanUp();
         LoadLevel();
+        return;
     }
-    else {
-        SaveGameObjectInfo();
-    }
+
+	SaveGameObjectInfo();
 }
 
-bool GameObjectManager::SaveGameObjectInfo() {
+bool GameObjectManager::SaveGameObjectInfo()
+{
 
-    printf("Saving Level \n");
+    printf("Saving Level Data! \n");
     std::ifstream in(LEVEL_FILE);
 
     if (!in.is_open()) {
@@ -152,7 +165,15 @@ bool GameObjectManager::SaveGameObjectInfo() {
     in >> levelData;
     in.close();
 
-    for (int i = 0; i < _currentGameObjects.size(); i++) {
+    for (int i = 0; i < _currentGameObjects.size(); i++) 
+    {
+        // TODO: Clean this up
+        if (_currentGameObjects[i]->GetComponent<PlayerController>())
+        {
+            SavePlayerObjectInfo(_currentGameObjects[i]);
+            continue;
+        }
+
         levelData["GameObjects"][i]["Name"] = _currentGameObjects[i]->_name;
         levelData["GameObjects"][i]["Position"] = _currentGameObjects[i]->GetPositionString();
     }
@@ -161,7 +182,43 @@ bool GameObjectManager::SaveGameObjectInfo() {
     out << std::setw(2) << levelData << std::endl;
     out.close();
 
+    printf("Saved Level Data! \n");
     return true;
+}
+
+void GameObjectManager::SavePlayerObjectInfo(const GameObject* player)
+{
+    printf("Saving Player Data! \n");
+    std::ifstream in(PLAYER_FILE);
+
+    if (!in.is_open()) 
+    {
+        std::cerr << "Could not open file for reading!\n";
+        assert(0);
+    }
+
+    json playerData;
+    in >> playerData;
+    in.close();
+
+    playerData["Name"] = player->_name;
+    playerData["Position"] = player->GetPositionString();
+
+    std::ofstream out(PLAYER_FILE);
+    out << std::setw(2) << playerData << std::endl;
+    out.close();
+
+    printf("Saved Player Data! \n");
+}
+
+void GameObjectManager::OnEvent(const EventType event)
+{
+    switch(event)
+    {
+    case EventType::ET_SpawnPlayer:
+        SpawnPlayer();
+	    break;
+    }
 }
 
 void GameObjectManager::SpawnPlayer()

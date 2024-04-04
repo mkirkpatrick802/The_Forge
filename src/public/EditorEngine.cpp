@@ -15,6 +15,8 @@
 EditorEngine::EditorEngine(Renderer &renderer, InputManager &inputManager, UIManager &uiManager) : Engine(renderer, inputManager) {
     _uiManager = &uiManager;
     _selectedGameObjectSettings = nullptr;
+
+    uiManager.Attach(_gameObjectManager);
 }
 
 void EditorEngine::GameLoop() {
@@ -32,7 +34,7 @@ void EditorEngine::GameLoop() {
                 printf("%f FPS \n", 1000 / deltaTime);
 
             // Check if player is clicking game objects
-            //ClickObject();
+            ClickObject();
 
             // Update game objects if game is not in editor mode
             if(!_editorSettings.editMode)
@@ -63,11 +65,11 @@ void EditorEngine::ClickObject() {
     if(_inputManager->GetButtonDown(SDL_BUTTON_LEFT, mouseClickPosition) && _editorSettings.editMode) {
 
         if(_uiManager->HoveringUI()) return;
-        mouseClickPosition = Renderer::ConvertScreenToWorld(mouseClickPosition);
-        auto clickedObjects = _gameObjectManager->GetClickedObjects(mouseClickPosition);
+    	mouseClickPosition = Renderer::ConvertScreenToWorld(mouseClickPosition);
+        const auto clickedObjects = _gameObjectManager->GetClickedObjects(mouseClickPosition);
         if (!clickedObjects->empty()) {
 
-            auto go = _renderer->GetTopGameObject(  *clickedObjects);
+            auto go = _renderer->GetTopGameObject(*clickedObjects);
             if(_selectedGameObjectSettings != &go->settings)
                 UIManager::ClearFrame();
 
@@ -78,7 +80,8 @@ void EditorEngine::ClickObject() {
     }
 }
 
-void EditorEngine::CleanUp() {
+void EditorEngine::CleanUp()
+{
     if(_editorSettings.editMode)
         _gameObjectManager->SaveGameObjectInfo();
 

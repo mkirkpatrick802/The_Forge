@@ -32,7 +32,6 @@ find_package(GameNetworkingSockets CONFIG REQUIRED)
 
 # add executable
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/public/*.cpp")
-file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "src/private/*.hpp")
 
 add_executable(Engine ${SOURCES})
 

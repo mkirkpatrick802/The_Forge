@@ -32,8 +32,8 @@ public:
     template <typename T>
     T* GetComponent();
 
-    Vector2D GetPosition();
-    string GetPositionString();
+    Vector2D GetPosition() const;
+    string GetPositionString() const;
 
     void SetPosition(Vector2D newPosition);
 

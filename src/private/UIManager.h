@@ -1,32 +1,27 @@
-//
-// Created by mKirkpatrick on 1/22/2024.
-//
-
-#ifndef THE_FORGE_UIMANAGER_H
-#define THE_FORGE_UIMANAGER_H
+#pragma once
 
 #include "Renderer.h"
 #include "UIStructs.h"
+#include "EventDispatcher.h"
 
-class UIManager {
-
+class UIManager : public EventDispatcher
+{
 public:
 
     UIManager(Renderer& renderer);
 
     bool HoveringUI();
 
-    void Render(EditorSettings &editorSettings, GameObjectSettings* selectedGameObjectSettings);
+    void Render(EditorSettings &editorSettings, const GameObjectSettings* selectedGameObjectSettings);
     void CleanUp();
 
     static void ClearFrame();
 
-protected:
 private:
 
     Renderer _renderer;
 
+    // Conditional Logic
+    bool _playerSpawned = false;
+
 };
-
-
-#endif //THE_FORGE_UIMANAGER_H

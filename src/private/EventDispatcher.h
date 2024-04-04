@@ -3,20 +3,24 @@
 
 class EventDispatcher
 {
+
 public:
 
-    void Attach(EventListener* listener) {
+    void Attach(EventListener* listener) 
+    {
         listeners.push_back(listener);
     }
 
-    void Detach(EventListener* listener) {
-        listeners.erase(std::remove(listeners.begin(), listeners.end(), listener), listeners.end());
+    void Detach(EventListener* listener) 
+    {
+        std::erase(listeners, listener);
     }
 
-    void Notify(EventType event) {
-        for (EventListener* listener : listeners) {
+    void Notify(EventType event) const
+    {
+        for (EventListener* listener : listeners) 
             listener->OnEvent(event);
-        }
+        
     }
 
 

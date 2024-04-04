@@ -6,7 +6,8 @@ enum class EventType {
 
 class EventListener 
 {
-protected:
+public:
 
-    virtual void OnEvent(EventType event) = 0;
+	virtual ~EventListener() = default;
+	virtual void OnEvent(EventType event) = 0;
 };
