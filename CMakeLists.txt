@@ -35,7 +35,7 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/public/*.cpp")
 
 add_executable(Engine ${SOURCES})
 
-target_include_directories(Engine PRIVATE "src/private" "src/libs")
+target_include_directories(Engine PRIVATE "src/private" "src/private/events" "src/libs")
 
 find_package(OpenGL REQUIRED)
 

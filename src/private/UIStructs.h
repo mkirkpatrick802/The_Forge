@@ -33,4 +33,20 @@ struct Details
 {
     EditorSettings editorSettings;
     GameObjectSettings* gameObjectSettings;
+
+    Details& operator=(const Details& other)
+	{
+        if (this != &other) 
+        {
+            editorSettings = other.editorSettings;
+
+            delete gameObjectSettings;
+            if (other.gameObjectSettings)
+            {
+                gameObjectSettings = new GameObjectSettings(*other.gameObjectSettings);
+            }
+        }
+        return *this;
+    }
+
 };

@@ -1,6 +1,7 @@
 #include "EditorUIWindow.h"
 
-#include "EventListener.h"
+#include "SpawnPlayerEvent.h"
+#include "DetailsChangedEvent.h"
 #include "imgui.h"
 
 void EditorUIWindow::Render()
@@ -11,6 +12,10 @@ void EditorUIWindow::Render()
 	{
 		if (ImGui::Checkbox("Edit Mode", &_details.editorSettings.editMode))
 		{
+			const auto event = CreateEvent<DetailsChangedEvent>();
+			event->currentDetails = _details;
+			Notify(event);
+
 			if (!_details.editorSettings.editMode)
 			{
 				_playerSpawned = false;
@@ -23,7 +28,10 @@ void EditorUIWindow::Render()
 		if (ImGui::Button("Spawn Player"))
 		{
 			if (!_playerSpawned)
-				Notify(EventType::ET_SpawnPlayer);
+			{
+				const auto event = CreateEvent<SpawnPlayerEvent>();
+				Notify(event);
+			}
 
 			_playerSpawned = true;
 		}

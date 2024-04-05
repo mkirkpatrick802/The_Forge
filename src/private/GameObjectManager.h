@@ -23,7 +23,6 @@ class GameObjectManager : public EventListener
 {
 public:
 
-    GameObjectManager();
     GameObjectManager(Renderer* renderer, InputManager* inputManager);
 
     // File Serialization
@@ -47,7 +46,7 @@ public:
     void SavePlayerObjectInfo(const GameObject* player);
 
     // Events
-    void OnEvent(EventType event) override;
+    virtual void OnEvent(const Event* event) override;
 
 	void SpawnPlayer();
 

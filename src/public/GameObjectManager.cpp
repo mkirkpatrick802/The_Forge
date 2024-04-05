@@ -12,15 +12,12 @@
 
 #include "Renderer.h"
 
-GameObjectManager::GameObjectManager() : _renderer(nullptr), _inputManager(nullptr)
-{
-
-}
-
 GameObjectManager::GameObjectManager(Renderer* renderer, InputManager* inputManager) : _renderer(renderer), _inputManager(inputManager)
 {
     RegisterComponentFns();
     LoadLevel();
+
+    SubscribeToEvent(EventType::ET_SpawnPlayer);
 }
 
 void GameObjectManager::RegisterComponentFns()
@@ -211,13 +208,17 @@ void GameObjectManager::SavePlayerObjectInfo(const GameObject* player)
     printf("Saved Player Data! \n");
 }
 
-void GameObjectManager::OnEvent(const EventType event)
+void GameObjectManager::OnEvent(const Event* event)
 {
-    switch(event)
+    switch (event->GetEventType())
     {
+    case EventType::ET_NULL:
+        break;
     case EventType::ET_SpawnPlayer:
         SpawnPlayer();
-	    break;
+        break;
+	case EventType::ET_DetailsChanged:
+		break;
     }
 }
 

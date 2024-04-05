@@ -82,7 +82,7 @@ void EditorEngine::ClickObject()
 	}
 }
 
-void EditorEngine::OnEvent(EventType event)
+void EditorEngine::OnEvent(const Event* event)
 {
 
 }
