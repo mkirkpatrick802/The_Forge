@@ -79,6 +79,8 @@ void Client::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 
 	case k_ESteamNetworkingConnectionState_Connected:
 		isConnected = true;
+		_playerID = info->m_hConn;
+
 		break;
 
 	default:

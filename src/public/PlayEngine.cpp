@@ -31,13 +31,13 @@ void PlayEngine::GameLoop()
                 printf("%f FPS \n", 1000 / deltaTime);
 
             _netcode->Update();
-            //_gameObjectManager->Update(deltaTime);
+            _gameObjectManager->Update(deltaTime);
 
             // Render game objects
-            //_renderer->Render();
+            _renderer->Render();
 
             // End input poll
-            //_inputManager->EndProcessInputs();
+            _inputManager->EndProcessInputs();
         }
     }
 }

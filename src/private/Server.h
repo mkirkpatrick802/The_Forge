@@ -4,6 +4,7 @@
 
 #include "NetCode.h"
 
+class ByteStream;
 class Client;
 
 class Server : public NetCode
@@ -25,8 +26,11 @@ private:
 	void PollLocalUserInput();
 
 	void SetClientNickname(HSteamNetConnection connection, const char* nickname);
+
 	void SendStringToClient(HSteamNetConnection connection, const char* str);
 	void SendStringToAllClients(const char* str, HSteamNetConnection except = k_HSteamNetConnection_Invalid);
+
+	void SendByteSteamToAllClients(const ByteStream byteStream);
 
 private:
 

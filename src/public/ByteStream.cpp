@@ -3,3 +3,13 @@
 //
 
 #include "ByteStream.h"
+
+void ByteStream::WriteGSM(GSM_Server message)
+{
+
+}
+
+void ByteStream::WriteGSM(GSM_Client message)
+{
+
+}

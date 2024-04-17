@@ -1,9 +1,12 @@
 ﻿#pragma once
 #include "NetCode.h"
+#include "PlayerController.h"
 
 class Client : public NetCode
 {
 public:
+
+	friend PlayerController;
 
 	void Start() override;
 	void OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t* info) override;
@@ -19,6 +22,7 @@ public:
 
 private:
 
+	uint32 _playerID;
 	HSteamNetConnection _connection;
 
 };

@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <steam/isteamnetworkingsockets.h>
 
+#include "ByteStream.h"
 #include "Client.h"
 
 Server::Server()
@@ -112,6 +113,8 @@ void Server::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 
 			// Send a message so everybody else knows what happened
 			SendStringToAllClients(temp);
+
+			//TODO: Remove player game object from clients world
 		}
 		else
 		{
@@ -188,6 +191,10 @@ void Server::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 		// Add them to the client list, using std::map wacky syntax
 		_mapClients[info->m_hConn];
 		SetClientNickname(info->m_hConn, nick);
+
+		// TODO: Add player game object to clients world
+
+
 		break;
 	}
 
@@ -223,5 +230,13 @@ void Server::SendStringToAllClients(const char* str, HSteamNetConnection except)
 	{
 		if (clients.first != except)
 			SendStringToClient(clients.first, str);
+	}
+}
+
+void Server::SendByteSteamToAllClients(const ByteStream byteStream)
+{
+	for (const auto& clients : _mapClients)
+	{
+		SendStringToClient(clients.first, byteStream.GetByteStream());
 	}
 }

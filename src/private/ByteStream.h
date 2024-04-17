@@ -1,14 +1,16 @@
-//
-// Created by mKirkpatrick on 2/24/2024.
-//
+#pragma once
+#include "NetcodeUtilites.h"
 
-#ifndef THE_FORGE_BYTESTREAM_H
-#define THE_FORGE_BYTESTREAM_H
+class ByteStream
+{
+public:
 
+	void WriteGSM(GSM_Server message);
+	void WriteGSM(GSM_Client message);
 
-class ByteStream {
+	char* GetByteStream() const { return buffer; }
+
+private:
+	char* buffer = nullptr;
 
 };
-
-
-#endif //THE_FORGE_BYTESTREAM_H
