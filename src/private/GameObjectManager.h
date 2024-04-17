@@ -46,7 +46,7 @@ public:
     void SavePlayerObjectInfo(const GameObject* player);
 
     // Events
-    virtual void OnEvent(const Event* event) override;
+    virtual void OnEvent(Event* event) override;
 
 	void SpawnPlayer();
 

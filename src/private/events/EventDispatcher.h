@@ -24,7 +24,7 @@ public:
     std::enable_if_t<std::is_base_of_v<Event, T>, T*>
     CreateEvent();
 
-    void Notify(const Event* event)
+    void Notify(Event* event)
     {
         for (EventListener* listener : listeners)
             if (listener->IsSubscribedToEvent(event->GetEventType()))

@@ -3,6 +3,8 @@
 #include <SDL_mouse.h>
 #include <SDL_timer.h>
 #include <SDL_scancode.h>
+
+#include "DetailsChangedEvent.h"
 #include "GameObject.h"
 #include "InputManager.h"
 #include "GameObjectManager.h"
@@ -12,6 +14,8 @@ EditorEngine::EditorEngine(Renderer& renderer, InputManager& inputManager) :
 	Engine(renderer, inputManager)
 {
 	_editorUI.Attach(_gameObjectManager);
+	_editorUI.Attach(this);
+
 	_uiManager->AddUIWindow(&_editorUI);
 }
 
@@ -46,12 +50,6 @@ void EditorEngine::GameLoop()
 
 			// End input poll
 			_inputManager->EndProcessInputs();
-
-			/*if (_editorSettings.editModeChanged) 
-			{
-				_editorSettings.editModeChanged = false;
-				_gameObjectManager->ToggleEditorMode(_editorSettings.editMode);
-			}*/
 		}
 	}
 }
@@ -82,9 +80,18 @@ void EditorEngine::ClickObject()
 	}
 }
 
-void EditorEngine::OnEvent(const Event* event)
+void EditorEngine::OnEvent(Event* event)
 {
-
+	switch(event->GetEventType())
+	{
+	case EventType::ET_NULL:
+		break;
+	case EventType::ET_SpawnPlayer:
+		break;
+	case EventType::ET_DetailsChanged:
+		_details = static_cast<DetailsChangedEvent*>(event)->currentDetails;
+		break;
+	}
 }
 
 void EditorEngine::CleanUp()

@@ -17,7 +17,7 @@ public:
 
     void ClickObject();
 
-    virtual void OnEvent(const Event* event) override;
+    virtual void OnEvent(Event* event) override;
 
 private:
 

@@ -42,7 +42,6 @@ int main(int argc, char* argv[]) {
 
 void StartingGameOptions()
 {
-
     printf("Build Play Mode? \n");
     std::cin >> buildPlayMode;
 
@@ -60,6 +59,7 @@ void StartingGameOptions()
         else
             netcode = new Client();
 
+        // Start Client
         if(!isServer)
         {
 	        std::string address;
@@ -70,19 +70,19 @@ void StartingGameOptions()
                 address = "127.0.0.1";
 
             netcode->SetIPv4Address(address);
-        }
+            netcode->Start();
 
-        netcode->Start();
-
-        if (const auto client = dynamic_cast<Client*>(netcode))
-        {
-            printf("Connecting To Server... \n");
-            while (!client->isConnected)
+            while (!static_cast<Client*>(netcode)->isConnected)
             {
-                client->Update();
+                netcode->Update();
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
+
+            return;
         }
+
+        // Start Server
+    	netcode->Start();
     }
 }
 
@@ -97,6 +97,7 @@ void GameplayLoop()
 
         EditorEngine engine = EditorEngine(renderer, inputManager);
         engine.GameLoop();
+        engine.CleanUp();
     }
     else
     {
@@ -104,5 +105,6 @@ void GameplayLoop()
 
         PlayEngine engine = PlayEngine(renderer, inputManager, netcode);
         engine.GameLoop();
+        engine.CleanUp();
     }
 }

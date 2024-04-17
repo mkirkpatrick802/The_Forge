@@ -201,6 +201,11 @@ void Server::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 	}
 }
 
+bool Server::IsServerClientConnected() const
+{
+	return _client->isConnected;
+}
+
 void Server::SetClientNickname(HSteamNetConnection connection, const char* nickname)
 {
 	_mapClients[connection].nickname = nickname;

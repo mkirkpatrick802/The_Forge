@@ -27,7 +27,7 @@ void EditorUIWindow::Render()
 	{
 		if (ImGui::Button("Spawn Player"))
 		{
-			if (!_playerSpawned)
+			if (!_playerSpawned && _details.editorSettings.editMode)
 			{
 				const auto event = CreateEvent<SpawnPlayerEvent>();
 				Notify(event);

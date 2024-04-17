@@ -22,7 +22,7 @@ public:
 	}
 
 	virtual ~EventListener() = default;
-	virtual void OnEvent(const Event* event) = 0;
+	virtual void OnEvent(Event* event) = 0;
 
 private:
 

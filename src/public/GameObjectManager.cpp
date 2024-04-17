@@ -10,6 +10,7 @@
 #include <fstream>
 #include <sstream>
 
+#include "DetailsChangedEvent.h"
 #include "Renderer.h"
 
 GameObjectManager::GameObjectManager(Renderer* renderer, InputManager* inputManager) : _renderer(renderer), _inputManager(inputManager)
@@ -18,6 +19,7 @@ GameObjectManager::GameObjectManager(Renderer* renderer, InputManager* inputMana
     LoadLevel();
 
     SubscribeToEvent(EventType::ET_SpawnPlayer);
+    SubscribeToEvent(EventType::ET_DetailsChanged);
 }
 
 void GameObjectManager::RegisterComponentFns()
@@ -208,7 +210,7 @@ void GameObjectManager::SavePlayerObjectInfo(const GameObject* player)
     printf("Saved Player Data! \n");
 }
 
-void GameObjectManager::OnEvent(const Event* event)
+void GameObjectManager::OnEvent(Event* event)
 {
     switch (event->GetEventType())
     {
@@ -218,6 +220,7 @@ void GameObjectManager::OnEvent(const Event* event)
         SpawnPlayer();
         break;
 	case EventType::ET_DetailsChanged:
+        ToggleEditorMode(static_cast<DetailsChangedEvent*>(event)->currentDetails.editorSettings.editMode);
 		break;
     }
 }
@@ -238,9 +241,9 @@ void GameObjectManager::SpawnPlayer()
 	CreateGameObjectFromJSON(playerData);
 }
 
-void GameObjectManager::CleanUp() {
-
-    uint32 size = _currentGameObjects.size();
+void GameObjectManager::CleanUp()
+{
+    const uint32 size = _currentGameObjects.size();
     for (int i = 0; i < size; ++i)
     {
         if(PlayerController* controller = _currentGameObjects[i]->GetComponent<PlayerController>())

@@ -17,6 +17,8 @@ public:
 
 	void OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t* info) override;
 
+	bool IsServerClientConnected() const;
+
 private:
 
 	void PollIncomingMessages() override;
