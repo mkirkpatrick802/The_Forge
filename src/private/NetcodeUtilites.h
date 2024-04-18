@@ -2,16 +2,20 @@
 #include "GameData.h"
 
 // Game State Messages from the server to clients
-enum class GSM_Server : uint8
+enum class GSM_Server : char
 {
 	GSM_SpawnPlayer = 1,
 };
 
 // Game State Messages from the client to server
-enum class GSM_Client : uint8
+enum class GSM_Client : char
 {
 	GSM_MovementInput = 1,
 };
+
+const char BYTE_STREAM_CODE = CHAR_MAX;
+const char SERVER_MESSAGE = 0;
+const char CLIENT_MESSAGE = 1;
 
 class NetcodeUtilites
 {

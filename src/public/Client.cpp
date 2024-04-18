@@ -4,7 +4,9 @@
 #include <cstdio>
 #include <string>
 #include <steam/isteamnetworkingsockets.h>
-#include <steam/isteamnetworkingutils.h>
+
+#include "NetcodeUtilites.h"
+#include "SpawnPlayerEvent.h"
 
 void Client::Start()
 {
@@ -88,7 +90,7 @@ void Client::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 	}
 }
 
-// Receive ByteStream From Server
+// Receive Message From Server
 void Client::PollIncomingMessages()
 {
 	ISteamNetworkingMessage* pIncomingMsg = nullptr;
@@ -98,10 +100,31 @@ void Client::PollIncomingMessages()
 	if (numMsgs < 0)
 		FatalError("Error checking for messages");
 
-	// Just echo anything we get from the server
-	fwrite(pIncomingMsg->m_pData, 1, pIncomingMsg->m_cbSize, stdout);
-	fputc('\n', stdout);
+	// Check if the message is a ByteStream
+	if(auto message = static_cast<char*>(pIncomingMsg->m_pData); message[0] == BYTE_STREAM_CODE)
+	{
+		ReadByteStream(message);
+	}
+	else
+	{
+		// Just echo anything we get from the server
+		fwrite(pIncomingMsg->m_pData, 1, pIncomingMsg->m_cbSize, stdout);
+		fputc('\n', stdout);
+	}
 
 	// We don't need this anymore.
 	pIncomingMsg->Release();
+}
+
+void Client::ReadByteStream(const char* buffer)
+{
+	if (buffer[1] != SERVER_MESSAGE) { printf("Invalid Message Received!! \n"); return; }
+
+	switch(static_cast<GSM_Server>(buffer[2]))
+	{
+	case GSM_Server::GSM_SpawnPlayer:
+		const auto event = CreateEvent<SpawnPlayerEvent>();
+		Notify(event);
+		break;
+	}
 }

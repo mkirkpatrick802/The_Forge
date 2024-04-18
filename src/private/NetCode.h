@@ -12,8 +12,8 @@ class ISteamNetworkingSockets;
 
 constexpr uint16 DEFAULT_SERVER_PORT = 11111;
 
-class NetCode {
-
+class NetCode
+{
 public:
 
 	NetCode();
@@ -36,6 +36,8 @@ protected:
 	virtual void OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t* info) = 0;
 
 	virtual void PollIncomingMessages() = 0;
+
+	virtual void ReadByteStream(const char* buffer) = 0;
 
 private:
 

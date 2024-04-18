@@ -1,16 +1,9 @@
-//
-// Created by mKirkpatrick on 2/27/2024.
-//
-
-#ifndef THE_FORGE_PLAYENGINE_H
-#define THE_FORGE_PLAYENGINE_H
-
-
+#pragma once
 #include "Engine.h"
 
 class NetCode;
-
-class PlayEngine : public Engine {
+class PlayEngine : public Engine
+{
 
 public:
 
@@ -25,6 +18,3 @@ private:
     NetCode* _netcode;
 
 };
-
-
-#endif //THE_FORGE_PLAYENGINE_H

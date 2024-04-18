@@ -8,9 +8,6 @@ public:
 	void WriteGSM(GSM_Server message);
 	void WriteGSM(GSM_Client message);
 
-	char* GetByteStream() const { return buffer; }
-
-private:
-	char* buffer = nullptr;
-
+	char buffer[5];
+	int size;
 };

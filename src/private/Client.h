@@ -1,8 +1,10 @@
 ﻿#pragma once
+
+#include "EventDispatcher.h"
 #include "NetCode.h"
 #include "PlayerController.h"
 
-class Client : public NetCode
+class Client : public NetCode, public EventDispatcher
 {
 public:
 
@@ -14,6 +16,7 @@ public:
 protected:
 
 	void PollIncomingMessages() override;
+	void ReadByteStream(const char* buffer) override;
 
 public:
 

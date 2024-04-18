@@ -53,6 +53,11 @@ void Server::PollIncomingMessages()
 
 }
 
+void Server::ReadByteStream(const char* buffer)
+{
+
+}
+
 // Read Command
 void Server::PollLocalUserInput()
 {
@@ -192,9 +197,10 @@ void Server::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 		_mapClients[info->m_hConn];
 		SetClientNickname(info->m_hConn, nick);
 
-		// TODO: Add player game object to clients world
-
-
+		// Create a Bytestream to tell clients to spawn a player
+		ByteStream stream;
+		stream.WriteGSM(GSM_Server::GSM_SpawnPlayer);
+		SendByteSteamToAllClients(stream);
 		break;
 	}
 
@@ -219,9 +225,14 @@ void Server::SetClientNickname(HSteamNetConnection connection, const char* nickn
 	steamInterface->SetConnectionName(connection, nickname);
 }
 
-void Server::SendStringToClient(HSteamNetConnection connection, const char* str)
+void Server::SendStringToClient(HSteamNetConnection connection, const char* str) const
 {
-	steamInterface->SendMessageToConnection(connection, str, (uint32)strlen(str), k_nSteamNetworkingSend_Reliable, nullptr);
+	steamInterface->SendMessageToConnection(connection, str, strlen(str), k_nSteamNetworkingSend_Reliable, nullptr);
+}
+
+void Server::SendStringToClient(HSteamNetConnection connection, const char* str, const int size) const
+{
+	steamInterface->SendMessageToConnection(connection, str, size, k_nSteamNetworkingSend_Reliable, nullptr);
 }
 
 void Server::SendStringToAllClients(const char* str, HSteamNetConnection except)
@@ -233,10 +244,10 @@ void Server::SendStringToAllClients(const char* str, HSteamNetConnection except)
 	}
 }
 
-void Server::SendByteSteamToAllClients(const ByteStream byteStream)
+void Server::SendByteSteamToAllClients(const ByteStream& byteStream)
 {
 	for (const auto& clients : _mapClients)
 	{
-		SendStringToClient(clients.first, byteStream.GetByteStream());
+		SendStringToClient(clients.first, byteStream.buffer, byteStream.size);
 	}
 }

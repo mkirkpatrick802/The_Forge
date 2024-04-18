@@ -20,6 +20,8 @@ public:
 
 	bool IsServerClientConnected() const;
 
+	Client* GetClient() const { return _client; }
+
 private:
 
 	void PollIncomingMessages() override;
@@ -27,10 +29,15 @@ private:
 
 	void SetClientNickname(HSteamNetConnection connection, const char* nickname);
 
-	void SendStringToClient(HSteamNetConnection connection, const char* str);
+	void SendStringToClient(HSteamNetConnection connection, const char* str) const;
+	void SendStringToClient(HSteamNetConnection connection, const char* str, int size) const;
 	void SendStringToAllClients(const char* str, HSteamNetConnection except = k_HSteamNetConnection_Invalid);
 
-	void SendByteSteamToAllClients(const ByteStream byteStream);
+	void SendByteSteamToAllClients(const ByteStream& byteStream);
+
+protected:
+
+	void ReadByteStream(const char* buffer) override;
 
 private:
 

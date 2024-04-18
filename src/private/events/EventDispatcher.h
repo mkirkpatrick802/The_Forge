@@ -1,45 +1,31 @@
 #pragma once
-#include "EventListener.h"
+#include <type_traits>
+#include <vector>
 
 /*
  *  Inherit this class if you wish to notify other class of events, objects that inherit the event listener class need attached to this class to be able to receive events
  */
+
+class Event;
+class EventListener;
+
 class EventDispatcher
 {
 public:
 
 	virtual ~EventDispatcher() = default;
 
-	void Attach(EventListener* listener) 
-    {
-        listeners.push_back(listener);
-    }
+    void Attach(EventListener* listener);
 
-    void Detach(EventListener* listener) 
-    {
-        std::erase(listeners, listener);
-    }
+    void Detach(EventListener* listener);
+
+    void Notify(Event* event);
 
     template<typename T>
     std::enable_if_t<std::is_base_of_v<Event, T>, T*>
-    CreateEvent();
+	CreateEvent();
 
-    void Notify(Event* event)
-    {
-        for (EventListener* listener : listeners)
-            if (listener->IsSubscribedToEvent(event->GetEventType()))
-				listener->OnEvent(event);
-
-        CleanActiveEvents();
-    }
-
-    void CleanActiveEvents()
-    {
-        for (const auto event : activeEvents) 
-            delete event;
-
-        activeEvents.clear();
-    }
+    void CleanActiveEvents();
 
 protected:
 

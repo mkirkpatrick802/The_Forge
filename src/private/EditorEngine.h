@@ -2,6 +2,7 @@
 
 #include "EditorUIWindow.h"
 #include "Engine.h"
+#include "EventListener.h"
 #include "UIStructs.h"
 
 class UIManager;
