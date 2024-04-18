@@ -17,22 +17,23 @@ GameObject::GameObject() {
     settings.position = &_transform.position;
 }
 
-GameObject::GameObject(float x, float y) {
-
+GameObject::GameObject(float x, float y)
+{
     _transform = Transform(x, y);
 }
 
-Component* GameObject::AddComponent(Component* component) {
-
+Component* GameObject::AddComponent(Component* component)
+{
     _attachedComponents.push_back(component);
     return component;
 }
 
-void GameObject::ObjectCreated() {
-
-    for (auto componentSetting : settings.componentSettings) {
-
-    }
+void GameObject::ObjectCreated()
+{
+	for (auto component : _attachedComponents)
+	{
+        component->BeginPlay();
+	}
 }
 
 bool GameObject::IsClicked(Vector2D mousePos) {

@@ -5,8 +5,12 @@
 #include <string>
 #include <steam/isteamnetworkingsockets.h>
 
+#include "ByteStream.h"
 #include "NetcodeUtilites.h"
 #include "SpawnPlayerEvent.h"
+
+HSteamNetConnection Client::_connection = k_HSteamNetConnection_Invalid;
+bool Client::isHostClient = false;
 
 void Client::Start()
 {
@@ -90,6 +94,10 @@ void Client::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 	}
 }
 
+/*
+ *		Receive Message
+ */
+
 // Receive Message From Server
 void Client::PollIncomingMessages()
 {
@@ -127,4 +135,16 @@ void Client::ReadByteStream(const char* buffer)
 		Notify(event);
 		break;
 	}
+}
+
+/*
+ *		Send Message
+ */
+
+void Client::SendByteStreamToServer(const ByteStream& message)
+{
+	if (_connection == k_HSteamNetConnection_Invalid)
+		assert(1);
+
+	steamInterface->SendMessageToConnection(_connection, message.buffer, message.size, k_nSteamNetworkingSend_Reliable, nullptr);
 }

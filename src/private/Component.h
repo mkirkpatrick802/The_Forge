@@ -14,14 +14,20 @@
 using json = nlohmann::json;
 
 class GameObject;
-class Component {
-
+class Component
+{
 public:
 
+    virtual void BeginPlay();
     virtual void LoadData(const json& data) = 0;
 
     GameObject* gameObject;
 
 };
+
+inline void Component::BeginPlay()
+{
+
+}
 
 #endif //THE_FORGE_COMPONENT_H

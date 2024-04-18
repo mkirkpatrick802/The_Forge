@@ -50,7 +50,7 @@ public:
 protected:
 
 	SteamNetworkingConfigValue_t configValue;
-	ISteamNetworkingSockets* steamInterface;
+	static ISteamNetworkingSockets* steamInterface;
 
 private:
 

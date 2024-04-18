@@ -13,6 +13,7 @@
 SteamNetworkingMicroseconds g_logTimeZero;
 
 NetCode* NetCode::_callbackInstance = nullptr;
+ISteamNetworkingSockets* NetCode::steamInterface = nullptr;
 
 NetCode::NetCode()
 {

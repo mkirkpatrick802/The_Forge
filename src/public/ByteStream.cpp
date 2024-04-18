@@ -9,13 +9,7 @@ void ByteStream::WriteGSM(const GSM_Server message)
 {
 	buffer[0] = BYTE_STREAM_CODE;
 	buffer[1] = SERVER_MESSAGE;
-
-	switch (message)
-	{
-	case GSM_Server::GSM_SpawnPlayer:
-		buffer[2] = static_cast<char>(GSM_Server::GSM_SpawnPlayer);
-		break;
-	}
+	buffer[2] = (char)message;
 
 	size = std::size(buffer);
 }
@@ -25,11 +19,7 @@ void ByteStream::WriteGSM(const GSM_Client message)
 {
 	buffer[0] = BYTE_STREAM_CODE;
 	buffer[1] = CLIENT_MESSAGE;
-
-	switch (message)
-	{
-
-	}
+	buffer[2] = (char)message;
 
 	size = std::size(buffer);
 }

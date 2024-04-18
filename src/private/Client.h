@@ -2,16 +2,18 @@
 
 #include "EventDispatcher.h"
 #include "NetCode.h"
-#include "PlayerController.h"
+
+class ByteStream;
 
 class Client : public NetCode, public EventDispatcher
 {
 public:
 
-	friend PlayerController;
-
 	void Start() override;
 	void OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t* info) override;
+
+	static void SendByteStreamToServer(const ByteStream& message);
+	static bool IsHostClient() { return isHostClient; }
 
 protected:
 
@@ -20,12 +22,12 @@ protected:
 
 public:
 
-	bool isHostClient = false;
+	static bool isHostClient;
 	bool isConnected = false;
 
 private:
 
 	uint32 _playerID;
-	HSteamNetConnection _connection;
+	static HSteamNetConnection _connection;
 
 };

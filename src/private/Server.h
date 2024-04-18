@@ -24,8 +24,7 @@ public:
 
 private:
 
-	void PollIncomingMessages() override;
-	void PollLocalUserInput();
+	virtual void PollIncomingMessages() override;
 
 	void SetClientNickname(HSteamNetConnection connection, const char* nickname);
 
@@ -37,7 +36,7 @@ private:
 
 protected:
 
-	void ReadByteStream(const char* buffer) override;
+	virtual void ReadByteStream(const char* buffer) override;
 
 private:
 

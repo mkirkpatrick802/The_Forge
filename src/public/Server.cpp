@@ -1,4 +1,4 @@
-﻿#include "Server.h"
+﻿  #include "Server.h"
 
 #include <cassert>
 #include <cstdio>
@@ -42,26 +42,40 @@ void Server::Update()
 {
 	NetCode::Update();
 
-	PollLocalUserInput();
-
 	_client->Update();
 }
 
 // Read Message From Clients
 void Server::PollIncomingMessages()
 {
+	for (const auto& client : _mapClients)
+	{
+		ISteamNetworkingMessage* pIncomingMsg = nullptr;
+		int numMsgs = steamInterface->ReceiveMessagesOnConnection(client.first, &pIncomingMsg, 1);
+		if (numMsgs == 0)
+			return;
+		if (numMsgs < 0)
+			FatalError("Error checking for messages");
 
+		if (auto message = static_cast<char*>(pIncomingMsg->m_pData); message[0] == BYTE_STREAM_CODE)
+			ReadByteStream(message);
+	}
 }
 
 void Server::ReadByteStream(const char* buffer)
 {
+	if (buffer[1] != CLIENT_MESSAGE) { printf("Invalid Message Received!! \n"); return; }
 
-}
+	switch((GSM_Client)buffer[2])
+	{
+	case GSM_Client::GSM_SyncWorld:
 
-// Read Command
-void Server::PollLocalUserInput()
-{
+		printf("Sync World \n");
 
+		break;
+	case GSM_Client::GSM_MovementInput:
+		break;
+	}
 }
 
 void Server::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t* info)
@@ -141,7 +155,7 @@ void Server::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 		// This must be a new connection
 		assert(_mapClients.find(info->m_hConn) == _mapClients.end());
 
-		printf("Connection request from %s", info->m_info.m_szConnectionDescription);
+		printf("Connection request from %s \n", info->m_info.m_szConnectionDescription);
 
 		// A client is attempting to connect
 		// Try to accept the connection.

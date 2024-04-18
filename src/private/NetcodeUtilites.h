@@ -4,12 +4,13 @@
 // Game State Messages from the server to clients
 enum class GSM_Server : char
 {
-	GSM_SpawnPlayer = 1,
+	GSM_SpawnPlayer = 0,
 };
 
 // Game State Messages from the client to server
 enum class GSM_Client : char
 {
+	GSM_SyncWorld = 0,
 	GSM_MovementInput = 1,
 };
 

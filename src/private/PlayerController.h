@@ -7,13 +7,15 @@
 
 #include "Component.h"
 
-class PlayerController : public Component {
+class PlayerController : public Component
+{
 
 public:
 
     const static uint32 ComponentID = PLAYER_CONTROLLER;
 
     PlayerController();
+    virtual void BeginPlay() override;
     virtual void LoadData(const json& data) override;
 
     void SetInputManager(class InputManager* inputManager);

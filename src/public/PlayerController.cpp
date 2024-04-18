@@ -4,14 +4,31 @@
 
 #include "PlayerController.h"
 #include <SDL_scancode.h>
+
+#include "ByteStream.h"
+#include "Client.h"
 #include "InputManager.h"
 #include "GameObject.h"
 
-PlayerController::PlayerController() {
+PlayerController::PlayerController()
+{
 
 }
 
-void PlayerController::Update(float deltaTime) {
+void PlayerController::BeginPlay()
+{
+	Component::BeginPlay();
+
+    if (!Client::IsHostClient())
+    {
+        ByteStream stream;
+        stream.WriteGSM(GSM_Client::GSM_SyncWorld);
+        Client::SendByteStreamToServer(stream);
+    }
+}
+
+void PlayerController::Update(float deltaTime)
+{
 
     if(_inputManager){
         const int horizontalMovement = _inputManager->GetKey(SDL_SCANCODE_RIGHT) - _inputManager->GetKey(SDL_SCANCODE_LEFT);
@@ -22,12 +39,12 @@ void PlayerController::Update(float deltaTime) {
     }
 }
 
-void PlayerController::LoadData(const json &data) {
+void PlayerController::LoadData(const json &data)
+{
 
 }
 
-void PlayerController::SetInputManager(struct InputManager *inputManager) {
+void PlayerController::SetInputManager(InputManager* inputManager)
+{
     _inputManager = inputManager;
 }
-
-
