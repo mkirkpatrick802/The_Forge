@@ -11,5 +11,6 @@
   ],
   "Name": "Player",
   "Is Replicated": 1,
-  "Position": "0 0"
+  "Position": "0 0",
+  "Prefab ID": 0
 }

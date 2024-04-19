@@ -7,9 +7,9 @@
 #include "EventListener.h"
 #include "PlayerController.h"
 #include "GameData.h"
+#include "PrefabManager.h"
 
 const std::string LEVEL_FILE = "assets/game-data/level.json";
-const std::string PLAYER_FILE = "assets/game-data/player.json";
 
 using json = nlohmann::json;
 
@@ -28,6 +28,7 @@ public:
 
     // File Serialization
     void LoadLevel();
+    void SpawnPrefab(const PrefabPath& path);
     void CreateGameObjectFromJSON(const json& gameObjects);
     void CreateComponentFromJSON(GameObject* go, const json& component);
 
@@ -49,14 +50,12 @@ public:
     // Events
     virtual void OnEvent(Event* event) override;
 
-	void SpawnPlayer();
-
     // Replications
     static int GetNumOfReplicatedObjects();
 
     static void CreateWorldState(char* worldState);
     static void CreateObjectState(const GameObject* object, char* state);
-    static void ReadGameState();
+	void ReadWorldState(const char* state);
 
 private:
 

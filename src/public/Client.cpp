@@ -6,6 +6,7 @@
 #include <steam/isteamnetworkingsockets.h>
 
 #include "ByteStream.h"
+#include "GameObjectManager.h"
 #include "NetcodeUtilites.h"
 #include "SpawnPlayerEvent.h"
 
@@ -140,6 +141,8 @@ void Client::ReadByteStream(const char* buffer)
 	case GSM_Server::GSM_WorldState:
 		{
 			printf("World State Received \n");
+			// Make event to read state
+			//GameObjectManager::ReadWorldState(buffer);
 		}
 		break;
 	}

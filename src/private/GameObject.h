@@ -49,7 +49,8 @@ public:
 
 private:
 
-    char _id;
+    char _instanceID;
+    int _prefabID = -1;
     std::string _name;
     bool _isReplicated;
     std::vector<Component*> _attachedComponents;

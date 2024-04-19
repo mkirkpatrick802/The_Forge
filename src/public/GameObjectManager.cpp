@@ -12,6 +12,7 @@
 
 #include "DetailsChangedEvent.h"
 #include "Renderer.h"
+#include "PrefabManager.h"
 
 std::vector<GameObject*> GameObjectManager::_currentGameObjects = std::vector<GameObject*>();
 
@@ -50,6 +51,22 @@ void GameObjectManager::LoadLevel()
         CreateGameObjectFromJSON(gameObject);
 }
 
+void GameObjectManager::SpawnPrefab(const PrefabPath& path)
+{
+    std::ifstream file(path);
+
+    if (!file.is_open()) {
+        std::cerr << "Could not open file for reading!\n";
+        assert(0);
+    }
+
+    json prefab;
+    file >> prefab;
+    file.close();
+
+    CreateGameObjectFromJSON(prefab);
+}
+
 void GameObjectManager::CreateGameObjectFromJSON(const json &gameObject)
 {
 
@@ -57,7 +74,12 @@ void GameObjectManager::CreateGameObjectFromJSON(const json &gameObject)
     if(go == nullptr)
         assert(0 && "Failed to Create Game Object");
 
-
+    // Check if prefab
+    if(gameObject.find("Prefab ID") != gameObject.end())
+    {
+        const int prefabID = gameObject["Prefab ID"];
+        go->_prefabID = prefabID;
+    }
 
     const std::string name = gameObject["Name"];
     go->_name = name;
@@ -103,14 +125,14 @@ GameObject* GameObjectManager::CreateGameObject()
         newID = static_cast<char>(randomNumber);
         for (const auto go : _currentGameObjects)
         {
-            if (go->_id != newID) continue;
+            if (go->_instanceID != newID) continue;
             IsUnique = false;
             break;
         }
     }
 	while (!IsUnique);
 
-    newObject->_id = newID;
+    newObject->_instanceID = newID;
     _currentGameObjects.push_back(newObject);
 
     return newObject;
@@ -152,7 +174,6 @@ void GameObjectManager::Update(float deltaTime)
 
 std::vector<GameObject*>* GameObjectManager::GetClickedObjects(Vector2D mousePos)
 {
-
     auto clickedGameObjects = new std::vector<GameObject*>();
     for (auto go : _currentGameObjects)
         if(go->IsClicked(mousePos))
@@ -177,7 +198,6 @@ void GameObjectManager::ToggleEditorMode(bool inEditorMode)
 
 bool GameObjectManager::SaveGameObjectInfo()
 {
-
     printf("Saving Level Data! \n");
     std::ifstream in(LEVEL_FILE);
 
@@ -199,6 +219,12 @@ bool GameObjectManager::SaveGameObjectInfo()
             continue;
         }
 
+        // Check if prefab
+        if (_currentGameObjects[i]->_prefabID != -1)
+        {
+            levelData["GameObjects"][i]["Prefab ID"] = (int)_currentGameObjects[i]->_prefabID;
+        }
+
         levelData["GameObjects"][i]["Name"] = _currentGameObjects[i]->_name;
         levelData["GameObjects"][i]["Is Replicated"] = (int)_currentGameObjects[i]->_isReplicated;
         levelData["GameObjects"][i]["Position"] = _currentGameObjects[i]->GetPositionString();
@@ -215,7 +241,7 @@ bool GameObjectManager::SaveGameObjectInfo()
 void GameObjectManager::SavePlayerObjectInfo(const GameObject* player)
 {
     printf("Saving Player Data! \n");
-    std::ifstream in(PLAYER_FILE);
+    std::ifstream in(PrefabManager::GetInstance().GetPrefabPath(PLAYER_PREFAB_ID));
 
     if (!in.is_open()) 
     {
@@ -227,11 +253,12 @@ void GameObjectManager::SavePlayerObjectInfo(const GameObject* player)
     in >> playerData;
     in.close();
 
+    playerData["Prefab ID"] = (int)player->_prefabID;
     playerData["Name"] = player->_name;
     playerData["Is Replicated"] = (int)player->_isReplicated;
     playerData["Position"] = player->GetPositionString();
 
-    std::ofstream out(PLAYER_FILE);
+    std::ofstream out(PrefabManager::GetInstance().GetPrefabPath(PLAYER_PREFAB_ID));
     out << std::setw(2) << playerData << std::endl;
     out.close();
 
@@ -245,28 +272,12 @@ void GameObjectManager::OnEvent(Event* event)
     case EventType::ET_NULL:
         break;
     case EventType::ET_SpawnPlayer:
-        SpawnPlayer();
+        SpawnPrefab(PrefabManager::GetInstance().GetPrefabPath(PLAYER_PREFAB_ID));
         break;
 	case EventType::ET_DetailsChanged:
         ToggleEditorMode(static_cast<DetailsChangedEvent*>(event)->currentDetails.editorSettings.editMode);
 		break;
     }
-}
-
-void GameObjectManager::SpawnPlayer()
-{
-    std::ifstream file(PLAYER_FILE);
-
-    if (!file.is_open()) {
-        std::cerr << "Could not open file for reading!\n";
-        assert(0);
-    }
-
-    json playerData;
-    file >> playerData;
-    file.close();
-
-	CreateGameObjectFromJSON(playerData);
 }
 
 /*
@@ -302,9 +313,15 @@ void GameObjectManager::CreateWorldState(char* worldState)
 
 void GameObjectManager::CreateObjectState(const GameObject* object, char* state)
 {
-    // ID
-    state[0] = object->_id;
-    int bufferPos = 1;
+    int bufferPos = 0;
+
+    // Prefab ID
+    state[bufferPos] = (char)object->_prefabID;
+    bufferPos++;
+
+    // Instance ID
+    state[bufferPos] = object->_instanceID;
+    bufferPos++;
 
     // Covert position from float to int16
     const int16 x = (int16)object->GetPosition().x;
@@ -318,9 +335,33 @@ void GameObjectManager::CreateObjectState(const GameObject* object, char* state)
     std::memcpy(&state[bufferPos], &y, sizeof(int16));
 }
 
-void GameObjectManager::ReadGameState()
+void GameObjectManager::ReadWorldState(const char* state)
 {
+    int readIndex = 3;
+    const int num = (uint8)state[readIndex++];
 
+    for (int i = 0; i < num; i++)
+    {
+	    const char prefabID = state[readIndex++];
+	    const char instanceID = state[readIndex++];
+        for (const auto go : _currentGameObjects)
+        {
+	        if(go->_instanceID != instanceID) continue;
+
+            int16 x = 0, y = 0;
+            std::memcpy(&x, &state[readIndex], sizeof(int16));
+            readIndex += sizeof(int16);
+
+            std::memcpy(&y, &state[readIndex], sizeof(int16));
+            readIndex += sizeof(int16);
+
+            go->SetPosition(Vector2D(x, y));
+            break;
+        }
+
+        if (prefabID > -1)
+            SpawnPrefab(PrefabManager::GetInstance().GetPrefabPath(prefabID));
+    }
 }
 
 void GameObjectManager::CleanUp()

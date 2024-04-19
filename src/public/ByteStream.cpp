@@ -22,9 +22,11 @@ void ByteStream::WriteGSM(const GSM_Server message)
 	{
 	case GSM_Server::GSM_WorldState:
 
+		buffer[3] = (char)GameObjectManager::GetNumOfReplicatedObjects();
+
 		char state[MAX_GAMEOBJECTS * GAMEOBJECT_STATE_SIZE];
 		GameObjectManager::CreateWorldState(state);
-		std::memcpy(&buffer[3], &state, sizeof(char) * (static_cast<uint64>(MAX_GAMEOBJECTS) * GAMEOBJECT_STATE_SIZE));
+		std::memcpy(&buffer[4], &state, sizeof(char) * (static_cast<uint64>(MAX_GAMEOBJECTS) * GAMEOBJECT_STATE_SIZE));
 
 		break;
 	default: ;
