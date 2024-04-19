@@ -14,12 +14,13 @@ GameObject::GameObject() {
     _transform = Transform();
 
     settings.name = &_name;
+    settings.isReplicated = &_isReplicated;
     settings.position = &_transform.position;
 }
 
-GameObject::GameObject(float x, float y)
+GameObject::GameObject(float x, float y): settings(), _isReplicated(false)
 {
-    _transform = Transform(x, y);
+	_transform = Transform(x, y);
 }
 
 Component* GameObject::AddComponent(Component* component)
@@ -30,7 +31,7 @@ Component* GameObject::AddComponent(Component* component)
 
 void GameObject::ObjectCreated()
 {
-	for (auto component : _attachedComponents)
+	for (const auto component : _attachedComponents)
 	{
         component->BeginPlay();
 	}

@@ -1,5 +1,4 @@
-﻿  #include "Server.h"
-
+﻿#include "Server.h"
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
@@ -7,6 +6,7 @@
 
 #include "ByteStream.h"
 #include "Client.h"
+#include "GameObjectManager.h"
 
 Server::Server()
 {
@@ -34,7 +34,8 @@ void Server::Start()
 	printf(" \nServer listening on port %d \n", addrServer.m_port);
 
 	_client = new Client();
-	_client->isHostClient = true;
+	Client::isHostClient = true;
+
 	_client->Start();
 }
 
@@ -57,7 +58,8 @@ void Server::PollIncomingMessages()
 		if (numMsgs < 0)
 			FatalError("Error checking for messages");
 
-		if (auto message = static_cast<char*>(pIncomingMsg->m_pData); message[0] == BYTE_STREAM_CODE)
+		_clientWaitingForMessage = pIncomingMsg->m_conn;
+		if (const auto message = static_cast<char*>(pIncomingMsg->m_pData); message[0] == BYTE_STREAM_CODE)
 			ReadByteStream(message);
 	}
 }
@@ -66,11 +68,17 @@ void Server::ReadByteStream(const char* buffer)
 {
 	if (buffer[1] != CLIENT_MESSAGE) { printf("Invalid Message Received!! \n"); return; }
 
+	ByteStream stream;
 	switch((GSM_Client)buffer[2])
 	{
 	case GSM_Client::GSM_SyncWorld:
 
-		printf("Sync World \n");
+		printf("Received Sync World Request from %s \n", _mapClients.find(_clientWaitingForMessage)->second.nickname.c_str());
+
+		stream.WriteGSM(GSM_Server::GSM_WorldState);
+		SendByteStreamToClient(_clientWaitingForMessage, stream);
+		printf("World State Send to %s \n", _mapClients.find(_clientWaitingForMessage)->second.nickname.c_str());
+		_clientWaitingForMessage = 0;
 
 		break;
 	case GSM_Client::GSM_MovementInput:
@@ -239,12 +247,12 @@ void Server::SetClientNickname(HSteamNetConnection connection, const char* nickn
 	steamInterface->SetConnectionName(connection, nickname);
 }
 
-void Server::SendStringToClient(HSteamNetConnection connection, const char* str) const
+void Server::SendStringToClient(const HSteamNetConnection connection, const char* str) const
 {
 	steamInterface->SendMessageToConnection(connection, str, strlen(str), k_nSteamNetworkingSend_Reliable, nullptr);
 }
 
-void Server::SendStringToClient(HSteamNetConnection connection, const char* str, const int size) const
+void Server::SendStringToClient(const HSteamNetConnection connection, const char* str, const int size) const
 {
 	steamInterface->SendMessageToConnection(connection, str, size, k_nSteamNetworkingSend_Reliable, nullptr);
 }
@@ -258,7 +266,12 @@ void Server::SendStringToAllClients(const char* str, HSteamNetConnection except)
 	}
 }
 
-void Server::SendByteSteamToAllClients(const ByteStream& byteStream)
+void Server::SendByteStreamToClient(const HSteamNetConnection connection, const ByteStream& byteStream) const
+{
+	SendStringToClient(connection, byteStream.buffer, byteStream.size);
+}
+
+  void Server::SendByteSteamToAllClients(const ByteStream& byteStream)
 {
 	for (const auto& clients : _mapClients)
 	{

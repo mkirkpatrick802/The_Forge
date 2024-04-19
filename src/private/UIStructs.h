@@ -24,6 +24,7 @@ struct SpriteRendererSettings : public ComponentSettings
 struct GameObjectSettings
 {
     std::string* name;
+    bool* isReplicated;
     Vector2D* position;
 
     std::vector<ComponentSettings> componentSettings;

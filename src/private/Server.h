@@ -32,6 +32,7 @@ private:
 	void SendStringToClient(HSteamNetConnection connection, const char* str, int size) const;
 	void SendStringToAllClients(const char* str, HSteamNetConnection except = k_HSteamNetConnection_Invalid);
 
+	void SendByteStreamToClient(HSteamNetConnection connection, const ByteStream& byteStream) const;
 	void SendByteSteamToAllClients(const ByteStream& byteStream);
 
 protected:
@@ -51,4 +52,5 @@ private:
 	std::map< HSteamNetConnection, ClientObject > _mapClients;
 
 	Client* _client;
+	HSteamNetConnection _clientWaitingForMessage;
 };

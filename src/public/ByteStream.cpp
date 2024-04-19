@@ -4,6 +4,13 @@
 
 #include "ByteStream.h"
 
+#include "GameObjectManager.h"
+
+ByteStream::ByteStream(): buffer{}, size(0)
+{
+
+}
+
 // Send ByteStream from Server to Clients
 void ByteStream::WriteGSM(const GSM_Server message)
 {
@@ -11,7 +18,19 @@ void ByteStream::WriteGSM(const GSM_Server message)
 	buffer[1] = SERVER_MESSAGE;
 	buffer[2] = (char)message;
 
-	size = std::size(buffer);
+	switch (message)
+	{
+	case GSM_Server::GSM_WorldState:
+
+		char state[MAX_GAMEOBJECTS * GAMEOBJECT_STATE_SIZE];
+		GameObjectManager::CreateWorldState(state);
+		std::memcpy(&buffer[3], &state, sizeof(char) * (static_cast<uint64>(MAX_GAMEOBJECTS) * GAMEOBJECT_STATE_SIZE));
+
+		break;
+	default: ;
+	}
+
+	size = (int)std::size(buffer);
 }
 
 // Send ByteStream from Client to Server
@@ -21,5 +40,5 @@ void ByteStream::WriteGSM(const GSM_Client message)
 	buffer[1] = CLIENT_MESSAGE;
 	buffer[2] = (char)message;
 
-	size = std::size(buffer);
+	size = (int)std::size(buffer);
 }

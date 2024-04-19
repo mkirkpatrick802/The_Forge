@@ -93,16 +93,12 @@ void GameplayLoop()
 
     if(!buildPlayMode)
     {
-        printf("Entering Editor.. \n");
-
         EditorEngine engine = EditorEngine(renderer, inputManager);
         engine.GameLoop();
         engine.CleanUp();
     }
     else
     {
-        printf("Building Play Mode... \n");
-
         PlayEngine engine = PlayEngine(renderer, inputManager, netcode);
         engine.GameLoop();
         engine.CleanUp();

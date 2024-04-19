@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <vector>
+
 #include "ComponentPool.h"
 #include "EventListener.h"
 #include "PlayerController.h"
@@ -50,6 +51,13 @@ public:
 
 	void SpawnPlayer();
 
+    // Replications
+    static int GetNumOfReplicatedObjects();
+
+    static void CreateWorldState(char* worldState);
+    static void CreateObjectState(const GameObject* object, char* state);
+    static void ReadGameState();
+
 private:
 
     //Component Creation
@@ -67,7 +75,7 @@ private:
     Renderer* _renderer;
     InputManager* _inputManager;
 
-    std::vector<GameObject*> _currentGameObjects;
+    static std::vector<GameObject*> _currentGameObjects;
     ComponentPool<PlayerController> _playerControllerPool;
 
 };

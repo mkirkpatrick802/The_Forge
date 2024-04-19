@@ -19,11 +19,14 @@ void PlayerController::BeginPlay()
 {
 	Component::BeginPlay();
 
+    // DOESN'T SYNC IF SERVER IS TABBED OUT (IE WINDOW IS PAUSED)
     if (!Client::IsHostClient())
     {
         ByteStream stream;
         stream.WriteGSM(GSM_Client::GSM_SyncWorld);
         Client::SendByteStreamToServer(stream);
+
+        printf("Sending Sync World Request \n");
     }
 }
 

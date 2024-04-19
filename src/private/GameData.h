@@ -12,12 +12,15 @@ typedef std::string string;
 
 typedef glm::uint8 uint8;
 typedef glm::uint32 uint32;
+typedef glm::uint64 uint64;
 
 typedef glm::int16 int16;
+typedef glm::int64 int64;
 
 typedef glm::vec2 Vector2D;
 
-const uint32 MAX_GAMEOBJECTS = 30;
+const int MAX_GAMEOBJECTS = 30;
+const int GAMEOBJECT_STATE_SIZE = 10;
 
 
 

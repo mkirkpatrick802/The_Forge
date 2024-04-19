@@ -55,6 +55,8 @@ void EditorUIWindow::Render()
 				*_details.gameObjectSettings->name = currentName;
 			}
 
+			ImGui::Checkbox("Is Replicated", _details.gameObjectSettings->isReplicated);
+
 			float position[2] = { _details.gameObjectSettings->position->x, _details.gameObjectSettings->position->y };
 			ImGui::InputFloat2("Position", position);
 			*_details.gameObjectSettings->position = Vector2D(position[0], position[1]);

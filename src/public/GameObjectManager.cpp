@@ -13,6 +13,8 @@
 #include "DetailsChangedEvent.h"
 #include "Renderer.h"
 
+std::vector<GameObject*> GameObjectManager::_currentGameObjects = std::vector<GameObject*>();
+
 GameObjectManager::GameObjectManager(Renderer* renderer, InputManager* inputManager) : _renderer(renderer), _inputManager(inputManager)
 {
     RegisterComponentFns();
@@ -20,6 +22,8 @@ GameObjectManager::GameObjectManager(Renderer* renderer, InputManager* inputMana
 
     SubscribeToEvent(EventType::ET_SpawnPlayer);
     SubscribeToEvent(EventType::ET_DetailsChanged);
+
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
 }
 
 void GameObjectManager::RegisterComponentFns()
@@ -30,7 +34,6 @@ void GameObjectManager::RegisterComponentFns()
 
 void GameObjectManager::LoadLevel()
 {
-
     std::ifstream file(LEVEL_FILE);
 
     if (!file.is_open()) {
@@ -54,10 +57,15 @@ void GameObjectManager::CreateGameObjectFromJSON(const json &gameObject)
     if(go == nullptr)
         assert(0 && "Failed to Create Game Object");
 
-    std::string name = gameObject["Name"];
+
+
+    const std::string name = gameObject["Name"];
     go->_name = name;
 
-    std::string position = gameObject["Position"];
+    const int isReplicated = gameObject["Is Replicated"];
+    go->_isReplicated = (bool)isReplicated;
+
+    const std::string position = gameObject["Position"];
     std::istringstream iss(position);
     iss >> go->_transform.position.x >> go->_transform.position.y;
 
@@ -70,10 +78,8 @@ void GameObjectManager::CreateGameObjectFromJSON(const json &gameObject)
 
 void GameObjectManager::CreateComponentFromJSON(GameObject* go, const json &component)
 {
-
-    int componentID = component["ID"];
-    auto it = componentCreationMap.find(componentID);
-    if(it == componentCreationMap.end())
+	const int componentID = component["ID"];
+	if(const auto it = componentCreationMap.find(componentID); it == componentCreationMap.end())
         assert(0 && "Could not find valid component function");
 
     (this->*componentCreationMap[componentID])(go, component);
@@ -81,12 +87,32 @@ void GameObjectManager::CreateComponentFromJSON(GameObject* go, const json &comp
 
 GameObject* GameObjectManager::CreateGameObject()
 {
-
     if(_currentGameObjects.size() >= MAX_GAMEOBJECTS)
         return nullptr;
 
     auto newObject = new GameObject();
+
+    // Create Unique ID
+    bool IsUnique = false;
+    char newID;
+
+    do
+    {
+        IsUnique = true;
+        const int randomNumber = std::rand() % 256;
+        newID = static_cast<char>(randomNumber);
+        for (const auto go : _currentGameObjects)
+        {
+            if (go->_id != newID) continue;
+            IsUnique = false;
+            break;
+        }
+    }
+	while (!IsUnique);
+
+    newObject->_id = newID;
     _currentGameObjects.push_back(newObject);
+
     return newObject;
 }
 
@@ -174,6 +200,7 @@ bool GameObjectManager::SaveGameObjectInfo()
         }
 
         levelData["GameObjects"][i]["Name"] = _currentGameObjects[i]->_name;
+        levelData["GameObjects"][i]["Is Replicated"] = (int)_currentGameObjects[i]->_isReplicated;
         levelData["GameObjects"][i]["Position"] = _currentGameObjects[i]->GetPositionString();
     }
 
@@ -201,6 +228,7 @@ void GameObjectManager::SavePlayerObjectInfo(const GameObject* player)
     in.close();
 
     playerData["Name"] = player->_name;
+    playerData["Is Replicated"] = (int)player->_isReplicated;
     playerData["Position"] = player->GetPositionString();
 
     std::ofstream out(PLAYER_FILE);
@@ -239,6 +267,60 @@ void GameObjectManager::SpawnPlayer()
     file.close();
 
 	CreateGameObjectFromJSON(playerData);
+}
+
+/*
+ *      Game State Replication
+ */
+
+int GameObjectManager::GetNumOfReplicatedObjects()
+{
+    int num = 0;
+    for (const auto go : _currentGameObjects)
+        if (go->_isReplicated)
+            num++;
+
+    return num;
+}
+
+void GameObjectManager::CreateWorldState(char* worldState)
+{
+    std::vector<GameObject*> replicatedObjects;
+    for (const auto go : _currentGameObjects)
+        if (go->_isReplicated)
+            replicatedObjects.push_back(go);
+
+	for (int i = 0; i < (int)replicatedObjects.size(); i++)
+	{
+        char goState[GAMEOBJECT_STATE_SIZE];
+        CreateObjectState(replicatedObjects[i], goState);
+
+        for (int j = 0; j < GAMEOBJECT_STATE_SIZE; j++)
+            worldState[i * GAMEOBJECT_STATE_SIZE + j] = goState[j];
+	}
+}
+
+void GameObjectManager::CreateObjectState(const GameObject* object, char* state)
+{
+    // ID
+    state[0] = object->_id;
+    int bufferPos = 1;
+
+    // Covert position from float to int16
+    const int16 x = (int16)object->GetPosition().x;
+    const int16 y = (int16)object->GetPosition().y;
+
+    // Set x position
+	std::memcpy(&state[bufferPos], &x, sizeof(int16));
+    bufferPos += sizeof(int16);
+
+    // Set y position
+    std::memcpy(&state[bufferPos], &y, sizeof(int16));
+}
+
+void GameObjectManager::ReadGameState()
+{
+
 }
 
 void GameObjectManager::CleanUp()

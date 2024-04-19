@@ -49,8 +49,9 @@ public:
 
 private:
 
+    char _id;
     std::string _name;
-
+    bool _isReplicated;
     std::vector<Component*> _attachedComponents;
 };
 

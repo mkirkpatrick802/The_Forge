@@ -10,5 +10,6 @@
     }
   ],
   "Name": "Player",
+  "Is Replicated": 1,
   "Position": "0 0"
 }

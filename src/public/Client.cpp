@@ -109,7 +109,7 @@ void Client::PollIncomingMessages()
 		FatalError("Error checking for messages");
 
 	// Check if the message is a ByteStream
-	if(auto message = static_cast<char*>(pIncomingMsg->m_pData); message[0] == BYTE_STREAM_CODE)
+	if(const auto message = static_cast<char*>(pIncomingMsg->m_pData); message[0] == BYTE_STREAM_CODE)
 	{
 		ReadByteStream(message);
 	}
@@ -131,8 +131,16 @@ void Client::ReadByteStream(const char* buffer)
 	switch(static_cast<GSM_Server>(buffer[2]))
 	{
 	case GSM_Server::GSM_SpawnPlayer:
-		const auto event = CreateEvent<SpawnPlayerEvent>();
-		Notify(event);
+		{
+			const auto event = CreateEvent<SpawnPlayerEvent>();
+			Notify(event);
+		}
+		break;
+
+	case GSM_Server::GSM_WorldState:
+		{
+			printf("World State Received \n");
+		}
 		break;
 	}
 }
@@ -143,6 +151,8 @@ void Client::ReadByteStream(const char* buffer)
 
 void Client::SendByteStreamToServer(const ByteStream& message)
 {
+	if (steamInterface == nullptr) return;
+
 	if (_connection == k_HSteamNetConnection_Invalid)
 		assert(1);
 
