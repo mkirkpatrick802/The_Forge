@@ -7,45 +7,48 @@
 
 #include "ByteStream.h"
 #include "Client.h"
-#include "InputManager.h"
 #include "GameObject.h"
-
-PlayerController::PlayerController()
-{
-
-}
+#include "InputManager.h"
 
 void PlayerController::BeginPlay()
 {
     Component::BeginPlay();
+}
 
-    // DOESN'T SYNC IF SERVER IS TABBED OUT (IE WINDOW IS PAUSED)
+void PlayerController::InitController(const uint8 ID)
+{
+    _playerID = ID;
+
     if (!Client::IsHostClient() && _playerID == Client::GetPlayerID())
     {
         ByteStream stream;
         stream.WriteGSM(GSM_Client::GSM_SyncWorld);
         Client::SendByteStreamToServer(stream);
-
-        printf("Sending Sync World Request \n");
     }
 }
 
 void PlayerController::Update(float deltaTime)
 {
+    if (!_inputManager || _playerID != Client::GetPlayerID()) return;
 
-    if(_inputManager){
-        const int horizontalMovement = _inputManager->GetKey(SDL_SCANCODE_RIGHT) - _inputManager->GetKey(SDL_SCANCODE_LEFT);
-        const int verticalMovement = _inputManager->GetKey(SDL_SCANCODE_DOWN) - _inputManager->GetKey(SDL_SCANCODE_UP);
+    const int8 horizontalMovement = (int8)(_inputManager->GetKey(SDL_SCANCODE_RIGHT) - _inputManager->GetKey(SDL_SCANCODE_LEFT));
+    const int8 verticalMovement = (int8)(_inputManager->GetKey(SDL_SCANCODE_DOWN) - _inputManager->GetKey(SDL_SCANCODE_UP));
+    if(horizontalMovement == 0 && verticalMovement == 0) return;
 
-        const Vector2D newPosition = Vector2D(gameObject->GetPosition().x + (float)horizontalMovement * 2, gameObject->GetPosition().y + (float)verticalMovement * 2 * -1);
-        gameObject->SetPosition(newPosition);
-    }
+    ByteStream stream;
+    stream.WriteGSM(GSM_Client::GSM_MovementRequest);
+    stream.WritePlayerMovementRequest(gameObject->instanceID, horizontalMovement, verticalMovement);
+    Client::SendByteStreamToServer(stream);
 }
 
 void PlayerController::LoadData(const json &data)
 {
 
 }
+
+/*
+ *      Setters & Getters
+ */
 
 void PlayerController::SetInputManager(InputManager* inputManager)
 {

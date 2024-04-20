@@ -11,16 +11,16 @@
 #include "Renderer.h"
 
 GameObject::GameObject() {
-    _transform = Transform();
+    transform = Transform();
 
     settings.name = &_name;
     settings.isReplicated = &_isReplicated;
-    settings.position = &_transform.position;
+    settings.position = &transform.position;
 }
 
 GameObject::GameObject(float x, float y): settings(), _isReplicated(false)
 {
-	_transform = Transform(x, y);
+	transform = Transform(x, y);
 }
 
 Component* GameObject::AddComponent(Component* component)
@@ -40,8 +40,8 @@ void GameObject::ObjectCreated()
 bool GameObject::IsClicked(Vector2D mousePos) {
 
     Vector2D size = GetComponent<SpriteRenderer>()->GetSize();
-    if(mousePos.x >= _transform.position.x - size.x / 2 && mousePos.x <= _transform.position.x + size.x / 2)
-        if(mousePos.y >= _transform.position.y - size.y / 2 && mousePos.y <= _transform.position.y + size.y / 2)
+    if(mousePos.x >= transform.position.x - size.x / 2 && mousePos.x <= transform.position.x + size.x / 2)
+        if(mousePos.y >= transform.position.y - size.y / 2 && mousePos.y <= transform.position.y + size.y / 2)
             return true;
 
     return false;
@@ -53,19 +53,19 @@ std::vector<Component *> GameObject::GetAttachedComponents() {
 
 Vector2D GameObject::GetPosition() const
 {
-    return _transform.position;
+    return transform.position;
 }
 
 string GameObject::GetPositionString() const
 {
     std::stringstream ss;
-    ss << _transform.position.x << " " << _transform.position.y;
+    ss << transform.position.x << " " << transform.position.y;
     return ss.str();
 }
 
 void GameObject::SetPosition(Vector2D newPosition)
 {
-    _transform.position = newPosition;
+    transform.position = newPosition;
 }
 
 GameObject::~GameObject() {

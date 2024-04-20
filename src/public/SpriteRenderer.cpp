@@ -52,7 +52,7 @@ void SpriteRenderer::Init()
 void SpriteRenderer::DrawSprite()
 {
 	const float rotation = 0;
-	const auto position = Vector2D(gameObject->_transform.position.x - _size.x / PIXEL_SCALE, (gameObject->_transform.position.y * -1) - _size.y / PIXEL_SCALE);
+	const auto position = Vector2D(gameObject->transform.position.x - _size.x / PIXEL_SCALE, (gameObject->transform.position.y * -1) - _size.y / PIXEL_SCALE);
 
     _shader.Use();
 	auto model = glm::mat4(1.0f);

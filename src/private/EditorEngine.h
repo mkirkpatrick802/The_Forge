@@ -1,5 +1,7 @@
 #pragma once
 
+#include <thread>
+
 #include "EditorUIWindow.h"
 #include "Engine.h"
 #include "EventListener.h"

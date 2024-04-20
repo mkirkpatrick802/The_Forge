@@ -15,6 +15,7 @@
 #include "PrefabManager.h"
 #include "SpawnPlayerEvent.h"
 #include "SyncWorldEvent.h"
+#include "UpdateObjectEvent.h"
 
 std::vector<GameObject*> GameObjectManager::_currentGameObjects = std::vector<GameObject*>();
 
@@ -26,6 +27,7 @@ GameObjectManager::GameObjectManager(Renderer* renderer, InputManager* inputMana
     SubscribeToEvent(EventType::ET_SpawnPlayer);
     SubscribeToEvent(EventType::ET_DetailsChanged);
     SubscribeToEvent(EventType::ET_SyncWorld);
+    SubscribeToEvent(EventType::ET_UpdateObject);
 
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 }
@@ -92,7 +94,7 @@ GameObject* GameObjectManager::CreateGameObjectFromJSON(const json &gameObject)
 
     const std::string position = gameObject["Position"];
     std::istringstream iss(position);
-    iss >> go->_transform.position.x >> go->_transform.position.y;
+    iss >> go->transform.position.x >> go->transform.position.y;
 
     auto& components = gameObject["Components"];
     for (const auto& component : components)
@@ -120,23 +122,23 @@ GameObject* GameObjectManager::CreateGameObject()
 
     // Create Unique ID
     bool IsUnique = false;
-    char newID;
+    uint8 newID;
 
     do
     {
         IsUnique = true;
-        const int randomNumber = std::rand() % 256;
-        newID = static_cast<char>(randomNumber);
+        const int randomNumber = std::rand() % MAX_GAMEOBJECTS;
+        newID = (uint8)randomNumber;
         for (const auto go : _currentGameObjects)
         {
-            if (go->_instanceID != newID) continue;
+            if (go->instanceID != newID) continue;
             IsUnique = false;
             break;
         }
     }
 	while (!IsUnique);
 
-    newObject->_instanceID = newID;
+    newObject->instanceID = newID;
     _currentGameObjects.push_back(newObject);
 
     return newObject;
@@ -158,7 +160,6 @@ void GameObjectManager::CreateSpriteRenderer(GameObject *go, const json& data = 
     if(_renderer != nullptr)
         _renderer->CreateSpriteRenderer(go, data);
 }
-
 
 void GameObjectManager::CreatePlayerController(GameObject *go, const json &data = nullptr)
 {
@@ -185,7 +186,6 @@ std::vector<GameObject*>* GameObjectManager::GetClickedObjects(Vector2D mousePos
 
     return clickedGameObjects;
 }
-
 
 void GameObjectManager::ToggleEditorMode(bool inEditorMode)
 {
@@ -275,19 +275,35 @@ void GameObjectManager::OnEvent(Event* event)
     {
     case EventType::ET_NULL:
         break;
+
     case EventType::ET_SpawnPlayer:
 	    {
 			const auto player = SpawnPrefab(PrefabManager::GetInstance().GetPrefabPath(PLAYER_PREFAB_ID));
-			player->GetComponent<PlayerController>()->SetPlayerID(static_cast<SpawnPlayerEvent*>(event)->playerID);
+			const int ID = static_cast<SpawnPlayerEvent*>(event)->playerID;
+			player->GetComponent<PlayerController>()->InitController(ID);
 	    }
         break;
+
 	case EventType::ET_DetailsChanged:
         ToggleEditorMode(static_cast<DetailsChangedEvent*>(event)->currentDetails.editorSettings.editMode); // VS says this static cast is bad IDK why (Explore later)
 		break;
+
 	case EventType::ET_SyncWorld:
         ReadWorldState(static_cast<SyncWorldEvent*>(event)->worldState);
 		break;
+	case EventType::ET_UpdateObject:
+        ReadObjectState(static_cast<UpdateObjectEvent*>(event)->objectState);
+		break;
     }
+}
+
+GameObject* GameObjectManager::GetGameObjectByInstanceID(const uint8 ID)
+{
+	for (const auto go : _currentGameObjects)
+        if (go->instanceID == ID)
+            return go;
+
+    return nullptr;
 }
 
 /*
@@ -326,20 +342,14 @@ void GameObjectManager::CreateObjectState(const GameObject* object, char* state)
     int bufferPos = 0;
 
     // Prefab ID
-    state[bufferPos] = (char)object->_prefabID;
-    bufferPos++;
+    state[bufferPos++] = (char)object->_prefabID;
 
     // Instance ID
-    state[bufferPos] = object->_instanceID;
-    bufferPos++;
+    state[bufferPos++] = (char)object->instanceID;
 
     // Player ID
-    if (object->GetComponent<PlayerController>())
-    {
-	    const uint32 playerID = object->GetComponent<PlayerController>()->GetPlayerID();
-        std::memcpy(&state[bufferPos], &playerID, sizeof(uint32));
-        bufferPos += sizeof(int16);
-    }
+    if (object->_prefabID == PLAYER_PREFAB_ID)
+        state[bufferPos++] = (char)object->GetComponent<PlayerController>()->GetPlayerID();
 
     // Covert position from float to int16
     const int16 x = (int16)object->GetPosition().x;
@@ -355,16 +365,31 @@ void GameObjectManager::CreateObjectState(const GameObject* object, char* state)
 
 void GameObjectManager::ReadWorldState(const char* state)
 {
+    printf("\nReading World State \n");
+
     int readIndex = 3;
     const int num = (uint8)state[readIndex++];
 
     for (int i = 0; i < num; i++)
     {
+        bool objectFound = false;
 	    const char prefabID = state[readIndex++];
 	    const char instanceID = state[readIndex++];
         for (const auto go : _currentGameObjects)
         {
-	        if(go->_instanceID != instanceID) continue;
+            if(go->GetComponent<PlayerController>())
+            {
+	            const auto playerID = state[readIndex];
+                if (go->GetComponent<PlayerController>()->GetPlayerID() == playerID)
+                {
+                    go->instanceID = instanceID;
+                    readIndex++;
+                }
+            }
+
+	        if(go->instanceID != instanceID) continue;
+
+            printf("Setting Object \n");
 
             int16 x = 0, y = 0;
             std::memcpy(&x, &state[readIndex], sizeof(int16));
@@ -374,13 +399,19 @@ void GameObjectManager::ReadWorldState(const char* state)
             readIndex += sizeof(int16);
 
             go->SetPosition(Vector2D(x, y));
+            readIndex += 3;
+            objectFound = true;
             break;
         }
 
-        if (prefabID > -1)
+        if (prefabID > -1 && !objectFound)
         {
-            // TODO: Set playerID
+            printf("Creating Object \n");
+
 	        const auto go = SpawnPrefab(PrefabManager::GetInstance().GetPrefabPath(prefabID));
+
+            if (prefabID == PLAYER_PREFAB_ID)
+                go->GetComponent<PlayerController>()->InitController(state[readIndex++]);
 
             int16 x = 0, y = 0;
             std::memcpy(&x, &state[readIndex], sizeof(int16));
@@ -390,7 +421,34 @@ void GameObjectManager::ReadWorldState(const char* state)
             readIndex += sizeof(int16);
 
             go->SetPosition(Vector2D(x, y));
+            readIndex += 3;
         }
+    }
+}
+
+void GameObjectManager::ReadObjectState(const char* state)
+{
+    int readIndex = 3;
+
+    const char prefabID = state[readIndex++];
+    const char instanceID = state[readIndex++];
+
+    for (const auto go : _currentGameObjects)
+    {
+        if (go->instanceID != (uint8)instanceID) continue;
+
+        if (go->GetComponent<PlayerController>())
+            readIndex++;
+
+        int16 x = 0, y = 0;
+        std::memcpy(&x, &state[readIndex], sizeof(int16));
+        readIndex += sizeof(int16);
+
+        std::memcpy(&y, &state[readIndex], sizeof(int16));
+        readIndex += sizeof(int16);
+
+        go->SetPosition(Vector2D(x, y));
+        break;
     }
 }
 

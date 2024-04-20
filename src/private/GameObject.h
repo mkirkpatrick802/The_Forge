@@ -45,11 +45,11 @@ private:
 public:
 
     GameObjectSettings settings;
-    Transform _transform;
+    Transform transform;
+    uint8 instanceID;
 
 private:
 
-    char _instanceID;
     int _prefabID = -1;
     std::string _name;
     bool _isReplicated;

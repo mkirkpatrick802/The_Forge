@@ -5,6 +5,7 @@
 #include "PlayEngine.h"
 #include <SDL_timer.h>
 #include <SDL_scancode.h>
+#include <thread>
 
 #include "InputManager.h"
 #include "GameObjectManager.h"
@@ -28,30 +29,29 @@ PlayEngine::PlayEngine(Renderer &renderer, InputManager &inputManager, NetCode* 
 
 void PlayEngine::GameLoop()
 {
+	// Gameplay Loop
+	while (_inputManager->StartProcessInputs(*_renderer, false))
+	{
+		if (SDL_GetTicks64() - frameStart >= 16)
+		{
+			//Frame Rate Management
+			deltaTime = (SDL_GetTicks64() - frameStart);
+			frameStart = SDL_GetTicks64();
 
-    // Gameplay Loop
-    while (_inputManager->StartProcessInputs(*_renderer, false))
-    {
-        if(SDL_GetTicks64() - frameStart >= 16)
-        {
-            //Frame Rate Management
-            deltaTime = (SDL_GetTicks64() - frameStart);
-            frameStart = SDL_GetTicks64();
+			// Display frame rate in console
+			if (_inputManager->GetKey(SDL_SCANCODE_APOSTROPHE))
+				printf("%f FPS \n", 1000 / deltaTime);
 
-            // Display frame rate in console
-            if(_inputManager->GetKey(SDL_SCANCODE_APOSTROPHE))
-                printf("%f FPS \n", 1000 / deltaTime);
+			_netcode->Update();
+			_gameObjectManager->Update(deltaTime);
 
-            _netcode->Update();
-            _gameObjectManager->Update(deltaTime);
+			// Render game objects
+			_renderer->Render();
 
-            // Render game objects
-            _renderer->Render();
-
-            // End input poll
-            _inputManager->EndProcessInputs();
-        }
-    }
+			// End input poll
+			_inputManager->EndProcessInputs();
+		}
+	}
 }
 
 void PlayEngine::CleanUp()

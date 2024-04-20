@@ -50,12 +50,15 @@ public:
     // Events
     virtual void OnEvent(Event* event) override;
 
+    static GameObject* GetGameObjectByInstanceID(uint8 ID);
+
     // Replications
     static int GetNumOfReplicatedObjects();
 
     static void CreateWorldState(char* worldState);
     static void CreateObjectState(const GameObject* object, char* state);
 	void ReadWorldState(const char* state);
+    void ReadObjectState(const char* state);
 
 private:
 

@@ -72,7 +72,7 @@ void StartingGameOptions()
             netcode->SetIPv4Address(address);
             netcode->Start();
 
-            while (!static_cast<Client*>(netcode)->isConnected)
+            while (!dynamic_cast<Client*>(netcode)->isConnected)
             {
                 netcode->Update();
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -100,7 +100,7 @@ void GameplayLoop()
     else
     {
         PlayEngine engine = PlayEngine(renderer, inputManager, netcode);
-        engine.GameLoop();
+    	engine.GameLoop();
         engine.CleanUp();
     }
 }

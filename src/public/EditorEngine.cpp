@@ -3,6 +3,7 @@
 #include <SDL_mouse.h>
 #include <SDL_timer.h>
 #include <SDL_scancode.h>
+#include <thread>
 
 #include "DetailsChangedEvent.h"
 #include "GameObject.h"

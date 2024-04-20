@@ -3,54 +3,60 @@
 //
 
 #include "ByteStream.h"
-
 #include "GameObjectManager.h"
 
-ByteStream::ByteStream(): buffer{}, size(0)
-{
-
-}
+ByteStream::ByteStream(): buffer{}, size(0) {}
 
 // Send ByteStream from Server to Clients
 void ByteStream::WriteGSM(const GSM_Server message)
 {
-	buffer[0] = BYTE_STREAM_CODE;
-	buffer[1] = SERVER_MESSAGE;
-	buffer[2] = (char)message;
-
-	switch (message)
-	{
-	case GSM_Server::GSM_WorldState:
-
-		buffer[3] = (char)GameObjectManager::GetNumOfReplicatedObjects();
-
-		char state[MAX_GAMEOBJECTS * GAMEOBJECT_STATE_SIZE];
-		GameObjectManager::CreateWorldState(state);
-		std::memcpy(&buffer[4], &state, sizeof(char) * (static_cast<uint64>(MAX_GAMEOBJECTS) * GAMEOBJECT_STATE_SIZE));
-
-		break;
-	default: ;
-	}
-
-	size = (int)std::size(buffer);
+	size = 0;
+	buffer[size++] = BYTE_STREAM_CODE;  // 0
+	buffer[size++] = SERVER_MESSAGE;	// 1
+	buffer[size++] = (char)message;		// 2
 }
 
-void ByteStream::CreatePlayerIDBuffer(const uint8 ID)
+void ByteStream::WriteWorldState()
 {
-	buffer[0] = BYTE_STREAM_CODE;
-	buffer[1] = SERVER_MESSAGE;
-	buffer[2] = (char)GSM_Server::GSM_SendPlayerID;
-	buffer[3] = (char)ID;
+	if ((GSM_Server)buffer[1] != GSM_Server::GSM_WorldState)
+		assert(1);
 
-	size = (int)std::size(buffer);
+	const int num = GameObjectManager::GetNumOfReplicatedObjects();
+	buffer[size++] = (char)num;	// 3
+
+	char state[MAX_GAMEOBJECTS * GAMEOBJECT_STATE_SIZE];
+	GameObjectManager::CreateWorldState(state);
+	std::memcpy(&buffer[size], &state, sizeof(char) * num * GAMEOBJECT_STATE_SIZE);
+	size += sizeof(char) * num * GAMEOBJECT_STATE_SIZE;
+}
+
+void ByteStream::WriteObjectState(const uint8 ID)
+{
+	if ((GSM_Server)buffer[1] != GSM_Server::GSM_UpdateObject)
+		assert(1);
+
+	char state[GAMEOBJECT_STATE_SIZE];
+	const auto go = GameObjectManager::GetGameObjectByInstanceID(ID);
+	GameObjectManager::CreateObjectState(go, state);
+	std::memcpy(&buffer[size], &state, sizeof(char) * GAMEOBJECT_STATE_SIZE);
+	size += sizeof(char) * GAMEOBJECT_STATE_SIZE;
 }
 
 // Send ByteStream from Client to Server
 void ByteStream::WriteGSM(const GSM_Client message)
 {
-	buffer[0] = BYTE_STREAM_CODE;
-	buffer[1] = CLIENT_MESSAGE;
-	buffer[2] = (char)message;
+	size = 0;
+	buffer[size++] = BYTE_STREAM_CODE;	// 0
+	buffer[size++] = CLIENT_MESSAGE;	// 1
+	buffer[size++] = (char)message;		// 2
+}
 
-	size = (int)std::size(buffer);
+void ByteStream::WritePlayerMovementRequest(uint8 ID, int8 x, int8 y)
+{
+	if ((GSM_Client)buffer[1] != GSM_Client::GSM_MovementRequest)
+		assert(1);
+
+	buffer[size++] = (char)ID;	// 3
+	buffer[size++] = x;			// 4
+	buffer[size++] = y;			// 5
 }

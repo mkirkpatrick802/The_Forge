@@ -4,7 +4,7 @@
 class SyncWorldEvent : public Event
 {
 public:
-	SyncWorldEvent() { _eventType = EventType::ET_SpawnPlayer; }
+	SyncWorldEvent() { _eventType = EventType::ET_SyncWorld; }
 
 	const char* worldState;
 };

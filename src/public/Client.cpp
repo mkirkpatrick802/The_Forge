@@ -11,10 +11,11 @@
 
 #include "SpawnPlayerEvent.h"
 #include "SyncWorldEvent.h"
+#include "UpdateObjectEvent.h"
 
 HSteamNetConnection Client::_connection = k_HSteamNetConnection_Invalid;
 bool Client::isHostClient = false;
-uint8 Client::_playerID = 0;
+uint8 Client::_playerID = 255;
 
 void Client::Start()
 {
@@ -114,7 +115,7 @@ void Client::PollIncomingMessages()
 	// Check if the message is a ByteStream
 	if(const auto message = static_cast<char*>(pIncomingMsg->m_pData); message[0] == BYTE_STREAM_CODE)
 	{
-		ReadByteStream(message);
+		ReadByteStream(message, pIncomingMsg->m_conn);
 	}
 	else
 	{
@@ -127,32 +128,38 @@ void Client::PollIncomingMessages()
 	pIncomingMsg->Release();
 }
 
-void Client::ReadByteStream(const char* buffer)
+void Client::ReadByteStream(const char* buffer, const HSteamNetConnection messageAuthor)
 {
 	if (buffer[1] != SERVER_MESSAGE) { printf("Invalid Message Received!! \n"); return; }
 
 	switch(static_cast<GSM_Server>(buffer[2]))
 	{
-	case GSM_Server::GSM_SendPlayerID:
-		{
-			_playerID = buffer[3];
-		}
-		break;
-
 	case GSM_Server::GSM_SpawnPlayer:
 		{
 			const auto event = CreateEvent<SpawnPlayerEvent>();
-			event->playerID = _playerID;
+
+			if(_playerID == 255)
+				_playerID = buffer[3];
+
+			event->playerID = buffer[3];
 			Notify(event);
 		}
 		break;
 
 	case GSM_Server::GSM_WorldState:
 		{
-			printf("World State Received \n");
-
 			const auto event = CreateEvent<SyncWorldEvent>();
 			event->worldState = buffer;
+			Notify(event);
+		}
+		break;
+
+	case GSM_Server::GSM_UpdateObject:
+		{
+			if(IsHostClient()) return;
+
+			const auto event = CreateEvent<UpdateObjectEvent>();
+			event->objectState = buffer;
 			Notify(event);
 		}
 		break;
@@ -170,5 +177,6 @@ void Client::SendByteStreamToServer(const ByteStream& message)
 	if (_connection == k_HSteamNetConnection_Invalid)
 		assert(1);
 
-	steamInterface->SendMessageToConnection(_connection, message.buffer, message.size, k_nSteamNetworkingSend_Reliable, nullptr);
+	// Sometimes the packet either doesn't send or the server misses it.
+	const auto result = steamInterface->SendMessageToConnection(_connection, message.buffer, message.size, k_nSteamNetworkingSend_Reliable, nullptr);
 }

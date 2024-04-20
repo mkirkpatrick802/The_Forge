@@ -6,14 +6,14 @@ enum class GSM_Server : char
 {
 	GSM_SpawnPlayer = 0,
 	GSM_WorldState,
-	GSM_SendPlayerID // Should not be used with WriteGSM functions
+	GSM_UpdateObject
 };
 
 // Game State Messages from the client to server
 enum class GSM_Client : char
 {
 	GSM_SyncWorld = 0,
-	GSM_MovementInput,
+	GSM_MovementRequest,
 };
 
 const char BYTE_STREAM_CODE = CHAR_MAX;

@@ -8,9 +8,11 @@ public:
 	ByteStream();
 
 	void WriteGSM(GSM_Server message);
+	void WriteWorldState();
+	void WriteObjectState(uint8 ID);
+	
 	void WriteGSM(GSM_Client message);
-
-	void CreatePlayerIDBuffer(uint8 ID);
+	void WritePlayerMovementRequest(uint8 ID, int8 x, int8 y);
 
 	char buffer[1024];
 	int size;

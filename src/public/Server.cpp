@@ -6,6 +6,7 @@
 
 #include "ByteStream.h"
 #include "Client.h"
+#include "GameObject.h"
 #include "GameObjectManager.h"
 
 Server::Server()
@@ -49,39 +50,53 @@ void Server::Update()
 // Read Message From Clients
 void Server::PollIncomingMessages()
 {
+	// Only cycles through one client
 	for (const auto& client : _mapClients)
 	{
 		ISteamNetworkingMessage* pIncomingMsg = nullptr;
 		int numMsgs = steamInterface->ReceiveMessagesOnConnection(client.first, &pIncomingMsg, 1);
 		if (numMsgs == 0)
-			return;
+			continue;
 		if (numMsgs < 0)
 			FatalError("Error checking for messages");
 
-		_clientWaitingForMessage = pIncomingMsg->m_conn;
 		if (const auto message = static_cast<char*>(pIncomingMsg->m_pData); message[0] == BYTE_STREAM_CODE)
-			ReadByteStream(message);
+			ReadByteStream(message, client.first);
 	}
 }
 
-void Server::ReadByteStream(const char* buffer)
+void Server::ReadByteStream(const char* buffer, const HSteamNetConnection messageAuthor)
 {
 	if (buffer[1] != CLIENT_MESSAGE) { printf("Invalid Message Received!! \n"); return; }
 
-	ByteStream stream;
 	switch((GSM_Client)buffer[2])
 	{
 	case GSM_Client::GSM_SyncWorld:
-
-		printf("Received Sync World Request from %s \n", _mapClients.find(_clientWaitingForMessage)->second.nickname.c_str());
-
-		stream.WriteGSM(GSM_Server::GSM_WorldState);
-		SendByteStreamToClient(_clientWaitingForMessage, stream);
-		printf("World State Send to %s \n", _mapClients.find(_clientWaitingForMessage)->second.nickname.c_str());
-		_clientWaitingForMessage = 0;
-
+		{
+			ByteStream stream;
+			stream.WriteGSM(GSM_Server::GSM_WorldState);
+			stream.WriteWorldState();
+			SendByteStreamToClient(messageAuthor, stream);
+		}
 		break;
-	case GSM_Client::GSM_MovementInput:
+	case GSM_Client::GSM_MovementRequest:
+		{
+			const uint8 requestingPlayerID = _mapClients[messageAuthor].playerID;
+			const uint8 instanceID = buffer[3];
+			const int8 xAxis = buffer[4];
+			const int8 yAxis = buffer[5];
+
+			if (const auto go = GameObjectManager::GetGameObjectByInstanceID(instanceID))
+			{
+				const Vector2D newPosition = Vector2D(go->GetPosition().x + (float)xAxis * 2, go->GetPosition().y + (float)yAxis * 2 * -1);
+				go->SetPosition(newPosition);
+
+				ByteStream stream;
+				stream.WriteGSM(GSM_Server::GSM_UpdateObject);
+				stream.WriteObjectState(instanceID);
+				SendByteSteamToAllClients(stream);
+			}
+		}
 		break;
 	}
 }
@@ -214,13 +229,6 @@ void Server::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 		sprintf_s(temp, "Welcome, stranger.  Thou art known to us for now as '%s'", nick);
 		SendStringToClient(info->m_hConn, temp);
 
-		// Send them their player ID
-		{
-			ByteStream stream;
-			stream.CreatePlayerIDBuffer(newID);
-			SendByteStreamToClient(info->m_hConn, stream);
-		}
-
 		// Also send them a list of everybody who is already connected
 		if (_mapClients.empty())
 		{
@@ -242,10 +250,12 @@ void Server::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 		_mapClients[info->m_hConn];
 		SetClientObject(info->m_hConn, object);
 
-		// Create a Bytestream to tell clients to spawn a player
+		// Create a Byte Stream to tell clients to spawn a player
 		{
 			ByteStream stream;
 			stream.WriteGSM(GSM_Server::GSM_SpawnPlayer);
+			stream.buffer[stream.size++] = newID; // Add player ID
+
 			SendByteSteamToAllClients(stream);
 		}
 		break;
@@ -282,7 +292,7 @@ void Server::SendStringToClient(const HSteamNetConnection connection, const char
 	steamInterface->SendMessageToConnection(connection, str, size, k_nSteamNetworkingSend_Reliable, nullptr);
 }
 
-void Server::SendStringToAllClients(const char* str, HSteamNetConnection except)
+void Server::SendStringToAllClients(const char* str, const HSteamNetConnection except) const
 {
 	for (const auto& clients : _mapClients)
 	{
@@ -296,10 +306,11 @@ void Server::SendByteStreamToClient(const HSteamNetConnection connection, const 
 	SendStringToClient(connection, byteStream.buffer, byteStream.size);
 }
 
-  void Server::SendByteSteamToAllClients(const ByteStream& byteStream)
+void Server::SendByteSteamToAllClients(const ByteStream& byteStream, const HSteamNetConnection except) const
 {
 	for (const auto& clients : _mapClients)
 	{
-		SendStringToClient(clients.first, byteStream.buffer, byteStream.size);
+		if (clients.first != except)
+			SendStringToClient(clients.first, byteStream.buffer, byteStream.size);
 	}
 }

@@ -20,7 +20,7 @@ public:
 protected:
 
 	virtual void PollIncomingMessages() override;
-	virtual void ReadByteStream(const char* buffer) override;
+	virtual void ReadByteStream(const char* buffer, HSteamNetConnection messageAuthor) override;
 
 public:
 

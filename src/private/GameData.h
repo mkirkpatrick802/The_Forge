@@ -14,6 +14,7 @@ typedef glm::uint8 uint8;
 typedef glm::uint32 uint32;
 typedef glm::uint64 uint64;
 
+typedef glm::int8 int8;
 typedef glm::int16 int16;
 typedef glm::int64 int64;
 

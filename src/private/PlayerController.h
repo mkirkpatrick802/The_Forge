@@ -13,7 +13,9 @@ public:
 
     const static uint32 ComponentID = PLAYER_CONTROLLER;
 
-    PlayerController();
+    PlayerController() = default;
+
+	void InitController(uint8 ID);
     virtual void BeginPlay() override;
     virtual void LoadData(const json& data) override;
 
@@ -22,7 +24,6 @@ public:
     void Update(float deltaTime);
 
     uint8 GetPlayerID() const { return _playerID; }
-    void SetPlayerID(const uint8 id) { _playerID = id; }
 
 private:
 
