@@ -13,6 +13,8 @@
 #include "DetailsChangedEvent.h"
 #include "Renderer.h"
 #include "PrefabManager.h"
+#include "SpawnPlayerEvent.h"
+#include "SyncWorldEvent.h"
 
 std::vector<GameObject*> GameObjectManager::_currentGameObjects = std::vector<GameObject*>();
 
@@ -23,6 +25,7 @@ GameObjectManager::GameObjectManager(Renderer* renderer, InputManager* inputMana
 
     SubscribeToEvent(EventType::ET_SpawnPlayer);
     SubscribeToEvent(EventType::ET_DetailsChanged);
+    SubscribeToEvent(EventType::ET_SyncWorld);
 
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 }
@@ -51,7 +54,7 @@ void GameObjectManager::LoadLevel()
         CreateGameObjectFromJSON(gameObject);
 }
 
-void GameObjectManager::SpawnPrefab(const PrefabPath& path)
+GameObject* GameObjectManager::SpawnPrefab(const PrefabPath& path)
 {
     std::ifstream file(path);
 
@@ -64,10 +67,10 @@ void GameObjectManager::SpawnPrefab(const PrefabPath& path)
     file >> prefab;
     file.close();
 
-    CreateGameObjectFromJSON(prefab);
+    return CreateGameObjectFromJSON(prefab);
 }
 
-void GameObjectManager::CreateGameObjectFromJSON(const json &gameObject)
+GameObject* GameObjectManager::CreateGameObjectFromJSON(const json &gameObject)
 {
 
     GameObject* go = CreateGameObject();
@@ -96,6 +99,7 @@ void GameObjectManager::CreateGameObjectFromJSON(const json &gameObject)
         CreateComponentFromJSON(go, component);
 
     go->ObjectCreated();
+    return go;
 }
 
 void GameObjectManager::CreateComponentFromJSON(GameObject* go, const json &component)
@@ -272,10 +276,16 @@ void GameObjectManager::OnEvent(Event* event)
     case EventType::ET_NULL:
         break;
     case EventType::ET_SpawnPlayer:
-        SpawnPrefab(PrefabManager::GetInstance().GetPrefabPath(PLAYER_PREFAB_ID));
+	    {
+			const auto player = SpawnPrefab(PrefabManager::GetInstance().GetPrefabPath(PLAYER_PREFAB_ID));
+			player->GetComponent<PlayerController>()->SetPlayerID(static_cast<SpawnPlayerEvent*>(event)->playerID);
+	    }
         break;
 	case EventType::ET_DetailsChanged:
-        ToggleEditorMode(static_cast<DetailsChangedEvent*>(event)->currentDetails.editorSettings.editMode);
+        ToggleEditorMode(static_cast<DetailsChangedEvent*>(event)->currentDetails.editorSettings.editMode); // VS says this static cast is bad IDK why (Explore later)
+		break;
+	case EventType::ET_SyncWorld:
+        ReadWorldState(static_cast<SyncWorldEvent*>(event)->worldState);
 		break;
     }
 }
@@ -323,6 +333,14 @@ void GameObjectManager::CreateObjectState(const GameObject* object, char* state)
     state[bufferPos] = object->_instanceID;
     bufferPos++;
 
+    // Player ID
+    if (object->GetComponent<PlayerController>())
+    {
+	    const uint32 playerID = object->GetComponent<PlayerController>()->GetPlayerID();
+        std::memcpy(&state[bufferPos], &playerID, sizeof(uint32));
+        bufferPos += sizeof(int16);
+    }
+
     // Covert position from float to int16
     const int16 x = (int16)object->GetPosition().x;
     const int16 y = (int16)object->GetPosition().y;
@@ -360,7 +378,19 @@ void GameObjectManager::ReadWorldState(const char* state)
         }
 
         if (prefabID > -1)
-            SpawnPrefab(PrefabManager::GetInstance().GetPrefabPath(prefabID));
+        {
+            // TODO: Set playerID
+	        const auto go = SpawnPrefab(PrefabManager::GetInstance().GetPrefabPath(prefabID));
+
+            int16 x = 0, y = 0;
+            std::memcpy(&x, &state[readIndex], sizeof(int16));
+            readIndex += sizeof(int16);
+
+            std::memcpy(&y, &state[readIndex], sizeof(int16));
+            readIndex += sizeof(int16);
+
+            go->SetPosition(Vector2D(x, y));
+        }
     }
 }
 

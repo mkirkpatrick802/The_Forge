@@ -63,7 +63,8 @@ string GameObject::GetPositionString() const
     return ss.str();
 }
 
-void GameObject::SetPosition(Vector2D newPosition) {
+void GameObject::SetPosition(Vector2D newPosition)
+{
     _transform.position = newPosition;
 }
 

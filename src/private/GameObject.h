@@ -30,7 +30,7 @@ public:
     Component* AddComponent(Component* component);
 
     template <typename T>
-    T* GetComponent();
+    T* GetComponent() const;
 
     Vector2D GetPosition() const;
     string GetPositionString() const;
@@ -57,9 +57,12 @@ private:
 };
 
 template <typename T>
-T* GameObject::GetComponent() {
-    for (auto component : _attachedComponents) {
-        if (T* childComp = dynamic_cast<T*>(component)) {
+T* GameObject::GetComponent() const
+{
+    for (auto component : _attachedComponents) 
+    {
+        if (T* childComp = dynamic_cast<T*>(component)) 
+        {
             return childComp;
         }
     }

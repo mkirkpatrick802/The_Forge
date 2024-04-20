@@ -6,6 +6,7 @@ enum class GSM_Server : char
 {
 	GSM_SpawnPlayer = 0,
 	GSM_WorldState,
+	GSM_SendPlayerID // Should not be used with WriteGSM functions
 };
 
 // Game State Messages from the client to server

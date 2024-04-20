@@ -185,18 +185,41 @@ void Server::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 			break;
 		}
 
-		// Generate a random nick.  A random temporary nick
-		// is really dumb and not how you would write a real chat server.
-		// You would want them to have some sort of signon message,
-		// and you would keep their client in a state of limbo (connected,
-		// but not logged on) until them.  I'm trying to keep this example
-		// code really simple.
+		// Create Unique Player ID
+		bool IsUnique = false;
+		char newID;
+
+		do
+		{
+			IsUnique = true;
+			const int randomNumber = std::rand() % 100;
+			newID = static_cast<char>(randomNumber);
+			for (const auto& clients : _mapClients)
+			{
+				if (clients.second.playerID != newID) continue;
+				IsUnique = false;
+				break;
+			}
+		} while (!IsUnique);
+
+
+		ClientObject object;
 		char nick[64];
-		sprintf_s(nick, "BraveWarrior%d", 10000 + (rand() % 100000));
+		sprintf_s(nick, "BraveWarrior%d", newID);
+
+		object.nickname = nick;
+		object.playerID = newID;
 
 		// Send them a welcome message
 		sprintf_s(temp, "Welcome, stranger.  Thou art known to us for now as '%s'", nick);
 		SendStringToClient(info->m_hConn, temp);
+
+		// Send them their player ID
+		{
+			ByteStream stream;
+			stream.CreatePlayerIDBuffer(newID);
+			SendByteStreamToClient(info->m_hConn, stream);
+		}
 
 		// Also send them a list of everybody who is already connected
 		if (_mapClients.empty())
@@ -217,12 +240,14 @@ void Server::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 
 		// Add them to the client list, using std::map wacky syntax
 		_mapClients[info->m_hConn];
-		SetClientNickname(info->m_hConn, nick);
+		SetClientObject(info->m_hConn, object);
 
 		// Create a Bytestream to tell clients to spawn a player
-		ByteStream stream;
-		stream.WriteGSM(GSM_Server::GSM_SpawnPlayer);
-		SendByteSteamToAllClients(stream);
+		{
+			ByteStream stream;
+			stream.WriteGSM(GSM_Server::GSM_SpawnPlayer);
+			SendByteSteamToAllClients(stream);
+		}
 		break;
 	}
 
@@ -241,10 +266,10 @@ bool Server::IsServerClientConnected() const
 	return _client->isConnected;
 }
 
-void Server::SetClientNickname(HSteamNetConnection connection, const char* nickname)
+void Server::SetClientObject(HSteamNetConnection connection, const ClientObject& object)
 {
-	_mapClients[connection].nickname = nickname;
-	steamInterface->SetConnectionName(connection, nickname);
+	_mapClients[connection] = object;
+	steamInterface->SetConnectionName(connection, object.nickname.c_str());
 }
 
 void Server::SendStringToClient(const HSteamNetConnection connection, const char* str) const

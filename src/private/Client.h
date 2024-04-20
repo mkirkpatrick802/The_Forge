@@ -9,16 +9,18 @@ class Client : public NetCode, public EventDispatcher
 {
 public:
 
-	void Start() override;
-	void OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t* info) override;
+	virtual void Start() override;
+	virtual void OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t* info) override;
 
 	static void SendByteStreamToServer(const ByteStream& message);
 	static bool IsHostClient() { return isHostClient; }
 
+	static uint8 GetPlayerID() { return _playerID; }
+
 protected:
 
-	void PollIncomingMessages() override;
-	void ReadByteStream(const char* buffer) override;
+	virtual void PollIncomingMessages() override;
+	virtual void ReadByteStream(const char* buffer) override;
 
 public:
 
@@ -27,7 +29,7 @@ public:
 
 private:
 
-	uint32 _playerID;
+	static uint8 _playerID;
 	static HSteamNetConnection _connection;
 
 };

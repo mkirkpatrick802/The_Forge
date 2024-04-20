@@ -35,6 +35,16 @@ void ByteStream::WriteGSM(const GSM_Server message)
 	size = (int)std::size(buffer);
 }
 
+void ByteStream::CreatePlayerIDBuffer(const uint8 ID)
+{
+	buffer[0] = BYTE_STREAM_CODE;
+	buffer[1] = SERVER_MESSAGE;
+	buffer[2] = (char)GSM_Server::GSM_SendPlayerID;
+	buffer[3] = (char)ID;
+
+	size = (int)std::size(buffer);
+}
+
 // Send ByteStream from Client to Server
 void ByteStream::WriteGSM(const GSM_Client message)
 {

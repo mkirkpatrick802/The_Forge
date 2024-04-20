@@ -17,10 +17,10 @@ PlayerController::PlayerController()
 
 void PlayerController::BeginPlay()
 {
-	Component::BeginPlay();
+    Component::BeginPlay();
 
     // DOESN'T SYNC IF SERVER IS TABBED OUT (IE WINDOW IS PAUSED)
-    if (!Client::IsHostClient())
+    if (!Client::IsHostClient() && _playerID == Client::GetPlayerID())
     {
         ByteStream stream;
         stream.WriteGSM(GSM_Client::GSM_SyncWorld);

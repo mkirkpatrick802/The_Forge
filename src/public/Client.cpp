@@ -8,10 +8,13 @@
 #include "ByteStream.h"
 #include "GameObjectManager.h"
 #include "NetcodeUtilites.h"
+
 #include "SpawnPlayerEvent.h"
+#include "SyncWorldEvent.h"
 
 HSteamNetConnection Client::_connection = k_HSteamNetConnection_Invalid;
 bool Client::isHostClient = false;
+uint8 Client::_playerID = 0;
 
 void Client::Start()
 {
@@ -86,7 +89,6 @@ void Client::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 
 	case k_ESteamNetworkingConnectionState_Connected:
 		isConnected = true;
-		_playerID = info->m_hConn;
 
 		break;
 
@@ -131,9 +133,16 @@ void Client::ReadByteStream(const char* buffer)
 
 	switch(static_cast<GSM_Server>(buffer[2]))
 	{
+	case GSM_Server::GSM_SendPlayerID:
+		{
+			_playerID = buffer[3];
+		}
+		break;
+
 	case GSM_Server::GSM_SpawnPlayer:
 		{
 			const auto event = CreateEvent<SpawnPlayerEvent>();
+			event->playerID = _playerID;
 			Notify(event);
 		}
 		break;
@@ -141,8 +150,10 @@ void Client::ReadByteStream(const char* buffer)
 	case GSM_Server::GSM_WorldState:
 		{
 			printf("World State Received \n");
-			// Make event to read state
-			//GameObjectManager::ReadWorldState(buffer);
+
+			const auto event = CreateEvent<SyncWorldEvent>();
+			event->worldState = buffer;
+			Notify(event);
 		}
 		break;
 	}

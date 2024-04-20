@@ -9,7 +9,6 @@
 
 class PlayerController : public Component
 {
-
 public:
 
     const static uint32 ComponentID = PLAYER_CONTROLLER;
@@ -22,10 +21,13 @@ public:
 
     void Update(float deltaTime);
 
+    uint8 GetPlayerID() const { return _playerID; }
+    void SetPlayerID(const uint8 id) { _playerID = id; }
+
 private:
 
+    uint8 _playerID;
     InputManager* _inputManager;
-
 };
 
 

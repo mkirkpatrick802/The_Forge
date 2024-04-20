@@ -28,8 +28,8 @@ public:
 
     // File Serialization
     void LoadLevel();
-    void SpawnPrefab(const PrefabPath& path);
-    void CreateGameObjectFromJSON(const json& gameObjects);
+    GameObject* SpawnPrefab(const PrefabPath& path);
+    GameObject* CreateGameObjectFromJSON(const json& gameObjects);
     void CreateComponentFromJSON(GameObject* go, const json& component);
 
     // Game Object Creation

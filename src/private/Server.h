@@ -7,6 +7,12 @@
 class ByteStream;
 class Client;
 
+struct ClientObject
+{
+	uint8 playerID;
+	std::string nickname;
+};
+
 class Server : public NetCode
 {
 public:
@@ -26,7 +32,7 @@ private:
 
 	virtual void PollIncomingMessages() override;
 
-	void SetClientNickname(HSteamNetConnection connection, const char* nickname);
+	void SetClientObject(HSteamNetConnection connection, const ClientObject& object);
 
 	void SendStringToClient(HSteamNetConnection connection, const char* str) const;
 	void SendStringToClient(HSteamNetConnection connection, const char* str, int size) const;
@@ -43,11 +49,6 @@ private:
 
 	HSteamListenSocket _listenSocket;
 	HSteamNetPollGroup _pollGroup;
-
-	struct ClientObject
-	{
-		std::string nickname;
-	};
 
 	std::map< HSteamNetConnection, ClientObject > _mapClients;
 
