@@ -23,7 +23,9 @@ public:
 
 public:
 
-    Vector2D position;
+    Vector2D position = Vector2D();
+    float rotation = 0; // degrees
+
 };
 
 

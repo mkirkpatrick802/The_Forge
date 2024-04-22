@@ -1,6 +1,8 @@
 #pragma once
 #include "NetcodeUtilites.h"
 
+const int BYTE_STREAM_OVERHEAD = 3;
+
 class ByteStream
 {
 public:
@@ -8,6 +10,8 @@ public:
 	ByteStream();
 
 	void WriteGSM(GSM_Server message);
+	void WriteSpawnPlayerMessage(int8 playerID);
+	void WriteSpawnObjectMessage();
 	void WriteWorldState();
 	void WriteObjectState(uint8 ID);
 	

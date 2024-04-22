@@ -16,6 +16,23 @@ void ByteStream::WriteGSM(const GSM_Server message)
 	buffer[size++] = (char)message;		// 2
 }
 
+void ByteStream::WriteSpawnPlayerMessage(int8 playerID)
+{
+	if ((GSM_Server)buffer[1] != GSM_Server::GSM_SpawnPlayer)
+		assert(1);
+
+	buffer[size++] = playerID; // Add player ID
+	WriteSpawnObjectMessage();
+}
+
+void ByteStream::WriteSpawnObjectMessage()
+{
+	if ((GSM_Server)buffer[1] != GSM_Server::GSM_SpawnPlayer || (GSM_Server)buffer[1] != GSM_Server::GSM_SpawnObject)
+		assert(1);
+
+
+}
+
 void ByteStream::WriteWorldState()
 {
 	if ((GSM_Server)buffer[1] != GSM_Server::GSM_WorldState)

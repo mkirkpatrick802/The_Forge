@@ -58,9 +58,12 @@ public:
     static void CreateWorldState(char* worldState);
     static void CreateObjectState(const GameObject* object, char* state);
 	void ReadWorldState(const char* state);
+
     void ReadObjectState(const char* state);
 
 private:
+
+    void ReadGameObject(const char* state, int& readIndex, GameObject* go);
 
     //Component Creation
     void RegisterComponentFns();

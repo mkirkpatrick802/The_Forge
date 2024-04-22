@@ -41,6 +41,8 @@ public:
 
     std::vector<Component*> GetAttachedComponents();
 
+    void SetRotationWithVector(Vector2D vector, float offset = 0);
+
 private:
 public:
 

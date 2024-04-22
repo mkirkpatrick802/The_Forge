@@ -10,6 +10,7 @@
 #include <fstream>
 #include <sstream>
 
+#include "ByteStream.h"
 #include "DetailsChangedEvent.h"
 #include "Renderer.h"
 #include "PrefabManager.h"
@@ -361,13 +362,22 @@ void GameObjectManager::CreateObjectState(const GameObject* object, char* state)
 
     // Set y position
     std::memcpy(&state[bufferPos], &y, sizeof(int16));
+    bufferPos += sizeof(int16);
+
+    // Write rotation
+    const int16 rot = (int16)std::round(object->transform.rotation);
+    std::memcpy(&state[bufferPos], &rot, sizeof(int16));
+    bufferPos += sizeof(int16);
+
+    if (bufferPos > GAMEOBJECT_STATE_SIZE)
+        assert(1 && "Game Object State Too Big!!");
 }
 
 void GameObjectManager::ReadWorldState(const char* state)
 {
     printf("\nReading World State \n");
-
-    int readIndex = 3;
+    
+    int readIndex = BYTE_STREAM_OVERHEAD;
     const int num = (uint8)state[readIndex++];
 
     for (int i = 0; i < num; i++)
@@ -391,16 +401,10 @@ void GameObjectManager::ReadWorldState(const char* state)
 
             printf("Setting Object \n");
 
-            int16 x = 0, y = 0;
-            std::memcpy(&x, &state[readIndex], sizeof(int16));
-            readIndex += sizeof(int16);
-
-            std::memcpy(&y, &state[readIndex], sizeof(int16));
-            readIndex += sizeof(int16);
-
-            go->SetPosition(Vector2D(x, y));
-            readIndex += 3;
+            ReadGameObject(state, readIndex, go);
             objectFound = true;
+            readIndex++;
+
             break;
         }
 
@@ -413,22 +417,15 @@ void GameObjectManager::ReadWorldState(const char* state)
             if (prefabID == PLAYER_PREFAB_ID)
                 go->GetComponent<PlayerController>()->InitController(state[readIndex++]);
 
-            int16 x = 0, y = 0;
-            std::memcpy(&x, &state[readIndex], sizeof(int16));
-            readIndex += sizeof(int16);
-
-            std::memcpy(&y, &state[readIndex], sizeof(int16));
-            readIndex += sizeof(int16);
-
-            go->SetPosition(Vector2D(x, y));
-            readIndex += 3;
+            ReadGameObject(state, readIndex, go);
+            readIndex++;
         }
     }
 }
 
 void GameObjectManager::ReadObjectState(const char* state)
 {
-    int readIndex = 3;
+    int readIndex = BYTE_STREAM_OVERHEAD;
 
     const char prefabID = state[readIndex++];
     const char instanceID = state[readIndex++];
@@ -440,16 +437,29 @@ void GameObjectManager::ReadObjectState(const char* state)
         if (go->GetComponent<PlayerController>())
             readIndex++;
 
-        int16 x = 0, y = 0;
-        std::memcpy(&x, &state[readIndex], sizeof(int16));
-        readIndex += sizeof(int16);
-
-        std::memcpy(&y, &state[readIndex], sizeof(int16));
-        readIndex += sizeof(int16);
-
-        go->SetPosition(Vector2D(x, y));
+        ReadGameObject(state, readIndex, go);
         break;
     }
+}
+
+void GameObjectManager::ReadGameObject(const char* state, int& readIndex, GameObject* go)
+{
+    // Position
+    int16 x = 0, y = 0;
+    std::memcpy(&x, &state[readIndex], sizeof(int16));
+    readIndex += sizeof(int16);
+
+    std::memcpy(&y, &state[readIndex], sizeof(int16));
+    readIndex += sizeof(int16);
+
+    go->SetPosition(Vector2D(x, y));
+
+    // Rotation
+    int16 rot;
+    std::memcpy(&rot, &state[readIndex], sizeof(int16));
+    readIndex += sizeof(int16);
+
+    go->transform.rotation = rot;
 }
 
 void GameObjectManager::CleanUp()

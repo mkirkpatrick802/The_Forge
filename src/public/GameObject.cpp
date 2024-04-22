@@ -51,6 +51,24 @@ std::vector<Component *> GameObject::GetAttachedComponents() {
     return _attachedComponents;
 }
 
+void GameObject::SetRotationWithVector(const Vector2D vector, float offset)
+{
+	const Vector2D direction = glm::normalize(vector);
+
+    // Calculate the angle in radians
+	const float angle_rad = std::atan2(direction.y, direction.x);
+
+    // Convert the angle from radians to degrees
+    float angle_deg = glm::degrees(angle_rad) + offset;
+
+    // Adjust the angle to be between 0 and 360 degrees
+    if (angle_deg < 0) {
+        angle_deg += 360.0f;
+    }
+
+    transform.rotation = angle_deg;
+}
+
 Vector2D GameObject::GetPosition() const
 {
     return transform.position;

@@ -88,8 +88,9 @@ void Server::ReadByteStream(const char* buffer, const HSteamNetConnection messag
 
 			if (const auto go = GameObjectManager::GetGameObjectByInstanceID(instanceID))
 			{
-				const Vector2D newPosition = Vector2D(go->GetPosition().x + (float)xAxis * 2, go->GetPosition().y + (float)yAxis * 2 * -1);
-				go->SetPosition(newPosition);
+				const Vector2D movementVector = normalize(Vector2D((float)xAxis,(float)yAxis * -1)) * 2.f;
+				go->SetRotationWithVector(Vector2D(xAxis, yAxis), 90);
+				go->SetPosition(movementVector + go->GetPosition());
 
 				ByteStream stream;
 				stream.WriteGSM(GSM_Server::GSM_UpdateObject);
@@ -254,7 +255,7 @@ void Server::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 		{
 			ByteStream stream;
 			stream.WriteGSM(GSM_Server::GSM_SpawnPlayer);
-			stream.buffer[stream.size++] = newID; // Add player ID
+			stream.WriteSpawnPlayerMessage(newID);
 
 			SendByteSteamToAllClients(stream);
 		}
