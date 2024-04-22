@@ -1,40 +1,29 @@
 #pragma once
 
-#include <unordered_map>
 #include <vector>
 
-#include "ComponentPool.h"
 #include "EventListener.h"
-#include "PlayerController.h"
 #include "GameData.h"
 #include "PrefabManager.h"
 
+class ObjectCreator;
 const std::string LEVEL_FILE = "assets/game-data/level.json";
-
-using json = nlohmann::json;
 
 class GameObject;
 class GameObjectManager;
 class Renderer;
 class InputManager;
 
-typedef void (GameObjectManager::*componentFn)(GameObject* go, const json& data);
-
 class GameObjectManager : public EventListener
 {
 public:
 
-    GameObjectManager(Renderer* renderer, InputManager* inputManager);
+    static void Init(Renderer* renderer, InputManager* inputManager);
+    static GameObjectManager* GetInstance();
 
-    // File Serialization
     void LoadLevel();
-    GameObject* SpawnPrefab(const PrefabPath& path);
-    GameObject* CreateGameObjectFromJSON(const json& gameObjects);
-    void CreateComponentFromJSON(GameObject* go, const json& component);
 
-    // Game Object Creation
-    GameObject* CreateGameObject();
-    bool AddComponent(GameObject* go, glm::uint32 componentID);
+	GameObject* CreateGameObject(PrefabID ID);
 
     // Editor Usability
     std::vector<GameObject*>* GetClickedObjects(Vector2D mousePos);
@@ -50,37 +39,22 @@ public:
     // Events
     virtual void OnEvent(Event* event) override;
 
-    static GameObject* GetGameObjectByInstanceID(uint8 ID);
+	uint8 GenerateUniqueInstanceID();
+	GameObject* GetGameObjectByInstanceID(uint8 ID);
+    std::vector<GameObject*> GetCurrentGameObjects() const { return _currentGameObjects; }
 
-    // Replications
-    static int GetNumOfReplicatedObjects();
-
-    static void CreateWorldState(char* worldState);
-    static void CreateObjectState(const GameObject* object, char* state);
-	void ReadWorldState(const char* state);
-
-    void ReadObjectState(const char* state);
 
 private:
 
-    void ReadGameObject(const char* state, int& readIndex, GameObject* go);
-
-    //Component Creation
-    void RegisterComponentFns();
-    void CreateSpriteRenderer(GameObject* go, const json& data);
-    void CreatePlayerController(GameObject* go, const json& data);
-
-public:
-
-    //Object Creation
-    std::unordered_map<uint32, componentFn> componentCreationMap;
+    GameObjectManager(Renderer* renderer, InputManager* inputManager);
 
 private:
 
-    Renderer* _renderer;
-    InputManager* _inputManager;
+    static GameObjectManager* _instance;
 
-    static std::vector<GameObject*> _currentGameObjects;
-    ComponentPool<PlayerController> _playerControllerPool;
+	Renderer* _renderer;
+	InputManager* _inputManager;
+    ObjectCreator* _objectCreator;
 
+	std::vector<GameObject*> _currentGameObjects;
 };

@@ -17,19 +17,22 @@ void PlayerController::BeginPlay()
 
 void PlayerController::InitController(const uint8 ID)
 {
-    _playerID = ID;
+    if (Client::playerID == 255)
+        Client::playerID = ID;
 
-    if (!Client::IsHostClient() && _playerID == Client::GetPlayerID())
+    playerID = ID;
+
+    if (!Client::IsHostClient() && playerID == Client::playerID)
     {
         ByteStream stream;
-        stream.WriteGSM(GSM_Client::GSM_SyncWorld);
+        stream.WriteGSM(GSM_Client::GSM_WorldStateRequest);
         Client::SendByteStreamToServer(stream);
     }
 }
 
 void PlayerController::Update(float deltaTime)
 {
-    if (!_inputManager || _playerID != Client::GetPlayerID()) return;
+    if (!_inputManager || playerID != Client::playerID) return;
 
     const int8 horizontalMovement = (int8)(_inputManager->GetKey(SDL_SCANCODE_RIGHT) - _inputManager->GetKey(SDL_SCANCODE_LEFT));
     const int8 verticalMovement = (int8)(_inputManager->GetKey(SDL_SCANCODE_DOWN) - _inputManager->GetKey(SDL_SCANCODE_UP));

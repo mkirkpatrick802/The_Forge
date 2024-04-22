@@ -24,8 +24,6 @@ public:
 
 	void OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t* info) override;
 
-	bool IsServerClientConnected() const;
-
 	Client* GetClient() const { return _client; }
 
 private:

@@ -1,9 +1,7 @@
 //
 // Created by mKirkpatrick on 2/20/2024.
 //
-
-#ifndef THE_FORGE_PLAYERCONTROLLER_H
-#define THE_FORGE_PLAYERCONTROLLER_H
+#pragma once
 
 #include "Component.h"
 
@@ -23,13 +21,9 @@ public:
 
     void Update(float deltaTime);
 
-    uint8 GetPlayerID() const { return _playerID; }
+    uint8 playerID;
 
 private:
 
-    uint8 _playerID;
     InputManager* _inputManager;
 };
-
-
-#endif //THE_FORGE_PLAYERCONTROLLER_H

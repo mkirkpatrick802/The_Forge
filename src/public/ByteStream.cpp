@@ -16,26 +16,9 @@ void ByteStream::WriteGSM(const GSM_Server message)
 	buffer[size++] = (char)message;		// 2
 }
 
-void ByteStream::WriteSpawnPlayerMessage(int8 playerID)
-{
-	if ((GSM_Server)buffer[1] != GSM_Server::GSM_SpawnPlayer)
-		assert(1);
-
-	buffer[size++] = playerID; // Add player ID
-	WriteSpawnObjectMessage();
-}
-
-void ByteStream::WriteSpawnObjectMessage()
-{
-	if ((GSM_Server)buffer[1] != GSM_Server::GSM_SpawnPlayer || (GSM_Server)buffer[1] != GSM_Server::GSM_SpawnObject)
-		assert(1);
-
-
-}
-
 void ByteStream::WriteWorldState()
 {
-	if ((GSM_Server)buffer[1] != GSM_Server::GSM_WorldState)
+	/*if ((GSM_Server)buffer[1] != GSM_Server::GSM_WorldState)
 		assert(1);
 
 	const int num = GameObjectManager::GetNumOfReplicatedObjects();
@@ -44,19 +27,7 @@ void ByteStream::WriteWorldState()
 	char state[MAX_GAMEOBJECTS * GAMEOBJECT_STATE_SIZE];
 	GameObjectManager::CreateWorldState(state);
 	std::memcpy(&buffer[size], &state, sizeof(char) * num * GAMEOBJECT_STATE_SIZE);
-	size += sizeof(char) * num * GAMEOBJECT_STATE_SIZE;
-}
-
-void ByteStream::WriteObjectState(const uint8 ID)
-{
-	if ((GSM_Server)buffer[1] != GSM_Server::GSM_UpdateObject)
-		assert(1);
-
-	char state[GAMEOBJECT_STATE_SIZE];
-	const auto go = GameObjectManager::GetGameObjectByInstanceID(ID);
-	GameObjectManager::CreateObjectState(go, state);
-	std::memcpy(&buffer[size], &state, sizeof(char) * GAMEOBJECT_STATE_SIZE);
-	size += sizeof(char) * GAMEOBJECT_STATE_SIZE;
+	size += sizeof(char) * num * GAMEOBJECT_STATE_SIZE;*/
 }
 
 // Send ByteStream from Client to Server

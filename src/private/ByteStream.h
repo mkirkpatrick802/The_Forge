@@ -10,14 +10,25 @@ public:
 	ByteStream();
 
 	void WriteGSM(GSM_Server message);
-	void WriteSpawnPlayerMessage(int8 playerID);
-	void WriteSpawnObjectMessage();
 	void WriteWorldState();
-	void WriteObjectState(uint8 ID);
 	
 	void WriteGSM(GSM_Client message);
 	void WritePlayerMovementRequest(uint8 ID, int8 x, int8 y);
 
+	template <typename T>
+	void AppendToBuffer(T value);
+
 	char buffer[1024];
 	int size;
 };
+
+template <typename T>
+void ByteStream::AppendToBuffer(T value)
+{
+	static_assert(std::is_integral_v<T>, "Only integer types are allowed.");
+
+	if (size + sizeof(T) > 1024) assert(0 && "Buffer overflow prevented");
+
+	std::memcpy(&buffer[size], &value, sizeof(T));
+	size += sizeof(T);
+}

@@ -6,16 +6,12 @@
 #include <steam/isteamnetworkingsockets.h>
 
 #include "ByteStream.h"
-#include "GameObjectManager.h"
 #include "NetcodeUtilites.h"
-
-#include "SpawnPlayerEvent.h"
-#include "SyncWorldEvent.h"
-#include "UpdateObjectEvent.h"
+#include "ObjectStateReader.h"
 
 HSteamNetConnection Client::_connection = k_HSteamNetConnection_Invalid;
 bool Client::isHostClient = false;
-uint8 Client::_playerID = 255;
+uint8 Client::playerID = 255;
 
 void Client::Start()
 {
@@ -115,6 +111,7 @@ void Client::PollIncomingMessages()
 	// Check if the message is a ByteStream
 	if(const auto message = static_cast<char*>(pIncomingMsg->m_pData); message[0] == BYTE_STREAM_CODE)
 	{
+		if(IsHostClient()) return;
 		ReadByteStream(message, pIncomingMsg->m_conn);
 	}
 	else
@@ -128,6 +125,9 @@ void Client::PollIncomingMessages()
 	pIncomingMsg->Release();
 }
 
+/*
+ *		This function should never be called on the host client because the server manages the game state for them
+ */
 void Client::ReadByteStream(const char* buffer, const HSteamNetConnection messageAuthor)
 {
 	if (buffer[1] != SERVER_MESSAGE) { printf("Invalid Message Received!! \n"); return; }
@@ -135,33 +135,15 @@ void Client::ReadByteStream(const char* buffer, const HSteamNetConnection messag
 	switch(static_cast<GSM_Server>(buffer[2]))
 	{
 	case GSM_Server::GSM_SpawnPlayer:
-		{
-			const auto event = CreateEvent<SpawnPlayerEvent>();
-
-			if(_playerID == 255)
-				_playerID = buffer[3];
-
-			event->playerID = buffer[3];
-			Notify(event);
-		}
+			ObjectStateReader::SpawnPlayer(buffer);
 		break;
 
 	case GSM_Server::GSM_WorldState:
-		{
-			const auto event = CreateEvent<SyncWorldEvent>();
-			event->worldState = buffer;
-			Notify(event);
-		}
+			ObjectStateReader::WorldState(buffer);
 		break;
 
 	case GSM_Server::GSM_UpdateObject:
-		{
-			if(IsHostClient()) return;
-
-			const auto event = CreateEvent<UpdateObjectEvent>();
-			event->objectState = buffer;
-			Notify(event);
-		}
+		ObjectStateReader::UpdateObject(buffer);
 		break;
 	}
 }

@@ -5,5 +5,7 @@
 Engine::Engine(Renderer& renderer, InputManager& inputManager) : _renderer(&renderer), _inputManager(&inputManager), frameStart(0), deltaTime(0)
 {
 	_uiManager = UIManager::GetInstance();
-	_gameObjectManager = new GameObjectManager(&renderer, &inputManager);
+
+	GameObjectManager::Init(&renderer, &inputManager);
+	_gameObjectManager = GameObjectManager::GetInstance();
 }

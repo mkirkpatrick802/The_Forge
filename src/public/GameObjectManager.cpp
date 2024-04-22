@@ -8,42 +8,52 @@
 #include <iomanip>
 
 #include <fstream>
-#include <sstream>
 
-#include "ByteStream.h"
 #include "DetailsChangedEvent.h"
+#include "ObjectCreator.h"
 #include "Renderer.h"
 #include "PrefabManager.h"
 #include "SpawnPlayerEvent.h"
-#include "SyncWorldEvent.h"
-#include "UpdateObjectEvent.h"
 
-std::vector<GameObject*> GameObjectManager::_currentGameObjects = std::vector<GameObject*>();
+GameObjectManager* GameObjectManager::_instance = nullptr;
+
+void GameObjectManager::Init(Renderer* renderer, InputManager* inputManager)
+{
+    if (_instance) return;
+
+    _instance = new GameObjectManager(renderer, inputManager);
+}
 
 GameObjectManager::GameObjectManager(Renderer* renderer, InputManager* inputManager) : _renderer(renderer), _inputManager(inputManager)
 {
-    RegisterComponentFns();
-    LoadLevel();
 
     SubscribeToEvent(EventType::ET_SpawnPlayer);
     SubscribeToEvent(EventType::ET_DetailsChanged);
-    SubscribeToEvent(EventType::ET_SyncWorld);
-    SubscribeToEvent(EventType::ET_UpdateObject);
+
+    _objectCreator = new ObjectCreator(renderer, inputManager);
+
+    LoadLevel();
 
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 }
 
-void GameObjectManager::RegisterComponentFns()
+GameObjectManager* GameObjectManager::GetInstance()
 {
-    componentCreationMap[SPRITE_RENDERER] = &GameObjectManager::CreateSpriteRenderer;
-    componentCreationMap[PLAYER_CONTROLLER] = &GameObjectManager::CreatePlayerController;
+    if (!_instance)
+    {
+        printf("Game Object Manager Not Init \n");
+        return nullptr;
+    }
+
+    return _instance;
 }
 
 void GameObjectManager::LoadLevel()
 {
     std::ifstream file(LEVEL_FILE);
 
-    if (!file.is_open()) {
+    if (!file.is_open()) 
+    {
         std::cerr << "Could not open file for reading!\n";
         assert(0);
     }
@@ -54,128 +64,44 @@ void GameObjectManager::LoadLevel()
 
     auto& gameObjects = levelData["GameObjects"];
     for (const auto& gameObject : gameObjects)
-        CreateGameObjectFromJSON(gameObject);
+        _currentGameObjects.push_back(_objectCreator->CreateGameObjectFromJSON(gameObject));
 }
 
-GameObject* GameObjectManager::SpawnPrefab(const PrefabPath& path)
+GameObject* GameObjectManager::CreateGameObject(const PrefabID ID = -1)
 {
-    std::ifstream file(path);
+    if (_currentGameObjects.size() >= MAX_GAMEOBJECTS)
+        assert(0 && "To Many GameObjects");
 
-    if (!file.is_open()) {
-        std::cerr << "Could not open file for reading!\n";
-        assert(0);
-    }
-
-    json prefab;
-    file >> prefab;
-    file.close();
-
-    return CreateGameObjectFromJSON(prefab);
-}
-
-GameObject* GameObjectManager::CreateGameObjectFromJSON(const json &gameObject)
-{
-
-    GameObject* go = CreateGameObject();
-    if(go == nullptr)
-        assert(0 && "Failed to Create Game Object");
-
-    // Check if prefab
-    if(gameObject.find("Prefab ID") != gameObject.end())
+    GameObject* go;
+    if (ID == -1)
     {
-        const int prefabID = gameObject["Prefab ID"];
-        go->_prefabID = prefabID;
+        go = new GameObject();
+    }
+    else
+    {
+        const PrefabPath path = PrefabManager::GetInstance().GetPrefabPath(ID);
+        std::ifstream file(path);
+
+        if (!file.is_open())
+        {
+            std::cerr << "Could not open file for reading!\n";
+            assert(0);
+        }
+
+        json prefab;
+        file >> prefab;
+        file.close();
+
+        go = _objectCreator->CreateGameObjectFromJSON(prefab);
     }
 
-    const std::string name = gameObject["Name"];
-    go->_name = name;
-
-    const int isReplicated = gameObject["Is Replicated"];
-    go->_isReplicated = (bool)isReplicated;
-
-    const std::string position = gameObject["Position"];
-    std::istringstream iss(position);
-    iss >> go->transform.position.x >> go->transform.position.y;
-
-    auto& components = gameObject["Components"];
-    for (const auto& component : components)
-        CreateComponentFromJSON(go, component);
-
-    go->ObjectCreated();
+    _currentGameObjects.push_back(go);
     return go;
 }
 
-void GameObjectManager::CreateComponentFromJSON(GameObject* go, const json &component)
+void GameObjectManager::Update(const float deltaTime)
 {
-	const int componentID = component["ID"];
-	if(const auto it = componentCreationMap.find(componentID); it == componentCreationMap.end())
-        assert(0 && "Could not find valid component function");
-
-    (this->*componentCreationMap[componentID])(go, component);
-}
-
-GameObject* GameObjectManager::CreateGameObject()
-{
-    if(_currentGameObjects.size() >= MAX_GAMEOBJECTS)
-        return nullptr;
-
-    auto newObject = new GameObject();
-
-    // Create Unique ID
-    bool IsUnique = false;
-    uint8 newID;
-
-    do
-    {
-        IsUnique = true;
-        const int randomNumber = std::rand() % MAX_GAMEOBJECTS;
-        newID = (uint8)randomNumber;
-        for (const auto go : _currentGameObjects)
-        {
-            if (go->instanceID != newID) continue;
-            IsUnique = false;
-            break;
-        }
-    }
-	while (!IsUnique);
-
-    newObject->instanceID = newID;
-    _currentGameObjects.push_back(newObject);
-
-    return newObject;
-}
-
-bool GameObjectManager::AddComponent(GameObject *go, uint32 componentID)
-{
-
-    auto it = componentCreationMap.find(componentID);
-    if(it == componentCreationMap.end())
-        return false;
-
-    (this->*componentCreationMap[componentID])(go, nullptr);
-    return true;
-}
-
-void GameObjectManager::CreateSpriteRenderer(GameObject *go, const json& data = nullptr)
-{
-    if(_renderer != nullptr)
-        _renderer->CreateSpriteRenderer(go, data);
-}
-
-void GameObjectManager::CreatePlayerController(GameObject *go, const json &data = nullptr)
-{
-    PlayerController* playerController = _playerControllerPool.New(go);
-    playerController->SetInputManager(_inputManager);
-
-    go->AddComponent(playerController);
-
-    if(data != nullptr)
-        playerController->LoadData(data);
-}
-
-void GameObjectManager::Update(float deltaTime)
-{
-    _playerControllerPool.Update(deltaTime);
+    _objectCreator->UpdateComponentPools(deltaTime);
 }
 
 std::vector<GameObject*>* GameObjectManager::GetClickedObjects(Vector2D mousePos)
@@ -203,7 +129,7 @@ void GameObjectManager::ToggleEditorMode(bool inEditorMode)
 
 bool GameObjectManager::SaveGameObjectInfo()
 {
-    printf("Saving Level Data! \n");
+    /*printf("Saving Level Data! \n");
     std::ifstream in(LEVEL_FILE);
 
     if (!in.is_open()) {
@@ -240,12 +166,14 @@ bool GameObjectManager::SaveGameObjectInfo()
     out.close();
 
     printf("Saved Level Data! \n");
-    return true;
+    return true;*/
+
+    return false;
 }
 
 void GameObjectManager::SavePlayerObjectInfo(const GameObject* player)
 {
-    printf("Saving Player Data! \n");
+    /*printf("Saving Player Data! \n");
     std::ifstream in(PrefabManager::GetInstance().GetPrefabPath(PLAYER_PREFAB_ID));
 
     if (!in.is_open()) 
@@ -267,7 +195,7 @@ void GameObjectManager::SavePlayerObjectInfo(const GameObject* player)
     out << std::setw(2) << playerData << std::endl;
     out.close();
 
-    printf("Saved Player Data! \n");
+    printf("Saved Player Data! \n");*/
 }
 
 void GameObjectManager::OnEvent(Event* event)
@@ -279,9 +207,9 @@ void GameObjectManager::OnEvent(Event* event)
 
     case EventType::ET_SpawnPlayer:
 	    {
-			const auto player = SpawnPrefab(PrefabManager::GetInstance().GetPrefabPath(PLAYER_PREFAB_ID));
+			/*const auto player = SpawnPrefab(PrefabManager::GetInstance().GetPrefabPath(PLAYER_PREFAB_ID));
 			const int ID = static_cast<SpawnPlayerEvent*>(event)->playerID;
-			player->GetComponent<PlayerController>()->InitController(ID);
+			player->GetComponent<PlayerController>()->InitController(ID);*/
 	    }
         break;
 
@@ -289,13 +217,35 @@ void GameObjectManager::OnEvent(Event* event)
         ToggleEditorMode(static_cast<DetailsChangedEvent*>(event)->currentDetails.editorSettings.editMode); // VS says this static cast is bad IDK why (Explore later)
 		break;
 
-	case EventType::ET_SyncWorld:
+	/*case EventType::ET_SyncWorld:
         ReadWorldState(static_cast<SyncWorldEvent*>(event)->worldState);
 		break;
 	case EventType::ET_UpdateObject:
-        ReadObjectState(static_cast<UpdateObjectEvent*>(event)->objectState);
+        ReadObjectState(static_cast<UpdateObjectEvent*>(event)->objectState);*/
 		break;
     }
+}
+
+uint8 GameObjectManager::GenerateUniqueInstanceID()
+{
+    // Create Unique ID
+    bool IsUnique = false;
+    uint8 newID;
+
+    do
+    {
+        IsUnique = true;
+        const int randomNumber = std::rand() % MAX_GAMEOBJECTS;
+        newID = (uint8)randomNumber;
+        for (const auto go : GameObjectManager::_currentGameObjects)
+        {
+            if (go->instanceID != newID) continue;
+            IsUnique = false;
+            break;
+        }
+    } while (!IsUnique);
+
+    return newID;
 }
 
 GameObject* GameObjectManager::GetGameObjectByInstanceID(const uint8 ID)
@@ -311,7 +261,7 @@ GameObject* GameObjectManager::GetGameObjectByInstanceID(const uint8 ID)
  *      Game State Replication
  */
 
-int GameObjectManager::GetNumOfReplicatedObjects()
+/*int GameObjectManager::GetNumOfReplicatedObjects()
 {
     int num = 0;
     for (const auto go : _currentGameObjects)
@@ -336,44 +286,9 @@ void GameObjectManager::CreateWorldState(char* worldState)
         for (int j = 0; j < GAMEOBJECT_STATE_SIZE; j++)
             worldState[i * GAMEOBJECT_STATE_SIZE + j] = goState[j];
 	}
-}
+}*/
 
-void GameObjectManager::CreateObjectState(const GameObject* object, char* state)
-{
-    int bufferPos = 0;
-
-    // Prefab ID
-    state[bufferPos++] = (char)object->_prefabID;
-
-    // Instance ID
-    state[bufferPos++] = (char)object->instanceID;
-
-    // Player ID
-    if (object->_prefabID == PLAYER_PREFAB_ID)
-        state[bufferPos++] = (char)object->GetComponent<PlayerController>()->GetPlayerID();
-
-    // Covert position from float to int16
-    const int16 x = (int16)object->GetPosition().x;
-    const int16 y = (int16)object->GetPosition().y;
-
-    // Set x position
-	std::memcpy(&state[bufferPos], &x, sizeof(int16));
-    bufferPos += sizeof(int16);
-
-    // Set y position
-    std::memcpy(&state[bufferPos], &y, sizeof(int16));
-    bufferPos += sizeof(int16);
-
-    // Write rotation
-    const int16 rot = (int16)std::round(object->transform.rotation);
-    std::memcpy(&state[bufferPos], &rot, sizeof(int16));
-    bufferPos += sizeof(int16);
-
-    if (bufferPos > GAMEOBJECT_STATE_SIZE)
-        assert(1 && "Game Object State Too Big!!");
-}
-
-void GameObjectManager::ReadWorldState(const char* state)
+/*void GameObjectManager::ReadWorldState(const char* state)
 {
     printf("\nReading World State \n");
     
@@ -421,9 +336,9 @@ void GameObjectManager::ReadWorldState(const char* state)
             readIndex++;
         }
     }
-}
+}*/
 
-void GameObjectManager::ReadObjectState(const char* state)
+/*void GameObjectManager::ReadObjectState(const char* state)
 {
     int readIndex = BYTE_STREAM_OVERHEAD;
 
@@ -460,19 +375,18 @@ void GameObjectManager::ReadGameObject(const char* state, int& readIndex, GameOb
     readIndex += sizeof(int16);
 
     go->transform.rotation = rot;
-}
+}*/
 
 void GameObjectManager::CleanUp()
 {
     const uint32 size = _currentGameObjects.size();
     for (int i = 0; i < size; ++i)
     {
-        if(PlayerController* controller = _currentGameObjects[i]->GetComponent<PlayerController>())
-            _playerControllerPool.Delete(controller);
-
-        _renderer->CleanUpSpriteRenderer(_currentGameObjects[i]);
-
+        _objectCreator->CleanUpComponents(_currentGameObjects[i]);
         delete _currentGameObjects[i];
     }
     _currentGameObjects.clear();
+
+    delete _objectCreator;
+    delete _instance;
 }

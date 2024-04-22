@@ -17,9 +17,9 @@ public:
 		return instance;
 	}
 
-	std::string GetPrefabPath(const PrefabID id)
+	std::string GetPrefabPath(const PrefabID ID)
 	{
-		if (const auto it = _prefabPaths.find(id); it != _prefabPaths.end()) 
+		if (const auto it = _prefabPaths.find(ID); it != _prefabPaths.end())
 			return it->second;
 
 		return "";

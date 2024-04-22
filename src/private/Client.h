@@ -1,11 +1,10 @@
 ﻿#pragma once
 
-#include "EventDispatcher.h"
 #include "NetCode.h"
 
 class ByteStream;
 
-class Client : public NetCode, public EventDispatcher
+class Client : public NetCode
 {
 public:
 
@@ -15,7 +14,6 @@ public:
 	static void SendByteStreamToServer(const ByteStream& message);
 	static bool IsHostClient() { return isHostClient; }
 
-	static uint8 GetPlayerID() { return _playerID; }
 
 protected:
 
@@ -24,12 +22,12 @@ protected:
 
 public:
 
+	static uint8 playerID;
 	static bool isHostClient;
 	bool isConnected = false;
 
 private:
 
-	static uint8 _playerID;
 	static HSteamNetConnection _connection;
 
 };

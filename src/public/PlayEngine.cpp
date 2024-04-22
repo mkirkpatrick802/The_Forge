@@ -5,26 +5,14 @@
 #include "PlayEngine.h"
 #include <SDL_timer.h>
 #include <SDL_scancode.h>
-#include <thread>
 
 #include "InputManager.h"
 #include "GameObjectManager.h"
-
-#include "Client.h"
-#include "Server.h"
+#include "NetCode.h"
 
 PlayEngine::PlayEngine(Renderer &renderer, InputManager &inputManager, NetCode* netcode) : Engine(renderer, inputManager)
 {
     _netcode = netcode;
-    if (auto server = dynamic_cast<Server*>(_netcode))
-    {
-        server->GetClient()->Attach(_gameObjectManager);
-    }
-    else
-    {
-        auto client = dynamic_cast<Client*>(_netcode);
-        client->Attach(_gameObjectManager);
-    }
 }
 
 void PlayEngine::GameLoop()
@@ -57,5 +45,4 @@ void PlayEngine::GameLoop()
 void PlayEngine::CleanUp()
 {
     _gameObjectManager->CleanUp();
-    delete _gameObjectManager;
 }

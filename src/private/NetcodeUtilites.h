@@ -13,7 +13,7 @@ enum class GSM_Server : char
 // Game State Messages from the client to server
 enum class GSM_Client : char
 {
-	GSM_SyncWorld = 0,
+	GSM_WorldStateRequest = 0,
 	GSM_MovementRequest,
 };
 

@@ -6,8 +6,8 @@
 
 #include "ByteStream.h"
 #include "Client.h"
-#include "GameObject.h"
-#include "GameObjectManager.h"
+
+#include "ObjectStateWriter.h"
 
 Server::Server()
 {
@@ -71,32 +71,14 @@ void Server::ReadByteStream(const char* buffer, const HSteamNetConnection messag
 
 	switch((GSM_Client)buffer[2])
 	{
-	case GSM_Client::GSM_SyncWorld:
+	case GSM_Client::GSM_WorldStateRequest:
 		{
-			ByteStream stream;
-			stream.WriteGSM(GSM_Server::GSM_WorldState);
-			stream.WriteWorldState();
-			SendByteStreamToClient(messageAuthor, stream);
+			SendByteStreamToClient(messageAuthor, ObjectStateWriter::WorldState());
 		}
 		break;
 	case GSM_Client::GSM_MovementRequest:
 		{
-			const uint8 requestingPlayerID = _mapClients[messageAuthor].playerID;
-			const uint8 instanceID = buffer[3];
-			const int8 xAxis = buffer[4];
-			const int8 yAxis = buffer[5];
-
-			if (const auto go = GameObjectManager::GetGameObjectByInstanceID(instanceID))
-			{
-				const Vector2D movementVector = normalize(Vector2D((float)xAxis,(float)yAxis * -1)) * 2.f;
-				go->SetRotationWithVector(Vector2D(xAxis, yAxis), 90);
-				go->SetPosition(movementVector + go->GetPosition());
-
-				ByteStream stream;
-				stream.WriteGSM(GSM_Server::GSM_UpdateObject);
-				stream.WriteObjectState(instanceID);
-				SendByteSteamToAllClients(stream);
-			}
+			SendByteSteamToAllClients(ObjectStateWriter::Movement(buffer));
 		}
 		break;
 	}
@@ -251,14 +233,7 @@ void Server::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 		_mapClients[info->m_hConn];
 		SetClientObject(info->m_hConn, object);
 
-		// Create a Byte Stream to tell clients to spawn a player
-		{
-			ByteStream stream;
-			stream.WriteGSM(GSM_Server::GSM_SpawnPlayer);
-			stream.WriteSpawnPlayerMessage(newID);
-
-			SendByteSteamToAllClients(stream);
-		}
+		SendByteSteamToAllClients(ObjectStateWriter::SpawnPlayer(newID));
 		break;
 	}
 
@@ -270,11 +245,6 @@ void Server::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 	default:
 		break;
 	}
-}
-
-bool Server::IsServerClientConnected() const
-{
-	return _client->isConnected;
 }
 
 void Server::SetClientObject(HSteamNetConnection connection, const ClientObject& object)

@@ -16,7 +16,7 @@ class GameObject {
 
 public:
 
-    friend class GameObjectManager;
+    friend class ObjectCreator;
 
 public:
 
@@ -43,6 +43,8 @@ public:
 
     void SetRotationWithVector(Vector2D vector, float offset = 0);
 
+    int8 GetPrefabID() const { return _prefabID; }
+
 private:
 public:
 
@@ -50,11 +52,12 @@ public:
     Transform transform;
     uint8 instanceID;
 
+    bool isReplicated;
+
 private:
 
-    int _prefabID = -1;
+    int8 _prefabID = -1;
     std::string _name;
-    bool _isReplicated;
     std::vector<Component*> _attachedComponents;
 };
 

@@ -14,11 +14,11 @@ GameObject::GameObject() {
     transform = Transform();
 
     settings.name = &_name;
-    settings.isReplicated = &_isReplicated;
+    settings.isReplicated = &isReplicated;
     settings.position = &transform.position;
 }
 
-GameObject::GameObject(float x, float y): settings(), _isReplicated(false)
+GameObject::GameObject(float x, float y): settings(), isReplicated(false)
 {
 	transform = Transform(x, y);
 }
