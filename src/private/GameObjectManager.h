@@ -32,6 +32,8 @@ public:
     // Gameplay Functions
     void Update(float deltaTime);
 
+    void DestroyGameObject(GameObject* go);
+
     void CleanUp();
     bool SaveGameObjectInfo();
     void SavePlayerObjectInfo(const GameObject* player);

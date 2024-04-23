@@ -90,7 +90,7 @@ void Server::ReadByteStream(const HSteamNetConnection messageAuthor, const char*
 		SendByteSteamToAllClients(ObjectStateWriter::Movement(buffer));
 		break;
 	case GSM_Client::GSM_FireRequest:
-		ObjectStateWriter::FireProjectile(buffer);
+		SendByteSteamToAllClients(ObjectStateWriter::FireProjectile(buffer));
 		break;
 	}
 }

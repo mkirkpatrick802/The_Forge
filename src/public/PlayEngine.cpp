@@ -23,12 +23,12 @@ void PlayEngine::GameLoop()
 		if (SDL_GetTicks64() - frameStart >= 16)
 		{
 			//Frame Rate Management
-			deltaTime = (SDL_GetTicks64() - frameStart);
+			deltaTime = (SDL_GetTicks64() - frameStart) / 1000.f;
 			frameStart = SDL_GetTicks64();
 
 			// Display frame rate in console
 			if (_inputManager->GetKey(SDL_SCANCODE_APOSTROPHE))
-				printf("%f FPS \n", 1000 / deltaTime);
+				printf("%f FPS \n", deltaTime);
 
 			_netcode->Update();
 			_gameObjectManager->Update(deltaTime);

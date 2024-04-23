@@ -10,6 +10,11 @@
 #include "GameObject.h"
 #include "InputManager.h"
 
+void PlayerController::LoadData(const json& data)
+{
+    movementSpeed = data["Movement Speed"];
+}
+
 void PlayerController::BeginPlay()
 {
     Component::BeginPlay();
@@ -58,11 +63,6 @@ void PlayerController::ProcessInput()
         stream.WriteFireRequest(gameObject->instanceID);
         Client::SendByteStreamToServer(stream);
     }
-}
-
-void PlayerController::LoadData(const json &data)
-{
-
 }
 
 /*

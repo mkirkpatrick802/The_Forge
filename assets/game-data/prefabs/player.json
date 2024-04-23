@@ -1,11 +1,12 @@
 {
   "Components": [
     {
-      "ID": 0
+      "ID": 0,
+      "Movement Speed": 2
     },
     {
       "ID": 1,
-      "Sorting Layer": 0,
+      "Sorting Layer": 1,
       "Texture": "assets/sprites/TestShip.png"
     }
   ],

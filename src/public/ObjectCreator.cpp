@@ -110,5 +110,8 @@ void ObjectCreator::CleanUpComponents(GameObject* go)
     if (PlayerController* controller = go->GetComponent<PlayerController>())
         _playerControllerPool.Delete(controller);
 
+    if (Projectile* projectile = go->GetComponent<Projectile>())
+        _projectilePool.Delete(projectile);
+
     _renderer->CleanUpSpriteRenderer(go);
 }

@@ -33,7 +33,11 @@ ByteStream ObjectStateWriter::Movement(const char* buffer)
 	GameObjectManager* objectManager = GameObjectManager::GetInstance();
 	if (const auto go = objectManager->GetGameObjectByInstanceID(instanceID))
 	{
-		const Vector2D movementVector = normalize(Vector2D((float)xAxis,(float)yAxis * -1)) * 2.f;
+		float speed = 0;
+		if (go->GetComponent<PlayerController>())
+			speed = go->GetComponent<PlayerController>()->movementSpeed;
+
+		const Vector2D movementVector = normalize(Vector2D((float)xAxis,(float)yAxis * -1)) * speed;
 		go->SetRotationWithVector(Vector2D(xAxis, yAxis), 90);
 		go->SetPosition(movementVector + go->GetPosition());
 
@@ -49,7 +53,7 @@ ByteStream ObjectStateWriter::Movement(const char* buffer)
 
 ByteStream ObjectStateWriter::FireProjectile(const char* buffer)
 {
-	int index = BYTE_STREAM_OVERHEAD;
+	const int index = BYTE_STREAM_OVERHEAD;
 
 	GameObjectManager* objectManager = GameObjectManager::GetInstance();
 	const uint8 instanceID = objectManager->GenerateUniqueInstanceID();
@@ -57,10 +61,15 @@ ByteStream ObjectStateWriter::FireProjectile(const char* buffer)
 	GameObject* projectile = objectManager->CreateGameObject(PROJECTILE_PREFAB_ID);
 	projectile->instanceID = instanceID;
 
-	Vector2D pos = objectManager->GetGameObjectByInstanceID(buffer[index])->GetPosition();
-	projectile->SetPosition(pos);
+	const GameObject* owner = objectManager->GetGameObjectByInstanceID(buffer[index]);
 
-	return {};
+	projectile->SetPosition(owner->GetPosition());
+	projectile->transform.rotation = owner->transform.rotation;
+
+	ByteStream stream;
+	stream.WriteGSM(GSM_Server::GSM_UpdateObject);
+	ObjectState(projectile, stream);
+	return stream;
 }
 
 ByteStream ObjectStateWriter::WorldState()

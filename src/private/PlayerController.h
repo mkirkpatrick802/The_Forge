@@ -28,6 +28,7 @@ private:
 public:
 
     uint8 playerID;
+    float movementSpeed;
 
 private:
 

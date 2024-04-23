@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include "Component.h"
+#include "GameObjectManager.h"
 #include "SpriteRenderer.h"
 #include "Renderer.h"
 
@@ -69,6 +70,11 @@ void GameObject::SetRotationWithVector(const Vector2D vector, float offset)
     transform.rotation = angle_deg;
 }
 
+void GameObject::Destroy()
+{
+    GameObjectManager::GetInstance()->DestroyGameObject(this);
+}
+
 Vector2D GameObject::GetPosition() const
 {
     return transform.position;
@@ -86,6 +92,7 @@ void GameObject::SetPosition(Vector2D newPosition)
     transform.position = newPosition;
 }
 
-GameObject::~GameObject() {
+GameObject::~GameObject()
+{
     //printf("%s Deleted \n", _name.c_str());
 }

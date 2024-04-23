@@ -2,11 +2,12 @@
   "Components": [
     {
       "ID": 1,
-      "Sorting Layer": 1,
+      "Sorting Layer": 0,
       "Texture": "assets/sprites/projectile.png"
     },
     {
-      "ID": 2
+      "ID": 2,
+      "Speed": 4  
     }
   ],
   "Name": "Projectile",

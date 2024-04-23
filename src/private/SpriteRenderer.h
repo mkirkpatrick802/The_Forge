@@ -1,9 +1,7 @@
 //
 // Created by mKirkpatrick on 1/30/2024.
 //
-
-#ifndef THE_FORGE_SPRITERENDERER_H
-#define THE_FORGE_SPRITERENDERER_H
+#pragma once
 
 #include "GameData.h"
 #include "Component.h"
@@ -26,6 +24,8 @@ public:
     SpriteRenderer();
     virtual void LoadData(const json& data) override;
 
+    Vector2D GetSize() const { return _size; }
+
 private:
 
     void Init();
@@ -44,8 +44,4 @@ private:
     int16        _sortingLayer = 0;
     Vector2D     _size = Vector2D(16);
 
-public:
-	Vector2D GetSize() const {return _size;}
 };
-
-#endif //THE_FORGE_SPRITERENDERER_H

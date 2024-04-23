@@ -1,19 +1,15 @@
-//
-// Created by mKirkpatrick on 1/30/2024.
-//
-
-#ifndef THE_FORGE_GAMEOBJECT_H
-#define THE_FORGE_GAMEOBJECT_H
+#pragma once
 
 #include <vector>
 #include <string>
+
 #include "Transform.h"
 #include "UIStructs.h"
 
 class Component;
 
-class GameObject {
-
+class GameObject
+{
 public:
 
     friend class ObjectCreator;
@@ -45,6 +41,8 @@ public:
 
     int8 GetPrefabID() const { return _prefabID; }
 
+    void Destroy();
+
 private:
 public:
 
@@ -74,5 +72,3 @@ T* GameObject::GetComponent() const
 
     return nullptr;
 }
-
-#endif //THE_FORGE_GAMEOBJECT_H
