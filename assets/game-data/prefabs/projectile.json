@@ -2,12 +2,17 @@
   "Components": [
     {
       "ID": 1,
-      "Sorting Layer": 0,
+      "Sorting Layer": 1,
       "Texture": "assets/sprites/projectile.png"
     },
     {
       "ID": 2,
-      "Speed": 4  
+      "Speed": 4
+    },
+    {
+      "ID": 3,
+      "Size": 6,
+      "Sweep Collisions": true
     }
   ],
   "Name": "Projectile",

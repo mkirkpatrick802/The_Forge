@@ -5,6 +5,7 @@
 #include "NetCode.h"
 
 const int MAX_MESSAGES = 4;
+const int MAX_NICKNAME_SIZE = 15;
 
 class ByteStream;
 class Client;

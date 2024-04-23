@@ -13,6 +13,7 @@ class GameObject
 public:
 
     friend class ObjectCreator;
+    friend class GameObjectManager;
 
 public:
 
@@ -51,6 +52,7 @@ public:
     uint8 instanceID;
 
     bool isReplicated;
+    GameObject* owner = nullptr;
 
 private:
 

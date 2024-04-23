@@ -14,6 +14,7 @@
 EditorEngine::EditorEngine(Renderer& renderer, InputManager& inputManager) :
 	Engine(renderer, inputManager)
 {
+
 	_editorUI.Attach(_gameObjectManager);
 	_editorUI.Attach(this);
 
@@ -22,6 +23,8 @@ EditorEngine::EditorEngine(Renderer& renderer, InputManager& inputManager) :
 
 void EditorEngine::GameLoop()
 {
+	_gameObjectManager->LoadLevel();
+
 	// Gameplay Loop
 	while (_inputManager->StartProcessInputs(*_renderer)) 
 	{
@@ -101,5 +104,4 @@ void EditorEngine::CleanUp()
 		_gameObjectManager->SaveGameObjectInfo();
 
 	_gameObjectManager->CleanUp();
-	delete _gameObjectManager;
 }

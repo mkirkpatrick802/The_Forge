@@ -11,6 +11,9 @@
       "Name": "Background",
       "Is Replicated": 0,
       "Position": "0 0"
+    },
+    {
+      "Prefab ID":  2
     }
   ]
 }

@@ -1,0 +1,18 @@
+{
+  "Components": [
+    {
+      "ID": 1,
+      "Sorting Layer": 3,
+      "Texture": "assets/sprites/asteroid.png"
+    },
+    {
+      "ID": 3,
+      "Size": 60,
+      "Sweep Collisions": false
+    }
+  ],
+  "Name": "Asteroid",
+  "Is Replicated": 0,
+  "Position": "0 0",
+  "Prefab ID": 2
+}

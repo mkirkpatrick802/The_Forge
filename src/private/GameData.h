@@ -20,7 +20,7 @@ typedef glm::int64 int64;
 
 typedef glm::vec2 Vector2D;
 
-const int MAX_GAMEOBJECTS = 30;
+const int MAX_GAMEOBJECTS = 50;
 
 
 

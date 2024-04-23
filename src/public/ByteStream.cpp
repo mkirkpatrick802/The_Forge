@@ -42,3 +42,9 @@ void ByteStream::WriteFireRequest(const uint8 ID)
 
 	buffer[size++] = (char)ID;
 }
+
+void ByteStream::AppendStringToBuffer(const std::string& str, const int strSize)
+{
+	std::memcpy(&buffer[size], str.c_str(), strSize);
+	size += strSize;
+}

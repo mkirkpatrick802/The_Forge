@@ -26,13 +26,10 @@ void GameObjectManager::Init(Renderer* renderer, InputManager* inputManager)
 
 GameObjectManager::GameObjectManager(Renderer* renderer, InputManager* inputManager) : _renderer(renderer), _inputManager(inputManager)
 {
-
     SubscribeToEvent(EventType::ET_SpawnPlayer);
     SubscribeToEvent(EventType::ET_DetailsChanged);
 
     _objectCreator = new ObjectCreator(renderer, inputManager);
-
-    LoadLevel();
 
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 }
@@ -64,13 +61,22 @@ void GameObjectManager::LoadLevel()
 
     auto& gameObjects = levelData["GameObjects"];
     for (const auto& gameObject : gameObjects)
-        _currentGameObjects.push_back(_objectCreator->CreateGameObjectFromJSON(gameObject));
+    {
+	    if (gameObject.contains("Prefab ID"))
+	    {
+            CreateGameObject(gameObject["Prefab ID"]);
+	    }
+        else
+        {
+            _currentGameObjects.push_back(_objectCreator->CreateGameObjectFromJSON(gameObject));
+        }
+    }
 }
 
 GameObject* GameObjectManager::CreateGameObject(const PrefabID ID, Vector2D position, float rotation)
 {
-    if (_currentGameObjects.size() >= MAX_GAMEOBJECTS)
-        assert(0 && "To Many GameObjects");
+	if (_currentGameObjects.size() >= MAX_GAMEOBJECTS - 5)
+		return nullptr;
 
     GameObject* go;
     if (ID == -1)
@@ -143,7 +149,7 @@ void GameObjectManager::ToggleEditorMode(bool inEditorMode)
 
 bool GameObjectManager::SaveGameObjectInfo()
 {
-    /*printf("Saving Level Data! \n");
+    printf("Saving Level Data! \n");
     std::ifstream in(LEVEL_FILE);
 
     if (!in.is_open()) {
@@ -164,6 +170,9 @@ bool GameObjectManager::SaveGameObjectInfo()
             continue;
         }
 
+    	if(_currentGameObjects[i]->GetComponent<Projectile>())
+            continue;
+
         // Check if prefab
         if (_currentGameObjects[i]->_prefabID != -1)
         {
@@ -171,7 +180,7 @@ bool GameObjectManager::SaveGameObjectInfo()
         }
 
         levelData["GameObjects"][i]["Name"] = _currentGameObjects[i]->_name;
-        levelData["GameObjects"][i]["Is Replicated"] = (int)_currentGameObjects[i]->_isReplicated;
+        levelData["GameObjects"][i]["Is Replicated"] = (int)_currentGameObjects[i]->isReplicated;
         levelData["GameObjects"][i]["Position"] = _currentGameObjects[i]->GetPositionString();
     }
 
@@ -180,14 +189,12 @@ bool GameObjectManager::SaveGameObjectInfo()
     out.close();
 
     printf("Saved Level Data! \n");
-    return true;*/
-
-    return false;
+    return true;
 }
 
 void GameObjectManager::SavePlayerObjectInfo(const GameObject* player)
 {
-    /*printf("Saving Player Data! \n");
+    printf("Saving Player Data! \n");
     std::ifstream in(PrefabManager::GetInstance().GetPrefabPath(PLAYER_PREFAB_ID));
 
     if (!in.is_open()) 
@@ -202,14 +209,14 @@ void GameObjectManager::SavePlayerObjectInfo(const GameObject* player)
 
     playerData["Prefab ID"] = (int)player->_prefabID;
     playerData["Name"] = player->_name;
-    playerData["Is Replicated"] = (int)player->_isReplicated;
+    playerData["Is Replicated"] = (int)player->isReplicated;
     playerData["Position"] = player->GetPositionString();
 
     std::ofstream out(PrefabManager::GetInstance().GetPrefabPath(PLAYER_PREFAB_ID));
     out << std::setw(2) << playerData << std::endl;
     out.close();
 
-    printf("Saved Player Data! \n");*/
+    printf("Saved Player Data! \n");
 }
 
 void GameObjectManager::OnEvent(Event* event)
@@ -220,11 +227,7 @@ void GameObjectManager::OnEvent(Event* event)
         break;
 
     case EventType::ET_SpawnPlayer:
-	    {
-			/*const auto player = SpawnPrefab(PrefabManager::GetInstance().GetPrefabPath(PLAYER_PREFAB_ID));
-			const int ID = static_cast<SpawnPlayerEvent*>(event)->playerID;
-			player->GetComponent<PlayerController>()->InitController(ID);*/
-	    }
+    	CreateGameObject(PLAYER_PREFAB_ID);
         break;
 
 	case EventType::ET_DetailsChanged:

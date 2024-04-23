@@ -19,6 +19,8 @@ public:
 	template <typename T>
 	void AppendToBuffer(T value);
 
+	void AppendStringToBuffer(const std::string& str, int strSize);
+
 	char buffer[MAX_STREAM_SIZE];
 	int size;
 };
@@ -28,7 +30,7 @@ void ByteStream::AppendToBuffer(T value)
 {
 	static_assert(std::is_integral_v<T>, "Only integer types are allowed.");
 
-	if (size + sizeof(T) > 1024) assert(0 && "Buffer overflow prevented");
+	if (size + sizeof(T) > MAX_STREAM_SIZE) assert(0 && "Buffer overflow prevented");
 
 	std::memcpy(&buffer[size], &value, sizeof(T));
 	size += sizeof(T);

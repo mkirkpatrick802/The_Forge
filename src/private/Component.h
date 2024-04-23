@@ -5,6 +5,7 @@
 #define PLAYER_CONTROLLER (uint32)0
 #define SPRITE_RENDERER (uint32)1
 #define PROJECTILE (uint32)2
+#define COLLIDER (uint32)3
 
 using json = nlohmann::json;
 

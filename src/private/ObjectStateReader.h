@@ -7,6 +7,7 @@ class ObjectStateReader
 {
 public:
 
+	static void UpdatePlayerList(const char* buffer);
 	static void SpawnPlayer(const char* buffer);
 	static void WorldState(const char* buffer);
 	static void UpdateObject(const char* buffer);

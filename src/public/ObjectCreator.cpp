@@ -21,6 +21,7 @@ void ObjectCreator::RegisterComponentFns()
     componentCreationMap[SPRITE_RENDERER] = &ObjectCreator::CreateSpriteRenderer;
     componentCreationMap[PLAYER_CONTROLLER] = &ObjectCreator::CreatePlayerController;
     componentCreationMap[PROJECTILE] = &ObjectCreator::CreateProjectile;
+    componentCreationMap[COLLIDER] = &ObjectCreator::CreateCollider;
 }
 
 GameObject* ObjectCreator::CreateGameObjectFromJSON(const json &gameObject)
@@ -99,10 +100,20 @@ void ObjectCreator::CreateProjectile(GameObject* go, const json& data)
         projectile->LoadData(data);
 }
 
+void ObjectCreator::CreateCollider(GameObject* go, const json& data)
+{
+    Collider* collider = _colliderPool.New(go);
+    go->AddComponent(collider);
+
+    if (data != nullptr)
+        collider->LoadData(data);
+}
+
 void ObjectCreator::UpdateComponentPools(float deltaTime)
 {
     _playerControllerPool.Update(deltaTime);
     _projectilePool.Update(deltaTime);
+    _colliderPool.Update(deltaTime);
 }
 
 void ObjectCreator::CleanUpComponents(GameObject* go)
@@ -112,6 +123,9 @@ void ObjectCreator::CleanUpComponents(GameObject* go)
 
     if (Projectile* projectile = go->GetComponent<Projectile>())
         _projectilePool.Delete(projectile);
+
+    if (Collider* collider = go->GetComponent<Collider>())
+        _colliderPool.Delete(collider);
 
     _renderer->CleanUpSpriteRenderer(go);
 }

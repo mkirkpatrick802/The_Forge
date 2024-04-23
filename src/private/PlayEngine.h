@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine.h"
+#include "LeaderboardsUIWindow.h"
 
 class NetCode;
 class PlayEngine : public Engine
@@ -16,5 +17,6 @@ public:
 private:
 
     NetCode* _netcode;
+    LeaderboardsUIWindow _leaderboards;
 
 };

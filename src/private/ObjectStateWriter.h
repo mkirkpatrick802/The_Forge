@@ -1,12 +1,18 @@
 #pragma once
+#include <vector>
+
 #include "ByteStream.h"
 #include "NetcodeUtilites.h"
 
+struct ClientObject;
 class GameObject;
 
 class ObjectStateWriter
 {
 public:
+
+	// Update Player List
+	static ByteStream UpdatePlayerList(const std::vector<ClientObject>& players);
 
 	// Spawns new player
 	static ByteStream SpawnPlayer(uint8 playerID);

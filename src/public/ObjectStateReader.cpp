@@ -3,7 +3,37 @@
 #include "ByteStream.h"
 #include "GameObject.h"
 #include "GameObjectManager.h"
+#include "LeaderboardsUIWindow.h"
 #include "PlayerController.h"
+#include "Server.h"
+
+void ObjectStateReader::UpdatePlayerList(const char* buffer)
+{
+	int index = BYTE_STREAM_OVERHEAD;
+
+	std::vector<ClientObject> players;
+
+	const int playerCount = (uint8)buffer[index++];
+	for (int i = 0; i < playerCount; i++)
+	{
+		ClientObject object;
+		char nickname[MAX_NICKNAME_SIZE];
+		uint8 ID;
+
+		memcpy(&nickname, &buffer[index], MAX_NICKNAME_SIZE);
+		index += MAX_NICKNAME_SIZE;
+
+		memcpy(&ID, &buffer[index], sizeof(uint8));
+		index += sizeof(uint8);
+
+		object.nickname = nickname;
+		object.playerID = ID;
+
+		players.push_back(object);
+	}
+
+	LeaderboardsUIWindow::players = players;
+}
 
 void ObjectStateReader::SpawnPlayer(const char* buffer)
 {
@@ -14,9 +44,12 @@ void ObjectStateReader::SpawnPlayer(const char* buffer)
 	const uint8 instanceID = buffer[index++];
 
 	const auto player = objectManager->CreateGameObject(PLAYER_PREFAB_ID);
-	const auto controller = player->GetComponent<PlayerController>();
-	controller->InitController(playerID);
-	player->instanceID = instanceID;
+	if (player)
+	{
+		const auto controller = player->GetComponent<PlayerController>();
+		controller->InitController(playerID);
+		player->instanceID = instanceID;
+	}
 }
 
 void ObjectStateReader::WorldState(const char* buffer)
@@ -69,13 +102,16 @@ GameObject* ObjectStateReader::CreateObject(const char* buffer, int& index, cons
 {
 	GameObjectManager* objectManager = GameObjectManager::GetInstance();
 	const auto newObject = objectManager->CreateGameObject(prefabID);
-	newObject->instanceID = instanceID;
-
-	if (prefabID == PLAYER_PREFAB_ID)
+	if(newObject)
 	{
-		const uint8 playerID = buffer[index++];
-		const auto controller = newObject->GetComponent<PlayerController>();
-		controller->InitController(playerID);
+		newObject->instanceID = instanceID;
+
+		if (prefabID == PLAYER_PREFAB_ID)
+		{
+			const uint8 playerID = buffer[index++];
+			const auto controller = newObject->GetComponent<PlayerController>();
+			controller->InitController(playerID);
+		}
 	}
 
 	return newObject;

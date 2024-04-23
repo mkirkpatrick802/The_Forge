@@ -6,8 +6,13 @@
     },
     {
       "ID": 1,
-      "Sorting Layer": 1,
+      "Sorting Layer": 2,
       "Texture": "assets/sprites/TestShip.png"
+    },
+    {
+      "ID": 3,
+      "Size": 16,
+      "Sweep Collisions": false
     }
   ],
   "Name": "Player",

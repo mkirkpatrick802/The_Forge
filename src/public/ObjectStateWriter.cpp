@@ -2,7 +2,25 @@
 
 #include "GameObject.h"
 #include "GameObjectManager.h"
+#include "LeaderboardsUIWindow.h"
 #include "PlayerController.h"
+#include "Server.h"
+
+ByteStream ObjectStateWriter::UpdatePlayerList(const std::vector<ClientObject>& players)
+{
+	LeaderboardsUIWindow::players = players;
+
+	ByteStream stream;
+	stream.WriteGSM(GSM_Server::GSM_UpdatePlayerList);
+	stream.AppendToBuffer((uint8)players.size());
+	for (const auto& player : players)
+	{
+		stream.AppendStringToBuffer(player.nickname, MAX_NICKNAME_SIZE);
+		stream.AppendToBuffer(player.playerID);
+	}
+
+	return stream;
+}
 
 ByteStream ObjectStateWriter::SpawnPlayer(const uint8 playerID)
 {
@@ -10,16 +28,21 @@ ByteStream ObjectStateWriter::SpawnPlayer(const uint8 playerID)
 	const uint8 instanceID = objectManager->GenerateUniqueInstanceID();
 
 	GameObject* player = objectManager->CreateGameObject(PLAYER_PREFAB_ID);
-	const auto controller = player->GetComponent<PlayerController>();
-	controller->InitController(playerID);
+	if(player)
+	{
+		const auto controller = player->GetComponent<PlayerController>();
+		controller->InitController(playerID);
 
-	player->instanceID = instanceID;
+		player->instanceID = instanceID;
 
-	ByteStream stream;
-	stream.WriteGSM(GSM_Server::GSM_SpawnPlayer);
-	stream.AppendToBuffer(playerID);
-	stream.AppendToBuffer(instanceID);
-	return stream;
+		ByteStream stream;
+		stream.WriteGSM(GSM_Server::GSM_SpawnPlayer);
+		stream.AppendToBuffer(playerID);
+		stream.AppendToBuffer(instanceID);
+		return stream;
+	}
+
+	return {};
 }
 
 ByteStream ObjectStateWriter::Movement(const char* buffer)
@@ -59,17 +82,23 @@ ByteStream ObjectStateWriter::FireProjectile(const char* buffer)
 	const uint8 instanceID = objectManager->GenerateUniqueInstanceID();
 
 	GameObject* projectile = objectManager->CreateGameObject(PROJECTILE_PREFAB_ID);
-	projectile->instanceID = instanceID;
+	if(projectile)
+	{
+		projectile->instanceID = instanceID;
 
-	const GameObject* owner = objectManager->GetGameObjectByInstanceID(buffer[index]);
+		GameObject* owner = objectManager->GetGameObjectByInstanceID(buffer[index]);
 
-	projectile->SetPosition(owner->GetPosition());
-	projectile->transform.rotation = owner->transform.rotation;
+		projectile->owner = owner;
+		projectile->SetPosition(owner->GetPosition());
+		projectile->transform.rotation = owner->transform.rotation;
 
-	ByteStream stream;
-	stream.WriteGSM(GSM_Server::GSM_UpdateObject);
-	ObjectState(projectile, stream);
-	return stream;
+		ByteStream stream;
+		stream.WriteGSM(GSM_Server::GSM_UpdateObject);
+		ObjectState(projectile, stream);
+		return stream;
+	}
+
+	return {};
 }
 
 ByteStream ObjectStateWriter::WorldState()

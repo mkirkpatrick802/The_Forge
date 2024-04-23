@@ -9,6 +9,8 @@
 #include "NetcodeUtilites.h"
 #include "ObjectStateReader.h"
 
+#include "windows.h"
+
 HSteamNetConnection Client::_connection = k_HSteamNetConnection_Invalid;
 bool Client::isHostClient = false;
 uint8 Client::playerID = 255;
@@ -86,7 +88,7 @@ void Client::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 
 	case k_ESteamNetworkingConnectionState_Connected:
 		isConnected = true;
-
+		ShowWindow(GetConsoleWindow(), SW_HIDE);
 		break;
 
 	default:
@@ -101,28 +103,34 @@ void Client::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 // Receive Message From Server
 void Client::PollIncomingMessages()
 {
-	ISteamNetworkingMessage* pIncomingMsg = nullptr;
-	int numMsgs = steamInterface->ReceiveMessagesOnConnection(_connection, &pIncomingMsg, 1);
+	ISteamNetworkingMessage* messageList[1];
+	int numMsgs = steamInterface->ReceiveMessagesOnConnection(_connection, messageList, 1);
 	if (numMsgs == 0)
 		return;
 	if (numMsgs < 0)
 		FatalError("Error checking for messages");
 
-	// Check if the message is a ByteStream
-	if(const auto message = static_cast<char*>(pIncomingMsg->m_pData); message[0] == BYTE_STREAM_CODE)
+	for (int i = 0; i < numMsgs; i++)
 	{
-		if(IsHostClient()) return;
-		ReadByteStream(pIncomingMsg->m_conn, message);
-	}
-	else
-	{
-		// Just echo anything we get from the server
-		fwrite(pIncomingMsg->m_pData, 1, pIncomingMsg->m_cbSize, stdout);
-		fputc('\n', stdout);
-	}
+		const auto message = static_cast<char*>(messageList[i]->m_pData);
+		if (message == nullptr) return;
 
-	// We don't need this anymore.
-	pIncomingMsg->Release();
+		// Check if the message is a ByteStream
+		if (message[0] == BYTE_STREAM_CODE)
+		{
+			if (IsHostClient()) return;
+			ReadByteStream(messageList[i]->m_conn, message);
+		}
+		else
+		{
+			// Just echo anything we get from the server
+			fwrite(messageList[i]->m_pData, 1, messageList[i]->m_cbSize, stdout);
+			fputc('\n', stdout);
+		}
+
+		// We don't need this anymore.
+		messageList[i]->Release();
+	}
 }
 
 /*
@@ -144,6 +152,9 @@ void Client::ReadByteStream(const HSteamNetConnection messageAuthor, const char*
 
 	case GSM_Server::GSM_UpdateObject:
 		ObjectStateReader::UpdateObject(buffer);
+		break;
+	case GSM_Server::GSM_UpdatePlayerList:
+		ObjectStateReader::UpdatePlayerList(buffer);
 		break;
 	}
 }

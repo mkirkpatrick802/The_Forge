@@ -2,8 +2,7 @@
 // Created by mKirkpatrick on 1/30/2024.
 //
 
-#ifndef THE_FORGE_COMPONENTPOOL_H
-#define THE_FORGE_COMPONENTPOOL_H
+#pragma once
 
 #include <cassert>
 #include "GameData.h"
@@ -17,12 +16,9 @@ public:
 
     ComponentPool();
     void Update(float deltaTime);
-    //void Render(SDL_Renderer* renderer);
 
     T* New(GameObject* go);
     T* Delete(T* component);
-
-public:
 
     T components[MAX_GAMEOBJECTS];
     bool isActive[MAX_GAMEOBJECTS];
@@ -48,18 +44,6 @@ void ComponentPool<T>::Update(float deltaTime)
         }
     }
 }
-
-/*template <typename T>
-void ComponentPool<T>::Render(SDL_Renderer* renderer)
-{
-    for (int i = 0; i < MAX_GAMEOBJECTS; i++)
-    {
-        if (isActive[i])
-        {
-            components[i].Render(renderer);
-        }
-    }
-}*/
 
 template <typename T>
 T* ComponentPool<T>::New(GameObject* go)
@@ -94,5 +78,3 @@ T* ComponentPool<T>::Delete(T* component)
 
     return nullptr;
 }
-
-#endif //THE_FORGE_COMPONENTPOOL_H

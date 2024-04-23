@@ -1,4 +1,5 @@
 #pragma once
+#include "Collider.h"
 #include "GameData.h"
 #include "nlohmann/json.hpp"
 
@@ -36,6 +37,7 @@ private:
     void CreateSpriteRenderer(GameObject* go, const json& data);
     void CreatePlayerController(GameObject* go, const json& data);
     void CreateProjectile(GameObject* go, const json& data);
+    void CreateCollider(GameObject* go, const json& data);
 
 private:
 
@@ -47,4 +49,5 @@ private:
 
     ComponentPool<PlayerController> _playerControllerPool;
     ComponentPool<Projectile> _projectilePool;
+    ComponentPool<Collider> _colliderPool;
 };

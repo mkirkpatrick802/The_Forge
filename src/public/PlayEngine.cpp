@@ -9,16 +9,20 @@
 #include "InputManager.h"
 #include "GameObjectManager.h"
 #include "NetCode.h"
+#include "UIManager.h"
 
 PlayEngine::PlayEngine(Renderer &renderer, InputManager &inputManager, NetCode* netcode) : Engine(renderer, inputManager)
 {
     _netcode = netcode;
+	_uiManager->AddUIWindow(&_leaderboards);
 }
 
 void PlayEngine::GameLoop()
 {
+	_gameObjectManager->LoadLevel();
+
 	// Gameplay Loop
-	while (_inputManager->StartProcessInputs(*_renderer, false))
+	while (_inputManager->StartProcessInputs(*_renderer))
 	{
 		if (SDL_GetTicks64() - frameStart >= 16)
 		{
@@ -32,6 +36,9 @@ void PlayEngine::GameLoop()
 
 			_netcode->Update();
 			_gameObjectManager->Update(deltaTime);
+
+			// Render UI
+			_uiManager->Render();
 
 			// Render game objects
 			_renderer->Render();
