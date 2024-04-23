@@ -20,6 +20,7 @@ void ObjectCreator::RegisterComponentFns()
 {
     componentCreationMap[SPRITE_RENDERER] = &ObjectCreator::CreateSpriteRenderer;
     componentCreationMap[PLAYER_CONTROLLER] = &ObjectCreator::CreatePlayerController;
+    componentCreationMap[PROJECTILE] = &ObjectCreator::CreateProjectile;
 }
 
 GameObject* ObjectCreator::CreateGameObjectFromJSON(const json &gameObject)
@@ -89,9 +90,19 @@ void ObjectCreator::CreatePlayerController(GameObject* go, const json& data)
         playerController->LoadData(data);
 }
 
+void ObjectCreator::CreateProjectile(GameObject* go, const json& data)
+{
+    Projectile* projectile = _projectilePool.New(go);
+    go->AddComponent(projectile);
+
+    if (data != nullptr)
+        projectile->LoadData(data);
+}
+
 void ObjectCreator::UpdateComponentPools(float deltaTime)
 {
     _playerControllerPool.Update(deltaTime);
+    _projectilePool.Update(deltaTime);
 }
 
 void ObjectCreator::CleanUpComponents(GameObject* go)

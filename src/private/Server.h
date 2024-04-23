@@ -4,6 +4,8 @@
 
 #include "NetCode.h"
 
+const int MAX_MESSAGES = 4;
+
 class ByteStream;
 class Client;
 
@@ -29,6 +31,8 @@ public:
 private:
 
 	virtual void PollIncomingMessages() override;
+	void HandleClientMessage(const std::pair<HSteamNetConnection, ClientObject>& client);
+	virtual void ReadByteStream(HSteamNetConnection messageAuthor, const char* buffer) override;
 
 	void SetClientObject(HSteamNetConnection connection, const ClientObject& object);
 
@@ -38,10 +42,6 @@ private:
 
 	void SendByteStreamToClient(HSteamNetConnection connection, const ByteStream& byteStream) const;
 	void SendByteSteamToAllClients(const ByteStream& byteStream, HSteamNetConnection except = k_HSteamNetConnection_Invalid) const;
-
-protected:
-
-	virtual void ReadByteStream(const char* buffer, HSteamNetConnection messageAuthor) override;
 
 private:
 

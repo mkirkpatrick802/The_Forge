@@ -1,15 +1,10 @@
-//
-// Created by mKirkpatrick on 1/30/2024.
-//
-
-#ifndef THE_FORGE_COMPONENT_H
-#define THE_FORGE_COMPONENT_H
-
+#pragma once
 #include <nlohmann/json.hpp>
 #include "GameData.h"
 
 #define PLAYER_CONTROLLER (uint32)0
 #define SPRITE_RENDERER (uint32)1
+#define PROJECTILE (uint32)2
 
 using json = nlohmann::json;
 
@@ -18,10 +13,12 @@ class Component
 {
 public:
 
-    virtual void BeginPlay();
     virtual void LoadData(const json& data) = 0;
 
-    GameObject* gameObject;
+    virtual void BeginPlay();
+    virtual void Update(float deltaTime);
+
+    GameObject* gameObject = nullptr;
 
 };
 
@@ -30,4 +27,7 @@ inline void Component::BeginPlay()
 
 }
 
-#endif //THE_FORGE_COMPONENT_H
+inline void Component::Update(float deltaTime)
+{
+
+}

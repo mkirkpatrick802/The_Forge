@@ -23,7 +23,7 @@ public:
 
     void LoadLevel();
 
-	GameObject* CreateGameObject(PrefabID ID);
+	GameObject* CreateGameObject(PrefabID ID = -1, Vector2D position = Vector2D(), float rotation = 0);
 
     // Editor Usability
     std::vector<GameObject*>* GetClickedObjects(Vector2D mousePos);

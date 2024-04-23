@@ -6,6 +6,7 @@ using PrefabID = int;
 using PrefabPath = std::string;
 
 const int PLAYER_PREFAB_ID = 0;
+const int PROJECTILE_PREFAB_ID = 1;
 
 class PrefabManager
 {
@@ -30,6 +31,7 @@ private:
 	PrefabManager()
 	{
 		_prefabPaths[PLAYER_PREFAB_ID] = "assets/game-data/prefabs/player.json";
+		_prefabPaths[PROJECTILE_PREFAB_ID] = "assets/game-data/prefabs/projectile.json";
 	}
 
 	std::unordered_map<PrefabID, PrefabPath> _prefabPaths;

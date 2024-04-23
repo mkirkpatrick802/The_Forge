@@ -37,7 +37,7 @@ protected:
 
 	virtual void PollIncomingMessages() = 0;
 
-	virtual void ReadByteStream(const char* buffer, HSteamNetConnection messageAuthor) = 0;
+	virtual void ReadByteStream(HSteamNetConnection messageAuthor, const char* buffer) = 0;
 
 private:
 

@@ -2,6 +2,7 @@
 #include "NetcodeUtilites.h"
 
 const int BYTE_STREAM_OVERHEAD = 3;
+const int MAX_STREAM_SIZE = 100;
 
 class ByteStream
 {
@@ -10,15 +11,15 @@ public:
 	ByteStream();
 
 	void WriteGSM(GSM_Server message);
-	void WriteWorldState();
 	
 	void WriteGSM(GSM_Client message);
 	void WritePlayerMovementRequest(uint8 ID, int8 x, int8 y);
+	void WriteFireRequest(uint8 ID);
 
 	template <typename T>
 	void AppendToBuffer(T value);
 
-	char buffer[1024];
+	char buffer[MAX_STREAM_SIZE];
 	int size;
 };
 

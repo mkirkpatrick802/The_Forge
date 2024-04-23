@@ -19,7 +19,13 @@ public:
 
     void SetInputManager(class InputManager* inputManager);
 
-    void Update(float deltaTime);
+    virtual void Update(float deltaTime) override;
+
+private:
+
+    void ProcessInput();
+
+public:
 
     uint8 playerID;
 

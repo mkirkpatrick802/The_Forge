@@ -16,20 +16,6 @@ void ByteStream::WriteGSM(const GSM_Server message)
 	buffer[size++] = (char)message;		// 2
 }
 
-void ByteStream::WriteWorldState()
-{
-	/*if ((GSM_Server)buffer[1] != GSM_Server::GSM_WorldState)
-		assert(1);
-
-	const int num = GameObjectManager::GetNumOfReplicatedObjects();
-	buffer[size++] = (char)num;	// 3
-
-	char state[MAX_GAMEOBJECTS * GAMEOBJECT_STATE_SIZE];
-	GameObjectManager::CreateWorldState(state);
-	std::memcpy(&buffer[size], &state, sizeof(char) * num * GAMEOBJECT_STATE_SIZE);
-	size += sizeof(char) * num * GAMEOBJECT_STATE_SIZE;*/
-}
-
 // Send ByteStream from Client to Server
 void ByteStream::WriteGSM(const GSM_Client message)
 {
@@ -39,12 +25,20 @@ void ByteStream::WriteGSM(const GSM_Client message)
 	buffer[size++] = (char)message;		// 2
 }
 
-void ByteStream::WritePlayerMovementRequest(uint8 ID, int8 x, int8 y)
+void ByteStream::WritePlayerMovementRequest(const uint8 ID, const int8 x, const int8 y)
 {
-	if ((GSM_Client)buffer[1] != GSM_Client::GSM_MovementRequest)
-		assert(1);
+	if ((GSM_Client)buffer[2] != GSM_Client::GSM_MovementRequest)
+		assert(0);
 
 	buffer[size++] = (char)ID;	// 3
 	buffer[size++] = x;			// 4
 	buffer[size++] = y;			// 5
+}
+
+void ByteStream::WriteFireRequest(const uint8 ID)
+{
+	if ((GSM_Client)buffer[2] != GSM_Client::GSM_FireRequest)
+		assert(0);
+
+	buffer[size++] = (char)ID;
 }

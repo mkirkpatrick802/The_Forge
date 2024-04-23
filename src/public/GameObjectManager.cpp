@@ -67,7 +67,7 @@ void GameObjectManager::LoadLevel()
         _currentGameObjects.push_back(_objectCreator->CreateGameObjectFromJSON(gameObject));
 }
 
-GameObject* GameObjectManager::CreateGameObject(const PrefabID ID = -1)
+GameObject* GameObjectManager::CreateGameObject(const PrefabID ID, Vector2D position, float rotation)
 {
     if (_currentGameObjects.size() >= MAX_GAMEOBJECTS)
         assert(0 && "To Many GameObjects");
@@ -94,6 +94,9 @@ GameObject* GameObjectManager::CreateGameObject(const PrefabID ID = -1)
 
         go = _objectCreator->CreateGameObjectFromJSON(prefab);
     }
+
+    go->SetPosition(position);
+    go->transform.rotation = rotation;
 
     _currentGameObjects.push_back(go);
     return go;

@@ -32,16 +32,32 @@ void PlayerController::InitController(const uint8 ID)
 
 void PlayerController::Update(float deltaTime)
 {
+    ProcessInput();
+}
+
+void PlayerController::ProcessInput()
+{
     if (!_inputManager || playerID != Client::playerID) return;
 
+    // Movement
     const int8 horizontalMovement = (int8)(_inputManager->GetKey(SDL_SCANCODE_RIGHT) - _inputManager->GetKey(SDL_SCANCODE_LEFT));
     const int8 verticalMovement = (int8)(_inputManager->GetKey(SDL_SCANCODE_DOWN) - _inputManager->GetKey(SDL_SCANCODE_UP));
-    if(horizontalMovement == 0 && verticalMovement == 0) return;
+    if (horizontalMovement != 0 || verticalMovement != 0)
+    {
+        ByteStream stream;
+        stream.WriteGSM(GSM_Client::GSM_MovementRequest);
+        stream.WritePlayerMovementRequest(gameObject->instanceID, horizontalMovement, verticalMovement);
+        Client::SendByteStreamToServer(stream);
+    }
 
-    ByteStream stream;
-    stream.WriteGSM(GSM_Client::GSM_MovementRequest);
-    stream.WritePlayerMovementRequest(gameObject->instanceID, horizontalMovement, verticalMovement);
-    Client::SendByteStreamToServer(stream);
+    // Shoot
+    if(_inputManager->GetKeyDown(SDL_SCANCODE_SPACE))
+    {
+        ByteStream stream;
+        stream.WriteGSM(GSM_Client::GSM_FireRequest);
+        stream.WriteFireRequest(gameObject->instanceID);
+        Client::SendByteStreamToServer(stream);
+    }
 }
 
 void PlayerController::LoadData(const json &data)

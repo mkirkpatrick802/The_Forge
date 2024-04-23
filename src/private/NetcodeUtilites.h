@@ -15,6 +15,7 @@ enum class GSM_Client : char
 {
 	GSM_WorldStateRequest = 0,
 	GSM_MovementRequest,
+	GSM_FireRequest,
 };
 
 const char BYTE_STREAM_CODE = CHAR_MAX;

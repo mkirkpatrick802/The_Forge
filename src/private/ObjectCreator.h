@@ -1,8 +1,10 @@
 #pragma once
-#include "ComponentPool.h"
 #include "GameData.h"
-#include "PlayerController.h"
 #include "nlohmann/json.hpp"
+
+#include "ComponentPool.h"
+#include "PlayerController.h"
+#include "Projectile.h"
 
 class Renderer;
 using json = nlohmann::json;
@@ -33,6 +35,7 @@ private:
     void RegisterComponentFns();
     void CreateSpriteRenderer(GameObject* go, const json& data);
     void CreatePlayerController(GameObject* go, const json& data);
+    void CreateProjectile(GameObject* go, const json& data);
 
 private:
 
@@ -43,5 +46,5 @@ private:
     std::unordered_map<uint32, componentFn> componentCreationMap;
 
     ComponentPool<PlayerController> _playerControllerPool;
-
+    ComponentPool<Projectile> _projectilePool;
 };

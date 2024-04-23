@@ -1,0 +1,16 @@
+{
+  "Components": [
+    {
+      "ID": 1,
+      "Sorting Layer": 1,
+      "Texture": "assets/sprites/projectile.png"
+    },
+    {
+      "ID": 2
+    }
+  ],
+  "Name": "Projectile",
+  "Is Replicated": 1,
+  "Position": "0 0",
+  "Prefab ID": 1
+}

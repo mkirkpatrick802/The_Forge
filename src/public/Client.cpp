@@ -112,7 +112,7 @@ void Client::PollIncomingMessages()
 	if(const auto message = static_cast<char*>(pIncomingMsg->m_pData); message[0] == BYTE_STREAM_CODE)
 	{
 		if(IsHostClient()) return;
-		ReadByteStream(message, pIncomingMsg->m_conn);
+		ReadByteStream(pIncomingMsg->m_conn, message);
 	}
 	else
 	{
@@ -128,7 +128,7 @@ void Client::PollIncomingMessages()
 /*
  *		This function should never be called on the host client because the server manages the game state for them
  */
-void Client::ReadByteStream(const char* buffer, const HSteamNetConnection messageAuthor)
+void Client::ReadByteStream(const HSteamNetConnection messageAuthor, const char* buffer)
 {
 	if (buffer[1] != SERVER_MESSAGE) { printf("Invalid Message Received!! \n"); return; }
 
@@ -152,13 +152,13 @@ void Client::ReadByteStream(const char* buffer, const HSteamNetConnection messag
  *		Send Message
  */
 
-void Client::SendByteStreamToServer(const ByteStream& message)
+void Client::SendByteStreamToServer(const ByteStream& stream)
 {
 	if (steamInterface == nullptr) return;
 
 	if (_connection == k_HSteamNetConnection_Invalid)
 		assert(1);
 
-	// Sometimes the packet either doesn't send or the server misses it.
-	const auto result = steamInterface->SendMessageToConnection(_connection, message.buffer, message.size, k_nSteamNetworkingSend_Reliable, nullptr);
+	steamInterface->SendMessageToConnection(_connection, stream.buffer, stream.size,
+		k_nSteamNetworkingSend_Reliable, nullptr);
 }

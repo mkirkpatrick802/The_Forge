@@ -2,6 +2,8 @@
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
+#include <thread>
+#include <vector>
 #include <steam/isteamnetworkingsockets.h>
 
 #include "ByteStream.h"
@@ -50,36 +52,45 @@ void Server::Update()
 // Read Message From Clients
 void Server::PollIncomingMessages()
 {
-	// Only cycles through one client
 	for (const auto& client : _mapClients)
-	{
-		ISteamNetworkingMessage* pIncomingMsg = nullptr;
-		int numMsgs = steamInterface->ReceiveMessagesOnConnection(client.first, &pIncomingMsg, 1);
-		if (numMsgs == 0)
-			continue;
-		if (numMsgs < 0)
-			FatalError("Error checking for messages");
+		HandleClientMessage(client);
+}
 
-		if (const auto message = static_cast<char*>(pIncomingMsg->m_pData); message[0] == BYTE_STREAM_CODE)
-			ReadByteStream(message, client.first);
+void Server::HandleClientMessage(const std::pair<HSteamNetConnection, ClientObject>& client)
+{
+	// Attempt to receive a message on the specified connection.
+	ISteamNetworkingMessage* messageList[MAX_MESSAGES];
+	const int num = steamInterface->ReceiveMessagesOnConnection(client.first, messageList, MAX_MESSAGES);
+
+	// Check for the number of messages received
+	if (num == 0) return;
+	if (num < 0) FatalError("Error checking for messages");
+
+	for (int i = 0; i < num; i++)
+	{
+		ISteamNetworkingMessage* message = messageList[i];
+		const char* buffer = (char*)message->m_pData;
+
+		if (buffer == nullptr || *buffer != BYTE_STREAM_CODE) continue;
+		ReadByteStream(client.first, buffer);
+		message->Release();
 	}
 }
 
-void Server::ReadByteStream(const char* buffer, const HSteamNetConnection messageAuthor)
+void Server::ReadByteStream(const HSteamNetConnection messageAuthor, const char* buffer)
 {
 	if (buffer[1] != CLIENT_MESSAGE) { printf("Invalid Message Received!! \n"); return; }
 
 	switch((GSM_Client)buffer[2])
 	{
 	case GSM_Client::GSM_WorldStateRequest:
-		{
-			SendByteStreamToClient(messageAuthor, ObjectStateWriter::WorldState());
-		}
+		SendByteStreamToClient(messageAuthor, ObjectStateWriter::WorldState());
 		break;
 	case GSM_Client::GSM_MovementRequest:
-		{
-			SendByteSteamToAllClients(ObjectStateWriter::Movement(buffer));
-		}
+		SendByteSteamToAllClients(ObjectStateWriter::Movement(buffer));
+		break;
+	case GSM_Client::GSM_FireRequest:
+		ObjectStateWriter::FireProjectile(buffer);
 		break;
 	}
 }

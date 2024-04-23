@@ -47,6 +47,22 @@ ByteStream ObjectStateWriter::Movement(const char* buffer)
 	return {};
 }
 
+ByteStream ObjectStateWriter::FireProjectile(const char* buffer)
+{
+	int index = BYTE_STREAM_OVERHEAD;
+
+	GameObjectManager* objectManager = GameObjectManager::GetInstance();
+	const uint8 instanceID = objectManager->GenerateUniqueInstanceID();
+
+	GameObject* projectile = objectManager->CreateGameObject(PROJECTILE_PREFAB_ID);
+	projectile->instanceID = instanceID;
+
+	Vector2D pos = objectManager->GetGameObjectByInstanceID(buffer[index])->GetPosition();
+	projectile->SetPosition(pos);
+
+	return {};
+}
+
 ByteStream ObjectStateWriter::WorldState()
 {
 	const GameObjectManager* objectManager = GameObjectManager::GetInstance();
