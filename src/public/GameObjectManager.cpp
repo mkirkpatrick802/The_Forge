@@ -25,7 +25,6 @@ void GameObjectManager::Init(Renderer* renderer, InputManager* inputManager)
 
 GameObjectManager::GameObjectManager(Renderer* renderer, InputManager* inputManager) : _renderer(renderer), _inputManager(inputManager)
 {
-    SubscribeToEvent(EventType::ET_SpawnPlayer);
     SubscribeToEvent(EventType::ET_DetailsChanged);
 
     _objectCreator = new ObjectCreator(renderer, inputManager);
@@ -223,16 +222,11 @@ void GameObjectManager::OnEvent(Event* event)
 {
     switch (event->GetEventType())
     {
-    case EventType::ET_NULL:
-        break;
-
-    case EventType::ET_SpawnPlayer:
-    	CreateGameObject(PLAYER_PREFAB_ID);
-        break;
-
 	case EventType::ET_DetailsChanged:
         ToggleEditorMode(static_cast<DetailsChangedEvent*>(event)->currentDetails.editorSettings.editMode); // VS says this static cast is bad IDK why (Explore later)
 		break;
+
+	default: ;
     }
 }
 

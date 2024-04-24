@@ -5,6 +5,8 @@
 #include "GameObject.h"
 #include "GameObjectManager.h"
 
+#include "ObjectHitEvent.h"
+
 void Collider::LoadData(const json& data)
 {
     const float sideLength = data["Size"];
@@ -26,11 +28,10 @@ void Collider::Update(const float deltaTime)
 
 
     if (!sweep) return;
-    if (CheckCollision())
-        gameObject->Destroy();
+    CheckCollision();
 }
 
-bool Collider::CheckCollision() const
+bool Collider::CheckCollision()
 {
 	for (const auto go : _objectManager->GetCurrentGameObjects())
         if (go->GetComponent<Collider>() && go != gameObject && go != gameObject->owner)
@@ -48,6 +49,10 @@ bool Collider::CheckCollision() const
             if (thisMin.x < otherMax.x && thisMax.x > otherMin.x &&
                 thisMin.y < otherMax.y && thisMax.y > otherMin.y)
             {
+                auto event = CreateEvent<ObjectHitEvent>();
+                event->hit = go;
+                Notify(event);
+
                 return true; // Collision detected
             }
         }

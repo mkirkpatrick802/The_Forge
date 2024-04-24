@@ -1,6 +1,5 @@
 #include "EditorUIWindow.h"
 
-#include "SpawnPlayerEvent.h"
 #include "DetailsChangedEvent.h"
 #include "imgui.h"
 
@@ -8,7 +7,7 @@ void EditorUIWindow::Render()
 {
 	ImGui::Begin("Menu");
 
-	if (ImGui::CollapsingHeader("Editor Settings"))
+	/*if (ImGui::CollapsingHeader("Editor Settings"))
 	{
 		if (ImGui::Checkbox("Edit Mode", &_details.editorSettings.editMode))
 		{
@@ -35,7 +34,7 @@ void EditorUIWindow::Render()
 
 			_playerSpawned = true;
 		}
-	}
+	}*/
 
 	if (_details.gameObjectSettings != nullptr)
 	{

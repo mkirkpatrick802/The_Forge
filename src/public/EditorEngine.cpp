@@ -90,8 +90,6 @@ void EditorEngine::OnEvent(Event* event)
 	{
 	case EventType::ET_NULL:
 		break;
-	case EventType::ET_SpawnPlayer:
-		break;
 	case EventType::ET_DetailsChanged:
 		_details = static_cast<DetailsChangedEvent*>(event)->currentDetails;
 		break;

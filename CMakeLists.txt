@@ -52,10 +52,6 @@ target_link_libraries(Engine
 
 add_custom_command(TARGET Engine PRE_BUILD
 
-        # Copy current jsons into project
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets" "${CMAKE_SOURCE_DIR}/assets"
-
         # Remove the current jsons
         COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets"
 

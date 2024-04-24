@@ -1,9 +1,10 @@
 #pragma once
 #include "Component.h"
+#include "EventDispatcher.h"
 
 class GameObjectManager;
 
-class Collider : public Component
+class Collider : public Component, public EventDispatcher
 {
 public:
 	const static uint32 ComponentID = COLLIDER;
@@ -13,7 +14,7 @@ public:
 	virtual void Update(float deltaTime) override;
 
 	// Returns true if collider is hitting another collider
-	bool CheckCollision() const;
+	bool CheckCollision();
 
 private:
 

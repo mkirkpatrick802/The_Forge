@@ -1,6 +1,8 @@
 #include "Projectile.h"
 
+#include "Collider.h"
 #include "GameObject.h"
+#include "ObjectHitEvent.h"
 
 void Projectile::LoadData(const json& data)
 {
@@ -9,7 +11,10 @@ void Projectile::LoadData(const json& data)
 
 void Projectile::BeginPlay()
 {
+	SubscribeToEvent(EventType::ET_ObjectHit);
 
+	if (const auto collider = gameObject->GetComponent<Collider>())
+		collider->Attach(this);
 }
 
 // TODO: Make the server handle this
@@ -33,4 +38,18 @@ void Projectile::DeathTimer(const float deltaTime)
 	_lifetimeElapsed = 0;
 
 	gameObject->Destroy();
+}
+
+void Projectile::OnEvent(Event* event)
+{
+	switch (event->GetEventType())
+	{
+	case EventType::ET_ObjectHit:
+		{
+			auto hitEvent = static_cast<ObjectHitEvent*>(event); //TODO: add virtual function to event class
+			hitEvent->hit->Destroy();
+			gameObject->Destroy();
+		}
+		break;
+	}
 }
