@@ -30,22 +30,7 @@ GameObject* ObjectCreator::CreateGameObjectFromJSON(const json &gameObject)
     if(go == nullptr)
         assert(0 && "Failed to Create Game Object");
 
-    // Check if prefab
-    if(gameObject.find("Prefab ID") != gameObject.end())
-    {
-        const int prefabID = gameObject["Prefab ID"];
-        go->_prefabID = prefabID;
-    }
-
-    const std::string name = gameObject["Name"];
-    go->_name = name;
-
-    const int isReplicated = gameObject["Is Replicated"];
-    go->isReplicated = (bool)isReplicated;
-
-    const std::string position = gameObject["Position"];
-    std::istringstream iss(position);
-    iss >> go->transform.position.x >> go->transform.position.y;
+    ReadGameObject(go, gameObject);
 
     auto& components = gameObject["Components"];
     for (const auto& component : components)
@@ -53,6 +38,25 @@ GameObject* ObjectCreator::CreateGameObjectFromJSON(const json &gameObject)
 
     go->ObjectCreated();
     return go;
+}
+
+void ObjectCreator::ReadGameObject(GameObject* go, const json& data)
+{
+    if (data.contains("Prefab ID"))
+    {
+        const int prefabID = data["Prefab ID"];
+        go->_prefabID = prefabID;
+    }
+
+    const std::string name = data["Name"];
+    go->_name = name;
+
+    const int isReplicated = data["Is Replicated"];
+    go->isReplicated = (bool)isReplicated;
+
+    const std::string position = data["Position"];
+    std::istringstream iss(position);
+    iss >> go->transform.position.x >> go->transform.position.y;
 }
 
 void ObjectCreator::CreateComponentFromJSON(GameObject* go, const json& component)

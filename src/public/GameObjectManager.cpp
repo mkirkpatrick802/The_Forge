@@ -13,7 +13,6 @@
 #include "ObjectCreator.h"
 #include "Renderer.h"
 #include "PrefabManager.h"
-#include "SpawnPlayerEvent.h"
 
 GameObjectManager* GameObjectManager::_instance = nullptr;
 
@@ -64,7 +63,8 @@ void GameObjectManager::LoadLevel()
     {
 	    if (gameObject.contains("Prefab ID"))
 	    {
-            CreateGameObject(gameObject["Prefab ID"]);
+            GameObject* go = CreateGameObject(gameObject["Prefab ID"]);
+            _objectCreator->ReadGameObject(go, gameObject);
 	    }
         else
         {

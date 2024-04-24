@@ -52,7 +52,11 @@ target_link_libraries(Engine
 
 add_custom_command(TARGET Engine PRE_BUILD
 
-        # Remove the existing directory first
+        # Copy current jsons into project
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets" "${CMAKE_SOURCE_DIR}/assets"
+
+        # Remove the current jsons
         COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets"
 
         # Then copy the new directory contents over
@@ -61,9 +65,3 @@ add_custom_command(TARGET Engine PRE_BUILD
 
         COMMENT "Replacing asset data in the build folder"
 )
-
-# add_custom_command(TARGET Engine PRE_BUILD
-
-        # COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_SOURCE_DIR}/out"
-        # COMMENT "Deleting extra out folder"
-# )

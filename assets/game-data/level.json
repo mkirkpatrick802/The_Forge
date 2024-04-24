@@ -8,12 +8,15 @@
           "Texture": "assets/sprites/SimpleBackground.png"
         }
       ],
-      "Name": "Background",
       "Is Replicated": 0,
+      "Name": "Background",
       "Position": "0 0"
     },
     {
-      "Prefab ID":  2
+      "Is Replicated": 0,
+      "Name": "Asteroid",
+      "Position": "100 100",
+      "Prefab ID": 2
     }
   ]
 }

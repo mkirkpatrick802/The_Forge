@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Collider.h"
 #include "GameData.h"
 #include "nlohmann/json.hpp"
@@ -24,7 +25,9 @@ public:
     GameObject* CreateGameObjectFromJSON(const json& gameObjects);
     void CreateComponentFromJSON(GameObject* go, const json& component);
 
-    bool AddComponent(GameObject* go, glm::uint32 componentID);
+    void ReadGameObject(GameObject* go, const json& data);
+
+    bool AddComponent(GameObject* go, uint32 componentID);
 
     void UpdateComponentPools(float deltaTime);
 
