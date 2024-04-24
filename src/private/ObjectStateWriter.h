@@ -26,6 +26,9 @@ public:
 	// Spawn a projectile and tells the clients to do the same
 	static ByteStream FireProjectile(const char* buffer);
 
+	// Remove player from game
+	static ByteStream RemovePlayer(uint8 playerID);
+
 private:
 
 	// Returns a object state

@@ -7,12 +7,16 @@
     },
     {
       "ID": 3,
-      "Size": 64,
+      "Size": 55,
       "Sweep Collisions": false
+    },
+    {
+      "ID": 4,
+      "Max Health": 20
     }
   ],
   "Name": "Asteroid",
-  "Is Replicated": 0,
+  "Is Replicated": 1,
   "Position": "0 0",
   "Prefab ID": 2
 }

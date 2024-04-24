@@ -9,6 +9,7 @@
 
 #include <fstream>
 
+#include "Client.h"
 #include "DetailsChangedEvent.h"
 #include "ObjectCreator.h"
 #include "Renderer.h"
@@ -60,6 +61,8 @@ void GameObjectManager::LoadLevel()
     auto& gameObjects = levelData["GameObjects"];
     for (const auto& gameObject : gameObjects)
     {
+        if(gameObject["Is Replicated"] == 1 && !Client::IsHostClient()) continue;
+
 	    if (gameObject.contains("Prefab ID"))
 	    {
             GameObject* go = CreateGameObject(gameObject["Prefab ID"]);
@@ -252,10 +255,19 @@ uint8 GameObjectManager::GenerateUniqueInstanceID()
     return newID;
 }
 
-GameObject* GameObjectManager::GetGameObjectByInstanceID(const uint8 ID)
+GameObject* GameObjectManager::GetGameObjectByInstanceID(const uint8 ID) const
 {
 	for (const auto go : _currentGameObjects)
         if (go->instanceID == ID)
+            return go;
+
+    return nullptr;
+}
+
+GameObject* GameObjectManager::GetGameObjectByPlayerID(const uint8 ID) const
+{
+    for (const auto go : _currentGameObjects)
+	    if (auto playerController = go->GetComponent<PlayerController>(); playerController && playerController->playerID == ID)
             return go;
 
     return nullptr;

@@ -13,7 +13,7 @@
       "Position": "0 0"
     },
     {
-      "Is Replicated": 0,
+      "Is Replicated": 1,
       "Name": "Asteroid",
       "Position": "100 100",
       "Prefab ID": 2

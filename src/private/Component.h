@@ -6,6 +6,7 @@
 #define SPRITE_RENDERER (uint32)1
 #define PROJECTILE (uint32)2
 #define COLLIDER (uint32)3
+#define HEALTH (uint32)4
 
 using json = nlohmann::json;
 

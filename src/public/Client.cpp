@@ -156,6 +156,9 @@ void Client::ReadByteStream(const HSteamNetConnection messageAuthor, const char*
 	case GSM_Server::GSM_UpdatePlayerList:
 		ObjectStateReader::UpdatePlayerList(buffer);
 		break;
+	case GSM_Server::GSM_DestroyObject:
+		ObjectStateReader::DestroyObject(buffer);
+		break;
 	}
 }
 

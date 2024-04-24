@@ -7,7 +7,8 @@ enum class GSM_Server : char
 	GSM_SpawnPlayer = 0,
 	GSM_WorldState,
 	GSM_UpdateObject,
-	GSM_UpdatePlayerList
+	GSM_UpdatePlayerList,
+	GSM_DestroyObject
 };
 
 // Game State Messages from the client to server

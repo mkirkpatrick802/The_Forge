@@ -39,11 +39,11 @@ bool Collider::CheckCollision()
 	        const Collider* other = go->GetComponent<Collider>();
 
             // Calculate the min and max points for both colliders
-	        const glm::vec2 thisMin = gameObject->transform.position - (size * 0.5f);
-	        const glm::vec2 thisMax = gameObject->transform.position + (size * 0.5f);
+	        const glm::vec2 thisMin = gameObject->transform.position - size;
+	        const glm::vec2 thisMax = gameObject->transform.position + size;
 
-	        const glm::vec2 otherMin = other->gameObject->transform.position - (other->size * 0.5f);
-	        const glm::vec2 otherMax = other->gameObject->transform.position + (other->size * 0.5f);
+	        const glm::vec2 otherMin = other->gameObject->transform.position - other->size;
+	        const glm::vec2 otherMax = other->gameObject->transform.position + other->size;
 
             // Check for overlap in both X and Y axes
             if (thisMin.x < otherMax.x && thisMax.x > otherMin.x &&

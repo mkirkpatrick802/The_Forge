@@ -5,6 +5,7 @@
 
 #include "Component.h"
 #include "GameObject.h"
+#include "GameObjectManager.h"
 #include "PlayerController.h"
 #include "Renderer.h"
 
@@ -22,6 +23,7 @@ void ObjectCreator::RegisterComponentFns()
     componentCreationMap[PLAYER_CONTROLLER] = &ObjectCreator::CreatePlayerController;
     componentCreationMap[PROJECTILE] = &ObjectCreator::CreateProjectile;
     componentCreationMap[COLLIDER] = &ObjectCreator::CreateCollider;
+    componentCreationMap[HEALTH] = &ObjectCreator::CreateHealth;
 }
 
 GameObject* ObjectCreator::CreateGameObjectFromJSON(const json &gameObject)
@@ -53,6 +55,9 @@ void ObjectCreator::ReadGameObject(GameObject* go, const json& data)
 
     const int isReplicated = data["Is Replicated"];
     go->isReplicated = (bool)isReplicated;
+
+    if (go->isReplicated)
+        go->instanceID = GameObjectManager::GetInstance()->GenerateUniqueInstanceID();
 
     const std::string position = data["Position"];
     std::istringstream iss(position);
@@ -113,6 +118,15 @@ void ObjectCreator::CreateCollider(GameObject* go, const json& data)
         collider->LoadData(data);
 }
 
+void ObjectCreator::CreateHealth(GameObject* go, const json& data)
+{
+    Health* health = _healthPool.New(go);
+    go->AddComponent(health);
+
+    if (data != nullptr)
+        health->LoadData(data);
+}
+
 void ObjectCreator::UpdateComponentPools(float deltaTime)
 {
     _playerControllerPool.Update(deltaTime);
@@ -130,6 +144,9 @@ void ObjectCreator::CleanUpComponents(GameObject* go)
 
     if (Collider* collider = go->GetComponent<Collider>())
         _colliderPool.Delete(collider);
+
+    if (Health* health = go->GetComponent<Health>())
+        _healthPool.Delete(health);
 
     _renderer->CleanUpSpriteRenderer(go);
 }

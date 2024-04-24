@@ -16,11 +16,12 @@ public:
 
 	void DeathTimer(float deltaTime);
 
-	float speed;
-	float lifetime = 5;
-
 private:
 
+	float _speed = 0;
+	float _lifetime = 5;
+
 	float _lifetimeElapsed = 0;
+	float _damage = 0;
 
 };

@@ -42,7 +42,8 @@ public:
     virtual void OnEvent(Event* event) override;
 
 	uint8 GenerateUniqueInstanceID();
-	GameObject* GetGameObjectByInstanceID(uint8 ID);
+	GameObject* GetGameObjectByInstanceID(uint8 ID) const;
+    GameObject* GetGameObjectByPlayerID(uint8 ID) const;
     std::vector<GameObject*> GetCurrentGameObjects() const { return _currentGameObjects; }
 
 

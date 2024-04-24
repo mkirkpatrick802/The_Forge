@@ -13,6 +13,10 @@
       "ID": 3,
       "Size": 16,
       "Sweep Collisions": false
+    },
+    {
+      "ID": 4,
+      "Max Health": 100
     }
   ],
   "Name": "Player",

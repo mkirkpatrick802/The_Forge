@@ -7,6 +7,7 @@
 #include "ComponentPool.h"
 #include "PlayerController.h"
 #include "Projectile.h"
+#include <Health.h>
 
 class Renderer;
 using json = nlohmann::json;
@@ -41,6 +42,7 @@ private:
     void CreatePlayerController(GameObject* go, const json& data);
     void CreateProjectile(GameObject* go, const json& data);
     void CreateCollider(GameObject* go, const json& data);
+    void CreateHealth(GameObject* go, const json& data);
 
 private:
 
@@ -53,4 +55,5 @@ private:
     ComponentPool<PlayerController> _playerControllerPool;
     ComponentPool<Projectile> _projectilePool;
     ComponentPool<Collider> _colliderPool;
+    ComponentPool<Health> _healthPool;
 };

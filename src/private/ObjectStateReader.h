@@ -11,6 +11,7 @@ public:
 	static void SpawnPlayer(const char* buffer);
 	static void WorldState(const char* buffer);
 	static void UpdateObject(const char* buffer);
+	static void DestroyObject(const char* buffer);
 
 private:
 

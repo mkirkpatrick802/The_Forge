@@ -67,6 +67,15 @@ void ObjectStateReader::UpdateObject(const char* buffer)
 	ObjectState(buffer, index);
 }
 
+void ObjectStateReader::DestroyObject(const char* buffer)
+{
+	int index = BYTE_STREAM_OVERHEAD;
+	uint8 instanceID = buffer[index];
+
+	GameObjectManager* objectManager = GameObjectManager::GetInstance();
+	objectManager->GetGameObjectByInstanceID(instanceID)->Destroy();
+}
+
 /*
  *		Helpers
  */
@@ -76,6 +85,9 @@ void ObjectStateReader::ObjectState(const char* buffer, int& index)
 	// Game Object ID's
 	const uint8 prefabID = buffer[index++];
 	const uint8 instanceID = buffer[index++];
+
+	// Owner Game Object
+	const uint8 ownerInstanceID = buffer[index++];
 
 	// Position
 	int16 x, y;
@@ -94,6 +106,7 @@ void ObjectStateReader::ObjectState(const char* buffer, int& index)
 	const auto found = objectManager->GetGameObjectByInstanceID(instanceID);
 	GameObject* go = found ? found : CreateObject(buffer, index, prefabID, instanceID);
 
+	go->owner = objectManager->GetGameObjectByInstanceID(ownerInstanceID);
 	go->SetPosition(Vector2D(x, y));
 	go->transform.rotation = rot;
 }

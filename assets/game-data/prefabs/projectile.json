@@ -7,11 +7,12 @@
     },
     {
       "ID": 2,
-      "Speed": 4
+      "Speed": 4,
+      "Damage": 10
     },
     {
       "ID": 3,
-      "Size": 6,
+      "Size": 3,
       "Sweep Collisions": true
     }
   ],

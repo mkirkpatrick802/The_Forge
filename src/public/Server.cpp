@@ -145,12 +145,18 @@ void Server::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 				info->m_info.m_szEndDebug
 			);
 
+			SendByteSteamToAllClients(ObjectStateWriter::RemovePlayer(itClient->second.playerID));
+
 			_mapClients.erase(itClient);
 
 			// Send a message so everybody else knows what happened
 			SendStringToAllClients(temp);
 
-			//TODO: Remove player game object from clients world
+			std::vector<ClientObject> players;
+			for (const auto& clients : _mapClients)
+				players.push_back(clients.second);
+
+			SendByteSteamToAllClients(ObjectStateWriter::UpdatePlayerList(players));
 		}
 		else
 		{

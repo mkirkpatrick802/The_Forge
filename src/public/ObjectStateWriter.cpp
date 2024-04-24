@@ -101,6 +101,19 @@ ByteStream ObjectStateWriter::FireProjectile(const char* buffer)
 	return {};
 }
 
+ByteStream ObjectStateWriter::RemovePlayer(const uint8 playerID)
+{
+	GameObjectManager* objectManager = GameObjectManager::GetInstance();
+	GameObject* player = objectManager->GetGameObjectByPlayerID(playerID);
+	uint8 instanceID = player->instanceID;
+	player->Destroy();
+
+	ByteStream stream;
+	stream.WriteGSM(GSM_Server::GSM_DestroyObject);
+	stream.AppendToBuffer(instanceID);
+	return stream;
+}
+
 ByteStream ObjectStateWriter::WorldState()
 {
 	const GameObjectManager* objectManager = GameObjectManager::GetInstance();
@@ -132,6 +145,10 @@ ByteStream ObjectStateWriter::ObjectState(const GameObject* go, ByteStream& stre
 
 	// Instance ID
 	stream.AppendToBuffer(go->instanceID);
+
+	// Owner Instance ID
+	uint8 ownerID = go->owner == nullptr ? -1 : go->owner->instanceID;
+	stream.AppendToBuffer(ownerID);
 
 	// Write Position
 	const int16 x = (int16)go->GetPosition().x;
