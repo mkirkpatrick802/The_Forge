@@ -32,7 +32,7 @@ void PlayEngine::GameLoop()
 
 			// Display frame rate in console
 			if (_inputManager->GetKey(SDL_SCANCODE_APOSTROPHE))
-				printf("%f FPS \n", deltaTime);
+				printf("%f FPS \n", 1000.f / (deltaTime * 1000));
 
 			_netcode->Update(deltaTime);
 			_gameObjectManager->Update(deltaTime);

@@ -8,12 +8,16 @@
 
 #include "ByteStream.h"
 #include "Client.h"
+#include "EnemySpawnedEvent.h"
 
 #include "ObjectStateWriter.h"
 
 Server::Server()
 {
 	_gameMode = GameMode();
+
+	SubscribeToEvent(EventType::ET_EnemySpawned);
+	_gameMode.Attach(this);
 }
 
 void Server::Start()
@@ -315,5 +319,20 @@ void Server::SendByteSteamToAllClients(const ByteStream& byteStream, const HStea
 	{
 		if (clients.first != except)
 			SendStringToClient(clients.first, byteStream.buffer, byteStream.size);
+	}
+}
+
+/*
+ *		Server Game Events
+ */
+
+void Server::OnEvent(Event* event)
+{
+	switch (event->GetEventType())
+	{
+	case EventType::ET_EnemySpawned:
+		GameObject* spawnedEnemy = static_cast<EnemySpawnedEvent*>(event)->spawned;
+		SendByteSteamToAllClients(ObjectStateWriter::UpdateObjectState(spawnedEnemy));
+		break;
 	}
 }

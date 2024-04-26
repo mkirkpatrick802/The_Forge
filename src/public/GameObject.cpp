@@ -14,7 +14,7 @@
 GameObject::GameObject() {
     transform = Transform();
 
-    settings.name = &_name;
+    settings.name = &name;
     settings.isReplicated = &isReplicated;
     settings.position = &transform.position;
 }

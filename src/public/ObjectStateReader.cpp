@@ -83,7 +83,7 @@ void ObjectStateReader::DestroyObject(const char* buffer)
 void ObjectStateReader::ObjectState(const char* buffer, int& index)
 {
 	// Game Object ID's
-	const uint8 prefabID = buffer[index++];
+ 	const uint8 prefabID = buffer[index++];
 	const uint8 instanceID = buffer[index++];
 
 	// Owner Game Object

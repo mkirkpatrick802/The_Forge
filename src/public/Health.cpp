@@ -8,9 +8,11 @@ void Health::LoadData(const json& data)
 	_currentHealth = _maxHealth;
 }
 
-void Health::TakeDamage(float damage)
+void Health::TakeDamage(const float damage)
 {
 	_currentHealth -= damage;
-	if (_currentHealth <= 0)
-		gameObject->Destroy();
+	if (_currentHealth > 0) return;
+
+	printf("%s Destroyed \n", gameObject->name.c_str());
+	gameObject->Destroy();
 }

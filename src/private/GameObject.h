@@ -53,11 +53,11 @@ public:
 
     bool isReplicated;
     GameObject* owner = nullptr;
+    std::string name;
 
 private:
 
     int8 _prefabID = -1;
-    std::string _name;
     std::vector<Component*> _attachedComponents;
 };
 

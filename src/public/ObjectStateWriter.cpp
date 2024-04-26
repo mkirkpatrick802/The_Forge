@@ -92,10 +92,7 @@ ByteStream ObjectStateWriter::FireProjectile(const char* buffer)
 		projectile->SetPosition(owner->GetPosition());
 		projectile->transform.rotation = owner->transform.rotation;
 
-		ByteStream stream;
-		stream.WriteGSM(GSM_Server::GSM_UpdateObject);
-		ObjectState(projectile, stream);
-		return stream;
+		return UpdateObjectState(projectile);
 	}
 
 	return {};
@@ -131,6 +128,14 @@ ByteStream ObjectStateWriter::WorldState()
 	for (const auto go : replicatedObjects)
 		ObjectState(go, stream);
 
+	return stream;
+}
+
+ByteStream ObjectStateWriter::UpdateObjectState(const GameObject* go)
+{
+	ByteStream stream;
+	stream.WriteGSM(GSM_Server::GSM_UpdateObject);
+	ObjectState(go, stream);
 	return stream;
 }
 

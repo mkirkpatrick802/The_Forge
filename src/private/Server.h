@@ -5,6 +5,8 @@
 #include "NetCode.h"
 #include <GameMode.h>
 
+#include "EventListener.h"
+
 const int MAX_MESSAGES = 4;
 const int MAX_NICKNAME_SIZE = 15;
 
@@ -17,7 +19,7 @@ struct ClientObject
 	std::string nickname;
 };
 
-class Server : public NetCode
+class Server : public NetCode, public EventListener
 {
 public:
 
@@ -44,6 +46,8 @@ private:
 
 	void SendByteStreamToClient(HSteamNetConnection connection, const ByteStream& byteStream) const;
 	void SendByteSteamToAllClients(const ByteStream& byteStream, HSteamNetConnection except = k_HSteamNetConnection_Invalid) const;
+
+	virtual void OnEvent(Event* event) override;
 
 private:
 

@@ -182,7 +182,7 @@ bool GameObjectManager::SaveGameObjectInfo()
             levelData["GameObjects"][i]["Prefab ID"] = (int)_currentGameObjects[i]->_prefabID;
         }
 
-        levelData["GameObjects"][i]["Name"] = _currentGameObjects[i]->_name;
+        levelData["GameObjects"][i]["Name"] = _currentGameObjects[i]->name;
         levelData["GameObjects"][i]["Is Replicated"] = (int)_currentGameObjects[i]->isReplicated;
         levelData["GameObjects"][i]["Position"] = _currentGameObjects[i]->GetPositionString();
     }
@@ -211,7 +211,7 @@ void GameObjectManager::SavePlayerObjectInfo(const GameObject* player)
     in.close();
 
     playerData["Prefab ID"] = (int)player->_prefabID;
-    playerData["Name"] = player->_name;
+    playerData["Name"] = player->name;
     playerData["Is Replicated"] = (int)player->isReplicated;
     playerData["Position"] = player->GetPositionString();
 

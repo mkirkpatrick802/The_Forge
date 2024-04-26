@@ -1,6 +1,7 @@
 #pragma once
+#include "EventDispatcher.h"
 
-class GameMode
+class GameMode : public EventDispatcher
 {
 public:
 

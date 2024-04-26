@@ -51,7 +51,7 @@ void ObjectCreator::ReadGameObject(GameObject* go, const json& data)
     }
 
     const std::string name = data["Name"];
-    go->_name = name;
+    go->name = name;
 
     const int isReplicated = data["Is Replicated"];
     go->isReplicated = (bool)isReplicated;

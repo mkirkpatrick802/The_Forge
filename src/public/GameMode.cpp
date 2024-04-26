@@ -3,6 +3,7 @@
 #include <cstdlib>
 
 #include "EnemySpawner.h"
+#include <EnemySpawnedEvent.h>
 
 void GameMode::BeginPlay()
 {
@@ -29,6 +30,11 @@ void GameMode::Update(const float deltaTime)
         timer = 0.0f;
 
         // Spawn an enemy
-        EnemySpawner::SpawnEnemy();
+        GameObject* spawnedEnemy = EnemySpawner::SpawnEnemy();
+
+        // Notify event
+        EnemySpawnedEvent* event = CreateEvent<EnemySpawnedEvent>();
+        event->spawned = spawnedEnemy;
+        Notify(event);
     }
 }
