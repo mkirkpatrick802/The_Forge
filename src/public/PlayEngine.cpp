@@ -34,7 +34,7 @@ void PlayEngine::GameLoop()
 			if (_inputManager->GetKey(SDL_SCANCODE_APOSTROPHE))
 				printf("%f FPS \n", deltaTime);
 
-			_netcode->Update();
+			_netcode->Update(deltaTime);
 			_gameObjectManager->Update(deltaTime);
 
 			// Render UI

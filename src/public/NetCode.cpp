@@ -36,7 +36,7 @@ void NetCode::Start()
 	configValue.SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)SteamNetConnectionStatusChangedCallback);
 }
 
-void NetCode::Update()
+void NetCode::Update(float deltaTime)
 {
 	PollIncomingMessages();
 	PollConnectionStateChange();

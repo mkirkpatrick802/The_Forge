@@ -1,0 +1,22 @@
+{
+  "Components": [
+    {
+      "ID": 1,
+      "Sorting Layer": 3,
+      "Texture": "assets/sprites/enemy.png"
+    },
+    {
+      "ID": 3,
+      "Size": 15,
+      "Sweep Collisions": true
+    },
+    {
+      "ID": 4,
+      "Max Health": 10
+    }
+  ],
+  "Name": "Enemy",
+  "Is Replicated": 1,
+  "Position": "0 0",
+  "Prefab ID": 3
+}

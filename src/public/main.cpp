@@ -47,6 +47,8 @@ void StartingGameOptions()
 
     if(buildPlayMode) 
     {
+        System::IsEditor = false;
+
         NetCode::Init();
 
         bool isServer;
@@ -74,7 +76,7 @@ void StartingGameOptions()
 
             while (!dynamic_cast<Client*>(netcode)->isConnected)
             {
-                netcode->Update();
+                netcode->Update(0);
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
 

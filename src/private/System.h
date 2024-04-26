@@ -12,6 +12,8 @@ public:
     System();
 
     void CleanUp();
+
+    inline static bool IsEditor = true;
 };
 
 

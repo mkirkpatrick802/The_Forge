@@ -14,6 +14,7 @@
 #include "ObjectCreator.h"
 #include "Renderer.h"
 #include "PrefabManager.h"
+#include "System.h"
 
 GameObjectManager* GameObjectManager::_instance = nullptr;
 
@@ -61,7 +62,7 @@ void GameObjectManager::LoadLevel()
     auto& gameObjects = levelData["GameObjects"];
     for (const auto& gameObject : gameObjects)
     {
-        if(gameObject["Is Replicated"] == 1 && !Client::IsHostClient()) continue;
+        if(gameObject["Is Replicated"] == 1 && !Client::IsHostClient() && !System::IsEditor) continue;
 
 	    if (gameObject.contains("Prefab ID"))
 	    {

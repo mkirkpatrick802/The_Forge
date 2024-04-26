@@ -3,6 +3,7 @@
 #include <string>
 
 #include "NetCode.h"
+#include <GameMode.h>
 
 const int MAX_MESSAGES = 4;
 const int MAX_NICKNAME_SIZE = 15;
@@ -23,7 +24,7 @@ public:
 	Server();
 
 	void Start() override;
-	void Update() override;
+	void Update(float deltaTime) override;
 
 	void OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t* info) override;
 
@@ -52,4 +53,7 @@ private:
 	std::map< HSteamNetConnection, ClientObject > _mapClients;
 
 	Client* _client;
+	GameMode _gameMode;
+
+	bool _gameStarted = false;
 };

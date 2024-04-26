@@ -13,7 +13,7 @@
 
 Server::Server()
 {
-
+	_gameMode = GameMode();
 }
 
 void Server::Start()
@@ -42,11 +42,20 @@ void Server::Start()
 	_client->Start();
 }
 
-void Server::Update()
+void Server::Update(const float deltaTime)
 {
-	NetCode::Update();
+	NetCode::Update(deltaTime);
 
-	_client->Update();
+	_client->Update(deltaTime);
+
+	if (_client->isConnected && !_gameStarted)
+	{
+		_gameStarted = true;
+		_gameMode.BeginPlay();
+	}
+
+	if (_gameStarted)
+		_gameMode.Update(deltaTime);
 }
 
 // Read Message From Clients

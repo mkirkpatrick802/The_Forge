@@ -20,7 +20,7 @@ public:
 	static void Init();
 	virtual void Start();
 
-	virtual void Update();
+	virtual void Update(float deltaTime);
 
 	static void FatalError(const char* fmt, ...);
 	static void DebugOutput(ESteamNetworkingSocketsDebugOutputType eType, const char* pszMsg);
