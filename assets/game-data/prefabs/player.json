@@ -7,11 +7,13 @@
     {
       "ID": 1,
       "Sorting Layer": 2,
-      "Texture": "assets/sprites/TestShip.png"
+      "Texture": "assets/sprites/TestShip.png",
+      "Vertex Shader": "assets/shaders/Player.vert",
+      "Fragment Shader": "assets/shaders/Player.frag"
     },
     {
       "ID": 3,
-      "Size": 16,
+      "Size": 10,
       "Sweep Collisions": false
     },
     {

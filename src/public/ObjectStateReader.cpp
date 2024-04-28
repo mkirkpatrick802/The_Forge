@@ -3,8 +3,10 @@
 #include "ByteStream.h"
 #include "GameObject.h"
 #include "GameObjectManager.h"
+#include "Health.h"
 #include "LeaderboardsUIWindow.h"
 #include "PlayerController.h"
+#include "ScoreManager.h"
 #include "Server.h"
 
 void ObjectStateReader::UpdatePlayerList(const char* buffer)
@@ -43,13 +45,14 @@ void ObjectStateReader::SpawnPlayer(const char* buffer)
 	const uint8 playerID = buffer[index++];
 	const uint8 instanceID = buffer[index++];
 
-	const auto player = objectManager->CreateGameObject(PLAYER_PREFAB_ID);
-	if (player)
+	if (const auto player = objectManager->CreateGameObject(PLAYER_PREFAB_ID))
 	{
 		const auto controller = player->GetComponent<PlayerController>();
 		controller->InitController(playerID);
 		player->instanceID = instanceID;
 	}
+
+	ScoreManager::SortScore();
 }
 
 void ObjectStateReader::WorldState(const char* buffer)
@@ -119,13 +122,30 @@ GameObject* ObjectStateReader::CreateObject(const char* buffer, int& index, cons
 	{
 		newObject->instanceID = instanceID;
 
-		if (prefabID == PLAYER_PREFAB_ID)
-		{
-			const uint8 playerID = buffer[index++];
-			const auto controller = newObject->GetComponent<PlayerController>();
-			controller->InitController(playerID);
-		}
+		ComponentState(buffer, index, newObject, prefabID, true);
 	}
 
 	return newObject;
+}
+
+void ObjectStateReader::ComponentState(const char* buffer, int& index, const GameObject* go, const uint8 prefabID, const bool newObject)
+{
+	if (prefabID == PLAYER_PREFAB_ID && newObject)
+	{
+		const uint8 playerID = buffer[index++];
+		const auto controller = go->GetComponent<PlayerController>();
+		controller->InitController(playerID);
+
+		const uint8 score = buffer[index++];
+		ScoreManager::SetScore(playerID, score);
+	}
+
+	if (auto health = go->GetComponent<Health>())
+	{
+		uint16 current;
+		memcpy(&current, &buffer[index], sizeof(uint16));
+		index += sizeof(uint16);
+
+		health->SetCurrentHealth(current);
+	}
 }

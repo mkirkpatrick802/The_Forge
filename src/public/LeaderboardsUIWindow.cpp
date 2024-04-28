@@ -1,7 +1,11 @@
 #include "LeaderboardsUIWindow.h"
 
+#include <algorithm>
+
 #include "Client.h"
 #include "imgui.h"
+
+#include "ScoreManager.h"
 
 std::vector<ClientObject> LeaderboardsUIWindow::players = std::vector<ClientObject>();
 
@@ -19,12 +23,14 @@ void LeaderboardsUIWindow::Render()
 	ImGui::Text("Score"); ImGui::NextColumn();
 	ImGui::Separator();
 
+
+
 	for (const auto& player : players)
 	{
 		ImGui::Text("%s %s", player.nickname.c_str(), (player.playerID == Client::playerID) ? "(You)" : "");
 		ImGui::NextColumn();
 
-		ImGui::Text("%d", 0); ImGui::NextColumn();
+		ImGui::Text("%d", ScoreManager::GetScore(player.playerID)); ImGui::NextColumn();
 	}
 
 	ImGui::Columns(1);

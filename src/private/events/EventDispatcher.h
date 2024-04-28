@@ -1,4 +1,5 @@
 #pragma once
+#include <cassert>
 #include <type_traits>
 #include <vector>
 
@@ -39,6 +40,9 @@ std::enable_if_t<std::is_base_of_v<Event, T>, T*>
 EventDispatcher::CreateEvent()
 {
     auto newEvent = new T();
+
+    assert(newEvent);
+
     activeEvents.push_back(newEvent);
     return newEvent;
 }

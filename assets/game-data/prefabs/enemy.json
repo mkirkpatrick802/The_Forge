@@ -3,16 +3,23 @@
     {
       "ID": 1,
       "Sorting Layer": 3,
-      "Texture": "assets/sprites/enemy.png"
+      "Texture": "assets/sprites/enemy.png",
+      "Vertex Shader": "assets/shaders/Sprite.vert",
+      "Fragment Shader": "assets/shaders/Sprite.frag"
     },
     {
       "ID": 3,
-      "Size": 15,
-      "Sweep Collisions": false
+      "Size": 12,
+      "Sweep Collisions": true
     },
     {
       "ID": 4,
       "Max Health": 10
+    },
+    {
+      "ID": 5,
+      "Speed": 1,
+      "Damage": 20
     }
   ],
   "Name": "Enemy",

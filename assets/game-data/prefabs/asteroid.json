@@ -2,8 +2,10 @@
   "Components": [
     {
       "ID": 1,
-      "Sorting Layer": 3,
-      "Texture": "assets/sprites/asteroid.png"
+      "Sorting Layer": 5,
+      "Texture": "assets/sprites/asteroid.png",
+      "Vertex Shader": "assets/shaders/Sprite.vert",
+      "Fragment Shader": "assets/shaders/Sprite.frag"
     },
     {
       "ID": 3,
@@ -12,7 +14,7 @@
     },
     {
       "ID": 4,
-      "Max Health": 20
+      "Max Health": 50
     }
   ],
   "Name": "Asteroid",

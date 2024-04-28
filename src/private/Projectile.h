@@ -1,8 +1,7 @@
 #pragma once
 #include "Component.h"
-#include "EventListener.h"
 
-class Projectile : public Component, public EventListener
+class Projectile : public Component
 {
 public:
 
@@ -12,16 +11,12 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Update(float deltaTime) override;
 
-	virtual void OnEvent(Event* event) override;
-
-	void DeathTimer(float deltaTime);
-
 private:
 
+	void PositionCheck();
+
+	void ColliderHit(const GameObject* hit);
+
 	float _speed = 0;
-	float _lifetime = 5;
-
-	float _lifetimeElapsed = 0;
 	float _damage = 0;
-
 };

@@ -5,6 +5,7 @@
 #include "GameData.h"
 #include "ComponentPool.h"
 #include "SpriteRenderer.h"
+#include <SDL_render.h>
 
 struct SDL_Renderer;
 struct SDL_Window;

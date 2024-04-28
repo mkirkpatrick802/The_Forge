@@ -1,9 +1,7 @@
-//
-// Created by mKirkpatrick on 2/20/2024.
-//
 #pragma once
 
 #include "Component.h"
+#include "Shader.h"
 
 class PlayerController : public Component
 {
@@ -21,9 +19,13 @@ public:
 
     virtual void Update(float deltaTime) override;
 
+    virtual void OnDestroyed() override;
+
 private:
 
     void ProcessInput();
+
+    void SetShaderUniforms(Shader& shader);
 
 public:
 

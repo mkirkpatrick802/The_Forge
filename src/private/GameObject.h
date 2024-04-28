@@ -3,12 +3,13 @@
 #include <vector>
 #include <string>
 
+#include "EventDispatcher.h"
 #include "Transform.h"
 #include "UIStructs.h"
 
 class Component;
 
-class GameObject
+class GameObject : public EventDispatcher
 {
 public:
 

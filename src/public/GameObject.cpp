@@ -4,12 +4,15 @@
 
 #include "GameObject.h"
 
+#include <chrono>
 #include <sstream>
+#include <thread>
 
 #include "Component.h"
 #include "GameObjectManager.h"
 #include "SpriteRenderer.h"
-#include "Renderer.h"
+#include "OnDestroyedEvent.h"
+#include "Projectile.h"
 
 GameObject::GameObject() {
     transform = Transform();
@@ -72,7 +75,10 @@ void GameObject::SetRotationWithVector(const Vector2D vector, float offset)
 
 void GameObject::Destroy()
 {
-    GameObjectManager::GetInstance()->DestroyGameObject(this);
+    for (auto component : _attachedComponents)
+        component->OnDestroyed();
+
+	GameObjectManager::GetInstance()->DestroyGameObject(this);
 }
 
 Vector2D GameObject::GetPosition() const

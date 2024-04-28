@@ -49,6 +49,24 @@ void SpriteRenderer::Init()
     glBindVertexArray(0);
 }
 
+void SpriteRenderer::LoadData(const json& data)
+{
+    const std::string texture = data["Texture"];
+
+    int width, height, nrChannels;
+    unsigned char* textureData = stbi_load(texture.c_str(), &width, &height, &nrChannels, 0);
+    _texture.Generate(width, height, textureData);
+    _size = Vector2D(width * PIXEL_SCALE, height * PIXEL_SCALE);
+
+    stbi_image_free(textureData);
+
+    std::string vertex = data["Vertex Shader"];
+    std::string fragment = data["Fragment Shader"];
+
+    _shader.Compile(vertex.c_str(), fragment.c_str());
+    _sortingLayer = (int16)data.value("Sorting Layer", 0);
+}
+
 void SpriteRenderer::DrawSprite()
 {
 	const float rotation = gameObject->transform.rotation;
@@ -70,22 +88,20 @@ void SpriteRenderer::DrawSprite()
     _shader.SetMatrix4("projection", _projection);
     _shader.SetInteger("image", 0);
 
+    TriggerCallback(_shader);
+
     glBindVertexArray(_quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }
 
-void SpriteRenderer::LoadData(const json &data)
+void SpriteRenderer::RegisterCallback(const ShaderCallbackFunction& function)
 {
-	const std::string texture = data["Texture"];
+    callbacks.push_back(function);
+}
 
-    int width, height, nrChannels;
-    unsigned char* textureData = stbi_load(texture.c_str(), &width, &height, &nrChannels, 0);
-    _texture.Generate(width, height, textureData);
-    _size = Vector2D(width * PIXEL_SCALE, height * PIXEL_SCALE);
-
-    stbi_image_free(textureData);
-
-    _shader.Compile("assets/shaders/Sprite.vert", "assets/shaders/Sprite.frag");
-    _sortingLayer = data.value("Sorting Layer", 0);
+void SpriteRenderer::TriggerCallback(Shader& shader) const
+{
+    for (auto& callback : callbacks)
+        callback(shader);
 }

@@ -5,7 +5,9 @@
         {
           "ID": 1,
           "Sorting Layer": -1,
-          "Texture": "assets/sprites/SimpleBackground.png"
+          "Texture": "assets/sprites/SimpleBackground.png",
+          "Vertex Shader": "assets/shaders/Sprite.vert",
+          "Fragment Shader": "assets/shaders/Sprite.frag"
         }
       ],
       "Is Replicated": 0,

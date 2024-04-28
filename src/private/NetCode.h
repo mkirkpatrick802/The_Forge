@@ -27,6 +27,8 @@ public:
 
 	void SetIPv4Address(std::string address);
 
+	virtual ~NetCode() = default;
+
 protected:
 
 	// Callback

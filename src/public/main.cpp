@@ -34,6 +34,8 @@ int main(int argc, char* argv[]) {
     StartingGameOptions();
     GameplayLoop();
 
+    delete netcode;
+
     inputManager.CleanUp();
     UIManager::CleanUp();
     renderer.CleanUp();

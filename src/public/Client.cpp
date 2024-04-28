@@ -176,3 +176,12 @@ void Client::SendByteStreamToServer(const ByteStream& stream)
 	steamInterface->SendMessageToConnection(_connection, stream.buffer, stream.size,
 		k_nSteamNetworkingSend_Reliable, nullptr);
 }
+
+/*
+ *	Close Connection
+ */
+
+Client::~Client()
+{
+	steamInterface->CloseConnection(_connection, k_ESteamNetworkingConnectionState_ClosedByPeer, nullptr, false);
+}

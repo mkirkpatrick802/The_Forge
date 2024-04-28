@@ -8,8 +8,12 @@ public:
 
 	virtual void LoadData(const json& data) override;
 
-	void TakeDamage(float damage);
+	void TakeDamage(float damage, const GameObject* cause = nullptr);
 
+	float GetCurrentHealth() const { return _currentHealth; }
+	float GetMaxHealth() const { return _maxHealth; }
+
+	void SetCurrentHealth(const float health) { _currentHealth = health; }
 
 private:
 

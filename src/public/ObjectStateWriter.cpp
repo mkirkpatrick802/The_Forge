@@ -2,8 +2,10 @@
 
 #include "GameObject.h"
 #include "GameObjectManager.h"
+#include "Health.h"
 #include "LeaderboardsUIWindow.h"
 #include "PlayerController.h"
+#include "ScoreManager.h"
 #include "Server.h"
 
 ByteStream ObjectStateWriter::UpdatePlayerList(const std::vector<ClientObject>& players)
@@ -34,6 +36,8 @@ ByteStream ObjectStateWriter::SpawnPlayer(const uint8 playerID)
 		controller->InitController(playerID);
 
 		player->instanceID = instanceID;
+
+		ScoreManager::SortScore();
 
 		ByteStream stream;
 		stream.WriteGSM(GSM_Server::GSM_SpawnPlayer);
@@ -102,6 +106,8 @@ ByteStream ObjectStateWriter::RemovePlayer(const uint8 playerID)
 {
 	GameObjectManager* objectManager = GameObjectManager::GetInstance();
 	GameObject* player = objectManager->GetGameObjectByPlayerID(playerID);
+	if (!player) return {};
+
 	uint8 instanceID = player->instanceID;
 	player->Destroy();
 
@@ -168,7 +174,15 @@ ByteStream ObjectStateWriter::ObjectState(const GameObject* go, ByteStream& stre
 
 	// Player ID
 	if (go->GetPrefabID() == PLAYER_PREFAB_ID) // TODO: Use Component State Function
+	{
 		stream.AppendToBuffer(go->GetComponent<PlayerController>()->playerID);
+		stream.AppendToBuffer((uint8)ScoreManager::GetScore(go->GetComponent<PlayerController>()->playerID));
+	}
+
+	if (auto health = go->GetComponent<Health>())
+	{
+		stream.AppendToBuffer((uint16)health->GetCurrentHealth());
+	}
 
 	return stream;
 }

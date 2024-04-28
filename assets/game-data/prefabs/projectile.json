@@ -3,7 +3,9 @@
     {
       "ID": 1,
       "Sorting Layer": 1,
-      "Texture": "assets/sprites/projectile.png"
+      "Texture": "assets/sprites/projectile.png",
+      "Vertex Shader": "assets/shaders/Sprite.vert",
+      "Fragment Shader": "assets/shaders/Sprite.frag"
     },
     {
       "ID": 2,
@@ -12,7 +14,7 @@
     },
     {
       "ID": 3,
-      "Size": 3,
+      "Size": 2,
       "Sweep Collisions": true
     }
   ],

@@ -263,13 +263,13 @@ void Server::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 		_mapClients[info->m_hConn];
 		SetClientObject(info->m_hConn, object);
 
-		SendByteSteamToAllClients(ObjectStateWriter::SpawnPlayer(newID));
-
 		std::vector<ClientObject> players;
 		for (const auto& clients : _mapClients)
 			players.push_back(clients.second);
 
 		SendByteSteamToAllClients(ObjectStateWriter::UpdatePlayerList(players));
+
+		SendByteSteamToAllClients(ObjectStateWriter::SpawnPlayer(newID));
 		break;
 	}
 

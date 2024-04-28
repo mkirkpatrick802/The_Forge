@@ -4,21 +4,22 @@
 
 GameObject* EnemySpawner::SpawnEnemy()
 {
+
     // Get the game object manager instance
     GameObjectManager* manager = GameObjectManager::GetInstance();
 
     // Define the boundaries of the two rectangles
     // Rectangle 1 (smaller)
-    int minX1 = -600; // Minimum x coordinate of rectangle 1
-    int maxX1 = 600;  // Maximum x coordinate of rectangle 1
-    int minY1 = -300;  // Minimum y coordinate of rectangle 1
-    int maxY1 = 300;   // Maximum y coordinate of rectangle 1
+    int minX1 = -700; // Minimum x coordinate of rectangle 1
+    int maxX1 = 700;  // Maximum x coordinate of rectangle 1
+    int minY1 = -400;  // Minimum y coordinate of rectangle 1
+    int maxY1 = 400;   // Maximum y coordinate of rectangle 1
 
     // Rectangle 2 (bigger)
-    int minX2 = -700; // Minimum x coordinate of rectangle 2
-    int maxX2 = 700;  // Maximum x coordinate of rectangle 2
-    int minY2 = -400; // Minimum y coordinate of rectangle 2
-    int maxY2 = 400;  // Maximum y coordinate of rectangle 2
+    int minX2 = -750; // Minimum x coordinate of rectangle 2
+    int maxX2 = 750;  // Maximum x coordinate of rectangle 2
+    int minY2 = -450; // Minimum y coordinate of rectangle 2
+    int maxY2 = 450;  // Maximum y coordinate of rectangle 2
 
     // Generate random x and y coordinates within the bigger rectangle
     int randomX;

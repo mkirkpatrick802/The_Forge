@@ -14,6 +14,7 @@ public:
 	static void SendByteStreamToServer(const ByteStream& stream);
 	static bool IsHostClient() { return isHostClient; }
 
+	~Client() override;
 
 protected:
 

@@ -1,11 +1,7 @@
 #include "Collider.h"
 
-#include <sstream>
-
 #include "GameObject.h"
 #include "GameObjectManager.h"
-
-#include "ObjectHitEvent.h"
 
 void Collider::LoadData(const json& data)
 {
@@ -20,6 +16,17 @@ void Collider::BeginPlay()
 	Component::BeginPlay();
 
     _objectManager = GameObjectManager::GetInstance();
+}
+
+void Collider::RegisterHitCallback(const HitCallbackFunction& function)
+{
+    callback = function;
+}
+
+void Collider::TriggerHitCallback(GameObject* hit)
+{
+    if (callback)
+        callback(hit);
 }
 
 void Collider::Update(const float deltaTime)
@@ -49,10 +56,7 @@ bool Collider::CheckCollision()
             if (thisMin.x < otherMax.x && thisMax.x > otherMin.x &&
                 thisMin.y < otherMax.y && thisMax.y > otherMin.y)
             {
-                auto event = CreateEvent<ObjectHitEvent>();
-                event->hit = go;
-                Notify(event);
-
+                TriggerHitCallback(go);
                 return true; // Collision detected
             }
         }

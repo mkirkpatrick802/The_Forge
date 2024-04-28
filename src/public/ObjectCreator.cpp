@@ -24,6 +24,7 @@ void ObjectCreator::RegisterComponentFns()
     componentCreationMap[PROJECTILE] = &ObjectCreator::CreateProjectile;
     componentCreationMap[COLLIDER] = &ObjectCreator::CreateCollider;
     componentCreationMap[HEALTH] = &ObjectCreator::CreateHealth;
+    componentCreationMap[ENEMY_CONTROLLER] = &ObjectCreator::CreateEnemyController;
 }
 
 GameObject* ObjectCreator::CreateGameObjectFromJSON(const json &gameObject)
@@ -127,11 +128,21 @@ void ObjectCreator::CreateHealth(GameObject* go, const json& data)
         health->LoadData(data);
 }
 
-void ObjectCreator::UpdateComponentPools(float deltaTime)
+void ObjectCreator::CreateEnemyController(GameObject* go, const json& data)
+{
+    EnemyController* controller = _enemyControllerPool.New(go);
+    go->AddComponent(controller);
+
+    if (data != nullptr)
+        controller->LoadData(data);
+}
+
+void ObjectCreator::UpdateComponentPools(const float deltaTime)
 {
     _playerControllerPool.Update(deltaTime);
     _projectilePool.Update(deltaTime);
     _colliderPool.Update(deltaTime);
+    _enemyControllerPool.Update(deltaTime);
 }
 
 void ObjectCreator::CleanUpComponents(GameObject* go)
@@ -147,6 +158,9 @@ void ObjectCreator::CleanUpComponents(GameObject* go)
 
     if (Health* health = go->GetComponent<Health>())
         _healthPool.Delete(health);
+
+    if (EnemyController* controller = go->GetComponent<EnemyController>())
+        _enemyControllerPool.Delete(controller);
 
     _renderer->CleanUpSpriteRenderer(go);
 }

@@ -4,6 +4,7 @@
 
 #include "EventListener.h"
 #include "GameData.h"
+#include "GameObject.h"
 #include "PrefabManager.h"
 
 class ObjectCreator;
@@ -46,6 +47,9 @@ public:
     GameObject* GetGameObjectByPlayerID(uint8 ID) const;
     std::vector<GameObject*> GetCurrentGameObjects() const { return _currentGameObjects; }
 
+    template<typename T>
+    std::vector<GameObject*> GetGameObjectsWithComponent() const;
+
 
 private:
 
@@ -61,3 +65,15 @@ private:
 
 	std::vector<GameObject*> _currentGameObjects;
 };
+
+template <typename T>
+std::vector<GameObject*> GameObjectManager::GetGameObjectsWithComponent() const
+{
+    std::vector<GameObject*> objects;
+
+    for (const auto go : _currentGameObjects)
+        if (go->GetComponent<T>())
+            objects.push_back(go);
+
+	return objects;
+}
