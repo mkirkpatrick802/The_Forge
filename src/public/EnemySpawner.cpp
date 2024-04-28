@@ -25,7 +25,7 @@ GameObject* EnemySpawner::SpawnEnemy()
     int randomX;
     int randomY;
 
-    do 
+    do
     {
         randomX = minX2 + rand() % (maxX2 - minX2 + 1);
         randomY = minY2 + rand() % (maxY2 - minY2 + 1);

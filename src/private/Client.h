@@ -4,6 +4,8 @@
 
 class ByteStream;
 
+const int MAX_CLIENT_MESSAGES = 3;
+
 class Client : public NetCode
 {
 public:
@@ -30,5 +32,4 @@ public:
 private:
 
 	static HSteamNetConnection _connection;
-
 };

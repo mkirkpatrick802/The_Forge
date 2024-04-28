@@ -14,6 +14,7 @@ public:
 	float GetMaxHealth() const { return _maxHealth; }
 
 	void SetCurrentHealth(const float health) { _currentHealth = health; }
+	virtual void OnDestroyed() override;
 
 private:
 

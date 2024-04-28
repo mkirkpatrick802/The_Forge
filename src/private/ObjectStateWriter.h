@@ -20,8 +20,10 @@ public:
 	// Returns the current world state of replicated objects
 	static ByteStream WorldState();
 
+	static ByteStream UpdateObjectRequest(const char* buffer);
+
 	// Update Objects State
-	static ByteStream UpdateObjectState(const GameObject* go);
+	static ByteStream UpdateObjectState(const GameObject* go, bool sendStream = false);
 
 	// Process Client movement request and returns the players object state
 	static ByteStream Movement(const char* buffer);
@@ -31,6 +33,9 @@ public:
 
 	// Remove player from game
 	static ByteStream RemovePlayer(uint8 playerID);
+
+	// Delete object from game
+	static void DestroyObject(uint8 instanceID);
 
 private:
 

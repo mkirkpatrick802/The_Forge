@@ -12,12 +12,16 @@
 
 #include "ObjectStateWriter.h"
 
+Server* Server::_instance = nullptr;
+
 Server::Server()
 {
 	_gameMode = GameMode();
 
 	SubscribeToEvent(EventType::ET_EnemySpawned);
 	_gameMode.Attach(this);
+
+	_instance = this;
 }
 
 void Server::Start()
@@ -104,6 +108,9 @@ void Server::ReadByteStream(const HSteamNetConnection messageAuthor, const char*
 		break;
 	case GSM_Client::GSM_FireRequest:
 		SendByteSteamToAllClients(ObjectStateWriter::FireProjectile(buffer));
+		break;
+	case GSM_Client::GSM_UpdateObjectRequest:
+		//SendByteStreamToClient(messageAuthor, ObjectStateWriter::UpdateObjectRequest(buffer));
 		break;
 	}
 }

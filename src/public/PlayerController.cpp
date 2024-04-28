@@ -35,6 +35,8 @@ void PlayerController::InitController(const uint8 ID)
         stream.WriteGSM(GSM_Client::GSM_WorldStateRequest);
         Client::SendByteStreamToServer(stream);
     }
+
+    printf("Init \n");
 }
 
 void PlayerController::Update(float deltaTime)
@@ -76,6 +78,7 @@ void PlayerController::ProcessInput()
 
 void PlayerController::SetShaderUniforms(Shader& shader)
 {
+    if(!gameObject) return;
     if(auto health = gameObject->GetComponent<Health>())
     {
         float percent = health->GetCurrentHealth() / health->GetMaxHealth();

@@ -13,6 +13,8 @@ public:
 	static int  GetScore(uint8 ID);
 	static void SortScore();
 
+	static int GetHighestScore();
+
 private:
 
 	static std::unordered_map<uint8, int> score;

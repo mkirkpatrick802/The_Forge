@@ -24,8 +24,4 @@ protected:
     UIManager* _uiManager;
     InputManager* _inputManager;
     GameObjectManager* _gameObjectManager;
-
-    // Time Keeping
-    int frameStart;
-    float deltaTime;
 };

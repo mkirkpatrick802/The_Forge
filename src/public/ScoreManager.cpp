@@ -39,3 +39,13 @@ void ScoreManager::SortScore()
 		return score[a.playerID] > score[b.playerID];
 		});
 }
+
+int ScoreManager::GetHighestScore()
+{
+	int highest = 0;
+	for (auto value : score)
+		if (value.second > highest)
+			highest = value.second;
+
+	return highest;
+}

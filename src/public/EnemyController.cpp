@@ -1,9 +1,12 @@
 #include "EnemyController.h"
 
+#include "Client.h"
 #include "Collider.h"
 #include "GameObjectManager.h"
 #include "Health.h"
+#include "ObjectStateWriter.h"
 #include "PlayerController.h"
+#include "Server.h"
 
 void EnemyController::LoadData(const json& data)
 {
@@ -55,6 +58,14 @@ void EnemyController::MoveToTarget()
 	if(gameObject->GetPosition() == _target->GetPosition()) return;
 
 	gameObject->transform.position += normalize(_target->GetPosition() - gameObject->GetPosition()) * _speed;
+
+	/*if(!Client::IsHostClient())
+	{
+		ByteStream stream;
+		stream.WriteGSM(GSM_Client::GSM_UpdateObjectRequest);
+		stream.AppendToBuffer(gameObject->instanceID);
+		Client::SendByteStreamToServer(stream);
+	}*/
 }
 
 void EnemyController::ColliderHit(const GameObject* hit)

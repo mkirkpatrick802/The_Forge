@@ -109,12 +109,22 @@ ByteStream ObjectStateWriter::RemovePlayer(const uint8 playerID)
 	if (!player) return {};
 
 	uint8 instanceID = player->instanceID;
+	player->SetShouldRespawn(false);
 	player->Destroy();
 
 	ByteStream stream;
 	stream.WriteGSM(GSM_Server::GSM_DestroyObject);
 	stream.AppendToBuffer(instanceID);
 	return stream;
+}
+
+void ObjectStateWriter::DestroyObject(const uint8 instanceID)
+{
+	ByteStream stream;
+	stream.WriteGSM(GSM_Server::GSM_DestroyObject);
+	stream.AppendToBuffer(instanceID);
+
+	Server::GetServer()->SendByteSteamToAllClients(stream);
 }
 
 ByteStream ObjectStateWriter::WorldState()
@@ -137,11 +147,28 @@ ByteStream ObjectStateWriter::WorldState()
 	return stream;
 }
 
-ByteStream ObjectStateWriter::UpdateObjectState(const GameObject* go)
+ByteStream ObjectStateWriter::UpdateObjectRequest(const char* buffer)
 {
+	const int index = BYTE_STREAM_OVERHEAD;
+
+	GameObjectManager* objectManager = GameObjectManager::GetInstance();
+	GameObject* go = objectManager->GetGameObjectByInstanceID(buffer[index]);
+
+	ByteStream stream = UpdateObjectState(go);
+	return stream;
+}
+
+ByteStream ObjectStateWriter::UpdateObjectState(const GameObject* go, const bool sendStream)
+{
+	if (go == nullptr) return {};
+
 	ByteStream stream;
 	stream.WriteGSM(GSM_Server::GSM_UpdateObject);
 	ObjectState(go, stream);
+
+	if (sendStream)
+		Server::GetServer()->SendByteSteamToAllClients(stream);
+
 	return stream;
 }
 

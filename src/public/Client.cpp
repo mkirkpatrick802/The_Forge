@@ -103,23 +103,22 @@ void Client::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCa
 // Receive Message From Server
 void Client::PollIncomingMessages()
 {
-	ISteamNetworkingMessage* messageList[1];
-	int numMsgs = steamInterface->ReceiveMessagesOnConnection(_connection, messageList, 1);
-	if (numMsgs == 0)
-		return;
-	if (numMsgs < 0)
-		FatalError("Error checking for messages");
+	ISteamNetworkingMessage* messageList[MAX_CLIENT_MESSAGES];
+	int num = steamInterface->ReceiveMessagesOnConnection(_connection, messageList, MAX_CLIENT_MESSAGES);
+	if (num == 0) return;
+	if (num < 0) FatalError("Error checking for messages");
 
-	for (int i = 0; i < numMsgs; i++)
+	for (int i = 0; i < num; i++)
 	{
-		const auto message = static_cast<char*>(messageList[i]->m_pData);
-		if (message == nullptr) return;
+		ISteamNetworkingMessage* message = messageList[i];
+		const char* buffer = (char*)message->m_pData;
+		if (!buffer) return;
 
 		// Check if the message is a ByteStream
-		if (message[0] == BYTE_STREAM_CODE)
+		if (*buffer == BYTE_STREAM_CODE)
 		{
 			if (IsHostClient()) return;
-			ReadByteStream(messageList[i]->m_conn, message);
+			ReadByteStream(messageList[i]->m_conn, buffer);
 		}
 		else
 		{
@@ -140,22 +139,26 @@ void Client::ReadByteStream(const HSteamNetConnection messageAuthor, const char*
 {
 	if (buffer[1] != SERVER_MESSAGE) { printf("Invalid Message Received!! \n"); return; }
 
+	//printf("ByteStream Received: %d \n", buffer[2]);
+
 	switch(static_cast<GSM_Server>(buffer[2]))
 	{
 	case GSM_Server::GSM_SpawnPlayer:
-			ObjectStateReader::SpawnPlayer(buffer);
+		ObjectStateReader::SpawnPlayer(buffer);
 		break;
 
 	case GSM_Server::GSM_WorldState:
-			ObjectStateReader::WorldState(buffer);
+		ObjectStateReader::WorldState(buffer);
 		break;
 
 	case GSM_Server::GSM_UpdateObject:
 		ObjectStateReader::UpdateObject(buffer);
 		break;
+
 	case GSM_Server::GSM_UpdatePlayerList:
 		ObjectStateReader::UpdatePlayerList(buffer);
 		break;
+
 	case GSM_Server::GSM_DestroyObject:
 		ObjectStateReader::DestroyObject(buffer);
 		break;

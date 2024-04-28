@@ -3,11 +3,11 @@
     {
       "Components": [
         {
+          "Fragment Shader": "assets/shaders/Sprite.frag",
           "ID": 1,
           "Sorting Layer": -1,
           "Texture": "assets/sprites/SimpleBackground.png",
-          "Vertex Shader": "assets/shaders/Sprite.vert",
-          "Fragment Shader": "assets/shaders/Sprite.frag"
+          "Vertex Shader": "assets/shaders/Sprite.vert"
         }
       ],
       "Is Replicated": 0,
@@ -17,8 +17,51 @@
     {
       "Is Replicated": 1,
       "Name": "Asteroid",
-      "Position": "100 100",
-      "Prefab ID": 2
+      "Position": "-600 100",
+      "Prefab ID": 2,
+      "Should Respawn": true
+    },
+    {
+      "Is Replicated": 1,
+      "Name": "Asteroid",
+      "Position": "300 100",
+      "Prefab ID": 2,
+      "Should Respawn": true
+    },
+    {
+      "Is Replicated": 1,
+      "Name": "Asteroid",
+      "Position": "-300 280",
+      "Prefab ID": 2,
+      "Should Respawn": true
+    },
+    {
+      "Is Replicated": 1,
+      "Name": "Asteroid",
+      "Position": "100 320",
+      "Prefab ID": 2,
+      "Should Respawn": true
+    },
+    {
+      "Is Replicated": 1,
+      "Name": "Asteroid",
+      "Position": "500 -250",
+      "Prefab ID": 2,
+      "Should Respawn": true
+    },
+    {
+      "Is Replicated": 1,
+      "Name": "Asteroid",
+      "Position": "-300 -280",
+      "Prefab ID": 2,
+      "Should Respawn": true
+    },
+    {
+      "Is Replicated": 1,
+      "Name": "Asteroid",
+      "Position": "600 100",
+      "Prefab ID": 2,
+      "Should Respawn": true
     }
   ]
 }

@@ -2,7 +2,7 @@
 #include "GameObjectManager.h"
 #include "UIManager.h"
 
-Engine::Engine(Renderer& renderer, InputManager& inputManager) : _renderer(&renderer), _inputManager(&inputManager), frameStart(0), deltaTime(0)
+Engine::Engine(Renderer& renderer, InputManager& inputManager) : _renderer(&renderer), _inputManager(&inputManager)
 {
 	_uiManager = UIManager::GetInstance();
 

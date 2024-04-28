@@ -15,6 +15,7 @@ public:
 
     friend class ObjectCreator;
     friend class GameObjectManager;
+    friend class ObjectStateReader;
 
 public:
 
@@ -43,9 +44,16 @@ public:
 
     int8 GetPrefabID() const { return _prefabID; }
 
+    void SetShouldRespawn(const bool shouldRespawn) { _shouldRespawn = shouldRespawn; }
+
+    // Can be called anywhere and automatically replicates to clients
     void Destroy();
 
 private:
+
+    // Should only ever be called from ObjectStateReader class
+    void DestroyRequestReceived();
+
 public:
 
     GameObjectSettings settings;
@@ -58,6 +66,7 @@ public:
 
 private:
 
+    bool _shouldRespawn = false;
     int8 _prefabID = -1;
     std::vector<Component*> _attachedComponents;
 };

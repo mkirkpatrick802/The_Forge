@@ -18,5 +18,5 @@ private:
 	static void ObjectState(const char* buffer, int& index);
 	static GameObject* CreateObject(const char* buffer, int& index, uint8 prefabID, uint8 instanceID);
 
-	static void ComponentState(const char* buffer, int& index, const GameObject* go, uint8 prefabID, bool newObject = false);
+	static void ComponentState(const char* buffer, int& index, const GameObject* go, uint8 prefabID, bool newObject);
 };

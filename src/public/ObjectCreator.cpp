@@ -63,6 +63,8 @@ void ObjectCreator::ReadGameObject(GameObject* go, const json& data)
     const std::string position = data["Position"];
     std::istringstream iss(position);
     iss >> go->transform.position.x >> go->transform.position.y;
+
+    go->_shouldRespawn = data.value("Should Respawn", false);
 }
 
 void ObjectCreator::CreateComponentFromJSON(GameObject* go, const json& component)

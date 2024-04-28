@@ -9,6 +9,7 @@
 #include "InputManager.h"
 #include "GameObjectManager.h"
 #include "NetCode.h"
+#include "RespawnManager.h"
 #include "UIManager.h"
 
 PlayEngine::PlayEngine(Renderer &renderer, InputManager &inputManager, NetCode* netcode) : Engine(renderer, inputManager)
@@ -21,18 +22,23 @@ void PlayEngine::GameLoop()
 {
 	_gameObjectManager->LoadLevel();
 
+
+	float frameStart = (float)SDL_GetTicks64();
+
 	// Gameplay Loop
 	while (_inputManager->StartProcessInputs(*_renderer))
 	{
-		if (SDL_GetTicks64() - frameStart >= 16)
+		if (float currentTicks = (float)SDL_GetTicks64(); currentTicks - frameStart >= 16)
 		{
-			//Frame Rate Management
-			deltaTime = (SDL_GetTicks64() - frameStart) / 1000.f;
-			frameStart = SDL_GetTicks64();
+			// Frame Rate Management
+			float deltaTime = (currentTicks - frameStart) / 1000.f;
+			frameStart = currentTicks;
 
-			// Display frame rate in console
 			if (_inputManager->GetKey(SDL_SCANCODE_APOSTROPHE))
-				printf("%f FPS \n", 1000.f / (deltaTime * 1000));
+				printf("%f FPS \n", 1.f / deltaTime);
+
+			if (_inputManager->GetKey(SDL_SCANCODE_SEMICOLON))
+				printf("%f DeltaTime \n", deltaTime);
 
 			_netcode->Update(deltaTime);
 			_gameObjectManager->Update(deltaTime);
@@ -43,6 +49,8 @@ void PlayEngine::GameLoop()
 			// Render game objects
 			_renderer->Render();
 
+			RespawnManager::GetInstance()->Update(deltaTime);
+
 			// End input poll
 			_inputManager->EndProcessInputs();
 		}
@@ -52,4 +60,5 @@ void PlayEngine::GameLoop()
 void PlayEngine::CleanUp()
 {
     _gameObjectManager->CleanUp();
+	RespawnManager::CleanUp();
 }

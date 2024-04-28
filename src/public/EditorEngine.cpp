@@ -25,18 +25,20 @@ void EditorEngine::GameLoop()
 {
 	_gameObjectManager->LoadLevel();
 
+	float frameStart = (float)SDL_GetTicks64();
+
 	// Gameplay Loop
 	while (_inputManager->StartProcessInputs(*_renderer)) 
 	{
-		if (SDL_GetTicks64() - frameStart >= 16) 
+		if (float currentTicks = (float)SDL_GetTicks64(); currentTicks - frameStart >= 16)
 		{
-			//Frame Rate Management
-			deltaTime = (SDL_GetTicks64() - frameStart);
-			frameStart = SDL_GetTicks64();
+			// Frame Rate Management
+			float deltaTime = (currentTicks - frameStart) / 1000.f;
+			frameStart = currentTicks;
 
 			// Display frame rate in console
 			if (_inputManager->GetKey(SDL_SCANCODE_APOSTROPHE))
-				printf("%f FPS \n", 1000 / deltaTime);
+				printf("%f FPS \n", 1.f / deltaTime);
 
 			// Get UI Data
 			_details.editorSettings = _editorUI.GetEditorSettings();

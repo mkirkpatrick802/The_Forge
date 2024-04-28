@@ -76,7 +76,7 @@ void ObjectStateReader::DestroyObject(const char* buffer)
 	uint8 instanceID = buffer[index];
 
 	GameObjectManager* objectManager = GameObjectManager::GetInstance();
-	objectManager->GetGameObjectByInstanceID(instanceID)->Destroy();
+	objectManager->GetGameObjectByInstanceID(instanceID)->DestroyRequestReceived();
 }
 
 /*
@@ -112,6 +112,8 @@ void ObjectStateReader::ObjectState(const char* buffer, int& index)
 	go->owner = objectManager->GetGameObjectByInstanceID(ownerInstanceID);
 	go->SetPosition(Vector2D(x, y));
 	go->transform.rotation = rot;
+
+	ComponentState(buffer, index, go, prefabID, !found);
 }
 
 GameObject* ObjectStateReader::CreateObject(const char* buffer, int& index, const uint8 prefabID, const uint8 instanceID)
@@ -119,22 +121,22 @@ GameObject* ObjectStateReader::CreateObject(const char* buffer, int& index, cons
 	GameObjectManager* objectManager = GameObjectManager::GetInstance();
 	const auto newObject = objectManager->CreateGameObject(prefabID);
 	if(newObject)
-	{
 		newObject->instanceID = instanceID;
-
-		ComponentState(buffer, index, newObject, prefabID, true);
-	}
 
 	return newObject;
 }
 
 void ObjectStateReader::ComponentState(const char* buffer, int& index, const GameObject* go, const uint8 prefabID, const bool newObject)
 {
-	if (prefabID == PLAYER_PREFAB_ID && newObject)
+	if (prefabID == PLAYER_PREFAB_ID)
 	{
 		const uint8 playerID = buffer[index++];
-		const auto controller = go->GetComponent<PlayerController>();
-		controller->InitController(playerID);
+
+		if (newObject)
+		{
+			const auto controller = go->GetComponent<PlayerController>();
+			controller->InitController(playerID);
+		}
 
 		const uint8 score = buffer[index++];
 		ScoreManager::SetScore(playerID, score);

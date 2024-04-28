@@ -95,6 +95,13 @@ void SpriteRenderer::DrawSprite()
     glBindVertexArray(0);
 }
 
+void SpriteRenderer::OnDestroyed()
+{
+	Component::OnDestroyed();
+
+    callbacks.clear();
+}
+
 void SpriteRenderer::RegisterCallback(const ShaderCallbackFunction& function)
 {
     callbacks.push_back(function);

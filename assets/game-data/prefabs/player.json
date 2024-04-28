@@ -24,5 +24,6 @@
   "Name": "Player",
   "Is Replicated": 1,
   "Position": "0 0",
-  "Prefab ID": 0
+  "Prefab ID": 0,
+  "Should Respawn": true
 }

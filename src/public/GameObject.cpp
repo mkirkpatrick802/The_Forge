@@ -8,11 +8,14 @@
 #include <sstream>
 #include <thread>
 
+#include "Client.h"
 #include "Component.h"
 #include "GameObjectManager.h"
+#include "ObjectStateWriter.h"
 #include "SpriteRenderer.h"
 #include "OnDestroyedEvent.h"
 #include "Projectile.h"
+#include "RespawnManager.h"
 
 GameObject::GameObject() {
     transform = Transform();
@@ -75,10 +78,23 @@ void GameObject::SetRotationWithVector(const Vector2D vector, float offset)
 
 void GameObject::Destroy()
 {
+    if(Client::IsHostClient())
+    {
+        ObjectStateWriter::DestroyObject(instanceID);
+
+        DestroyRequestReceived();
+    }
+}
+
+void GameObject::DestroyRequestReceived()
+{
+    if (_shouldRespawn)
+        RespawnManager::GetInstance()->StartRespawnTimer(this, 5);
+
     for (auto component : _attachedComponents)
         component->OnDestroyed();
 
-	GameObjectManager::GetInstance()->DestroyGameObject(this);
+    GameObjectManager::GetInstance()->DestroyGameObject(this);
 }
 
 Vector2D GameObject::GetPosition() const

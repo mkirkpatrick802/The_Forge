@@ -20,5 +20,6 @@
   "Name": "Asteroid",
   "Is Replicated": 1,
   "Position": "0 0",
-  "Prefab ID": 2
+  "Prefab ID": 2,
+  "Should Respawn": true
 }

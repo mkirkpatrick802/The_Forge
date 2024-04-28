@@ -32,6 +32,10 @@ private:
     void Init();
     void DrawSprite();
 
+public:
+
+    virtual void OnDestroyed() override;
+
 private:
 
     std::vector<ShaderCallbackFunction> callbacks;

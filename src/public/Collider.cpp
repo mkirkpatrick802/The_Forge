@@ -1,5 +1,6 @@
 #include "Collider.h"
 
+#include "Client.h"
 #include "GameObject.h"
 #include "GameObjectManager.h"
 

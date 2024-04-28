@@ -21,6 +21,8 @@ struct ClientObject
 
 class Server : public NetCode, public EventListener
 {
+	friend class ObjectStateWriter;
+
 public:
 
 	Server();
@@ -33,6 +35,8 @@ public:
 	Client* GetClient() const { return _client; }
 
 private:
+
+	static Server* GetServer() { return _instance; }
 
 	virtual void PollIncomingMessages() override;
 	void HandleClientMessage(const std::pair<HSteamNetConnection, ClientObject>& client);
@@ -50,6 +54,8 @@ private:
 	virtual void OnEvent(Event* event) override;
 
 private:
+
+	static Server* _instance;
 
 	HSteamListenSocket _listenSocket;
 	HSteamNetPollGroup _pollGroup;
