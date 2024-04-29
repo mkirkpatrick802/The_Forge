@@ -2,7 +2,7 @@
 #include "NetcodeUtilites.h"
 
 const int BYTE_STREAM_OVERHEAD = 3;
-const int MAX_STREAM_SIZE = 100;
+const int MAX_STREAM_SIZE = 200;
 
 class ByteStream
 {

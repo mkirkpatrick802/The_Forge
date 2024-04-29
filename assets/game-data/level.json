@@ -20,48 +20,6 @@
       "Position": "-600 100",
       "Prefab ID": 2,
       "Should Respawn": true
-    },
-    {
-      "Is Replicated": 1,
-      "Name": "Asteroid",
-      "Position": "300 100",
-      "Prefab ID": 2,
-      "Should Respawn": true
-    },
-    {
-      "Is Replicated": 1,
-      "Name": "Asteroid",
-      "Position": "-300 280",
-      "Prefab ID": 2,
-      "Should Respawn": true
-    },
-    {
-      "Is Replicated": 1,
-      "Name": "Asteroid",
-      "Position": "100 320",
-      "Prefab ID": 2,
-      "Should Respawn": true
-    },
-    {
-      "Is Replicated": 1,
-      "Name": "Asteroid",
-      "Position": "500 -250",
-      "Prefab ID": 2,
-      "Should Respawn": true
-    },
-    {
-      "Is Replicated": 1,
-      "Name": "Asteroid",
-      "Position": "-300 -280",
-      "Prefab ID": 2,
-      "Should Respawn": true
-    },
-    {
-      "Is Replicated": 1,
-      "Name": "Asteroid",
-      "Position": "600 100",
-      "Prefab ID": 2,
-      "Should Respawn": true
     }
   ]
 }
