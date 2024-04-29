@@ -1,2 +1,0 @@
-Add this to CMake options
--DCMAKE_TOOLCHAIN_FILE=$CMakeProjectDir$/vcpkg/scripts/buildsystems/vcpkg.cmake
