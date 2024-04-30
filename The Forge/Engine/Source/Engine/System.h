@@ -1,9 +1,20 @@
 ﻿#pragma once
 
-#include <iostream>
-
+#define CRTDBG_MAP_ALLOC
 #include "Windows.h"
+
+#include <iostream>
+#include <SDL_video.h>
+
 #include "Data.h"
+
+#ifdef _DEBUG
+#define DEBUG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+#else
+#define DBG_NEW new
+#endif
+
+typedef SDL_Window Window;
 
 namespace Engine
 {
@@ -11,18 +22,18 @@ namespace Engine
 	{
 	public:
 
-		void Init();
-		void PreAppStartUp();
-		void PostAppStartUp();
-		void Shutdown();
+		static void Init();
+		static void CleanUp();
 
+		static void LogToErrorFile(const String& message);
 		static void DisplayMessageBox(const String& message);
-		static int AllocationHook(int allocType, void* userData, size_t size, int blockType, long requestNumber, const unsigned char* filename, int lineNumber);
+
+		static Window* GetWindow() { return _window; };
 
 	private:
 
-		_CrtMemState _memoryCheckpoint = {};
-		HANDLE _errorFile = INVALID_HANDLE_VALUE;
-
+		static _CrtMemState _memoryCheckpoint;
+		static HANDLE _errorFile;
+		static Window* _window;
 	};
 }

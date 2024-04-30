@@ -1,14 +1,11 @@
-#include "Engine/System.h"
+#include "Engine/GameEngine.h"
+
+using namespace Engine;
 
 int main()
 {
-	Engine::System system;
-	system.Init();
-	system.PreAppStartUp();
+	GameEngine* engine = GameEngine::GetInstance();
 
-	const auto i = new int;
-	*i = 6;
-
-	system.PostAppStartUp();
-	system.Shutdown();
+	engine->StartGamePlayLoop();
+	engine->CleanUp();
 }

@@ -11,7 +11,10 @@ project "Engine"
    {
       "Source",
 
-      "Vendors/SDL2-2.30.2/include"
+      "Vendors/SDL2-2.30.2/include",
+      "Vendors/imgui-1.90.5-docking",
+      "Vendors/glm",
+      "Vendors/glad/include"
    }
 
    targetdir ("../../Binaries/" .. OutputDir .. "/%{prj.name}")

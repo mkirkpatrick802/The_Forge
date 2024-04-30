@@ -7,18 +7,26 @@ project "App"
 
    files { "Source/**.h", "Source/**.cpp" }
 
+   local modules = {
+       "Engine",
+       "Netcode"
+   }
+
+   local engine_vendor_path = "../The Forge/Engine/Vendors/"
+
    includedirs
    {
       "Source",
 
       -- Include Engine Files
       "../The Forge/Engine/Source",
-      "../The Forge/Netcode/Source"
-   }
+      engine_vendor_path .. "glm",
+      engine_vendor_path .. "glad/include",
+      engine_vendor_path .. "imgui-1.90.5-docking",
+      engine_vendor_path .. "SDL2-2.30.2/include",
 
-   local modules = {
-       "Engine",
-       "Netcode"
+      -- Include Netcode Files
+      "../The Forge/Netcode/Source"
    }
 
    -- Generate the postbuild command to copy DLLs from each module
