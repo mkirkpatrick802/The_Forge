@@ -6,5 +6,7 @@ typedef std::string String;
 
 typedef glm::vec2 Vector2D;
 
+typedef glm::int16 int16;
+
 typedef glm::uint8 uint8;
 typedef glm::uint32 uint32;

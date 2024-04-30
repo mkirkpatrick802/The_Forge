@@ -13,11 +13,10 @@
 #else
 #define DBG_NEW new
 #endif
-
-typedef SDL_Window Window;
-
 namespace Engine
 {
+	typedef SDL_Window Window;
+
 	class System
 	{
 	public:

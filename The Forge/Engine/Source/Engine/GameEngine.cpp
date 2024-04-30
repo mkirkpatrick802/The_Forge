@@ -43,6 +43,8 @@ void Engine::GameEngine::StartGamePlayLoop()
 				printf("%f FPS \n", 1.f / deltaTime);
 
 
+
+
 			_inputManager->EndProcessInputs();
 		}
 	}
