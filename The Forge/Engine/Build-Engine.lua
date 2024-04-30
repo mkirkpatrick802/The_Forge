@@ -9,7 +9,9 @@ project "Engine"
 
    includedirs
    {
-      "Source"
+      "Source",
+
+      "Vendors/SDL2-2.30.2/include"
    }
 
    targetdir ("../../Binaries/" .. OutputDir .. "/%{prj.name}")
@@ -18,6 +20,14 @@ project "Engine"
    filter "system:windows"
        systemversion "latest"
        defines { }
+       libdirs { "Vendors/SDL2-2.30.2/lib/x64" }
+       links   { "SDL2", "SDL2main" }
+
+       
+       postbuildcommands 
+       {
+            "{COPY} Vendors/SDL2-2.30.2/lib/x64/*.dll %{cfg.targetdir}"
+       }
 
    filter "configurations:Debug"
        defines { "DEBUG" }

@@ -2,5 +2,13 @@
 
 int main()
 {
-	Engine::System::Print("Yo");
+	Engine::System system;
+	system.Init();
+	system.PreAppStartUp();
+
+	const auto i = new int;
+	*i = 6;
+
+	system.PostAppStartUp();
+	system.Shutdown();
 }

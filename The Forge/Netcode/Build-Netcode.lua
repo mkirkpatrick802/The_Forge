@@ -20,6 +20,13 @@ project "Netcode"
    filter "system:windows"
        systemversion "latest"
        defines { }
+       libdirs { "Vendors/GameNetworkingSockets/bin/Windows/Release" }
+       links   { "GameNetworkingSockets", "GameNetworkingSockets_s" }
+
+       postbuildcommands 
+       {
+            "{COPY} Vendors/GameNetworkingSockets/bin/Windows/Release/*.dll %{cfg.targetdir}"
+       }
 
    filter "configurations:Debug"
        defines { "DEBUG" }
