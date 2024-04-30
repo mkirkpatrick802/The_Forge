@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "System.h"
 
 namespace Engine
 {
@@ -10,13 +9,12 @@ namespace Engine
 	public:
 		static GameEngine* GetInstance();
 
-		void StartGamePlayLoop();
+		void StartGamePlayLoop() const;
 
 		void CleanUp();
 
 	private:
 
-		static void Init();
 		GameEngine();
 
 		static GameEngine* _instance;

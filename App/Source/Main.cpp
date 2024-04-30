@@ -1,11 +1,6 @@
-#include "Engine/GameEngine.h"
-
-using namespace Engine;
+#include "Launcher/Launcher.h"
 
 int main()
 {
-	GameEngine* engine = GameEngine::GetInstance();
-
-	engine->StartGamePlayLoop();
-	engine->CleanUp();
+	Launcher::Start();
 }

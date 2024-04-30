@@ -3,6 +3,7 @@
 #include <SDL_mouse.h>
 
 #include "System.h"
+#include "backends/imgui_impl_sdl2.h"
 
 Engine::InputManager::InputManager()
 {
@@ -26,7 +27,7 @@ bool Engine::InputManager::StartProcessInputs()
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
-    	//ImGui_ImplSDL2_ProcessEvent(&event);
+    	ImGui_ImplSDL2_ProcessEvent(&event);
 
         if (event.type == SDL_QUIT)
             return false;

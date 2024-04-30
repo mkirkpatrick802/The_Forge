@@ -1,29 +1,26 @@
 ﻿#pragma once
+#include <vector>
+#include "UIWindow.h"
 
 namespace Engine
 {
 	class UIManager
 	{
 	public:
-        /*static void Init(const Renderer& renderer);
-        static UIManager* GetInstance();
 
-        void AddUIWindow(UIWindow* window);
-        void RemoveUIWindow(UIWindow* window);
+		static void Init();
 
-        void Render() const;
+		static void RenderWindows();
+		static void FinishUIRender();
 
-        static bool HoveringUI();
-        static void ClearFrame();
+		static void CleanUp();
 
-        static void CleanUp();
+		static void AddUIWindow(UIWindow* window) { _uiWindows.push_back(window); }
+		static void RemoveUIWindow(UIWindow* window) { std::erase(_uiWindows, window); }
 
 	private:
-        UIManager(const Renderer& renderer);
 
-	private:
-        static UIManager* _instance;
-        std::vector<UIWindow*> _uiWindows;*/
+		static std::vector<UIWindow*> _uiWindows;
 
 	};
 }

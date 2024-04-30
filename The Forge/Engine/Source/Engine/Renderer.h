@@ -19,6 +19,8 @@ namespace Engine
 
 		void Render() const;
 
+		static Context* GetContext() { return &_context; }
+
 		~Renderer();
 
 	private:
@@ -27,7 +29,7 @@ namespace Engine
 
 	private:
 
-		Context _context;
+		static Context _context;
 		RenderListPair _renderList;
 
 	};

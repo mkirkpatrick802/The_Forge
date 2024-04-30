@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "Data.h"
-#include "Renderer.h"
 
 namespace Engine
 {

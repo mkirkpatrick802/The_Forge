@@ -9,8 +9,9 @@ const String ERROR_FILENAME = "ErrorFile";
 _CrtMemState Engine::System::_memoryCheckpoint = {};
 HANDLE Engine::System::_errorFile = INVALID_HANDLE_VALUE;
 SDL_Window* Engine::System::_window = nullptr;
+Vector2D Engine::System::_windowSize = Vector2D(1280, 720);
 
-void Engine::System::Init()
+void Engine::System::Init(const Vector2D windowSize)
 {
 	_CrtMemCheckpoint(&_memoryCheckpoint);
 
@@ -32,8 +33,10 @@ void Engine::System::Init()
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
+	_windowSize = windowSize;
+
 	const auto window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI | ImGuiWindowFlags_NoBringToFrontOnFocus);
-	_window = SDL_CreateWindow("The Forge", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, window_flags);
+	_window = SDL_CreateWindow("The Forge", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, (int)_windowSize.x, (int)_windowSize.y, window_flags);
 	if (_window == nullptr)
 	{
 		LogToErrorFile("SDL window could not be made!");
@@ -62,7 +65,7 @@ void Engine::System::CleanUp()
 
 	// If this is called, check VS output to see more details
 	if (_CrtMemDifference(&difference, &_memoryCheckpoint, &newCheckpoint))
-		printf("\n--- We have a memory leak!\n");
+		DisplayMessageBox("Memory Leak Detected!!", "Check output log for more details.");
 }
 
 void Engine::System::LogToErrorFile(const String& message)
@@ -71,18 +74,17 @@ void Engine::System::LogToErrorFile(const String& message)
 	{
 		_errorFile = CreateFileW(L"ErrorFile", GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 		if (!SUCCEEDED(_errorFile))
-			DisplayMessageBox("File Not Written");
+			DisplayMessageBox("File Not Written", "Couldn't write error to error file.");
 	}
 
 	DWORD bytesWritten;
 	WriteFile(_errorFile, message.c_str(), strlen(message.c_str()), &bytesWritten, nullptr);
 }
 
-void Engine::System::DisplayMessageBox(const String& message)
+void Engine::System::DisplayMessageBox(const String& caption, const String& message)
 {
-	String caption = "Message Caption";
-	std::wstring wCaption(caption.begin(), caption.end());
-	std::wstring wMessage(message.begin(), message.end());
+	const std::wstring wCaption(caption.begin(), caption.end());
+	const std::wstring wMessage(message.begin(), message.end());
 
-	MessageBox(nullptr, wMessage.c_str(), wMessage.c_str(), MB_OK);
+	MessageBox(nullptr, wMessage.c_str(), wCaption.c_str(), MB_OK);
 }

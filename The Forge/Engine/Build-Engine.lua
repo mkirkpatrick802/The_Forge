@@ -6,6 +6,8 @@ project "Engine"
    staticruntime "off"
 
    files { "Source/**.h", "Source/**.cpp" }
+   files { "Vendors/glad/**.h", "Vendors/glad/**.c"}
+   files { "Vendors/imgui-1.90.5-docking/**.h", "Vendors/imgui-1.90.5-docking/**.cpp"}
 
    includedirs
    {
@@ -13,8 +15,8 @@ project "Engine"
 
       "Vendors/SDL2-2.30.2/include",
       "Vendors/imgui-1.90.5-docking",
-      "Vendors/glm",
-      "Vendors/glad/include"
+      "vendors/glad",
+      "Vendors/glm"
    }
 
    targetdir ("../../Binaries/" .. OutputDir .. "/%{prj.name}")

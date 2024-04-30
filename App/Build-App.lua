@@ -1,5 +1,5 @@
 project "App"
-   kind "ConsoleApp"
+   kind "WindowedApp"
    language "C++"
    cppdialect "C++20"
    targetdir "Binaries/%{cfg.buildcfg}"
@@ -21,7 +21,6 @@ project "App"
       -- Include Engine Files
       "../The Forge/Engine/Source",
       engine_vendor_path .. "glm",
-      engine_vendor_path .. "glad/include",
       engine_vendor_path .. "imgui-1.90.5-docking",
       engine_vendor_path .. "SDL2-2.30.2/include",
 
@@ -53,6 +52,7 @@ project "App"
        systemversion "latest"
        defines { "WINDOWS" }
        links { modules }
+       entrypoint "mainCRTStartup"
 
    filter "configurations:Debug"
        defines { "DEBUG" }
