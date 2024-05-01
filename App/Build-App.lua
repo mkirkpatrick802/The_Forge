@@ -28,17 +28,27 @@ project "App"
       "../The Forge/Netcode/Source"
    }
 
+   prebuildcommands 
+   { 
+       "{DELETE} Assets",
+       "{COPY} \"../The Forge/Engine/Assets\" \"Assets/\"" 
+   }
+
    -- Generate the postbuild command to copy DLLs from each module
    for _, module in ipairs(modules) do
+
        local copyCommand = "{COPY} "
        copyCommand = copyCommand .. "%{cfg.targetdir}/../" .. module .. "/*.dll"
        copyCommand = copyCommand .. " %{cfg.targetdir}"
 
        postbuildcommands { copyCommand }
-   end
 
-   -- Generate the command to delete DLLs from the original module paths
-   for _, module in ipairs(modules) do
+       local assetCopy = "{COPY} "
+       assetCopy = assetCopy .. "%{cfg.targetdir}/../" .. module .. "/Assets"
+       assetCopy = assetCopy .. " %{cfg.targetdir}/Assets"
+
+       postbuildcommands { assetCopy }
+
        local deleteCommand = "{DELETE} "
        deleteCommand = deleteCommand .. "%{cfg.targetdir}/../" .. module .. "/*.dll"
 

@@ -10,7 +10,7 @@ using namespace Engine;
 
 void Launcher::Start()
 {
-	System::Init(Vector2D(600, 600));
+	System::Init(Vector2D(300, 400));
 	const auto _input = DEBUG_NEW InputManager();
 	const auto _renderer = DEBUG_NEW Renderer();
 
