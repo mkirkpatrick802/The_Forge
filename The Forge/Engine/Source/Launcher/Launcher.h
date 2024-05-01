@@ -1,9 +1,10 @@
 #pragma once
+#include "LauncherWindow.h"
 
 class Launcher
 {
 public:
 
-	static void Start();
+	static LauncherSettings Start();
 
 };

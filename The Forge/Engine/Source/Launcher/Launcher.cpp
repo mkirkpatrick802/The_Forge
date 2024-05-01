@@ -8,19 +8,23 @@
 
 using namespace Engine;
 
-void Launcher::Start()
+LauncherSettings Launcher::Start()
 {
 	System::Init(Vector2D(300, 400));
 	const auto _input = DEBUG_NEW InputManager();
 	const auto _renderer = DEBUG_NEW Renderer();
-
 	auto launcherUI = DEBUG_NEW LauncherWindow();
+
+	LauncherSettings settings;
+	launcherUI->SetLauncherSettings(&settings);
 	UIManager::AddUIWindow(launcherUI);
 
 	// Render UI
-	while(_input->StartProcessInputs())
+	while(_input->StartProcessInputs() && !settings.playButtonPressed)
 		_renderer->Render();
 
 	delete launcherUI;
 	launcherUI = nullptr;
+
+	return settings;
 }

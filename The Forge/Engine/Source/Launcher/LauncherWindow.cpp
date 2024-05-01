@@ -5,7 +5,7 @@
 
 LauncherWindow::LauncherWindow()
 {
-	iconTexture = Engine::LoadTexture("Assets/Sprites/icon.png", iconSize);
+	_iconTexture = Engine::LoadTexture("Assets/Sprites/icon.png", _iconSize);
 }
 
 void LauncherWindow::Render()
@@ -40,7 +40,7 @@ void LauncherWindow::DrawMenu()
     const ImGuiStyle& style = ImGui::GetStyle();
 
     {
-        const float size = iconSize.x + style.FramePadding.x * 2.0f;
+        const float size = _iconSize.x + style.FramePadding.x * 2.0f;
         const float avail = ImGui::GetContentRegionAvail().x;
 
         const float off = (avail - size) * .5;
@@ -48,8 +48,8 @@ void LauncherWindow::DrawMenu()
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + off);
 
         // Icon above elements
-        if (iconTexture != 0)
-            ImGui::Image((void*)(intptr_t)iconTexture, ImVec2(iconSize.x, iconSize.y));
+        if (_iconTexture != 0)
+            ImGui::Image((void*)(intptr_t)_iconTexture, ImVec2(_iconSize.x, _iconSize.y));
     }
 
     ImGui::Separator();
@@ -61,7 +61,7 @@ void LauncherWindow::DrawMenu()
     float buttonWidth1 = ImGui::CalcTextSize("Play Mode").x;
     float offset1 = (ImGui::GetColumnWidth() - buttonWidth1) / 2.0f;
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset1);
-    if (ImGui::Button("Play Mode")) { currentMode = Mode::Play; }
+    if (ImGui::Button("Play Mode")) { _settings->engine = Mode::Play; }
 
     ImGui::NextColumn();
 
@@ -69,23 +69,23 @@ void LauncherWindow::DrawMenu()
     float buttonWidth2 = ImGui::CalcTextSize("Edit Mode").x;
     float offset2 = (ImGui::GetColumnWidth() - buttonWidth2) / 2.0f - 20;
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset2);
-    if (ImGui::Button("Edit Mode")) { currentMode = Mode::Edit; }
+    if (ImGui::Button("Edit Mode")) { _settings->engine = Mode::Edit; }
 
     ImGui::NextColumn();
 
     // Play mode options
-    if (currentMode == Mode::Play)
+    if (_settings->engine == Mode::Play)
     {
         ImGui::Dummy(ImVec2(1, 10));
-        ImGui::Checkbox("Host", &isHosting);
-        if (!isHosting)
+        ImGui::Checkbox("Host", &_settings->isHosting);
+        if (!_settings->isHosting)
         {
             char buffer[256];
-            strcpy_s(buffer, address.c_str());
+            strcpy_s(buffer, _settings->address.c_str());
             ImGui::Dummy(ImVec2(1, 5));
             ImGui::Text("Enter IPv4:");
             ImGui::InputText(" ", buffer, sizeof(buffer));
-            address = buffer;
+            _settings->address = buffer;
         }
 
         float buttonWidth1 = 90;
@@ -93,10 +93,8 @@ void LauncherWindow::DrawMenu()
         ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset1);
         ImGui::SetCursorPosY(ImGui::GetWindowSize().y - ImGui::GetStyle().FramePadding.y - ImGui::GetFrameHeightWithSpacing() * 2);
 
-        if (ImGui::Button("Start", ImVec2(90, 20))) 
-        {
-            // Handle button click
-        }
+        if (ImGui::Button("Start", ImVec2(90, 20)))
+            _settings->playButtonPressed = true;
     }
     else
     {
@@ -108,9 +106,7 @@ void LauncherWindow::DrawMenu()
         ImGui::SetCursorPosY(ImGui::GetWindowSize().y - ImGui::GetStyle().FramePadding.y - ImGui::GetFrameHeightWithSpacing() * 2);
 
         if (ImGui::Button("Start", ImVec2(90, 20)))
-        {
-            // Handle button click
-        }
+            _settings->playButtonPressed = true;
     }
 
     ImGui::EndColumns();

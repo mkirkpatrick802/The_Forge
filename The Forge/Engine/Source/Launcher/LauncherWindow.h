@@ -3,7 +3,6 @@
 
 #include "Engine/Data.h"
 #include "Engine/UIWindow.h"
-#include "glad/glad.h"
 
 enum class Mode
 {
@@ -11,11 +10,21 @@ enum class Mode
 	Edit
 };
 
+struct LauncherSettings
+{
+	Mode engine = Mode::Play;
+	std::string address{ "127.0.0.1" };
+	bool isHosting = true;
+	bool playButtonPressed = false;
+};
+
 class LauncherWindow final : public Engine::UIWindow
 {
 public:
 
 	LauncherWindow();
+
+	void SetLauncherSettings(LauncherSettings* settings) { _settings = settings; }
 	virtual void Render() override;
 
 private:
@@ -24,10 +33,8 @@ private:
 
 private:
 
-	GLuint iconTexture;
-	Vector2D iconSize;
+	unsigned int _iconTexture;
+	Vector2D _iconSize;
 
-	Mode currentMode = Mode::Play;
-	std::string address{"127.0.0.1"};
-	bool isHosting = true;
+	LauncherSettings* _settings;
 };
