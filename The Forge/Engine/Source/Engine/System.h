@@ -21,7 +21,8 @@ namespace Engine
 	{
 	public:
 
-		static void Init(Vector2D windowSize = Vector2D(1280, 720));
+		static void Init();
+		static void CreateAppWindow(Vector2D windowSize = Vector2D(1280, 720));
 		static void CleanUp();
 
 		static void LogToErrorFile(const String& message);

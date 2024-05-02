@@ -7,15 +7,16 @@ namespace Engine
 	class GameEngine
 	{
 	public:
+
 		static GameEngine* GetInstance();
-
 		void StartGamePlayLoop() const;
-
 		void CleanUp();
 
 	private:
 
 		GameEngine();
+
+	private:
 
 		static GameEngine* _instance;
 

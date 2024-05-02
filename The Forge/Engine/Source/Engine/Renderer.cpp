@@ -37,7 +37,6 @@ void Engine::Renderer::Render() const
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	UIManager::RenderWindows();
-
 	UIManager::FinishUIRender();
 
 	SDL_GL_SwapWindow(System::GetWindow());

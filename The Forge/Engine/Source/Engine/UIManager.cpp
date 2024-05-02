@@ -7,7 +7,7 @@
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_sdl2.h>
 
-std::vector<Engine::UIWindow*> Engine::UIManager::_uiWindows = std::vector<UIWindow*>();
+std::vector<Engine::UIWindow*> Engine::UIManager::_uiWindows;
 
 void Engine::UIManager::Init()
 {
@@ -24,6 +24,16 @@ void Engine::UIManager::Init()
     ImGui_ImplOpenGL3_Init("#version 130");
 }
 
+void Engine::UIManager::AddUIWindow(UIWindow* window)
+{
+    _uiWindows.push_back(window);
+}
+
+void Engine::UIManager::RemoveUIWindow(UIWindow* window)
+{
+    std::erase(_uiWindows, window);
+}
+
 void Engine::UIManager::RenderWindows()
 {
     ImGui_ImplOpenGL3_NewFrame();
@@ -34,10 +44,6 @@ void Engine::UIManager::RenderWindows()
     {
         for (const auto window : _uiWindows)
             window->Render();
-    }
-    else
-    {
-        ImGui::End();
     }
 
     ImGui::Render();
@@ -63,6 +69,8 @@ void Engine::UIManager::FinishUIRender()
 
 void Engine::UIManager::CleanUp()
 {
+    _uiWindows.clear();
+
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();

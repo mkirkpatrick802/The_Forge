@@ -1,22 +1,9 @@
 #pragma once
-#include <string>
 
 #include "Engine/Data.h"
 #include "Engine/UIWindow.h"
 
-enum class Mode
-{
-	Play,
-	Edit
-};
-
-struct LauncherSettings
-{
-	Mode engine = Mode::Play;
-	std::string address{ "127.0.0.1" };
-	bool isHosting = true;
-	bool playButtonPressed = false;
-};
+struct LauncherSettings;
 
 class LauncherWindow final : public Engine::UIWindow
 {
@@ -36,5 +23,5 @@ private:
 	unsigned int _iconTexture;
 	Vector2D _iconSize;
 
-	LauncherSettings* _settings;
+	LauncherSettings* _settings = nullptr;
 };

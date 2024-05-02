@@ -1,16 +1,24 @@
-#include "Engine/System.h"
+#include "Engine/GameEngine.h"
 #include "Launcher/Launcher.h"
 
 int main()
 {
-	const auto settings = Launcher::Start();
+	Engine::System::Init();
+	LauncherSettings settings;
+	Launcher::Start<LauncherWindow>(settings, Vector2D(300, 400));
 
-	if(settings.engine == Mode::Edit)
+	/*if (settings.mode != Engine::Mode::Null)
 	{
-		Engine::System::DisplayMessageBox("Started", "Edit Mode");
-	}
-	else
-	{
-		Engine::System::DisplayMessageBox("Started", "Play Mode");
-	}
+		// Set Engine Settings
+		Engine::EngineManager::GetInstance()->mode = settings.mode;
+
+		// Start Engine Loop
+		auto engine = Engine::GameEngine::GetInstance();
+		engine->StartGamePlayLoop();
+		engine->CleanUp();
+
+		Engine::EngineManager::CleanUp();
+	}*/
+
+	Engine::System::CleanUp();
 }

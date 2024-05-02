@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <memory>
 #include <vector>
 #include "UIWindow.h"
 
@@ -15,8 +16,8 @@ namespace Engine
 
 		static void CleanUp();
 
-		static void AddUIWindow(UIWindow* window) { _uiWindows.push_back(window); }
-		static void RemoveUIWindow(UIWindow* window) { std::erase(_uiWindows, window); }
+		static void AddUIWindow(UIWindow* window);
+		static void RemoveUIWindow(UIWindow* window);
 
 	private:
 

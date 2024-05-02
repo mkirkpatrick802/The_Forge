@@ -11,7 +11,7 @@ HANDLE Engine::System::_errorFile = INVALID_HANDLE_VALUE;
 SDL_Window* Engine::System::_window = nullptr;
 Vector2D Engine::System::_windowSize = Vector2D(1280, 720);
 
-void Engine::System::Init(const Vector2D windowSize)
+void Engine::System::Init()
 {
 	_CrtMemCheckpoint(&_memoryCheckpoint);
 
@@ -23,7 +23,10 @@ void Engine::System::Init(const Vector2D windowSize)
 		LogToErrorFile("SDL could not initialize!");
 		assert(0);
 	}
+}
 
+void Engine::System::CreateAppWindow(const Vector2D windowSize)
+{
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -52,20 +55,19 @@ void Engine::System::CleanUp()
 	if (_errorFile != INVALID_HANDLE_VALUE)
 		CloseHandle(_errorFile);
 
-	_CrtMemDumpAllObjectsSince(&_memoryCheckpoint);
-
-	_CrtMemState newCheckpoint;
-	_CrtMemState difference;
-	_CrtMemCheckpoint(&newCheckpoint);
-
 	_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG | _CRTDBG_MODE_FILE);
 	_CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDOUT);
 
-	//_CrtDumpMemoryLeaks(); // Keeps printing a leak, either tho I wasn't even calling new
+	_CrtMemDumpAllObjectsSince(&_memoryCheckpoint);
 
-	// If this is called, check VS output to see more details
+	_CrtMemState newCheckpoint;
+	_CrtMemCheckpoint(&newCheckpoint);
+
+	_CrtMemState difference;
 	if (_CrtMemDifference(&difference, &_memoryCheckpoint, &newCheckpoint))
+	{
 		DisplayMessageBox("Memory Leak Detected!!", "Check output log for more details.");
+	}
 }
 
 void Engine::System::LogToErrorFile(const String& message)

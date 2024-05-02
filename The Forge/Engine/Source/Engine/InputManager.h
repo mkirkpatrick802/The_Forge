@@ -13,6 +13,8 @@ namespace Engine
         // Used to collect inputs pressed this frame, returns true if the while loop should continue.
         bool StartProcessInputs();
 
+        void ClearInputBuffers();
+
         // Used to switch the input buffers.
         void EndProcessInputs();
 

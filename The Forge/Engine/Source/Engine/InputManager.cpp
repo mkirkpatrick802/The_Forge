@@ -49,8 +49,17 @@ bool Engine::InputManager::StartProcessInputs()
     return true;
 }
 
-void Engine::InputManager::EndProcessInputs() {
+void Engine::InputManager::ClearInputBuffers()
+{
+    SDL_Event event;
+    SDL_PollEvent(&event);
+    ImGui_ImplSDL2_ProcessEvent(&event);
 
+    EndProcessInputs();
+}
+
+void Engine::InputManager::EndProcessInputs()
+{
     {
         // Keyboard Buffer Switch
         uint8* temp = _keysThisFrame;
@@ -101,9 +110,9 @@ int Engine::InputManager::GetButtonDown(const uint32 button, Vector2D& mousePos)
 
 Engine::InputManager::~InputManager()
 {
-    delete _keysLastFrame;
+    delete[] _keysLastFrame;
     _keysLastFrame = nullptr;
 
-    delete _keysThisFrame;
+    delete[] _keysThisFrame;
     _keysThisFrame = nullptr;
 }

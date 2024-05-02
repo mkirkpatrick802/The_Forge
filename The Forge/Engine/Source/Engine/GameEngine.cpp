@@ -17,8 +17,6 @@ Engine::GameEngine* Engine::GameEngine::GetInstance()
 
 Engine::GameEngine::GameEngine()
 {
-	System::Init();
-
 	_renderer = DEBUG_NEW Renderer();
 	_inputManager = DEBUG_NEW InputManager();
 }
@@ -27,6 +25,7 @@ void Engine::GameEngine::StartGamePlayLoop() const
 {
 	float frameStart = Time::GetTicks();
 
+	_inputManager->ClearInputBuffers();
 	while (_inputManager->StartProcessInputs())
 	{
 		if (const float currentTicks = Time::GetTicks(); currentTicks - frameStart >= 16)
@@ -51,6 +50,4 @@ void Engine::GameEngine::CleanUp()
 
 	delete _instance;
 	_instance = nullptr;
-
-	System::CleanUp();
 }

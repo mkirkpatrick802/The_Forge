@@ -1,12 +1,11 @@
 #include "LauncherWindow.h"
 
 #include <imgui_internal.h>
+
+#include "Launcher.h"
 #include "Engine/TextureLoader.h"
 
-LauncherWindow::LauncherWindow()
-{
-	_iconTexture = Engine::LoadTexture("Assets/Sprites/icon.png", _iconSize);
-}
+LauncherWindow::LauncherWindow() = default;
 
 void LauncherWindow::Render()
 {
@@ -15,7 +14,7 @@ void LauncherWindow::Render()
     {
         once = false;
 
-        // Docking setup
+        // Docking Setup
         const ImGuiID ID = ImGui::GetID("Launcher");
 
         static ImGuiDockNodeFlags flags = ImGuiDockNodeFlags_PassthruCentralNode;
@@ -26,6 +25,9 @@ void LauncherWindow::Render()
 
         ImGui::DockBuilderDockWindow("Launcher", ID);
         ImGui::DockBuilderFinish(ID);
+
+        // Load Textures
+        _iconTexture = Engine::LoadTexture("Assets/Sprites/icon.png", _iconSize);
     }
 
     DrawMenu();
@@ -33,6 +35,9 @@ void LauncherWindow::Render()
 
 void LauncherWindow::DrawMenu()
 {
+    if (_settings == nullptr)
+        Engine::System::DisplayMessageBox("Error!", "Launchers Settings not set on launcher window");
+
     // Create a window
     ImGui::Begin("Launcher", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
     ImGui::SetWindowSize(ImGui::GetIO().DisplaySize);
@@ -57,24 +62,28 @@ void LauncherWindow::DrawMenu()
     ImGui::BeginColumns("Options", 2, ImGuiOldColumnFlags_NoResize);
     ImGui::SetColumnWidth(0, ImGui::GetIO().DisplaySize.x / 2);
 
-    // Center the "Play Mode" button in the first column
-    float buttonWidth1 = ImGui::CalcTextSize("Play Mode").x;
-    float offset1 = (ImGui::GetColumnWidth() - buttonWidth1) / 2.0f;
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset1);
-    if (ImGui::Button("Play Mode")) { _settings->engine = Mode::Play; }
+    {
+        // Center the "Play Mode" button in the first column
+        float buttonWidth1 = ImGui::CalcTextSize("Play Mode").x;
+        float offset1 = (ImGui::GetColumnWidth() - buttonWidth1) / 2.0f;
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset1);
+        if (ImGui::Button("Play Mode")) { _settings->mode = Engine::Mode::Play; }
 
-    ImGui::NextColumn();
+        ImGui::NextColumn();
+    }
 
-    // Center the "Edit Mode" button in the second column
-    float buttonWidth2 = ImGui::CalcTextSize("Edit Mode").x;
-    float offset2 = (ImGui::GetColumnWidth() - buttonWidth2) / 2.0f - 20;
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset2);
-    if (ImGui::Button("Edit Mode")) { _settings->engine = Mode::Edit; }
+    {
+        // Center the "Edit Mode" button in the second column
+        float buttonWidth2 = ImGui::CalcTextSize("Edit Mode").x;
+        float offset2 = (ImGui::GetColumnWidth() - buttonWidth2) / 2.0f - 20;
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset2);
+        if (ImGui::Button("Edit Mode")) { _settings->mode = Engine::Mode::Edit; }
 
-    ImGui::NextColumn();
+        ImGui::NextColumn();
+    }
 
     // Play mode options
-    if (_settings->engine == Mode::Play)
+    if (_settings->mode == Engine::Mode::Play)
     {
         ImGui::Dummy(ImVec2(1, 10));
         ImGui::Checkbox("Host", &_settings->isHosting);
@@ -96,7 +105,7 @@ void LauncherWindow::DrawMenu()
         if (ImGui::Button("Start", ImVec2(90, 20)))
             _settings->playButtonPressed = true;
     }
-    else
+    else if (_settings->mode != Engine::Mode::Null)
     {
         ImGui::NextColumn();
 
