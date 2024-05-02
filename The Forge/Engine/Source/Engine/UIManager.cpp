@@ -7,7 +7,7 @@
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_sdl2.h>
 
-std::vector<Engine::UIWindow*> Engine::UIManager::_uiWindows;
+std::vector<Engine::UIWindow*> Engine::UIManager::_uiWindows = std::vector<UIWindow*>();
 
 void Engine::UIManager::Init()
 {
@@ -69,7 +69,9 @@ void Engine::UIManager::FinishUIRender()
 
 void Engine::UIManager::CleanUp()
 {
+    // Static std::vector still had memory allocated somewhere. Had to force deallocation;
     _uiWindows.clear();
+    _uiWindows = std::vector<UIWindow*>();
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();

@@ -6,9 +6,10 @@
 
 struct LauncherSettings
 {
+
 	// Settings
 	Engine::Mode mode = Engine::Mode::Null;
-	std::string address{ "127.0.0.1" };
+	std::string address = "127.0.0.1";
 	bool isHosting = true;
 
 	// Logic Guides
@@ -20,7 +21,7 @@ class Launcher
 public:
 
 	template <typename TWindow>
-	static void Start(LauncherSettings& settings, Vector2D size);
+	static void Start(LauncherSettings& settings, const Vector2D& size);
 
 private:
 
@@ -29,13 +30,13 @@ private:
 };
 
 template <typename TWindow>
-void Launcher::Start(LauncherSettings& settings, const Vector2D size)
+void Launcher::Start(LauncherSettings& settings, const Vector2D& size)
 {
-	//static_assert(std::is_base_of_v<LauncherWindow, TWindow>, "TWindow must be a subclass of LauncherWindow");
+	static_assert(std::is_base_of_v<LauncherWindow, TWindow>, "TWindow must be a subclass of LauncherWindow");
 
-	//Engine::System::CreateAppWindow(size);
+	Engine::System::CreateAppWindow(size);
 
-	//auto window = DEBUG_NEW TWindow();
-	//RunLauncher(window, settings);
-	//delete window;
+	auto window = DEBUG_NEW TWindow();
+	RunLauncher(window, settings);
+	delete window;
 }

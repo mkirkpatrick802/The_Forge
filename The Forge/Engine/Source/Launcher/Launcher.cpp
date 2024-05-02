@@ -13,14 +13,14 @@ void Launcher::RunLauncher(LauncherWindow* window, LauncherSettings& settings)
 	auto _input = DEBUG_NEW InputManager();
 	auto _renderer = DEBUG_NEW Renderer();
 
-	//window->SetLauncherSettings(&settings);
-	//UIManager::AddUIWindow(window);
+	window->SetLauncherSettings(&settings);
+	UIManager::AddUIWindow(window);
 
 	// Render UI
-	//while(_input->StartProcessInputs() && !settings->playButtonPressed)
-		//_renderer->Render();
+	while(_input->StartProcessInputs() && !settings.playButtonPressed)
+		_renderer->Render();
 
-	//UIManager::RemoveUIWindow(window);
+	UIManager::RemoveUIWindow(window);
 
 	delete _input;
 	_input = nullptr;

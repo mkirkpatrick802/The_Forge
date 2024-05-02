@@ -42,12 +42,15 @@ void Engine::GameEngine::StartGamePlayLoop() const
 
 void Engine::GameEngine::CleanUp()
 {
+	delete _instance;
+	_instance = nullptr;
+}
+
+Engine::GameEngine::~GameEngine()
+{
 	delete _inputManager;
 	_inputManager = nullptr;
 
 	delete _renderer;
 	_renderer = nullptr;
-
-	delete _instance;
-	_instance = nullptr;
 }
