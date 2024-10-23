@@ -15,6 +15,7 @@ int main()
 void StartApplication()
 {
 	// Create Launcher w/ settings
+	// TODO CLEAN UP AFTER START
 	LauncherSettings settings;
 	Launcher::Start<LauncherWindow>(settings, Vector2D(300, 400));
 
