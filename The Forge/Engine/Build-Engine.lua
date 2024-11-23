@@ -28,7 +28,7 @@ project "Engine"
        systemversion "latest"
        defines { }
        libdirs { "Vendors/SDL2-2.30.2/lib/x64" }
-       links   { "SDL2", "SDL2main" }
+       links   { "SDL2", "SDL2main", "SDL2_image" }
 
        
        postbuildcommands 

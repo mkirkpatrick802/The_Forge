@@ -13,23 +13,12 @@ void LauncherWindow::Render()
     if (once)
     {
         once = false;
-
-        // Docking Setup
-        const ImGuiID ID = ImGui::GetID("Launcher");
-
+        
+        ImGuiIO& io = ImGui::GetIO();
+        io.ConfigFlags &= ~ImGuiConfigFlags_ViewportsEnable;
         static ImGuiDockNodeFlags flags = ImGuiDockNodeFlags_PassthruCentralNode;
-
-        ImGui::DockBuilderRemoveNode(ID); // clear any previous layout
-        ImGui::DockBuilderAddNode(ID, flags | ImGuiDockNodeFlags_DockSpace);
-        ImGui::DockBuilderSetNodeSize(ID, ImGui::GetIO().DisplaySize);
-
-        ImGui::DockBuilderDockWindow("Launcher", ID);
-        ImGui::DockBuilderFinish(ID);
-
-        // Load Textures
-        _iconTexture = Engine::LoadTexture("Assets/Sprites/icon.png", _iconSize);
     }
-
+        
     DrawMenu();
 }
 
@@ -38,11 +27,15 @@ void LauncherWindow::DrawMenu()
     if (_settings == nullptr)
         Engine::System::DisplayMessageBox("Error!", "Launchers Settings not set on launcher window");
 
+    ImGuiIO& io = ImGui::GetIO();
+    
     // Create a window
-    ImGui::Begin("Launcher", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-    ImGui::SetWindowSize(ImGui::GetIO().DisplaySize);
-
+    ImGui::SetNextWindowSize(io.DisplaySize);
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
+    ImGui::Begin("Launcher", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
     const ImGuiStyle& style = ImGui::GetStyle();
+
+    ImGui::Text("This window is locked to the app window!");
     
     ImGui::End();
 }

@@ -3,6 +3,7 @@
 #include <cassert>
 #include <SDL.h>
 #include <imgui.h>
+#include <SDL_image.h>
 
 const String ERROR_FILENAME = "ErrorFile";
 
@@ -44,6 +45,12 @@ void Engine::System::CreateAppWindow(const Vector2D windowSize)
 	{
 		LogToErrorFile("SDL window could not be made!");
 		assert(0);
+	}
+
+	if (SDL_Surface* logoSurface = IMG_Load("Assets/Sprites/logo.png"))
+	{
+		SDL_SetWindowIcon(_window, logoSurface);
+		SDL_FreeSurface(logoSurface);
 	}
 }
 
