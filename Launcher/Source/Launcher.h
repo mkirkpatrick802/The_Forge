@@ -1,25 +1,18 @@
 #pragma once
-
+#include <string>
 #include "LauncherWindow.h"
-#include "Engine/EngineManager.h"
-#include "Engine/System.h"
+#include "../../The Forge/Engine/Source/Engine/Data.h"
+#include "../../The Forge/Engine/Source/Engine/System.h"
 
 struct LauncherSettings
 {
-
-	// Settings
-	Engine::Mode mode = Engine::Mode::Null;
-	std::string address = "127.0.0.1";
-	bool isHosting = true;
-
-	// Logic Guides
-	bool playButtonPressed = false;
+	
 };
 
 class Launcher
 {
 public:
-
+	
 	template <typename TWindow>
 	static void Start(LauncherSettings& settings, const Vector2D& size);
 
@@ -33,7 +26,6 @@ template <typename TWindow>
 void Launcher::Start(LauncherSettings& settings, const Vector2D& size)
 {
 	static_assert(std::is_base_of_v<LauncherWindow, TWindow>, "TWindow must be a subclass of LauncherWindow");
-
 	Engine::System::CreateAppWindow(size);
 
 	auto window = DEBUG_NEW TWindow();

@@ -2,7 +2,7 @@
 workspace "The Forge"
    architecture "x64"
    configurations { "Debug", "Release", "Dist" }
-   startproject "App"
+   startproject "Launcher"
 
    -- Workspace-wide build options for MSVC
    filter "system:windows"
@@ -10,9 +10,15 @@ workspace "The Forge"
 
 OutputDir = "%{cfg.system}-%{cfg.architecture}/%{cfg.buildcfg}"
 
-group "The Forge"
+group "The Forge Engine"
 	include "The Forge/Engine/Build-Engine.lua"
 	include "The Forge/Netcode/Build-Netcode.lua"
 group ""
 
-include "App/Build-App.lua"
+group "The Forge Launcher"
+	include "Launcher/Build-Launcher.lua"
+group ""
+
+group "Games"
+	include "App/Build-App.lua"
+group ""

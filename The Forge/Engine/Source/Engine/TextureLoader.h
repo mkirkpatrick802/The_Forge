@@ -1,6 +1,5 @@
 #pragma once
 #include <glad/glad.h>
-
 #include "System.h"
 
 #define STB_IMAGE_IMPLEMENTATION

@@ -1,4 +1,4 @@
-project "App"
+project "Launcher"
    kind "WindowedApp"
    language "C++"
    cppdialect "C++20"
@@ -8,8 +8,7 @@ project "App"
    files { "Source/**.h", "Source/**.cpp" }
 
    local modules = {
-       "Engine",
-       "Netcode"
+       "Engine"
    }
 
    local engine_vendor_path = "../The Forge/Engine/Vendors/"
@@ -25,9 +24,6 @@ project "App"
       engine_vendor_path .. "SDL2-2.30.2/include",
       engine_vendor_path .. "glad",
       engine_vendor_path .. "stb",
-
-      -- Include Netcode Files
-      "../The Forge/Netcode/Source"
    }
 
    prebuildcommands 

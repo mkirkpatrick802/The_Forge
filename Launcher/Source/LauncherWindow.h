@@ -1,7 +1,6 @@
 #pragma once
-
-#include "Engine/Data.h"
-#include "Engine/UIWindow.h"
+#include "../../The Forge/Engine/Source/Engine/Data.h"
+#include "../../The Forge/Engine/Source/Engine/UIWindow.h"
 
 struct LauncherSettings;
 

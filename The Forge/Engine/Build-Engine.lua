@@ -16,7 +16,7 @@ project "Engine"
 
       "Vendors/SDL2-2.30.2/include",
       "Vendors/imgui-1.90.5-docking",
-      "vendors/glad",
+      "Vendors/glad",
       "Vendors/glm",
       "Vendors/stb"
    }

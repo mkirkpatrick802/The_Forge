@@ -17,7 +17,7 @@ void Launcher::RunLauncher(LauncherWindow* window, LauncherSettings& settings)
 	UIManager::AddUIWindow(window);
 
 	// Render UI
-	while(_input->StartProcessInputs() && !settings.playButtonPressed)
+	while(_input->StartProcessInputs())
 		_renderer->Render();
 
 	UIManager::RemoveUIWindow(window);
