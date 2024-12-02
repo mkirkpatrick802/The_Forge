@@ -1,7 +1,5 @@
 #include "LauncherWindow.h"
-
 #include <imgui_internal.h>
-
 #include "Launcher.h"
 #include "Engine/TextureLoader.h"
 
