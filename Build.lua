@@ -19,6 +19,4 @@ group "The Forge Launcher"
 	include "Launcher/Build-Launcher.lua"
 group ""
 
-group "Games"
-	include "Games/Build-Games.lua"
-group ""
+include "Games/Build-Games.lua"
