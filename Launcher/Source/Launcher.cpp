@@ -1,5 +1,4 @@
 #include "Launcher.h"
-
 #include "LauncherWindow.h"
 #include "Engine/InputManager.h"
 #include "Engine/Renderer.h"
@@ -16,15 +15,24 @@ void Launcher::RunLauncher(LauncherWindow* window, LauncherSettings& settings)
 	window->SetLauncherSettings(&settings);
 	UIManager::AddUIWindow(window);
 
-	// Render UI
+	FindProjects(settings);
+	
+	// Update Loop
 	while(_input->StartProcessInputs())
+	{
 		_renderer->Render();
+	}
 
 	UIManager::RemoveUIWindow(window);
-
+	
 	delete _input;
 	_input = nullptr;
 
 	delete _renderer;
 	_renderer = nullptr;
+}
+
+void Launcher::FindProjects(LauncherSettings& settings)
+{
+	settings.projects.emplace_back("Project-Steel");
 }

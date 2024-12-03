@@ -1,12 +1,20 @@
 #pragma once
 #include <string>
+#include <vector>
+
 #include "LauncherWindow.h"
 #include "../../The Forge/Engine/Source/Engine/Data.h"
 #include "../../The Forge/Engine/Source/Engine/System.h"
 
 struct LauncherSettings
 {
-	
+	std::vector<std::string> projects;
+
+	void CleanUp()
+	{
+		projects.clear();
+		projects.shrink_to_fit();
+	}
 };
 
 class Launcher
@@ -19,7 +27,7 @@ public:
 private:
 
 	static void RunLauncher(LauncherWindow* window, LauncherSettings& settings);
-
+	static void FindProjects(LauncherSettings& settings);
 };
 
 template <typename TWindow>

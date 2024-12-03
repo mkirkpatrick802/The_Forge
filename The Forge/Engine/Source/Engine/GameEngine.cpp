@@ -3,6 +3,7 @@
 #include <SDL_keycode.h>
 
 #include "InputManager.h"
+#include "LevelManager.h"
 #include "Renderer.h"
 #include "System.h"
 #include "Time.h"
@@ -19,6 +20,7 @@ Engine::GameEngine::GameEngine()
 {
 	_renderer = DEBUG_NEW Renderer();
 	_inputManager = DEBUG_NEW InputManager();
+	_levelManager = DEBUG_NEW LevelManager("path");
 }
 
 void Engine::GameEngine::StartGamePlayLoop() const

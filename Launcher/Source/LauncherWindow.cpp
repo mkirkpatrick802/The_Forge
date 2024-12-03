@@ -33,7 +33,17 @@ void LauncherWindow::DrawMenu()
     ImGui::Begin("Launcher", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
     const ImGuiStyle& style = ImGui::GetStyle();
 
-    ImGui::Text("This window is locked to the app window!");
+    // Convert std::vector<std::string> to const char* array
+    std::vector<const char*> cstrProjects;
+    for (const auto& project : _settings->projects) {
+        cstrProjects.push_back(project.c_str());
+    }
+    
+    int item = 0;
+    if (ImGui::Combo("Selected Project", &item, cstrProjects.data(), cstrProjects.size()))
+    {
+        
+    }
     
     ImGui::End();
 }
