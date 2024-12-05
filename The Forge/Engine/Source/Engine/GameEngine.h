@@ -11,12 +11,11 @@ namespace Engine {
 
 		static GameEngine* GetInstance();
 		void StartGamePlayLoop() const;
-		static void CleanUp();
-
+		void CleanUp();
+	
 	private:
-
+		
 		GameEngine();
-		~GameEngine();
 
 	private:
 

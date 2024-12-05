@@ -25,6 +25,7 @@ project "Project-Steel"
       engine_vendor_path .. "SDL2-2.30.2/include",
       engine_vendor_path .. "glad",
       engine_vendor_path .. "stb",
+      engine_vendor_path .. "nlohmann"
    }
 
    prebuildcommands 
