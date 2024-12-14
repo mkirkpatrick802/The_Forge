@@ -1,6 +1,8 @@
 ﻿#pragma once
 
-namespace Engine {
+namespace Engine
+{
+	class CommandTerminal;
 	class Renderer;
 	class InputManager;
 	class LevelManager;
@@ -10,17 +12,20 @@ namespace Engine {
 	public:
 
 		static GameEngine* GetInstance();
-		void StartGamePlayLoop() const;
+		void StartGamePlayLoop();
 		void CleanUp();
 	
 	private:
 		
 		GameEngine();
-
+		void OpenCommandTerminal();
+		void CloseCommandTerminal();
+		
 	private:
 
 		static GameEngine* _instance;
 
+		CommandTerminal* _terminal = nullptr;
 		Renderer* _renderer;
 		InputManager* _inputManager;
 		LevelManager* _levelManager;

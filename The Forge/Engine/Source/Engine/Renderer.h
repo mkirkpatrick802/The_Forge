@@ -18,9 +18,10 @@ namespace Engine
 		Renderer();
 
 		void Render() const;
-
+		
 		static Context* GetContext() { return &_context; }
-
+		static Vector2D ConvertWorldToScreen(Vector2D worldPos);
+		
 		~Renderer();
 
 	private:

@@ -3,7 +3,7 @@
 
 namespace Editor
 {
-    class DetailsEditor : public Engine::UIWindow
+    class DetailsEditor final : public Engine::UIWindow
     {
     public:
         void Render() override;

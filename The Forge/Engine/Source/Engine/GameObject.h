@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <vector>
-
 #include "json.hpp"
+#include "Transform.h"
 
 namespace Engine
 {
@@ -16,13 +16,17 @@ namespace Engine
         
         template <class T>
         T* GetComponent() const;
+    
+    public:
+
+        String GetName() const { return _name; }
 
     public:
 
-        std::string GetName() const { return _name; }
+        Transform transform;
         
     private:
-        std::string _name;
+        String _name;
         
         std::vector<Component*> _attachedComponents;
         nlohmann::json _data;

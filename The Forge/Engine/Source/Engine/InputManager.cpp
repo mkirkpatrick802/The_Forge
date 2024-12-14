@@ -34,11 +34,6 @@ bool Engine::InputManager::StartProcessInputs()
 
         if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(System::GetWindow()))
             return false;
-
-        if (event.type == SDL_KEYDOWN) {
-            if (event.key.keysym.sym == SDLK_ESCAPE)
-                return false;
-        }
     }
 
     //Current Inputs Pressed

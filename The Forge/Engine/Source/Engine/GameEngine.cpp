@@ -2,6 +2,7 @@
 
 #include <SDL_keycode.h>
 
+#include "CommandTerminal.h"
 #include "InputManager.h"
 #include "LevelManager.h"
 #include "Renderer.h"
@@ -23,7 +24,7 @@ Engine::GameEngine::GameEngine()
 	_levelManager = DEBUG_NEW LevelManager("path");
 }
 
-void Engine::GameEngine::StartGamePlayLoop() const
+void Engine::GameEngine::StartGamePlayLoop()
 {
 	float frameStart = Time::GetTicks();
 
@@ -37,13 +38,37 @@ void Engine::GameEngine::StartGamePlayLoop() const
 
 			_renderer->Render();
 
+			if (_inputManager->GetKeyDown(SDL_SCANCODE_T))
+				OpenCommandTerminal();
+
+			if (_inputManager->GetKeyDown(SDL_SCANCODE_ESCAPE))
+				CloseCommandTerminal();
+			
 			_inputManager->EndProcessInputs();
 		}
 	}
 }
 
+void Engine::GameEngine::OpenCommandTerminal()
+{
+	if (_terminal != nullptr) return;
+	
+	_terminal = DEBUG_NEW CommandTerminal();
+	UIManager::AddUIWindow(_terminal);
+}
+
+void Engine::GameEngine::CloseCommandTerminal()
+{
+	if (_terminal == nullptr) return;
+	
+	UIManager::RemoveUIWindow(_terminal);
+	delete _terminal;
+	_terminal = nullptr;
+}
+
 void Engine::GameEngine::CleanUp()
 {
+	CloseCommandTerminal();
 	_levelManager->CleanUp();
 	
 	delete _levelManager;

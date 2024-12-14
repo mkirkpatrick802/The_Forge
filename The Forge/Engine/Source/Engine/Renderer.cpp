@@ -42,6 +42,12 @@ void Engine::Renderer::Render() const
 	SDL_GL_SwapWindow(System::GetWindow());
 }
 
+Vector2D Engine::Renderer::ConvertWorldToScreen(const Vector2D worldPos)
+{
+	const auto screenLocation = Vector2D(worldPos.x + System::GetWindowSize().x / 2, worldPos.y + System::GetWindowSize().y / 2);
+	return screenLocation;
+}
+
 Engine::Renderer::~Renderer()
 {
 	UIManager::CleanUp();
