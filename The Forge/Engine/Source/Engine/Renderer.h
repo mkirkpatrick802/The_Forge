@@ -2,24 +2,25 @@
 #include <SDL_render.h>
 #include <vector>
 
+#include "ComponentPool.h"
 #include "Data.h"
 
 namespace Engine
 {
+	class SpriteRenderer;
 	typedef SDL_GLContext Context;
 
-	class SpriteRenderer;
-
-	typedef std::vector<std::pair<int16, SpriteRenderer*>*> RenderListPair;
+	typedef std::vector<std::pair<int16, SpriteRenderer*>> RenderListPair;
 	class Renderer
 	{
 	public:
-
 		Renderer();
 
 		void Render() const;
 		
 		static Context* GetContext() { return &_context; }
+
+		//TODO Make this a global function
 		static Vector2D ConvertWorldToScreen(Vector2D worldPos);
 		
 		~Renderer();
@@ -27,11 +28,17 @@ namespace Engine
 	private:
 
 		void CreateRenderer();
-
+		void CreateSpriteRenderer(const void* data);
+		void DeleteSpriteRenderer(const void* data);
+		
+		void SortRenderList();
+  
 	private:
-
+		
 		static Context _context;
+		
 		RenderListPair _renderList;
+		ComponentPool<SpriteRenderer> _spriteRendererPool;
 
 	};
 }

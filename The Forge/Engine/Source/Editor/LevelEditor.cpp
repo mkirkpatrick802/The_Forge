@@ -2,15 +2,28 @@
 
 #include <iostream>
 
+#include "DetailsEditor.h"
 #include "ImGuiHelper.h"
 #include "Engine/GameObject.h"
 #include "Engine/JsonKeywords.h"
 #include "Engine/Level.h"
 #include "Engine/LevelManager.h"
 
+std::vector<nlohmann::json> Editor::LevelEditor::levelData;
+std::vector<String> Editor::LevelEditor::filepaths;
+
 Editor::LevelEditor::LevelEditor()
 {
     
+}
+
+Editor::LevelEditor::~LevelEditor()
+{
+    levelData.clear();
+    levelData.shrink_to_fit();
+
+    filepaths.clear();
+    filepaths.shrink_to_fit();
 }
 
 void Editor::LevelEditor::Render()
@@ -35,27 +48,30 @@ void Editor::LevelEditor::Render()
 
         // Level Name
         ImGui::InputText("Name", _levelNameBuffer, IM_ARRAYSIZE(_levelNameBuffer));
-
+        
+        if (levelData.empty() || filepaths.empty())
+            filepaths = Engine::LevelManager::GetAllLevels(levelData);
+        
         // Create Level
         if (ImGui::Button("Create New Level"))
         {
             Engine::LevelManager::CreateLevel(_levelNameBuffer);
+            filepaths = Engine::LevelManager::GetAllLevels(levelData);
         }
 
         // Load New Level Side
         ImGui::TableNextColumn();
         ImGui::Text("Load Level:");
 
-        std::vector<nlohmann::json> levelData;
-        auto filepaths = Engine::LevelManager::GetAllLevels(levelData);
-
         std::vector<const char*> levels;
         if (!levelData.empty())
             levels = ConvertLevelDataToNameList(levelData);
         
-        if (ImGui::Combo("", &_selectedItem, levels.data(), static_cast<int>(levels.size())))
+        if (ImGui::Combo("", &_selectedLevel, levels.data(), static_cast<int>(levels.size())))
         {
-            Engine::LevelManager::LoadLevel(filepaths[_selectedItem]);
+            DetailsEditor::ClearSelectedGameObject();
+            Engine::LevelManager::LoadLevel(filepaths[_selectedLevel]);
+            _selectedGameObject = -1;
         }
         
         ImGui::EndTable();
@@ -112,17 +128,17 @@ void Editor::LevelEditor::LevelSettings()
 
     ImGui::Separator();
     ImGui::Text("Hierarchy");
-
-    static int selectedIndex = -1;
+    
     const auto levelObjects = currentLevel->GetAllGameObjects();
     for (int i = 0; i < levelObjects.size(); ++i)
     {
         // Highlight the selected item
-        bool isSelected = (selectedIndex == i);
+        bool isSelected = (_selectedGameObject == i);
         ImGui::PushID(i);
         if (ImGui::Selectable(levelObjects[i]->GetName().c_str(), isSelected))
         {
-            selectedIndex = i; // Update the selected item
+            _selectedGameObject = i; // Update the selected item
+            DetailsEditor::SetSelectedGameObject(levelObjects[i]);
         }
         ImGui::PopID();
     }

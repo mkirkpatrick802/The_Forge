@@ -23,3 +23,8 @@ bool Engine::CommandRegistry::ExecuteCommand(const String& input)
 
     return false;
 }
+
+void Engine::CommandRegistry::UnregisterCommand(const String& name)
+{
+    _commands.erase(name);
+}

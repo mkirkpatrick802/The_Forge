@@ -2,19 +2,33 @@
 
 #include <fstream>
 
+#include "CommandRegistry.h"
+#include "Component.h"
+#include "EventSystem.h"
 #include "GameObject.h"
 #include "JsonKeywords.h"
 #include "System.h"
 
 Engine::Level::Level(nlohmann::json data)
 {
+    CommandRegistry::RegisterCommand("/save", [this](const String& args){ SaveLevel(args); });
+    
     _name = data[JsonKeywords::LEVEL_NAME];
 
     //Load Game Objects From Json Data
+    if (!data.contains(JsonKeywords::GAMEOBJECT_ARRAY)) return;
+
+    for (const auto& go_data : data[JsonKeywords::GAMEOBJECT_ARRAY])
+    {
+        const auto go = DEBUG_NEW GameObject(go_data);
+        _gameObjects.push_back(go);
+    }
 }
 
 Engine::Level::~Level()
 {
+    CommandRegistry::UnregisterCommand("/save");
+    
     // Clean Up all the game objects
     for (auto go : _gameObjects)
     {
@@ -46,7 +60,7 @@ bool Engine::Level::SpawnNewGameObject()
     if (!data.contains(JsonKeywords::GAMEOBJECT_ARRAY))
         data[JsonKeywords::GAMEOBJECT_ARRAY] = nlohmann::json::array();
     
-    data[JsonKeywords::GAMEOBJECT_ARRAY].push_back(go->_data);
+    data[JsonKeywords::GAMEOBJECT_ARRAY].push_back(go->_defaultData);
 
     //Open Level File To Write
     std::ofstream writeFile(_path);
@@ -59,4 +73,25 @@ bool Engine::Level::SpawnNewGameObject()
     writeFile << data.dump(4);
     
     return true;
+}
+
+void Engine::Level::SaveLevel(const String& args)
+{
+    nlohmann::json data;
+    
+    // Update level data
+    data[JsonKeywords::LEVEL_NAME] = _name;
+
+    // Update game objects
+    data[JsonKeywords::GAMEOBJECT_ARRAY] = json::array();
+    for (const auto go : _gameObjects)
+        data[JsonKeywords::GAMEOBJECT_ARRAY].push_back(go->SaveGameObject());
+
+    // Write new data
+    if (std::ofstream outputFile(_path); outputFile.is_open())
+    {
+        outputFile << data.dump(4);
+        System::DisplayMessageBox("Message", "Current Level Saved!!");
+        outputFile.close();
+    }
 }

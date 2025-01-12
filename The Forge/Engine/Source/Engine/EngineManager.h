@@ -1,32 +1,31 @@
 ﻿#pragma once
+#include <memory>
+
+#include "Data.h"
+
+
+namespace Editor
+{
+	class EditorManager;
+}
 
 namespace Engine
 {
-	enum class Mode
-	{
-		Null = 0,
-		Play,
-		Edit
-	};
-
 	class EngineManager
 	{
-	public:
-
-		static EngineManager* GetInstance();
-		static void CleanUp();
-
-	private:
-
-		EngineManager() = default;
 
 	public:
 
-		Mode mode;
-
+		EngineManager();
+		~EngineManager();
+		
 	private:
 
-		static EngineManager* _instance;
+		void ToggleEditor(const String& args);
+
+	private:
+		
+		std::unique_ptr<Editor::EditorManager> _editor;
 
 	};
 

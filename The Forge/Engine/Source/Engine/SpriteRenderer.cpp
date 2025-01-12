@@ -1,19 +1,18 @@
-//
-// Created by mKirkpatrick on 2/4/2024.
-//
-
 #include "SpriteRenderer.h"
 #include "GameObject.h"
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
+#include "EventData.h"
+#include "EventSystem.h"
+#include "JsonKeywords.h"
 #include "Renderer.h"
 
 Engine::SpriteRenderer::SpriteRenderer(): _quadVAO(0)
 {
-    _texture = Texture();
-    
-    // TODO: Get this from renderer
+    RegisterComponent(ComponentID, "Sprite Renderer");
+
+    // TODO: Get this from renderer or camera class
     _projection = glm::ortho(0.0f, 1280.f, 720.f, 0.0f, -1.0f, 1.0f);
 }
 
@@ -46,19 +45,44 @@ void Engine::SpriteRenderer::Init()
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+
+    const String filepath = "Assets/Sprites/Astronaut.png";
+    
+    _texture = Texture(filepath.c_str());
+    
+    String vertex = "Assets/Shaders/Sprite.vert";
+    String fragment = "Assets/Shaders/Sprite.frag";
+
+    _shader.Compile(vertex.c_str(), fragment.c_str());
+    _sortingLayer = 0;
 }
 
 void Engine::SpriteRenderer::LoadData(const json& data)
 {
-    const String filepath = data["Texture"];
+    const String filepath = data[JsonKeywords::SPRITE_RENDERER_SPRITE];
     
     _texture = Texture(filepath.c_str());
-    
-    String vertex = data["Vertex Shader"];
-    String fragment = data["Fragment Shader"];
+
+    String vertex = "Assets/Shaders/Sprite.vert";
+    String fragment = "Assets/Shaders/Sprite.frag";
+    //String vertex = data[JsonKeywords::SPRITE_RENDERER_VERTEX_SHADER];
+    //String fragment = data[JsonKeywords::SPRITE_RENDERER_FRAGMENT_SHADER];
 
     _shader.Compile(vertex.c_str(), fragment.c_str());
-    _sortingLayer = (int16)data.value("Sorting Layer", 0);
+    _sortingLayer = (int16)data.value(JsonKeywords::SPRITE_RENDERER_SORTING_LAYER, 0);
+}
+
+nlohmann::json Engine::SpriteRenderer::SaveData()
+{
+    nlohmann::json data;
+    data[JsonKeywords::COMPONENT_ID] = ComponentID;
+    String filepath = _texture.GetFilePath();
+    data[JsonKeywords::SPRITE_RENDERER_SPRITE] = filepath;
+    data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER] = _sortingLayer;
+
+    // Save Shader Information
+    //data[JsonKeywords::SPRITE_RENDERER_VERTEX_SHADER] = 
+    return data;
 }
 
 void Engine::SpriteRenderer::DrawSprite()
@@ -81,28 +105,17 @@ void Engine::SpriteRenderer::DrawSprite()
     _shader.SetMatrix4("model", model);
     _shader.SetMatrix4("projection", _projection);
     _shader.SetInteger("image", 0);
-
-    TriggerCallback(_shader);
+    
 
     glBindVertexArray(_quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }
 
-void Engine::SpriteRenderer::OnDestroyed()
+void Engine::SpriteRenderer::CleanUp()
 {
-	Component::OnDestroyed();
-
-    callbacks.clear();
-}
-
-void Engine::SpriteRenderer::RegisterCallback(const ShaderCallbackFunction& function)
-{
-    callbacks.push_back(function);
-}
-
-void Engine::SpriteRenderer::TriggerCallback(Shader& shader) const
-{
-    for (auto& callback : callbacks)
-        callback(shader);
+    ED_DestroySpriteRenderer eventData;
+    eventData.spriteRenderer = this;
+    
+    EventSystem::GetInstance()->TriggerEvent(ED_DestroySpriteRenderer::GetEventName(), &eventData);
 }

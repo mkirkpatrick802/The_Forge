@@ -1,8 +1,19 @@
 {
     "Level Game Objects": [
         {
+            "Components": [],
+            "Game Object Name": "New Game Object"
+        },
+        {
+            "Components": [
+                {
+                    "Component ID": 1,
+                    "Sorting Layer": 0,
+                    "Sprite": "Assets/Sprites/Astronaut.png"
+                }
+            ],
             "Game Object Name": "New Game Object"
         }
     ],
-    "Level Name": "Yo"
+    "Level Name": "yo"
 }

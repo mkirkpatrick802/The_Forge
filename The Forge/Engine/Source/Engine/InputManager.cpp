@@ -100,7 +100,12 @@ int Engine::InputManager::GetButtonDown(const uint32 button, Vector2D& mousePos)
     int X, Y;
     SDL_GetMouseState(&X, &Y);
     mousePos = Vector2D((float)X, (float)Y);
-    return _buttonsThisFrame & button && !_buttonsLastFrame & button;
+    return _buttonsThisFrame & button && (!_buttonsLastFrame) & button;
+}
+
+int Engine::InputManager::GetButtonDown(uint32 button) const
+{
+    return _buttonsThisFrame & button && (!_buttonsLastFrame) & button;
 }
 
 Engine::InputManager::~InputManager()

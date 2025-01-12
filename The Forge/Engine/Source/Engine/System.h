@@ -4,7 +4,7 @@
 #include "Windows.h"
 
 #include <iostream>
-#include <SDL_video.h>
+#include <SDL_render.h>
 
 #include "Data.h"
 

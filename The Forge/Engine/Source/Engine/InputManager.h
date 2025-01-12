@@ -23,6 +23,7 @@ namespace Engine
 
         int GetButton(uint32 button, Vector2D& mousePos) const;
         int GetButtonDown(uint32 button, Vector2D& mousePos) const;
+        int GetButtonDown(uint32 button) const;
 
 	private:
 

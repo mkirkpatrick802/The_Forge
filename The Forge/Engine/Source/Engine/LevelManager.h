@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 
+#include "ComponentUtils.h"
 #include "json.hpp"
 
 namespace Engine
@@ -29,5 +30,6 @@ namespace Engine
         const static std::string LEVEL_PATH;
         
         static Level* _currentLevel;
+        std::unique_ptr<ComponentUtils> _componentUtils;
     };
 }

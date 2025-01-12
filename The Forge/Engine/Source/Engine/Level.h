@@ -2,30 +2,42 @@
 #include <string>
 #include <vector>
 
+#include "Data.h"
 #include "json.hpp"
+
+namespace Editor
+{
+    class DetailsEditor;
+}
 
 namespace Engine
 {
+    class Level;
     class GameObject;
+    
     class Level
     {
         friend class LevelManager;
+        friend class Editor::DetailsEditor;
         
     public:
         
         bool SpawnNewGameObject();
+        
         std::vector<GameObject*> GetAllGameObjects() { return _gameObjects; }
-        std::string GetName() { return _name; }
+        String GetName() { return _name; }
 
     private:
         
         Level(nlohmann::json data);
         ~Level();
+
+        void SaveLevel(const String& args);
         
     private:
-        std::string _name;
+        String _name;
+        String _path;
         
         std::vector<GameObject*> _gameObjects;
-        std::string _path;
     };
 }

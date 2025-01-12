@@ -1,28 +1,35 @@
 ﻿#pragma once
 #include "TextureLoader.h"
 
-
 namespace Engine
 {
     class Texture
     {
     public:
 
-        Texture()
+        Texture(): ID(-1), _size()
         {
-            ID = -1;
-            size = Vector2D(0, 0);
+             
         }
-        
+
         explicit Texture(const char* filename)
         {
-            ID = LoadTexture(filename, size);
+            _filepath = filename;
+            ID = LoadTexture(filename, _size);
         }
 
+        ~Texture()
+        {
+            
+        }
+        
+        String GetFilePath() const { return _filepath; }
+        
         unsigned int ID;
-
+    
     private:
 
-        Vector2D size;
+        Vector2D _size;
+        String _filepath;
     };
 }

@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Data.h"
 #include "Component.h"
 #include "Shader.h"
@@ -9,36 +8,33 @@ namespace Engine
 {
     const int PIXEL_SCALE = 2;
 
-    using ShaderCallbackFunction = std::function<void(Shader&)>;
-
     class SpriteRenderer : public Component
     {
         friend class Renderer;
 
     public:
-        static constexpr uint32 ComponentID = SPRITE_RENDERER;
+        static const uint32 ComponentID = SPRITE_RENDERER;
 
         SpriteRenderer();
+        
         virtual void LoadData(const json& data) override;
+        virtual nlohmann::json SaveData() override;
 
         Vector2D GetSize() const { return _size; }
-
-        void RegisterCallback(const ShaderCallbackFunction& function);
-        void TriggerCallback(Shader& shader) const;
 
     private:
 
         void Init();
         void DrawSprite();
 
-    public:
+        void CleanUp() override;
 
-        virtual void OnDestroyed() override;
+    public:
+        
+        virtual uint32 GetComponentID() const override { return ComponentID; }
 
     private:
-
-        std::vector<ShaderCallbackFunction> callbacks;
-
+        
         Shader _shader;
         Texture _texture;
 
@@ -47,7 +43,7 @@ namespace Engine
         glm::mat4 _projection;
 
         int16        _sortingLayer = 0;
-        Vector2D     _size = Vector2D(16);
+        Vector2D     _size = Vector2D(64);
 
     };
 }

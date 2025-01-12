@@ -13,10 +13,18 @@ namespace Engine
 
         GameObject();
         GameObject(const nlohmann::json& data);
+        ~GameObject();
         
         template <class T>
         T* GetComponent() const;
-    
+        std::vector<Component*> GetAllComponents() const { return _attachedComponents; }
+        
+        void AddComponent(Component* component);
+
+    private:
+
+        nlohmann::json SaveGameObject();
+        
     public:
 
         String GetName() const { return _name; }
@@ -29,7 +37,10 @@ namespace Engine
         String _name;
         
         std::vector<Component*> _attachedComponents;
-        nlohmann::json _data;
+
+        // Only contains the default data used when the game object is first created
+        // TODO: Can be moved to a utils file
+        nlohmann::json _defaultData;
     };
 
     template <typename T>

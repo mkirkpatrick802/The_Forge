@@ -2,7 +2,13 @@
 #include <vector>
 
 #include "json.hpp"
+#include "Engine/Data.h"
 #include "Engine/UIWindow.h"
+
+namespace Engine
+{
+    class GameObject;
+}
 
 namespace Editor
 {
@@ -10,6 +16,7 @@ namespace Editor
     {
     public:
         LevelEditor();
+        ~LevelEditor() override;
         void Render() override;
     
     private:
@@ -17,9 +24,14 @@ namespace Editor
         void LevelSettings();
 
     private:
+
+        static std::vector<nlohmann::json> levelData;
+        static std::vector<String> filepaths;
+        
         char _levelNameBuffer[128] = "";
 
         std::vector<std::string> _levelNames;
-        int _selectedItem = 0;
+        int _selectedLevel = 0;
+        int _selectedGameObject = -1;
     };
 }

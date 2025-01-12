@@ -13,6 +13,8 @@ Engine::Level* Engine::LevelManager::_currentLevel = nullptr;
 
 Engine::LevelManager::LevelManager(const std::string& filepath)
 {
+    _componentUtils = std::make_unique<ComponentUtils>();
+    
     if (const std::ifstream file(filepath); file.is_open())
         LoadLevel(filepath);
 }
@@ -21,11 +23,13 @@ void Engine::LevelManager::CleanUp()
 {
     delete _currentLevel;
     _currentLevel = nullptr;
+    
+    _componentUtils.reset();
 }
 
-bool Engine::LevelManager::CreateLevel(const std::string& levelName)
+bool Engine::LevelManager::CreateLevel(const String& levelName)
 {
-    const std::string filepath = LEVEL_PATH + levelName + ".json";
+    const String filepath = LEVEL_PATH + levelName + ".json";
 
     if (std::filesystem::exists(filepath))
     {
@@ -69,8 +73,6 @@ std::vector<std::string> Engine::LevelManager::GetAllLevels(std::vector<nlohmann
             const auto& filePath = entry.path();
             if (filePath.extension() == ".json")
             {
-                levelFilePaths.push_back(filePath.string());
-
                 // Attempt to read and parse the JSON data
                 try
                 {
@@ -86,7 +88,12 @@ std::vector<std::string> Engine::LevelManager::GetAllLevels(std::vector<nlohmann
                 {
                     // Log error and continue
                     std::cerr << "Error reading or parsing file " << filePath << ": " << e.what() << '\n';
+                    std::cerr << "Level file corrupted!!" << '\n';
+                    
+                    continue;
                 }
+
+                levelFilePaths.push_back(filePath.string());
             }
         }
     }

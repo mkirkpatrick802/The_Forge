@@ -3,19 +3,19 @@
 //
 
 #pragma once
-
 #include <cassert>
-#include "GameData.h"
+
+#include "SpriteRenderer.h"
 
 class GameObject;
 
 namespace Engine
 {
-    inline int MAX_GAMEOBJECTS = 50;
+    const int MAX_GAMEOBJECTS = 50;
 
     template<typename T>
-    class ComponentPool {
-
+    class ComponentPool
+    {
     public:
 
         ComponentPool();

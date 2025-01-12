@@ -8,7 +8,7 @@ Engine::CommandTerminal::CommandTerminal()
 
 void Engine::CommandTerminal::Render()
 {
-   // Get the main viewport
+    // Get the main viewport
     ImGuiViewport* mainViewport = ImGui::GetMainViewport();
 
     // Calculate terminal size and position
@@ -36,21 +36,29 @@ void Engine::CommandTerminal::Render()
 
         // History log
         float inputHeight = ImGui::GetTextLineHeightWithSpacing() + 5; // Input field height
-        ImGui::BeginChild("History", ImVec2(0, -inputHeight), false, ImGuiWindowFlags_None); // History log above input
+        ImGui::BeginChild("History", ImVec2(0, -inputHeight), false, ImGuiWindowFlags_None);
+
+        // Render all history lines in natural order
         for (const std::string& line : _outputLines) {
             ImGui::TextUnformatted(line.c_str());
+        }
+
+        // Automatically scroll to the bottom when new entries are added
+        if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
+            ImGui::SetScrollHereY(1.0f);
         }
         ImGui::EndChild();
 
         // Input field at the bottom
+        ImGui::SetKeyboardFocusHere(1);
         if (ImGui::InputText("##Input", _inputBuffer, sizeof(_inputBuffer), ImGuiInputTextFlags_EnterReturnsTrue)) {
             std::string input = _inputBuffer;
             if (!input.empty()) {
-                AddOutput("> " + input);                // Add input to history
-                CommandRegistry::ExecuteCommand(input);     // Execute command
-                _inputBuffer[0] = '\0';                     // Clear the input buffer
+                AddOutput("> " + input);           // Add input to history
+                CommandRegistry::ExecuteCommand(input); // Execute command
+                _inputBuffer[0] = '\0';            // Clear the input buffer
             }
-            ImGui::SetKeyboardFocusHere(-1);          // Keep focus on the input field
+            ImGui::SetKeyboardFocusHere(-1);      // Keep focus on the input field
         }
 
         ImGui::PopStyleVar(2); // Restore spacing and padding

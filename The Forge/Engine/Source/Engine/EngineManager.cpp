@@ -1,16 +1,37 @@
 ﻿#include "EngineManager.h"
 
+#include "CommandRegistry.h"
+#include "CommandUtils.h"
 #include "System.h"
+#include "Editor/EditorManager.h"
 
-Engine::EngineManager* Engine::EngineManager::_instance = nullptr;
-
-Engine::EngineManager* Engine::EngineManager::GetInstance()
+Engine::EngineManager::EngineManager()
 {
-	return _instance = _instance ? _instance : DEBUG_NEW EngineManager();
+	CommandRegistry::RegisterCommand("/editor", [this](const String& args){ ToggleEditor(args); });
 }
 
-void Engine::EngineManager::CleanUp()
+Engine::EngineManager::~EngineManager()
 {
-	delete _instance;
-	_instance = nullptr;
+	CommandRegistry::UnregisterCommand("/editor");
+}
+
+void Engine::EngineManager::ToggleEditor(const String& args)
+{
+	try
+	{
+		if (CommandUtils::ParseBoolean(args))
+		{
+			if (_editor != nullptr) return;
+			_editor = std::make_unique<Editor::EditorManager>();
+		}
+		else
+		{
+			if (_editor == nullptr) return;
+			_editor.reset();
+		}
+	}
+	catch (const std::invalid_argument& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
 }

@@ -1,8 +1,10 @@
 ﻿#include "GameEngine.h"
 
 #include <SDL_keycode.h>
+#include <SDL_mouse.h>
 
 #include "CommandTerminal.h"
+#include "EventSystem.h"
 #include "InputManager.h"
 #include "LevelManager.h"
 #include "Renderer.h"
@@ -40,8 +42,8 @@ void Engine::GameEngine::StartGamePlayLoop()
 
 			if (_inputManager->GetKeyDown(SDL_SCANCODE_T))
 				OpenCommandTerminal();
-
-			if (_inputManager->GetKeyDown(SDL_SCANCODE_ESCAPE))
+			
+			if (_inputManager->GetKeyDown(SDL_SCANCODE_ESCAPE) || _inputManager->GetButtonDown(SDL_BUTTON(1) | SDL_BUTTON(3)))
 				CloseCommandTerminal();
 			
 			_inputManager->EndProcessInputs();
@@ -70,6 +72,8 @@ void Engine::GameEngine::CleanUp()
 {
 	CloseCommandTerminal();
 	_levelManager->CleanUp();
+
+	Component::ClearComponentNames();
 	
 	delete _levelManager;
 	_levelManager = nullptr;
@@ -79,4 +83,6 @@ void Engine::GameEngine::CleanUp()
 
 	delete _renderer;
 	_renderer = nullptr;
+
+	EventSystem::DestroyInstance();
 }
