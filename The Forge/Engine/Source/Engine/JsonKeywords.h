@@ -3,6 +3,11 @@
 
 namespace JsonKeywords
 {
+    namespace Config
+    {
+        const String DEFAULT_LEVEL = "Default Level";
+    }
+    
     const String LEVEL_NAME = "Level Name";
 
     const String GAMEOBJECT_ARRAY = "Level Game Objects";

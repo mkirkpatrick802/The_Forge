@@ -23,7 +23,7 @@ Engine::GameEngine::GameEngine()
 {
 	_renderer = DEBUG_NEW Renderer();
 	_inputManager = DEBUG_NEW InputManager();
-	_levelManager = DEBUG_NEW LevelManager("path");
+	_levelManager = DEBUG_NEW LevelManager("path"); // This file path should be read in from a config file
 }
 
 void Engine::GameEngine::StartGamePlayLoop()

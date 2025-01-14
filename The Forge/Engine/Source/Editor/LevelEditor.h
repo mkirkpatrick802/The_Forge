@@ -25,6 +25,9 @@ namespace Editor
 
     private:
 
+        String _defaultLevelFilePath;
+        int _defaultLevelIndex = -1;
+        
         static std::vector<nlohmann::json> levelData;
         static std::vector<String> filepaths;
         

@@ -11,7 +11,8 @@ int main()
     System::Init();
 
     {
-        std::unique_ptr<EngineManager> engine = std::make_unique<EngineManager>();
+        const auto engine = std::make_unique<EngineManager>();
+        engine->ToggleEditor("1");
         
         System::CreateAppWindow(Vector2D(800, 600));
         

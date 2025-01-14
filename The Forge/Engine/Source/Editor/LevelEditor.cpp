@@ -4,6 +4,7 @@
 
 #include "DetailsEditor.h"
 #include "ImGuiHelper.h"
+#include "Engine/EngineManager.h"
 #include "Engine/GameObject.h"
 #include "Engine/JsonKeywords.h"
 #include "Engine/Level.h"
@@ -14,7 +15,7 @@ std::vector<String> Editor::LevelEditor::filepaths;
 
 Editor::LevelEditor::LevelEditor()
 {
-    
+    //_defaultLevelFilePath = nullptr;
 }
 
 Editor::LevelEditor::~LevelEditor()
@@ -61,7 +62,7 @@ void Editor::LevelEditor::Render()
 
         // Load New Level Side
         ImGui::TableNextColumn();
-        ImGui::Text("Load Level:");
+        ImGui::Text("Current Level:");
 
         std::vector<const char*> levels;
         if (!levelData.empty())
@@ -73,6 +74,19 @@ void Editor::LevelEditor::Render()
             Engine::LevelManager::LoadLevel(filepaths[_selectedLevel]);
             _selectedGameObject = -1;
         }
+
+        if (_defaultLevelIndex == -1)
+        {
+            for (int i = 0; i < levels.size(); i++)
+            {
+                if (levels[i] == _defaultLevelFilePath.c_str())
+                    _defaultLevelIndex = i;
+            }   
+        }
+        
+        ImGui::Text("Default Level:");
+        if (ImGui::Combo("", &_defaultLevelIndex, levels.data(), static_cast<int>(levels.size())))
+            Engine::EngineManager::UpdateConfigFile(JsonKeywords::Config::DEFAULT_LEVEL, _defaultLevelFilePath);
         
         ImGui::EndTable();
     }

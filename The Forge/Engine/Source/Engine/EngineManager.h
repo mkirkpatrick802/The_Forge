@@ -19,10 +19,15 @@ namespace Engine
 		EngineManager();
 		~EngineManager();
 		
-	private:
+	public:
 
+		static void UpdateConfigFile(String jsonKeyword, String data);
 		void ToggleEditor(const String& args);
 
+	public:
+
+		
+		
 	private:
 		
 		std::unique_ptr<Editor::EditorManager> _editor;

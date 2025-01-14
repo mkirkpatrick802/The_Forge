@@ -35,3 +35,8 @@ void Engine::EngineManager::ToggleEditor(const String& args)
 		std::cerr << e.what() << '\n';
 	}
 }
+
+void Engine::EngineManager::UpdateConfigFile(String jsonKeyword, String data)
+{
+	
+}
