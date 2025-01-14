@@ -1,6 +1,7 @@
 ﻿#include "System.h"
 
 #include <cassert>
+#include <filesystem>
 #include <SDL.h>
 #include <imgui.h>
 #include <SDL_image.h>
@@ -96,4 +97,23 @@ void Engine::System::DisplayMessageBox(const String& caption, const String& mess
 	const std::wstring wMessage(message.begin(), message.end());
 
 	MessageBox(nullptr, wMessage.c_str(), wCaption.c_str(), MB_OK);
+}
+
+void Engine::System::EnsureDirectoryExists(const String& path)
+{
+	std::filesystem::path dir(path);
+	for (auto it = dir.begin(); it != dir.end(); ++it)
+	{
+		std::filesystem::path currentPath;
+		for (auto sub_it = dir.begin(); sub_it != std::next(it); ++sub_it)
+		{
+			currentPath /= *sub_it;
+		}
+
+		if (!exists(currentPath))
+		{
+			create_directory(currentPath);
+			std::cout << "Created directory: " << currentPath << '\n';
+		}
+	}
 }

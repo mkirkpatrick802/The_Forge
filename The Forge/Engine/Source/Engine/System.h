@@ -31,6 +31,10 @@ namespace Engine
 		static Window* GetWindow() { return _window; }
 		static Vector2D GetWindowSize() { return _windowSize; }
 
+		// File Helpers
+		static void EnsureDirectoryExists(const String& path);
+		
+
 	private:
 
 		static _CrtMemState _memoryCheckpoint;

@@ -7,6 +7,8 @@
 
 namespace Engine
 {
+    const String LEVEL_PATH = "Assets/Levels/";
+    
     class Level;
     class LevelManager
     {
@@ -27,7 +29,6 @@ namespace Engine
         void CleanUp();
         
     private:
-        const static std::string LEVEL_PATH;
         
         static Level* _currentLevel;
         std::unique_ptr<ComponentUtils> _componentUtils;

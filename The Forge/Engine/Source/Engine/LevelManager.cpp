@@ -8,7 +8,6 @@
 #include "Level.h"
 #include "System.h"
 
-const std::string Engine::LevelManager::LEVEL_PATH = "Assets/Levels/";
 Engine::Level* Engine::LevelManager::_currentLevel = nullptr;
 
 Engine::LevelManager::LevelManager(const std::string& filepath)

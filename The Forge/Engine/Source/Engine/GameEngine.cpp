@@ -40,7 +40,7 @@ void Engine::GameEngine::StartGamePlayLoop()
 
 			_renderer->Render();
 
-			if (_inputManager->GetKeyDown(SDL_SCANCODE_T))
+			if (_inputManager->GetKeyDown(SDL_SCANCODE_T) || _inputManager->GetKeyDown(SDL_SCANCODE_SLASH))
 				OpenCommandTerminal();
 			
 			if (_inputManager->GetKeyDown(SDL_SCANCODE_ESCAPE) || _inputManager->GetButtonDown(SDL_BUTTON(1) | SDL_BUTTON(3)))
@@ -71,6 +71,7 @@ void Engine::GameEngine::CloseCommandTerminal()
 void Engine::GameEngine::CleanUp()
 {
 	CloseCommandTerminal();
+	CommandTerminal::CleanUp();
 	_levelManager->CleanUp();
 
 	Component::ClearComponentNames();

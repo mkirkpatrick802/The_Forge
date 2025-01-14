@@ -15,7 +15,9 @@ std::vector<String> Editor::LevelEditor::filepaths;
 
 Editor::LevelEditor::LevelEditor()
 {
-    //_defaultLevelFilePath = nullptr;
+    const auto defaultData = Engine::EngineManager::GetConfigData(Engine::DEFAULTS_FILE, JsonKeywords::Config::DEFAULT_LEVEL);
+    if (defaultData.is_string())
+        _defaultLevelFilePath = defaultData;
 }
 
 Editor::LevelEditor::~LevelEditor()
@@ -48,6 +50,7 @@ void Editor::LevelEditor::Render()
         ImGui::Text("Create New Level:");
 
         // Level Name
+        ImGui::PushItemWidth(100);
         ImGui::InputText("Name", _levelNameBuffer, IM_ARRAYSIZE(_levelNameBuffer));
         
         if (levelData.empty() || filepaths.empty())
@@ -62,31 +65,41 @@ void Editor::LevelEditor::Render()
 
         // Load New Level Side
         ImGui::TableNextColumn();
-        ImGui::Text("Current Level:");
 
         std::vector<const char*> levels;
         if (!levelData.empty())
             levels = ConvertLevelDataToNameList(levelData);
-        
-        if (ImGui::Combo("", &_selectedLevel, levels.data(), static_cast<int>(levels.size())))
-        {
-            DetailsEditor::ClearSelectedGameObject();
-            Engine::LevelManager::LoadLevel(filepaths[_selectedLevel]);
-            _selectedGameObject = -1;
-        }
 
         if (_defaultLevelIndex == -1)
         {
             for (int i = 0; i < levels.size(); i++)
             {
-                if (levels[i] == _defaultLevelFilePath.c_str())
+                if (levels[i] == _defaultLevelFilePath)
+                {
                     _defaultLevelIndex = i;
+                    _selectedLevel = i;
+
+                    Engine::LevelManager::LoadLevel(filepaths[i]);
+                }
             }   
         }
         
-        ImGui::Text("Default Level:");
-        if (ImGui::Combo("", &_defaultLevelIndex, levels.data(), static_cast<int>(levels.size())))
-            Engine::EngineManager::UpdateConfigFile(JsonKeywords::Config::DEFAULT_LEVEL, _defaultLevelFilePath);
+        ImGui::PushItemWidth(100);
+        if (ImGui::Combo("Current Level", &_selectedLevel, levels.data(), static_cast<int>(levels.size())))
+        {
+            DetailsEditor::ClearSelectedGameObject();
+            Engine::LevelManager::LoadLevel(filepaths[_selectedLevel]);
+            _selectedGameObject = -1;
+        }
+        
+        ImGui::Spacing();
+        
+        ImGui::PushItemWidth(100);
+        if (ImGui::Combo("Default Level", &_defaultLevelIndex, levels.data(), static_cast<int>(levels.size())))
+        {
+            const String newDefaultLevel(levels[_defaultLevelIndex]);
+            Engine::EngineManager::UpdateConfigFile(Engine::DEFAULTS_FILE, JsonKeywords::Config::DEFAULT_LEVEL, newDefaultLevel);
+        }
         
         ImGui::EndTable();
     }

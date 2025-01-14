@@ -2,6 +2,7 @@
 #include <memory>
 
 #include "Data.h"
+#include "json.hpp"
 
 
 namespace Editor
@@ -11,6 +12,8 @@ namespace Editor
 
 namespace Engine
 {
+	const String CONFIG_PATH = "Config/";
+	const String DEFAULTS_FILE = "defaults.json";
 	class EngineManager
 	{
 
@@ -21,7 +24,9 @@ namespace Engine
 		
 	public:
 
-		static void UpdateConfigFile(String jsonKeyword, String data);
+		static void UpdateConfigFile(const String& file, const String& jsonKeyword, const String& data);
+		static nlohmann::json GetConfigData(const String& file, const String& jsonKeyword);
+		
 		void ToggleEditor(const String& args);
 
 	public:
