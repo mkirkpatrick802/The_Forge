@@ -30,8 +30,6 @@ namespace Engine
 		void ToggleEditor(const String& args);
 
 	public:
-
-		
 		
 	private:
 		

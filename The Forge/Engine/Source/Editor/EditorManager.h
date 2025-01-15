@@ -20,6 +20,7 @@ namespace Editor
     public:
 
         EditorManager();
+        ~EditorManager();
     
     private:
 

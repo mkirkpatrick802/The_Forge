@@ -60,6 +60,8 @@ void Editor::LevelEditor::Render()
         if (ImGui::Button("Create New Level"))
         {
             Engine::LevelManager::CreateLevel(_levelNameBuffer);
+            
+            levelData.clear();
             filepaths = Engine::LevelManager::GetAllLevels(levelData);
         }
 

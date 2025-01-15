@@ -12,3 +12,9 @@ Editor::EditorManager::EditorManager()
     Engine::UIManager::AddUIWindow(EditorWindows[LEVEL_EDITOR_INDEX].get());
     Engine::UIManager::AddUIWindow(EditorWindows[DETAILS_EDITOR_INDEX].get());
 }
+
+Editor::EditorManager::~EditorManager()
+{
+    Engine::UIManager::RemoveUIWindow(EditorWindows[LEVEL_EDITOR_INDEX].get());
+    Engine::UIManager::RemoveUIWindow(EditorWindows[DETAILS_EDITOR_INDEX].get());
+}
