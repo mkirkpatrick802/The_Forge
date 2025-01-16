@@ -7,10 +7,10 @@
 #include "EventSystem.h"
 #include "InputManager.h"
 #include "LevelManager.h"
-#include "Renderer.h"
+#include "Rendering/Renderer.h"
 #include "System.h"
 #include "Time.h"
-#include "UIManager.h"
+#include "Rendering/UIManager.h"
 
 Engine::GameEngine* Engine::GameEngine::_instance = nullptr;
 

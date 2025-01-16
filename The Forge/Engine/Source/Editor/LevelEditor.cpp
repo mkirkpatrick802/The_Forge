@@ -31,19 +31,8 @@ Editor::LevelEditor::~LevelEditor()
 
 void Editor::LevelEditor::Render()
 {
-    static auto once = true;
-    if (once)
-    {
-        once = false;
-        
-        ImGuiIO& io = ImGui::GetIO();
-        io.ConfigFlags &= ImGuiConfigFlags_ViewportsEnable;
-        static ImGuiDockNodeFlags flags = ImGuiDockNodeFlags_PassthruCentralNode;
-    }
-
     ImGui::Begin("Level Editor");
-    if (ImGui::BeginTable("Level Editor", 2, ImGuiTableFlags_SizingStretchSame |
-        ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_BordersOuter ))
+    if (ImGui::BeginTable("Level Editor", 2))
     {
         // Create New Level Side
         ImGui::TableNextColumn();

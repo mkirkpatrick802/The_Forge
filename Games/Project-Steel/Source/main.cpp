@@ -14,7 +14,7 @@ int main()
         const auto engine = std::make_unique<EngineManager>();
         engine->ToggleEditor("1");
         
-        System::CreateAppWindow(Vector2D(800, 600));
+        System::CreateAppWindow();
         
         auto instance = GameEngine::GetInstance();
         

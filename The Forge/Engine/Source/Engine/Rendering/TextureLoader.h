@@ -1,8 +1,9 @@
 #pragma once
 #include <glad/glad.h>
-#include "Data.h"
+#include "Engine/Data.h"
 
 namespace Engine
 {
 	GLuint LoadTexture(const char* filename, Vector2D& size);
+	GLuint LoadFramebufferTexture(Vector2D& size);
 }

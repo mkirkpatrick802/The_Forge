@@ -38,9 +38,11 @@ void Engine::System::CreateAppWindow(const Vector2D windowSize)
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-	_windowSize = windowSize;
+	SDL_DisplayMode displayMode;
+	SDL_GetCurrentDisplayMode(0, &displayMode);
+	_windowSize = Vector2D(displayMode.w, displayMode.h);
 
-	const auto window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI | ImGuiWindowFlags_NoBringToFrontOnFocus);
+	const auto window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE | ImGuiWindowFlags_NoBringToFrontOnFocus | SDL_WINDOW_MOUSE_CAPTURE | SDL_WINDOW_MAXIMIZED);
 	_window = SDL_CreateWindow("The Forge", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, (int)_windowSize.x, (int)_windowSize.y, window_flags);
 	if (_window == nullptr)
 	{

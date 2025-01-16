@@ -7,16 +7,6 @@ LauncherWindow::LauncherWindow() = default;
 
 void LauncherWindow::Render()
 {
-    static auto once = true;
-    if (once)
-    {
-        once = false;
-        
-        ImGuiIO& io = ImGui::GetIO();
-        io.ConfigFlags &= ~ImGuiConfigFlags_ViewportsEnable;
-        static ImGuiDockNodeFlags flags = ImGuiDockNodeFlags_PassthruCentralNode;
-    }
-        
     DrawMenu();
 }
 

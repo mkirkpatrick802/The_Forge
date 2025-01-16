@@ -13,7 +13,10 @@ namespace Engine
 		static void AddUIWindow(UIWindow* window);
 		static void RemoveUIWindow(UIWindow* window);
 
+		static void SetDockingEnabled(const bool enabled) {_isDockingEnabled = enabled;};
+		
 	private:
+		
 		static void Init();
 		static void CleanUp();
 
@@ -22,6 +25,7 @@ namespace Engine
 		
 	private:
 
+		static bool _isDockingEnabled;
 		static std::vector<UIWindow*> _uiWindows;
 
 	};

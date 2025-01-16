@@ -1,12 +1,9 @@
 ﻿#include "Renderer.h"
-#include "GameObject.h"
-
-#include "System.h"
 #include <glad/glad.h>
 
-#include "EventData.h"
-#include "EventSystem.h"
 #include "UIManager.h"
+#include "Engine/EventData.h"
+#include "Engine/EventSystem.h"
 
 Engine::Context Engine::Renderer::_context = nullptr;
 

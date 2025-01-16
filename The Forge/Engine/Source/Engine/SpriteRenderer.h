@@ -1,8 +1,8 @@
 #pragma once
 #include "Data.h"
 #include "Component.h"
-#include "Shader.h"
-#include "Texture.h"
+#include "Rendering/Shader.h"
+#include "Rendering/Texture.h"
 
 namespace Engine
 {

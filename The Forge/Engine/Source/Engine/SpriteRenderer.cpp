@@ -6,7 +6,7 @@
 #include "EventData.h"
 #include "EventSystem.h"
 #include "JsonKeywords.h"
-#include "Renderer.h"
+#include "Rendering/Renderer.h"
 
 Engine::SpriteRenderer::SpriteRenderer(): _quadVAO(0)
 {
@@ -48,7 +48,7 @@ void Engine::SpriteRenderer::Init()
 
     const String filepath = "Assets/Sprites/Astronaut.png";
     
-    _texture = Texture(filepath.c_str());
+    _texture = Texture(Texture::TextureType::PIXEL, filepath);
     
     String vertex = "Assets/Shaders/Sprite.vert";
     String fragment = "Assets/Shaders/Sprite.frag";
@@ -61,7 +61,7 @@ void Engine::SpriteRenderer::LoadData(const json& data)
 {
     const String filepath = data[JsonKeywords::SPRITE_RENDERER_SPRITE];
     
-    _texture = Texture(filepath.c_str());
+    _texture = Texture(Texture::TextureType::PIXEL, filepath);
 
     String vertex = "Assets/Shaders/Sprite.vert";
     String fragment = "Assets/Shaders/Sprite.frag";
@@ -100,7 +100,7 @@ void Engine::SpriteRenderer::DrawSprite()
 
     model = scale(model, glm::vec3(_size, 1.0f));
 
-    glBindTextureUnit(0, _texture.ID);
+    glBindTextureUnit(0, _texture.GetID());
 
     _shader.SetMatrix4("model", model);
     _shader.SetMatrix4("projection", _projection);

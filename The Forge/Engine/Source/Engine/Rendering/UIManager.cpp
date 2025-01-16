@@ -1,13 +1,15 @@
 ﻿#include "UIManager.h"
 
 #include "Renderer.h"
-#include "System.h"
 
 #include <imgui.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_sdl2.h>
 
+#include "Engine/System.h"
+
 std::vector<Engine::UIWindow*> Engine::UIManager::_uiWindows = std::vector<UIWindow*>();
+bool Engine::UIManager::_isDockingEnabled = false; 
 
 void Engine::UIManager::Init()
 {
@@ -16,7 +18,10 @@ void Engine::UIManager::Init()
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    io.ConfigDockingWithShift = false;
+    io.ConfigWindowsMoveFromTitleBarOnly = true;
+    io.ConfigDockingWithShift = false; // This makes docking require holding shift
+
+    
 
     ImGui::StyleColorsDark();
 
@@ -40,6 +45,11 @@ void Engine::UIManager::RenderWindows()
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
+    if (_isDockingEnabled)
+    {
+        ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+    }
+    
     if(!_uiWindows.empty())
     {
         for (const auto window : _uiWindows)
