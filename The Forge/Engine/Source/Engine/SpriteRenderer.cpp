@@ -6,15 +6,12 @@
 #include "EventData.h"
 #include "EventSystem.h"
 #include "JsonKeywords.h"
-#include "Rendering/Renderer.h"
+#include "Rendering/CameraManager.h"
 #include "Rendering/TextureLoader.h"
 
 Engine::SpriteRenderer::SpriteRenderer(): _quadVAO(0)
 {
     RegisterComponent(ComponentID, "Sprite Renderer");
-
-    // TODO: Get this from renderer or camera class
-    _projection = glm::ortho(0.0f, 1280.f, 720.f, 0.0f, -1.0f, 1.0f);
 }
 
 void Engine::SpriteRenderer::Init()
@@ -91,9 +88,12 @@ void Engine::SpriteRenderer::DrawSprite()
 	const float rotation = gameObject->transform.rotation;
 	const auto position = Vector2D(gameObject->transform.position.x - _size.x / PIXEL_SCALE, (gameObject->transform.position.y * -1) - _size.y / PIXEL_SCALE);
 
+    const auto camera = CameraManager::GetCameraManager()->GetActiveCamera();
+    if (camera == nullptr) return;
+    
     _shader.Use();
 	auto model = glm::mat4(1.0f);
-    model = translate(model, glm::vec3(Renderer::ConvertWorldToScreen(position), 0.0f));
+    model = translate(model, glm::vec3(camera->ConvertWorldToScreen(position), 0.0f));
 
     model = translate(model, glm::vec3(0.5f * _size.x, 0.5f * _size.y, 0.0f));
     model = rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -104,10 +104,11 @@ void Engine::SpriteRenderer::DrawSprite()
     glBindTextureUnit(0, _texture->GetID());
 
     _shader.SetMatrix4("model", model);
-    _shader.SetMatrix4("projection", _projection);
+
+    
+    _shader.SetMatrix4("projection", camera->GetProjectionMatrix());
     _shader.SetInteger("image", 0);
     
-
     glBindVertexArray(_quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);

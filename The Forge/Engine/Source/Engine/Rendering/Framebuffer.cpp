@@ -3,12 +3,14 @@
 #include "TextureLoader.h"
 #include "Engine/System.h"
 
-Engine::Framebuffer::Framebuffer(const Vector2D size, const bool shouldUseRbo)
+Engine::Framebuffer::Framebuffer(const Vector2D refRes, const bool shouldUseRbo)
 {
-    _size = size;
+    _size = refRes;
+    _refRes = refRes;
+    _windowSize = Vector2D();
     _shouldUseRbo = shouldUseRbo;
 
-    _texture = CreateTexture(size, Texture::TextureType::FRAMEBUFFER);
+    _texture = CreateTexture(refRes, Texture::TextureType::FRAMEBUFFER);
     if (!_texture || !Init()) System::DisplayMessageBox("Error", "Failed to create or init framebuffer texture!!!");
 }
 
@@ -52,9 +54,12 @@ void Engine::Framebuffer::Unbind() const
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Engine::Framebuffer::Resize(const Vector2D size)
+void Engine::Framebuffer::Resize(const Vector2D windowSize)
 {
-    _size = size;
+    _windowSize = windowSize;
+    const Vector2D scale = Vector2D(windowSize.x / _refRes.x, windowSize.y / _refRes.y);
+    const float trueScale = min(scale.x, scale.y);
+    _size = Vector2D(std::round(_refRes.x * trueScale), std::round(_refRes.y * trueScale));
     _shouldResize = true;
 }
 

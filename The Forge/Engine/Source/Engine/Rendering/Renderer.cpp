@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 
 #include "BufferRegistry.h"
+#include "CameraManager.h"
 #include "Framebuffer.h"
 #include "UIManager.h"
 #include "Engine/EventData.h"
@@ -32,7 +33,7 @@ void Engine::Renderer::CreateRenderer()
 		assert(0);
 	}
 
-	BufferRegistry::GetRegistry()->AddBuffer(BufferRegistry::BufferType::SCENE, std::make_shared<Framebuffer>(Vector2D(640, 480), false));
+	BufferRegistry::GetRegistry()->AddBuffer(BufferRegistry::BufferType::SCENE, std::make_shared<Framebuffer>(Vector2D(320, 240), false));
 }
 
 void Engine::Renderer::CreateSpriteRenderer(const void* data)
@@ -101,12 +102,6 @@ void Engine::Renderer::Render() const
 	SDL_GL_SwapWindow(System::GetWindow());
 }
 
-Vector2D Engine::Renderer::ConvertWorldToScreen(const Vector2D worldPos)
-{
-	const auto screenLocation = Vector2D(worldPos.x + System::GetWindowSize().x / 2, worldPos.y + System::GetWindowSize().y / 2);
-	return screenLocation;
-}
-
 Engine::Renderer::~Renderer()
 {
 	_renderList.clear();
@@ -117,6 +112,7 @@ Engine::Renderer::~Renderer()
 	
 	UIManager::CleanUp();
 	BufferRegistry::GetRegistry()->CleanUp();
+	CameraManager::CleanUp();
 	
 	SDL_GL_DeleteContext(_context);
 }

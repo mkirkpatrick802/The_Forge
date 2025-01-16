@@ -23,11 +23,11 @@ void Editor::SceneDisplay::Render()
             );
 
         // Check for resize based on window size
-        if (const Vector2D windowSize(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y); sceneFBO->GetSize() != windowSize)
+        const Vector2D windowSize(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y); 
+        if (sceneFBO->GetWindowSize() != windowSize)
             sceneFBO->Resize(windowSize);
-
-        ImGui::EndChild();
     }
-    
+
+    ImGui::EndChild();
     ImGui::End();
 }

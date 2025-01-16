@@ -13,6 +13,14 @@ void Editor::DetailsEditor::Render()
     
     const String title = _selectedGameObject->GetName() + " Details";
     ImGui::Begin(title.c_str());
+
+    ImGui::PushItemWidth(100);
+    ImGui::InputFloat("X Position", &_selectedGameObject->transform.position.x, 1);
+    
+    ImGui::SameLine();
+    
+    ImGui::PushItemWidth(100);
+    ImGui::InputFloat("Y Position", &_selectedGameObject->transform.position.y, 1);
     
     for (const auto component : _selectedGameObject->GetAllComponents())
     {

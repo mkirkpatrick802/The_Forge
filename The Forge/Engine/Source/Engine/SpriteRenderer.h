@@ -40,8 +40,6 @@ namespace Engine
 
         unsigned int _quadVAO;
 
-        glm::mat4 _projection;
-
         int16        _sortingLayer = 0;
         Vector2D     _size = Vector2D(64);
 
