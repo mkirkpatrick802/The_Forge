@@ -1,6 +1,8 @@
 ﻿#include "Renderer.h"
 #include <glad/glad.h>
 
+#include "BufferRegistry.h"
+#include "Framebuffer.h"
 #include "UIManager.h"
 #include "Engine/EventData.h"
 #include "Engine/EventSystem.h"
@@ -29,6 +31,8 @@ void Engine::Renderer::CreateRenderer()
 		System::DisplayMessageBox("Failed to Load GLAD", "gladLoadGLLoader has failed us");
 		assert(0);
 	}
+
+	BufferRegistry::GetRegistry()->AddBuffer(BufferRegistry::BufferType::SCENE, std::make_shared<Framebuffer>(Vector2D(640, 480), false));
 }
 
 void Engine::Renderer::CreateSpriteRenderer(const void* data)
@@ -74,15 +78,22 @@ void Engine::Renderer::SortRenderList()
 
 void Engine::Renderer::Render() const
 {
-	glViewport(0, 0, (int)System::GetWindowSize().x, (int)System::GetWindowSize().y);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	{
+		const auto sceneFBO = BufferRegistry::GetRegistry()->GetBuffer(BufferRegistry::BufferType::SCENE);
+		sceneFBO->Bind();
+	
+		glViewport(0, 0, (int)sceneFBO->GetSize().x, (int)sceneFBO->GetSize().y);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
 
-	if (!_renderList.empty())
-		for (const auto& val : _renderList | std::views::values)
-			val->DrawSprite();
+		if (!_renderList.empty())
+			for (const auto& val : _renderList | std::views::values)
+				val->DrawSprite();
+
+		sceneFBO->Unbind();	
+	}
 	
 	UIManager::RenderWindows();
 	UIManager::FinishUIRender();
@@ -105,6 +116,7 @@ Engine::Renderer::~Renderer()
 	EventSystem::GetInstance()->DeregisterEvent(ED_DestroySpriteRenderer::GetEventName());
 	
 	UIManager::CleanUp();
-
+	BufferRegistry::GetRegistry()->CleanUp();
+	
 	SDL_GL_DeleteContext(_context);
 }

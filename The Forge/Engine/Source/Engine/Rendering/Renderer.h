@@ -7,6 +7,7 @@
 
 namespace Engine
 {
+	class Framebuffer;
 	class SpriteRenderer;
 	typedef SDL_GLContext Context;
 

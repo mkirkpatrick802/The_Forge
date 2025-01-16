@@ -7,6 +7,7 @@
 #include "EventSystem.h"
 #include "JsonKeywords.h"
 #include "Rendering/Renderer.h"
+#include "Rendering/TextureLoader.h"
 
 Engine::SpriteRenderer::SpriteRenderer(): _quadVAO(0)
 {
@@ -48,7 +49,7 @@ void Engine::SpriteRenderer::Init()
 
     const String filepath = "Assets/Sprites/Astronaut.png";
     
-    _texture = Texture(Texture::TextureType::PIXEL, filepath);
+    _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
     
     String vertex = "Assets/Shaders/Sprite.vert";
     String fragment = "Assets/Shaders/Sprite.frag";
@@ -61,7 +62,7 @@ void Engine::SpriteRenderer::LoadData(const json& data)
 {
     const String filepath = data[JsonKeywords::SPRITE_RENDERER_SPRITE];
     
-    _texture = Texture(Texture::TextureType::PIXEL, filepath);
+    _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
 
     String vertex = "Assets/Shaders/Sprite.vert";
     String fragment = "Assets/Shaders/Sprite.frag";
@@ -76,7 +77,7 @@ nlohmann::json Engine::SpriteRenderer::SaveData()
 {
     nlohmann::json data;
     data[JsonKeywords::COMPONENT_ID] = ComponentID;
-    String filepath = _texture.GetFilePath();
+    String filepath = _texture->GetFilePath();
     data[JsonKeywords::SPRITE_RENDERER_SPRITE] = filepath;
     data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER] = _sortingLayer;
 
@@ -100,7 +101,7 @@ void Engine::SpriteRenderer::DrawSprite()
 
     model = scale(model, glm::vec3(_size, 1.0f));
 
-    glBindTextureUnit(0, _texture.GetID());
+    glBindTextureUnit(0, _texture->GetID());
 
     _shader.SetMatrix4("model", model);
     _shader.SetMatrix4("projection", _projection);

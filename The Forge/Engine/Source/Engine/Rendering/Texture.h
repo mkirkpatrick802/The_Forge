@@ -4,17 +4,15 @@
 
 namespace Engine
 {
-    // TODO: Rework how textures are made.
     // Call a static function from the texture loader that returns a smart pointer to a texture object.
     class Texture
     {
     public:
         
         enum class TextureType { PIXEL = 0, FRAMEBUFFER };
-
-        Texture();
-        Texture(TextureType type, const String& filepath);
-        Texture(TextureType type, Vector2D size);
+        
+        Texture(GLuint ID, const String& filepath, TextureType type, Vector2D size);
+        Texture(GLuint ID, TextureType type, Vector2D size);
         ~Texture() = default;
 
     public:

@@ -36,7 +36,7 @@ namespace Engine
     private:
         
         Shader _shader;
-        Texture _texture;
+        std::shared_ptr<Texture> _texture;
 
         unsigned int _quadVAO;
 

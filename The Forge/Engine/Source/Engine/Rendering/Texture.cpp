@@ -1,19 +1,18 @@
 ﻿#include "Texture.h"
 #include "TextureLoader.h"
 
-Engine::Texture::Texture(): _ID(0), _size(), _type()
+Engine::Texture::Texture(const GLuint ID, const String& filepath, const TextureType type, const Vector2D size)
 {
-    
-}
-
-Engine::Texture::Texture(const TextureType type, const String& filepath)
-{
-    _ID = LoadTexture(filepath.c_str(), _size);
+    _ID = ID;
     _filepath = filepath;
     _type = type;
+    _size = size;
 }
 
-Engine::Texture::Texture(TextureType type, Vector2D size)
+Engine::Texture::Texture(const GLuint ID, const TextureType type, const Vector2D size)
 {
-    
+    _ID = ID;
+    _filepath = "";
+    _type = type;
+    _size = size;
 }

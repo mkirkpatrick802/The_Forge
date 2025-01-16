@@ -16,12 +16,16 @@ namespace Engine
         Framebuffer(Vector2D size, bool shouldUseRbo);
         ~Framebuffer();
 
+        void Bind() const;
+        void Unbind() const;
+        
         void Resize(Vector2D size);
         void CheckResize();
         
     private:
 
-        void Init();
+        bool Init();
+        void CleanUp() const;
         
     public:
 
