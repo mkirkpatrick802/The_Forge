@@ -44,6 +44,7 @@ void Editor::DetailsEditor::Render()
 
         // Dropdown items
         if (ImGui::Selectable("Sprite Renderer")) { Engine::ComponentUtils::AddComponent(_selectedGameObject, SPRITE_RENDERER); }
+        if (ImGui::Selectable("Camera")) {Engine::ComponentUtils::AddComponent(_selectedGameObject, CAMERA); }
 
         ImGui::EndPopup();
     }

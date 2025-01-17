@@ -16,8 +16,8 @@ Engine::Renderer::Renderer()
 	
 	UIManager::Init();
 
-	EventSystem::GetInstance()->RegisterEvent(ED_CreateSpriteRenderer::GetEventName(), this, &Renderer::CreateSpriteRenderer);
-	EventSystem::GetInstance()->RegisterEvent(ED_DestroySpriteRenderer::GetEventName(), this, &Renderer::DeleteSpriteRenderer);
+	EventSystem::GetInstance()->RegisterEvent(ED_CreateComponent::GetEventName(), this, &Renderer::CreateSpriteRenderer);
+	EventSystem::GetInstance()->RegisterEvent(ED_DestroyComponent::GetEventName(), this, &Renderer::DeleteSpriteRenderer);
 }
 
 void Engine::Renderer::CreateRenderer()
@@ -38,8 +38,8 @@ void Engine::Renderer::CreateRenderer()
 
 void Engine::Renderer::CreateSpriteRenderer(const void* data)
 {
-	const ED_CreateSpriteRenderer* eventData = static_cast<const ED_CreateSpriteRenderer*>(data);
-	if (!eventData) return;
+	const auto eventData = static_cast<const ED_CreateComponent*>(data);
+	if (!eventData || eventData->componentID != SPRITE_RENDERER) return;
 
 	// These are very necessary do not get rid of
 	Engine::GameObject* go = eventData->gameObject;   
@@ -59,13 +59,16 @@ void Engine::Renderer::CreateSpriteRenderer(const void* data)
 
 void Engine::Renderer::DeleteSpriteRenderer(const void* data)
 {
-	const auto eventData = static_cast<const ED_DestroySpriteRenderer*>(data);
+	const auto eventData = static_cast<const ED_DestroyComponent*>(data);
 	if (!eventData) return;
 	
-	_spriteRendererPool.Delete(eventData->spriteRenderer);
+	auto spriteRenderer = dynamic_cast<SpriteRenderer*>(eventData->component);
+	if (spriteRenderer == nullptr) return;
+	
+	_spriteRendererPool.Delete(spriteRenderer);
 	std::erase_if(_renderList,
-	              [eventData](const std::pair<int16_t, SpriteRenderer*>& entry) {
-		              return entry.second == eventData->spriteRenderer;
+	              [spriteRenderer, eventData](const std::pair<int16_t, SpriteRenderer*>& entry) {
+		              return entry.second == spriteRenderer;
 	              });
 }
 
@@ -107,8 +110,8 @@ Engine::Renderer::~Renderer()
 	_renderList.clear();
 	_renderList.shrink_to_fit();
 	
-	EventSystem::GetInstance()->DeregisterEvent(ED_CreateSpriteRenderer::GetEventName());
-	EventSystem::GetInstance()->DeregisterEvent(ED_DestroySpriteRenderer::GetEventName());
+	EventSystem::GetInstance()->DeregisterEvent(ED_CreateComponent::GetEventName());
+	EventSystem::GetInstance()->DeregisterEvent(ED_DestroyComponent::GetEventName());
 	
 	UIManager::CleanUp();
 	BufferRegistry::GetRegistry()->CleanUp();

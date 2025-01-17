@@ -1,12 +1,12 @@
 ﻿#pragma once
 #include <vector>
+#include "Object.h"
 #include "json.hpp"
-#include "Transform.h"
 
 namespace Engine
 {
     class Component;
-    class GameObject
+    class GameObject : public Object
     {
         friend class Level;
     public:
@@ -22,19 +22,10 @@ namespace Engine
         void AddComponent(Component* component);
 
     private:
-
-        nlohmann::json SaveGameObject();
+        
+        nlohmann::json SaveObject() override;
         
     public:
-
-        String GetName() const { return _name; }
-
-    public:
-
-        Transform transform;
-        
-    private:
-        String _name;
         
         std::vector<Component*> _attachedComponents;
 

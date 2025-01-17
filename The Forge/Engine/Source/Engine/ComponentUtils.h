@@ -20,6 +20,7 @@ namespace Engine
 
         void RegisterComponentFns();
         void CreateSpriteRenderer(GameObject* go, const nlohmann::json& data = nullptr);
+        void CreateCamera(GameObject* go, const nlohmann::json& data = nullptr);
 
     private:
 

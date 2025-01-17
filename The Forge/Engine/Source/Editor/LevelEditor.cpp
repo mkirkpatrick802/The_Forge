@@ -70,6 +70,7 @@ void Editor::LevelEditor::Render()
                     _defaultLevelIndex = i;
                     _selectedLevel = i;
 
+                    //TODO: Move this to Level Manager
                     Engine::LevelManager::LoadLevel(filepaths[i]);
                 }
             }   

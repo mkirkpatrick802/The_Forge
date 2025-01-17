@@ -85,7 +85,7 @@ void Engine::Level::SaveLevel(const String& args)
     // Update game objects
     data[JsonKeywords::GAMEOBJECT_ARRAY] = json::array();
     for (const auto go : _gameObjects)
-        data[JsonKeywords::GAMEOBJECT_ARRAY].push_back(go->SaveGameObject());
+        data[JsonKeywords::GAMEOBJECT_ARRAY].push_back(go->SaveObject());
 
     // Write new data
     if (std::ofstream outputFile(_path); outputFile.is_open())

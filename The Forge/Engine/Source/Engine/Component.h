@@ -10,6 +10,7 @@
 #define COLLIDER (uint32)3
 #define HEALTH (uint32)4
 #define ENEMY_CONTROLLER (uint32)5
+#define CAMERA (uint32)6
 
 using json = nlohmann::json;
 

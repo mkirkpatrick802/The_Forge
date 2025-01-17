@@ -2,6 +2,7 @@
 #include <memory>
 
 #include "Camera.h"
+#include "Engine/ComponentPool.h"
 
 namespace Engine
 {
@@ -9,10 +10,13 @@ namespace Engine
     {
     public:
         static std::shared_ptr<CameraManager> GetCameraManager();
-        CameraManager() = default;
+        CameraManager();
+
+        void CreateCamera(const void* data);
+        void DeleteCamera(const void* data);
         
-        std::shared_ptr<Camera> GetActiveCamera() {return _currentCamera; }
-        void SetActiveCamera(const std::shared_ptr<Camera>& camera) {  _currentCamera = camera; }
+        Camera* GetActiveCamera() const {return _currentCamera; }
+        void SetActiveCamera(Camera* camera) {  _currentCamera = camera; }
 
         static void CleanUp();
     private:
@@ -20,6 +24,7 @@ namespace Engine
     private:
 
         static std::shared_ptr<CameraManager> _cameraManager;
-        std::shared_ptr<Camera> _currentCamera;
+        Camera* _currentCamera;
+        ComponentPool<Camera> _cameraPool;
     };
 }

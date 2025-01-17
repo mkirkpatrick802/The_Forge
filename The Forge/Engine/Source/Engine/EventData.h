@@ -8,18 +8,19 @@ namespace Engine
     #define DECLARE_EVENT_NAME(eventType) \
     static std::string GetEventName() { return #eventType; }
     
-    struct ED_CreateSpriteRenderer
+    struct ED_CreateComponent
     {
-        DECLARE_EVENT_NAME(ED_CreateSpriteRenderer)
+        DECLARE_EVENT_NAME(ED_CreateComponent)
         
         GameObject* gameObject;
         nlohmann::json data;
+        uint32 componentID;
     };
 
-    struct ED_DestroySpriteRenderer
+    struct ED_DestroyComponent
     {
-        DECLARE_EVENT_NAME(ED_DestroySpriteRenderer)
+        DECLARE_EVENT_NAME(ED_DestroyComponent)
         
-        SpriteRenderer* spriteRenderer;
+        Component* component;
     };
 }

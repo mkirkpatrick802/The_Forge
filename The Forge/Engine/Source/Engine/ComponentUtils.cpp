@@ -24,6 +24,7 @@ Engine::ComponentUtils::~ComponentUtils()
 void Engine::ComponentUtils::RegisterComponentFns()
 {
     _componentCreationMap[SPRITE_RENDERER] = &ComponentUtils::CreateSpriteRenderer;
+    _componentCreationMap[CAMERA] = &ComponentUtils::CreateCamera;
 }
 
 void Engine::ComponentUtils::AddComponent(GameObject* go, const nlohmann::json& data)
@@ -47,8 +48,18 @@ void Engine::ComponentUtils::AddComponent(GameObject* go, uint32 id)
 
 void Engine::ComponentUtils::CreateSpriteRenderer(GameObject* go, const nlohmann::json& data)
 {
-    ED_CreateSpriteRenderer eventData;
+    ED_CreateComponent eventData;
     eventData.gameObject = go;
     eventData.data = data;
-    EventSystem::GetInstance()->TriggerEvent(ED_CreateSpriteRenderer::GetEventName(), &eventData);
+    eventData.componentID = SPRITE_RENDERER;
+    EventSystem::GetInstance()->TriggerEvent(ED_CreateComponent::GetEventName(), &eventData);
+}
+
+void Engine::ComponentUtils::CreateCamera(GameObject* go, const nlohmann::json& data)
+{
+    ED_CreateComponent eventData;
+    eventData.gameObject = go;
+    eventData.data = data;
+    eventData.componentID = CAMERA;
+    EventSystem::GetInstance()->TriggerEvent(ED_CreateComponent::GetEventName(), &eventData);
 }

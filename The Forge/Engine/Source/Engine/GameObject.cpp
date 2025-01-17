@@ -1,12 +1,9 @@
 ﻿#include "GameObject.h"
 
-#include <iostream>
-
 #include "Component.h"
 #include "ComponentUtils.h"
 #include "JsonKeywords.h"
 #include "Level.h"
-#include "LevelManager.h"
 
 Engine::GameObject::GameObject()
 {
@@ -41,10 +38,9 @@ void Engine::GameObject::AddComponent(Component* component)
     _attachedComponents.push_back(component);
 }
 
-json Engine::GameObject::SaveGameObject()
+nlohmann::json Engine::GameObject::SaveObject()
 {
-    json data;
-    data[JsonKeywords::GAMEOBJECT_NAME] = _name;
+    json data = Object::SaveObject();
     data[JsonKeywords::COMPONENT_ARRAY] = json::array();
     for (const auto& component : _attachedComponents)
     {

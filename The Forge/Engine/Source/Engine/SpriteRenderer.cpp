@@ -116,8 +116,8 @@ void Engine::SpriteRenderer::DrawSprite()
 
 void Engine::SpriteRenderer::CleanUp()
 {
-    ED_DestroySpriteRenderer eventData;
-    eventData.spriteRenderer = this;
+    ED_DestroyComponent eventData;
+    eventData.component = this;
     
-    EventSystem::GetInstance()->TriggerEvent(ED_DestroySpriteRenderer::GetEventName(), &eventData);
+    EventSystem::GetInstance()->TriggerEvent(ED_DestroyComponent::GetEventName(), &eventData);
 }

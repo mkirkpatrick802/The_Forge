@@ -7,12 +7,14 @@
 #include "JsonKeywords.h"
 #include "Level.h"
 #include "System.h"
+#include "Rendering/CameraManager.h"
 
 Engine::Level* Engine::LevelManager::_currentLevel = nullptr;
 
 Engine::LevelManager::LevelManager(const std::string& filepath)
 {
     _componentUtils = std::make_unique<ComponentUtils>();
+    CameraManager::GetCameraManager();
     
     if (const std::ifstream file(filepath); file.is_open())
         LoadLevel(filepath);
