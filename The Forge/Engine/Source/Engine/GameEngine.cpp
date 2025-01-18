@@ -3,7 +3,6 @@
 #include <SDL_keycode.h>
 #include <SDL_mouse.h>
 
-#include "CommandTerminal.h"
 #include "EventSystem.h"
 #include "InputManager.h"
 #include "LevelManager.h"
@@ -39,39 +38,14 @@ void Engine::GameEngine::StartGamePlayLoop()
 			frameStart = currentTicks;
 
 			_renderer->Render();
-
-			if (_inputManager->GetKeyDown(SDL_SCANCODE_T) || _inputManager->GetKeyDown(SDL_SCANCODE_SLASH))
-				OpenCommandTerminal();
-			
-			if (_inputManager->GetKeyDown(SDL_SCANCODE_ESCAPE) || _inputManager->GetButtonDown(SDL_BUTTON(1) | SDL_BUTTON(3)))
-				CloseCommandTerminal();
 			
 			_inputManager->EndProcessInputs();
 		}
 	}
 }
 
-void Engine::GameEngine::OpenCommandTerminal()
-{
-	if (_terminal != nullptr) return;
-	
-	_terminal = DEBUG_NEW CommandTerminal();
-	UIManager::AddUIWindow(_terminal);
-}
-
-void Engine::GameEngine::CloseCommandTerminal()
-{
-	if (_terminal == nullptr) return;
-	
-	UIManager::RemoveUIWindow(_terminal);
-	delete _terminal;
-	_terminal = nullptr;
-}
-
 void Engine::GameEngine::CleanUp()
 {
-	CloseCommandTerminal();
-	CommandTerminal::CleanUp();
 	_levelManager->CleanUp();
 
 	Component::ClearComponentNames();

@@ -11,7 +11,7 @@ project "Netcode"
    {
       "Source",
 
-      "Vendors/GameNetworkingSockets/include"
+      "Vendors/SteamSDK/include"
    }
 
    targetdir ("../../Binaries/" .. OutputDir .. "/%{prj.name}")
@@ -20,12 +20,13 @@ project "Netcode"
    filter "system:windows"
        systemversion "latest"
        defines { }
-       libdirs { "Vendors/GameNetworkingSockets/bin/Windows/Release" }
-       links   { "GameNetworkingSockets", "GameNetworkingSockets_s" }
+       libdirs { "Vendors/SteamSDK/bin", "Vendors/SteamSDK/bin/win64"}
+       links   { "steam_api",  "steam_api64"}
 
        postbuildcommands 
        {
-            "{COPY} Vendors/GameNetworkingSockets/bin/Windows/Release/*.dll %{cfg.targetdir}"
+            "{COPY} Vendors/SteamSDK/bin/win64/*.dll %{cfg.targetdir}",
+            "{COPY} Vendors/SteamSDK/bin/*.dll %{cfg.targetdir}"
        }
 
    filter "configurations:Debug"

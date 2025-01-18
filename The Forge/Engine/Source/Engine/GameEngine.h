@@ -2,7 +2,6 @@
 
 namespace Engine
 {
-	class CommandTerminal;
 	class Renderer;
 	class InputManager;
 	class LevelManager;
@@ -18,14 +17,11 @@ namespace Engine
 	private:
 		
 		GameEngine();
-		void OpenCommandTerminal();
-		void CloseCommandTerminal();
 		
 	private:
 
 		static GameEngine* _instance;
-
-		CommandTerminal* _terminal = nullptr;
+		
 		Renderer* _renderer;
 		InputManager* _inputManager;
 		LevelManager* _levelManager;

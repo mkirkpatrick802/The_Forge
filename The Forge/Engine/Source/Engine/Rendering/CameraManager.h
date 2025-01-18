@@ -24,7 +24,7 @@ namespace Engine
     private:
 
         static std::shared_ptr<CameraManager> _cameraManager;
-        Camera* _currentCamera;
+        Camera* _currentCamera = nullptr;
         ComponentPool<Camera> _cameraPool;
     };
 }
