@@ -6,6 +6,9 @@
 #include <imgui.h>
 #include <SDL_image.h>
 
+#include "EventData.h"
+#include "EventSystem.h"
+
 const String ERROR_FILENAME = "ErrorFile";
 
 _CrtMemState Engine::System::_memoryCheckpoint = {};
@@ -99,6 +102,27 @@ void Engine::System::DisplayMessageBox(const String& caption, const String& mess
 	const std::wstring wMessage(message.begin(), message.end());
 
 	MessageBox(nullptr, wMessage.c_str(), wCaption.c_str(), MB_OK);
+}
+
+void Engine::System::LogToConsole(const char* format, ...)
+{
+#ifndef _DEBUG
+	return;
+#endif
+	
+	constexpr size_t bufferSize = 1024;
+	char buffer[bufferSize];
+
+	va_list args;
+	va_start(args, format);
+	auto temp = std::vsnprintf(buffer, bufferSize, format, args);
+	va_end(args);
+
+	ED_LogToConsole log;
+	log.message = buffer;
+	log.type = LogType::MESSAGE_LOG;
+	if (const auto eventSystem = EventSystem::GetInstance())
+		eventSystem->TriggerEvent(ED_LogToConsole::GetEventName(), &log);
 }
 
 void Engine::System::EnsureDirectoryExists(const String& path)

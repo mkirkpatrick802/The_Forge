@@ -11,9 +11,11 @@ namespace Engine
     {
     public:
         
-        static EventSystem* GetInstance();
+        static std::shared_ptr<EventSystem> GetInstance();
         static void DestroyInstance();
-
+        EventSystem() = default;
+        ~EventSystem() = default;
+        
         template <typename T>
         void RegisterEvent(const String& name, T* obj, void (T::*func)(const void*));
         void RegisterEvent(const String& name, const EventCallback& callback);
@@ -22,16 +24,14 @@ namespace Engine
         void DeregisterEvent(const String& name);
         
     private:
-
-        EventSystem() = default;
-        ~EventSystem() = default;
+        
 
         EventSystem(const EventSystem&) = delete;
         EventSystem(EventSystem&&) = delete;
         EventSystem& operator=(const EventSystem&) = delete;
         EventSystem& operator=(EventSystem&&) = delete;
 
-        static EventSystem* _instance;
+        static std::shared_ptr<EventSystem> _instance;
         std::unordered_map<std::string, std::vector<EventCallback>> _eventMap;
     };
 

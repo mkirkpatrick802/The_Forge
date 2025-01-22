@@ -5,6 +5,7 @@
 #include "CommandRegistry.h"
 #include "CommandUtils.h"
 #include "Component.h"
+#include "EventSystem.h"
 #include "JsonKeywords.h"
 #include "System.h"
 #include "Editor/EditorManager.h"
@@ -28,7 +29,9 @@ Engine::EngineManager::EngineManager()
 
 Engine::EngineManager::~EngineManager()
 {
+	_editor.reset();
 	CommandRegistry::UnregisterCommand("/editor");
+	EventSystem::DestroyInstance();
 }
 
 void Engine::EngineManager::ToggleEditor(const String& args)

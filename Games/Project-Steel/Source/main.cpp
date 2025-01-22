@@ -20,6 +20,7 @@ int main()
         
         instance->StartGamePlayLoop();
         instance->CleanUp();
+        
         delete instance;
         instance = nullptr;
     }

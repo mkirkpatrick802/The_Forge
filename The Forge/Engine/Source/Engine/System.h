@@ -13,8 +13,12 @@
 #else
 #define DBG_NEW new
 #endif
+
 namespace Engine
 {
+#define DEBUG_PRINT(Format, ...) System::LogToConsole(Format, ##__VA_ARGS__);
+	enum class LogType : uint8_t {MESSAGE_LOG = 1, WARNING_LOG, ERROR_LOG}; 
+	
 	typedef SDL_Window Window;
 
 	class System
@@ -27,6 +31,7 @@ namespace Engine
 
 		static void LogToErrorFile(const String& message);
 		static void DisplayMessageBox(const String& caption, const String& message);
+		static void LogToConsole(const char* format, ...);
 
 		static Window* GetWindow() { return _window; }
 		static Vector2D GetWindowSize() { return _windowSize; }

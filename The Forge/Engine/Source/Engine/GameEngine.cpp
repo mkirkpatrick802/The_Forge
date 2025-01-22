@@ -58,6 +58,4 @@ void Engine::GameEngine::CleanUp()
 
 	delete _renderer;
 	_renderer = nullptr;
-
-	EventSystem::DestroyInstance();
 }

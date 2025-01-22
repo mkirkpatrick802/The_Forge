@@ -1,16 +1,15 @@
 ﻿#include "EventSystem.h"
 
-Engine::EventSystem* Engine::EventSystem::_instance = nullptr;
+std::shared_ptr<Engine::EventSystem> Engine::EventSystem::_instance = nullptr;
 
-Engine::EventSystem* Engine::EventSystem::GetInstance()
+std::shared_ptr<Engine::EventSystem> Engine::EventSystem::GetInstance()
 {
-    return _instance ? _instance : (_instance = DEBUG_NEW EventSystem());
+    return _instance ? _instance : (_instance = std::make_shared<EventSystem>());
 }
 
 void Engine::EventSystem::DestroyInstance()
 {
-    delete _instance;
-    _instance = nullptr;
+    _instance.reset();
 }
 
 void Engine::EventSystem::RegisterEvent(const String& name, const EventCallback& callback)

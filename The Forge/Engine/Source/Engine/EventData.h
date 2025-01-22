@@ -2,6 +2,7 @@
 #include "json.hpp"
 #include "GameObject.h"
 #include "SpriteRenderer.h"
+#include "System.h"
 
 namespace Engine
 {
@@ -22,5 +23,13 @@ namespace Engine
         DECLARE_EVENT_NAME(ED_DestroyComponent)
         
         Component* component;
+    };
+
+    struct ED_LogToConsole
+    {
+        DECLARE_EVENT_NAME(ED_LogToConsole)
+
+        String message;
+        LogType type;
     };
 }
