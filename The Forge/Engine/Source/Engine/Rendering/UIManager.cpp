@@ -21,8 +21,6 @@ void Engine::UIManager::Init()
     io.ConfigWindowsMoveFromTitleBarOnly = true;
     io.ConfigDockingWithShift = false; // This makes docking require holding shift
 
-    
-
     ImGui::StyleColorsDark();
 
     ImGui_ImplSDL2_InitForOpenGL(System::GetWindow(), Renderer::GetContext());
@@ -39,6 +37,12 @@ void Engine::UIManager::RemoveUIWindow(UIWindow* window)
     std::erase(_uiWindows, window);
 }
 
+void Engine::UIManager::RemoveAllUIWindows()
+{
+    _uiWindows.clear();
+    _uiWindows.shrink_to_fit();
+}
+
 void Engine::UIManager::RenderWindows()
 {
     ImGui_ImplOpenGL3_NewFrame();
@@ -49,7 +53,8 @@ void Engine::UIManager::RenderWindows()
     {
         ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
     }
-    
+
+    // TODO: When editor is closed, app crashes because command terminal is a active window
     if(!_uiWindows.empty())
     {
         for (const auto window : _uiWindows)

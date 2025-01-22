@@ -4,6 +4,7 @@
 #include "BufferRegistry.h"
 #include "CameraManager.h"
 #include "Framebuffer.h"
+#include "PixelGrid.h"
 #include "UIManager.h"
 #include "Engine/EventData.h"
 #include "Engine/EventSystem.h"
@@ -34,6 +35,7 @@ void Engine::Renderer::CreateRenderer()
 	}
 
 	BufferRegistry::GetRegistry()->AddBuffer(BufferRegistry::BufferType::SCENE, std::make_shared<Framebuffer>(Vector2D(320, 240), false));
+	_grid = std::make_unique<PixelGrid>();
 }
 
 void Engine::Renderer::CreateSpriteRenderer(const void* data)
@@ -92,11 +94,13 @@ void Engine::Renderer::Render() const
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		_grid->Render();
+		
 		if (!_renderList.empty())
 			for (const auto& val : _renderList | std::views::values)
 				val->DrawSprite();
 
-		sceneFBO->Unbind();	
+		sceneFBO->Unbind();
 	}
 	
 	UIManager::RenderWindows();
@@ -118,4 +122,11 @@ Engine::Renderer::~Renderer()
 	CameraManager::CleanUp();
 	
 	SDL_GL_DeleteContext(_context);
+}
+
+Vector2D Engine::Renderer::ConvertWorldToScreen(Vector2D worldPos)
+{
+	const auto screenLocation = Vector2D(worldPos.x + System::GetWindowSize().x / 2, worldPos.y + System::GetWindowSize().y / 2);
+	DEBUG_PRINT("Screen location: x: %f, y: %f", screenLocation.x, screenLocation.y)
+	return screenLocation;
 }

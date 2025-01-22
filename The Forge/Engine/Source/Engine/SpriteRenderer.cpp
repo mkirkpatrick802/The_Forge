@@ -7,6 +7,7 @@
 #include "EventSystem.h"
 #include "JsonKeywords.h"
 #include "Rendering/CameraManager.h"
+#include "Rendering/Renderer.h"
 #include "Rendering/TextureLoader.h"
 
 Engine::SpriteRenderer::SpriteRenderer(): _quadVAO(0)
@@ -93,7 +94,7 @@ void Engine::SpriteRenderer::DrawSprite()
     
     _shader.Use();
 	auto model = glm::mat4(1.0f);
-    model = translate(model, glm::vec3(camera->ConvertWorldToScreen(position), 0.0f));
+    model = translate(model, glm::vec3(Renderer::ConvertWorldToScreen(position), 0.0f));
 
     model = translate(model, glm::vec3(0.5f * _size.x, 0.5f * _size.y, 0.0f));
     model = rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -104,7 +105,6 @@ void Engine::SpriteRenderer::DrawSprite()
     glBindTextureUnit(0, _texture->GetID());
 
     _shader.SetMatrix4("model", model);
-
     
     _shader.SetMatrix4("projection", camera->GetProjectionMatrix());
     _shader.SetInteger("image", 0);

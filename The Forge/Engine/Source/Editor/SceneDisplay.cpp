@@ -21,7 +21,7 @@ void Editor::SceneDisplay::Render()
             ImVec2(sceneFBO->GetSize().x, sceneFBO->GetSize().y),
             ImVec2(0, 1), ImVec2(1, 0)
             );
-
+        
         // Check for resize based on window size
         const Vector2D windowSize(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y); 
         if (sceneFBO->GetWindowSize() != windowSize)

@@ -12,6 +12,7 @@ namespace Engine
 
 		static void AddUIWindow(UIWindow* window);
 		static void RemoveUIWindow(UIWindow* window);
+		static void RemoveAllUIWindows();
 
 		static void SetDockingEnabled(const bool enabled) {_isDockingEnabled = enabled;};
 		

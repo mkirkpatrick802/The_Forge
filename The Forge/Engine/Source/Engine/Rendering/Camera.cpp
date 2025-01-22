@@ -1,6 +1,8 @@
 ﻿#include "Camera.h"
 #include <glm/ext/matrix_clip_space.hpp>
 
+#include "BufferRegistry.h"
+#include "Engine/JsonKeywords.h"
 #include "Engine/System.h"
 
 Engine::Camera::Camera(): _projection()
@@ -10,26 +12,28 @@ Engine::Camera::Camera(): _projection()
 
 void Engine::Camera::CleanUp()
 {
+    
 }
 
 void Engine::Camera::LoadData(const json& data)
 {
+    
 }
 
 nlohmann::json Engine::Camera::SaveData()
 {
-    return nlohmann::json();
+    nlohmann::json data;
+    data[JsonKeywords::COMPONENT_ID] = ComponentID;
+    return data;
 }
 
 glm::mat4 Engine::Camera::GetProjectionMatrix()
 {
-    _projection = glm::ortho(0.0f, 1280.f, 720.f, 0.0f, -1.0f, 1.0f);
+    const auto sceneFBO = BufferRegistry::GetRegistry()->GetBuffer(BufferRegistry::BufferType::SCENE);
+    float left = -sceneFBO->GetSize().x / 2.f;
+    float right = sceneFBO->GetSize().x / 2.f;
+    float bottom = sceneFBO->GetSize().y / 2.f;
+    float top = -sceneFBO->GetSize().y / 2.f;
+    _projection = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
     return _projection;
-}
-
-Vector2D Engine::Camera::ConvertWorldToScreen(const Vector2D worldPos) const
-{
-    // TODO: Use scene size instead of window size
-    const auto screenLocation = Vector2D(worldPos.x + System::GetWindowSize().x / 2, worldPos.y + System::GetWindowSize().y / 2);
-    return screenLocation;
 }

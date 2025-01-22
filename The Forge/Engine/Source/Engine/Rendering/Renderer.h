@@ -9,6 +9,7 @@ namespace Engine
 {
 	class Framebuffer;
 	class SpriteRenderer;
+	class PixelGrid;
 	typedef SDL_GLContext Context;
 
 	typedef std::vector<std::pair<int16, SpriteRenderer*>> RenderListPair;
@@ -23,6 +24,8 @@ namespace Engine
 		
 		~Renderer();
 
+		static Vector2D ConvertWorldToScreen(Vector2D worldPos);
+		
 	private:
 
 		void CreateRenderer();
@@ -38,5 +41,6 @@ namespace Engine
 		RenderListPair _renderList;
 		ComponentPool<SpriteRenderer> _spriteRendererPool;
 
+		std::unique_ptr<PixelGrid> _grid;
 	};
 }

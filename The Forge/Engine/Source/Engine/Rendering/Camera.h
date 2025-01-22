@@ -14,21 +14,20 @@ namespace Engine
         
         void LoadData(const json& data) override;
         nlohmann::json SaveData() override;
-        
-        Vector2D ConvertWorldToScreen(Vector2D worldPos) const;
     
-
     public:
     
         
     private:
         
         glm::mat4 _projection;
+        Vector2D _refResolution = Vector2D(320, 240);
         static const uint32 ComponentID = CAMERA;
 
     public:
         
         uint32 GetComponentID() const override { return ComponentID; }
+        Vector2D GetReferenceResolution() const { return _refResolution; } 
         glm::mat4 GetProjectionMatrix();
         
     };

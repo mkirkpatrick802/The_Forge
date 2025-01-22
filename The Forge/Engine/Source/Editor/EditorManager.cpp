@@ -26,9 +26,5 @@ Editor::EditorManager::EditorManager()
 Editor::EditorManager::~EditorManager()
 {
     Engine::UIManager::SetDockingEnabled(false);
-    Engine::UIManager::RemoveUIWindow(EditorWindows[LEVEL_EDITOR_INDEX].get());
-    Engine::UIManager::RemoveUIWindow(EditorWindows[DETAILS_EDITOR_INDEX].get());
-    Engine::UIManager::RemoveUIWindow(EditorWindows[SCENE_DISPLAY].get());
-    Engine::UIManager::RemoveUIWindow(EditorWindows[COMMAND_TERMINAL].get());
-    Engine::UIManager::RemoveUIWindow(EditorWindows[CONSOLE].get());
+    Engine::UIManager::RemoveAllUIWindows();
 }
