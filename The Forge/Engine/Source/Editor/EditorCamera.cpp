@@ -10,12 +10,23 @@ std::shared_ptr<Editor::EditorCamera> Editor::EditorCamera::_instance = nullptr;
 
 std::shared_ptr<Editor::EditorCamera> Editor::EditorCamera::GetInstance()
 {
-    return _instance == nullptr ? std::make_shared<EditorCamera>() : _instance;
+    _instance = _instance == nullptr ? std::make_shared<EditorCamera>() : _instance;
+    return _instance;
 }
 
-void Editor::EditorCamera::Update(float deltaTime)
+Editor::EditorCamera::EditorCamera(): _position(0, 0), _projection(), _view()
 {
-    
+
+}
+
+void Editor::EditorCamera::CleanUp()
+{
+    _instance.reset();
+}
+
+void Editor::EditorCamera::UpdatePosition(const Vector2D delta)
+{
+    _position += delta * _dragSpeed;
 }
 
 glm::mat4 Editor::EditorCamera::GetProjectionMatrix()
@@ -29,6 +40,6 @@ glm::mat4 Editor::EditorCamera::GetProjectionMatrix()
 
 glm::mat4 Editor::EditorCamera::GetViewMatrix()
 {
-    //_view = lookAt(glm::vec3(_position.x, _position, 10), glm::vec3(_position.x, _position, 10) + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    _view = glm::translate(glm::mat4(1.0f), glm::vec3(_position.x, _position.y, 0.0f));
     return _view;
 }

@@ -1,5 +1,6 @@
 ﻿#include "SceneDisplay.h"
 
+#include "EditorCamera.h"
 #include "Engine/System.h"
 #include "Engine/Rendering/BufferRegistry.h"
 
@@ -16,6 +17,8 @@ void Editor::SceneDisplay::Render()
     {
         auto sceneFBO = Engine::BufferRegistry::GetRegistry()->GetBuffer(Engine::BufferRegistry::BufferType::SCENE);
 
+        ClickAndDrag();
+        
         ImGui::SetCursorPos(ImVec2(0, 0));
         ImGui::Image(
             (ImTextureID)sceneFBO->GetTextureID(),
@@ -31,4 +34,19 @@ void Editor::SceneDisplay::Render()
 
     ImGui::EndChild();
     ImGui::End();
+}
+
+void Editor::SceneDisplay::ClickAndDrag()
+{
+    if (ImGui::IsWindowHovered())
+    {
+        if (ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+        {
+            const auto dragDelta = Vector2D(ImGui::GetMouseDragDelta().x, ImGui::GetMouseDragDelta().y);
+            
+            EditorCamera::GetInstance()->UpdatePosition(dragDelta);
+            
+            ImGui::ResetMouseDragDelta();
+        }
+    }
 }

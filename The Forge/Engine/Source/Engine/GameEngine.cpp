@@ -39,9 +39,6 @@ void Engine::GameEngine::StartGamePlayLoop()
 		{
 			const float deltaTime = (currentTicks - frameStart) / 1000.f;
 			frameStart = currentTicks;
-
-			if (EngineManager::IsEditorEnabled())
-				Editor::EditorCamera::GetInstance()->Update(deltaTime);
 				
 			_renderer->Render();
 			

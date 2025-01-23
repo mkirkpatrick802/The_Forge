@@ -10,6 +10,8 @@ namespace Editor
         SceneDisplay();
         void Render() override;
 
+        void ClickAndDrag();
+
     private:
     };
 }

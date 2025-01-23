@@ -5,6 +5,7 @@
 #include "SceneDisplay.h"
 #include "CommandTerminal.h"
 #include "Console.h"
+#include "EditorCamera.h"
 #include "Engine/Rendering/UIManager.h"
 
 Editor::EditorManager::EditorManager()
@@ -27,4 +28,5 @@ Editor::EditorManager::~EditorManager()
 {
     Engine::UIManager::SetDockingEnabled(false);
     Engine::UIManager::RemoveAllUIWindows();
+    EditorCamera::CleanUp();
 }

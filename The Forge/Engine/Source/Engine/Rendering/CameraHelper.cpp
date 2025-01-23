@@ -22,4 +22,6 @@ glm::mat4 Engine::GetViewMatrix()
     {
         return Editor::EditorCamera::GetInstance()->GetViewMatrix();
     }
+    
+    return {};
 }

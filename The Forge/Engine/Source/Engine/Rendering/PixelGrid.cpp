@@ -39,6 +39,7 @@ void Engine::PixelGrid::Render()
 
     _shader.Use();
     _shader.SetMatrix4("projection", GetProjectionMatrix());
+    _shader.SetMatrix4("view", GetViewMatrix());
 
     glBindVertexArray(_vao);
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);

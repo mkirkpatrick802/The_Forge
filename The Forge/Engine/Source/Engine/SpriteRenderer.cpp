@@ -105,6 +105,7 @@ void Engine::SpriteRenderer::DrawSprite()
     _shader.SetMatrix4("model", model);
     
     _shader.SetMatrix4("projection", GetProjectionMatrix());
+    _shader.SetMatrix4("view", GetViewMatrix());
     _shader.SetInteger("image", 0);
     
     glBindVertexArray(_quadVAO);
