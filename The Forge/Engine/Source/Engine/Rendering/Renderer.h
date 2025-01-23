@@ -12,6 +12,8 @@ namespace Engine
 	class PixelGrid;
 	typedef SDL_GLContext Context;
 
+	const Vector2D ReferenceResolution = Vector2D(320, 180);
+	
 	typedef std::vector<std::pair<int16, SpriteRenderer*>> RenderListPair;
 	class Renderer
 	{

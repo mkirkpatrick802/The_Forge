@@ -6,6 +6,7 @@
 #include "EventData.h"
 #include "EventSystem.h"
 #include "JsonKeywords.h"
+#include "Rendering/CameraHelper.h"
 #include "Rendering/CameraManager.h"
 #include "Rendering/Renderer.h"
 #include "Rendering/TextureLoader.h"
@@ -88,9 +89,6 @@ void Engine::SpriteRenderer::DrawSprite()
 {
 	const float rotation = gameObject->transform.rotation;
 	const auto position = Vector2D(gameObject->transform.position.x - _size.x / PIXEL_SCALE, (gameObject->transform.position.y * -1) - _size.y / PIXEL_SCALE);
-
-    const auto camera = CameraManager::GetCameraManager()->GetActiveCamera();
-    if (camera == nullptr) return;
     
     _shader.Use();
 	auto model = glm::mat4(1.0f);
@@ -106,7 +104,7 @@ void Engine::SpriteRenderer::DrawSprite()
 
     _shader.SetMatrix4("model", model);
     
-    _shader.SetMatrix4("projection", camera->GetProjectionMatrix());
+    _shader.SetMatrix4("projection", GetProjectionMatrix());
     _shader.SetInteger("image", 0);
     
     glBindVertexArray(_quadVAO);

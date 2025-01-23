@@ -3,12 +3,15 @@
 #include <SDL_keycode.h>
 #include <SDL_mouse.h>
 
+#include "EngineManager.h"
 #include "EventSystem.h"
 #include "InputManager.h"
 #include "LevelManager.h"
 #include "Rendering/Renderer.h"
 #include "System.h"
 #include "Time.h"
+#include "Editor/EditorCamera.h"
+#include "Editor/EditorManager.h"
 #include "Rendering/UIManager.h"
 
 Engine::GameEngine* Engine::GameEngine::_instance = nullptr;
@@ -37,6 +40,9 @@ void Engine::GameEngine::StartGamePlayLoop()
 			const float deltaTime = (currentTicks - frameStart) / 1000.f;
 			frameStart = currentTicks;
 
+			if (EngineManager::IsEditorEnabled())
+				Editor::EditorCamera::GetInstance()->Update(deltaTime);
+				
 			_renderer->Render();
 			
 			_inputManager->EndProcessInputs();

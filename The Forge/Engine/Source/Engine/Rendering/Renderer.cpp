@@ -34,7 +34,7 @@ void Engine::Renderer::CreateRenderer()
 		assert(0);
 	}
 
-	BufferRegistry::GetRegistry()->AddBuffer(BufferRegistry::BufferType::SCENE, std::make_shared<Framebuffer>(Vector2D(320, 240), false));
+	BufferRegistry::GetRegistry()->AddBuffer(BufferRegistry::BufferType::SCENE, std::make_shared<Framebuffer>(ReferenceResolution, false));
 	_grid = std::make_unique<PixelGrid>();
 }
 
@@ -84,15 +84,17 @@ void Engine::Renderer::SortRenderList()
 
 void Engine::Renderer::Render() const
 {
+	const auto sceneFBO = BufferRegistry::GetRegistry()->GetBuffer(BufferRegistry::BufferType::SCENE);
 	{
-		const auto sceneFBO = BufferRegistry::GetRegistry()->GetBuffer(BufferRegistry::BufferType::SCENE);
 		sceneFBO->Bind();
-	
+		
 		glViewport(0, 0, (int)sceneFBO->GetSize().x, (int)sceneFBO->GetSize().y);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+		glDisable(GL_LINE_SMOOTH);
+		glDisable(GL_POLYGON_SMOOTH);
 
 		_grid->Render();
 		
@@ -105,6 +107,8 @@ void Engine::Renderer::Render() const
 	
 	UIManager::RenderWindows();
 	UIManager::FinishUIRender();
+	
+	sceneFBO->CheckResize();
 
 	SDL_GL_SwapWindow(System::GetWindow());
 }
@@ -127,6 +131,5 @@ Engine::Renderer::~Renderer()
 Vector2D Engine::Renderer::ConvertWorldToScreen(Vector2D worldPos)
 {
 	const auto screenLocation = Vector2D(worldPos.x + System::GetWindowSize().x / 2, worldPos.y + System::GetWindowSize().y / 2);
-	DEBUG_PRINT("Screen location: x: %f, y: %f", screenLocation.x, screenLocation.y)
 	return screenLocation;
 }

@@ -1,8 +1,11 @@
 ﻿#include "PixelGrid.h"
 
 #include "BufferRegistry.h"
+#include "CameraHelper.h"
 #include "CameraManager.h"
 #include "Engine/Data.h"
+#include "Engine/EngineManager.h"
+#include "Engine/System.h"
 
 Engine::PixelGrid::PixelGrid()
 {
@@ -34,30 +37,29 @@ void Engine::PixelGrid::Render()
 {
     const auto sceneFBO = BufferRegistry::GetRegistry()->GetBuffer(BufferRegistry::BufferType::SCENE);
 
-    const auto camera = CameraManager::GetCameraManager()->GetActiveCamera();
-    if (camera == nullptr) return;
-
     _shader.Use();
-    _shader.SetMatrix4("projection", camera->GetProjectionMatrix());
+    _shader.SetMatrix4("projection", GetProjectionMatrix());
 
     glBindVertexArray(_vao);
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
     
     // Loop to draw grid lines:
-    for (int x = (int)-sceneFBO->GetWindowSize().x / 2; x <= (int)sceneFBO->GetWindowSize().x / 2; x += _gridSize) {
+    //for (int x = (int)-sceneFBO->GetWindowSize().x / 2; x <= (int)sceneFBO->GetWindowSize().x / 2; x += _gridSize)
+    {
         int lineVertices[] = {
-            x, (int)-sceneFBO->GetWindowSize().y / 2,  // Start point of the line
-            x, (int)sceneFBO->GetWindowSize().y / 2    // End point of the line
+            0, (int)System::GetWindowSize().y / 2,  // Start point of the line
+            (int)System::GetWindowSize().x, (int)System::GetWindowSize().y / 2    // End point of the line
         };
         
         glBufferData(GL_ARRAY_BUFFER, sizeof(lineVertices), lineVertices, GL_STATIC_DRAW);
         glDrawArrays(GL_LINES, 0, 2);  // Draw vertical line
     }
 
-    for (int y = (int)-sceneFBO->GetWindowSize().y / 2; y <= (int)sceneFBO->GetWindowSize().y / 2; y += _gridSize) {
+    //for (int y = (int)-sceneFBO->GetWindowSize().y / 2; y <= (int)sceneFBO->GetWindowSize().y / 2; y += _gridSize)
+    {
         int lineVertices[] = {
-            (int)-sceneFBO->GetWindowSize().x / 2, y,  // Start point of the line
-            (int)sceneFBO->GetWindowSize().x / 2, y    // End point of the line
+            (int)System::GetWindowSize().x / 2, 0,  // Start point of the line
+            (int)System::GetWindowSize().x / 2, (int)System::GetWindowSize().y    // End point of the line
         };
         
         glBufferData(GL_ARRAY_BUFFER, sizeof(lineVertices), lineVertices, GL_STATIC_DRAW);

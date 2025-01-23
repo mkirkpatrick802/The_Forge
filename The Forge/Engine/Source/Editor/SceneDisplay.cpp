@@ -1,5 +1,6 @@
 ﻿#include "SceneDisplay.h"
 
+#include "Engine/System.h"
 #include "Engine/Rendering/BufferRegistry.h"
 
 Editor::SceneDisplay::SceneDisplay()
@@ -24,7 +25,7 @@ void Editor::SceneDisplay::Render()
         
         // Check for resize based on window size
         const Vector2D windowSize(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y); 
-        if (sceneFBO->GetWindowSize() != windowSize)
+        if (sceneFBO->GetSize() != windowSize)
             sceneFBO->Resize(windowSize);
     }
 

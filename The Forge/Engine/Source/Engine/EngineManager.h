@@ -26,13 +26,15 @@ namespace Engine
 
 		static void UpdateConfigFile(const String& file, const String& jsonKeyword, const String& data);
 		static nlohmann::json GetConfigData(const String& file, const String& jsonKeyword);
+		static bool IsEditorEnabled() {return _editorEnabled; }
 		
 		void ToggleEditor(const String& args);
-
+	
 	public:
 		
 	private:
-		
+
+		static bool _editorEnabled;
 		std::unique_ptr<Editor::EditorManager> _editor;
 
 	};

@@ -10,6 +10,8 @@
 #include "System.h"
 #include "Editor/EditorManager.h"
 
+bool Engine::EngineManager::_editorEnabled = false;
+
 Engine::EngineManager::EngineManager()
 {
 	CommandRegistry::RegisterCommand("/editor", [this](const String& args){ ToggleEditor(args); });
@@ -42,11 +44,13 @@ void Engine::EngineManager::ToggleEditor(const String& args)
 		{
 			if (_editor != nullptr) return;
 			_editor = std::make_unique<Editor::EditorManager>();
+			_editorEnabled = true;
 		}
 		else
 		{
 			if (_editor == nullptr) return;
 			_editor.reset();
+			_editorEnabled = false;
 		}
 	}
 	catch (const std::invalid_argument& e)
