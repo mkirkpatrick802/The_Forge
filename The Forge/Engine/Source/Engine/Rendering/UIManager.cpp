@@ -7,6 +7,8 @@
 #include <backends/imgui_impl_sdl2.h>
 
 #include <utility>
+
+#include "Engine/EngineManager.h"
 #include "Engine/System.h"
 
 std::vector<std::pair<bool, std::shared_ptr<Engine::UIWindow>>> Engine::UIManager::_uiWindows;

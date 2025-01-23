@@ -37,6 +37,37 @@ void Engine::Renderer::CreateRenderer()
 
 	BufferRegistry::GetRegistry()->AddBuffer(BufferRegistry::BufferType::SCENE, std::make_shared<Framebuffer>(ReferenceResolution, false));
 	_grid = std::make_unique<PixelGrid>();
+
+	float quadVertices[] = {
+		// Positions   // TexCoords
+		-1.0f,  1.0f,   0.0f, 1.0f, // Top-left
+		-1.0f, -1.0f,   0.0f, 0.0f, // Bottom-left
+		 1.0f,  1.0f,   1.0f, 1.0f, // Bottom-right
+		 1.0f, -1.0f,   1.0f, 0.0f  // Top-right
+	};
+
+	glGenVertexArrays(1, &_quadVAO);
+	glGenBuffers(1, &_quadVBO);
+	
+	glBindVertexArray(_quadVAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, _quadVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+	// Position attribute
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	// Texture coordinate attribute
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0);
+
+	String vertex = "Assets/Shaders/ScreenQuad.vert";
+	String fragment = "Assets/Shaders/ScreenQuad.frag";
+
+	_quadShader.Compile(vertex.c_str(), fragment.c_str());
 }
 
 void Engine::Renderer::CreateSpriteRenderer(const void* data)
@@ -83,7 +114,7 @@ void Engine::Renderer::SortRenderList()
 	});
 }
 
-void Engine::Renderer::Render() const
+void Engine::Renderer::Render()
 {
 	const auto sceneFBO = BufferRegistry::GetRegistry()->GetBuffer(BufferRegistry::BufferType::SCENE);
 	{
@@ -108,11 +139,21 @@ void Engine::Renderer::Render() const
 
 	if (!EngineManager::IsEditorEnabled())
 	{
+		sceneFBO->Resize(System::GetWindowSize());
+		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.f, 0.f, 0.f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		
-		// Render Scene FBO to screen quad
+		// Render scene FBO to screen quad
+		_quadShader.Use();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, sceneFBO->GetTextureID());
+		_quadShader.SetInteger("screenTexture", 0);
+
+		glBindVertexArray(_quadVAO);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glBindVertexArray(0);
 	}
 	
 	UIManager::RenderWindows();

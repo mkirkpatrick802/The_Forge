@@ -43,7 +43,6 @@ void Editor::CommandTerminal::Render()
             Engine::CommandRegistry::ExecuteCommand(_inputBuffer);
             const std::string input = _inputBuffer;
             AddOutput("> " + input);
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
             _inputBuffer[0] = '\0'; // Clear input buffer
         }
 

@@ -12,7 +12,7 @@ int main()
 
     {
         const auto engine = std::make_unique<EngineManager>();
-        engine->ToggleEditor("1");
+        engine->ToggleEditor("0");
         
         System::CreateAppWindow();
         

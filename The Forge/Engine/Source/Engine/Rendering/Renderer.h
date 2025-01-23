@@ -20,7 +20,7 @@ namespace Engine
 	public:
 		Renderer();
 
-		void Render() const;
+		void Render();
 		
 		static Context* GetContext() { return &_context; }
 		
@@ -39,6 +39,9 @@ namespace Engine
 	private:
 		
 		static Context _context;
+
+		GLuint _quadVAO, _quadVBO;
+		Shader _quadShader;
 		
 		RenderListPair _renderList;
 		ComponentPool<SpriteRenderer> _spriteRendererPool;

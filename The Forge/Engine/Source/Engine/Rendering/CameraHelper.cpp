@@ -7,11 +7,12 @@
 glm::mat4 Engine::GetProjectionMatrix()
 {
     if (EngineManager::IsEditorEnabled())
-    {
         return Editor::EditorCamera::GetInstance()->GetProjectionMatrix();
-    }
 
-    return CameraManager::GetCameraManager()->GetActiveCamera()->GetProjectionMatrix();
+    if (const auto activeCamera = CameraManager::GetCameraManager()->GetActiveCamera())
+        return activeCamera->GetProjectionMatrix();
+
+    return {};
 }
 
 glm::mat4 Engine::GetViewMatrix()
@@ -21,5 +22,8 @@ glm::mat4 Engine::GetViewMatrix()
         return Editor::EditorCamera::GetInstance()->GetViewMatrix();
     }
     
-    return CameraManager::GetCameraManager()->GetActiveCamera()->GetViewMatrix();
+    if (const auto activeCamera = CameraManager::GetCameraManager()->GetActiveCamera())
+        return activeCamera->GetViewMatrix();
+
+    return {};
 }

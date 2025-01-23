@@ -27,6 +27,14 @@ Editor::EditorManager::EditorManager()
 Editor::EditorManager::~EditorManager()
 {
     Engine::UIManager::SetDockingEnabled(false);
-    Engine::UIManager::RemoveAllUIWindows();
+    Engine::UIManager::RemoveUIWindow(EditorWindows[LEVEL_EDITOR_INDEX]);
+    Engine::UIManager::RemoveUIWindow(EditorWindows[DETAILS_EDITOR_INDEX]);
+    Engine::UIManager::RemoveUIWindow(EditorWindows[SCENE_DISPLAY]);
+    Engine::UIManager::RemoveUIWindow(EditorWindows[COMMAND_TERMINAL]);
+    Engine::UIManager::RemoveUIWindow(EditorWindows[CONSOLE]);
     EditorCamera::CleanUp();
+
+    // For some reason IMGUi SetCursor does not work here
+    const HCURSOR defaultCursor = LoadCursor(nullptr, IDC_ARROW);
+    SetCursor(defaultCursor);
 }

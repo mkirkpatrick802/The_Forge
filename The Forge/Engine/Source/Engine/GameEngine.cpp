@@ -6,12 +6,12 @@
 #include "EngineManager.h"
 #include "EventSystem.h"
 #include "InputManager.h"
+#include "JsonKeywords.h"
 #include "LevelManager.h"
 #include "Rendering/Renderer.h"
 #include "System.h"
 #include "Time.h"
 #include "Editor/EditorCamera.h"
-#include "Editor/EditorManager.h"
 #include "Rendering/UIManager.h"
 
 Engine::GameEngine* Engine::GameEngine::_instance = nullptr;
@@ -24,8 +24,21 @@ Engine::GameEngine* Engine::GameEngine::GetInstance()
 Engine::GameEngine::GameEngine()
 {
 	_renderer = DEBUG_NEW Renderer();
-	_inputManager = DEBUG_NEW InputManager();
-	_levelManager = DEBUG_NEW LevelManager("path"); // This file path should be read in from a config file
+	_inputManager = std::make_shared<InputManager>();
+
+	const auto defaultData = EngineManager::GetConfigData(Engine::DEFAULTS_FILE, JsonKeywords::Config::DEFAULT_LEVEL);
+	if (defaultData.is_string())
+	{
+		const String filename = defaultData;
+		const String filepath = LEVEL_PATH + filename + ".json";
+		_levelManager = DEBUG_NEW LevelManager(filepath);
+	}
+	else
+	{
+		System::DisplayMessageBox("ERROR", "Could not load default level!!");
+	}
+
+	_chat = std::make_unique<Chat>(_inputManager);
 }
 
 void Engine::GameEngine::StartGamePlayLoop()
@@ -39,9 +52,12 @@ void Engine::GameEngine::StartGamePlayLoop()
 		{
 			const float deltaTime = (currentTicks - frameStart) / 1000.f;
 			frameStart = currentTicks;
-				
-			_renderer->Render();
+
+			if (!EngineManager::IsEditorEnabled())
+				_chat->Update(deltaTime);
 			
+			_renderer->Render();
+
 			_inputManager->EndProcessInputs();
 		}
 	}
@@ -55,9 +71,8 @@ void Engine::GameEngine::CleanUp()
 	
 	delete _levelManager;
 	_levelManager = nullptr;
-	
-	delete _inputManager;
-	_inputManager = nullptr;
+
+	_inputManager.reset();
 
 	delete _renderer;
 	_renderer = nullptr;
