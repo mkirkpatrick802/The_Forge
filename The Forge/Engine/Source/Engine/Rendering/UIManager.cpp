@@ -6,9 +6,10 @@
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_sdl2.h>
 
+#include <utility>
 #include "Engine/System.h"
 
-std::vector<Engine::UIWindow*> Engine::UIManager::_uiWindows = std::vector<UIWindow*>();
+std::vector<std::pair<bool, std::shared_ptr<Engine::UIWindow>>> Engine::UIManager::_uiWindows;
 bool Engine::UIManager::_isDockingEnabled = false; 
 
 void Engine::UIManager::Init()
@@ -27,24 +28,38 @@ void Engine::UIManager::Init()
     ImGui_ImplOpenGL3_Init("#version 130");
 }
 
-void Engine::UIManager::AddUIWindow(UIWindow* window)
+void Engine::UIManager::AddUIWindow(const std::shared_ptr<UIWindow>& window)
 {
-    _uiWindows.push_back(window);
+    const auto pair = std::make_pair(false, window);
+    _uiWindows.push_back(pair);
 }
 
-void Engine::UIManager::RemoveUIWindow(UIWindow* window)
+void Engine::UIManager::RemoveUIWindow(const std::shared_ptr<UIWindow>& window)
 {
-    std::erase(_uiWindows, window);
+    // Use std::ranges::find_if to locate the pair
+    const auto it = std::ranges::find_if(_uiWindows, [&window](const std::pair<bool, std::shared_ptr<UIWindow>>& p) {
+        return p.second == window;
+    });
+
+    // If the pair is found, set the bool (first) to true
+    if (it != _uiWindows.end())
+    {
+        it->first = true;
+    }
 }
 
 void Engine::UIManager::RemoveAllUIWindows()
 {
-    _uiWindows.clear();
-    _uiWindows.shrink_to_fit();
+    for (auto& key : _uiWindows | std::views::keys)
+    {
+        key = true;
+    }
 }
 
 void Engine::UIManager::RenderWindows()
 {
+    if (_uiWindows.empty()) return;
+    
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
@@ -53,24 +68,36 @@ void Engine::UIManager::RenderWindows()
     {
         ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
     }
-
-    // TODO: When editor is closed, app crashes because command terminal is a active window
-    if(!_uiWindows.empty())
-    {
-        for (const auto window : _uiWindows)
-            window->Render();
-    }
+        
+    for (const auto& val : _uiWindows | std::views::values)
+        val->Render();
 
     ImGui::Render();
+    FinishUIRender();
+    CheckForRemovals();
+}
+
+void Engine::UIManager::CheckForRemovals()
+{
+    for (auto it = _uiWindows.begin(); it != _uiWindows.end(); )
+    {
+        if (it->first)
+        {
+            it = _uiWindows.erase(it);
+            continue;
+        }
+        
+        ++it;
+    }
 }
 
 void Engine::UIManager::FinishUIRender()
 {
-    const ImGuiIO& io = ImGui::GetIO();
     if (ImGui::GetDrawData())
     {
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+        const ImGuiIO& io = ImGui::GetIO();
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {
             SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
@@ -84,9 +111,8 @@ void Engine::UIManager::FinishUIRender()
 
 void Engine::UIManager::CleanUp()
 {
-    // Static std::vector still had memory allocated somewhere. Had to force deallocation;
     _uiWindows.clear();
-    _uiWindows = std::vector<UIWindow*>();
+    _uiWindows.shrink_to_fit();
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();

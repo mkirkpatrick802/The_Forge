@@ -10,18 +10,18 @@
 
 Editor::EditorManager::EditorManager()
 {
-    EditorWindows[LEVEL_EDITOR_INDEX] = std::make_unique<LevelEditor>();
-    EditorWindows[DETAILS_EDITOR_INDEX] = std::make_unique<DetailsEditor>();
-    EditorWindows[SCENE_DISPLAY] = std::make_unique<SceneDisplay>();
-    EditorWindows[COMMAND_TERMINAL] = std::make_unique<CommandTerminal>();
-    EditorWindows[CONSOLE] = std::make_unique<Console>();
+    EditorWindows[LEVEL_EDITOR_INDEX] = std::make_shared<LevelEditor>();
+    EditorWindows[DETAILS_EDITOR_INDEX] = std::make_shared<DetailsEditor>();
+    EditorWindows[SCENE_DISPLAY] = std::make_shared<SceneDisplay>();
+    EditorWindows[COMMAND_TERMINAL] = std::make_shared<CommandTerminal>();
+    EditorWindows[CONSOLE] = std::make_shared<Console>();
     
     Engine::UIManager::SetDockingEnabled(true);
-    Engine::UIManager::AddUIWindow(EditorWindows[LEVEL_EDITOR_INDEX].get());
-    Engine::UIManager::AddUIWindow(EditorWindows[DETAILS_EDITOR_INDEX].get());
-    Engine::UIManager::AddUIWindow(EditorWindows[SCENE_DISPLAY].get());
-    Engine::UIManager::AddUIWindow(EditorWindows[COMMAND_TERMINAL].get());
-    Engine::UIManager::AddUIWindow(EditorWindows[CONSOLE].get());
+    Engine::UIManager::AddUIWindow(EditorWindows[LEVEL_EDITOR_INDEX]);
+    Engine::UIManager::AddUIWindow(EditorWindows[DETAILS_EDITOR_INDEX]);
+    Engine::UIManager::AddUIWindow(EditorWindows[SCENE_DISPLAY]);
+    Engine::UIManager::AddUIWindow(EditorWindows[COMMAND_TERMINAL]);
+    Engine::UIManager::AddUIWindow(EditorWindows[CONSOLE]);
 }
 
 Editor::EditorManager::~EditorManager()

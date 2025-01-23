@@ -28,6 +28,6 @@ namespace Editor
     private:
 
         // First use of smart pointers!!!
-        std::array<std::unique_ptr<Engine::UIWindow>, MAX_EDITOR_WINDOW_COUNT> EditorWindows;
+        std::array<std::shared_ptr<Engine::UIWindow>, MAX_EDITOR_WINDOW_COUNT> EditorWindows;
     };
 }

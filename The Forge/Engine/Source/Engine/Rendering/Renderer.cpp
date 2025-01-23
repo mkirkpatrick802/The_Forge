@@ -6,6 +6,7 @@
 #include "Framebuffer.h"
 #include "PixelGrid.h"
 #include "UIManager.h"
+#include "Engine/EngineManager.h"
 #include "Engine/EventData.h"
 #include "Engine/EventSystem.h"
 
@@ -104,9 +105,17 @@ void Engine::Renderer::Render() const
 
 		sceneFBO->Unbind();
 	}
+
+	if (!EngineManager::IsEditorEnabled())
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(0.f, 0.f, 0.f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		
+		// Render Scene FBO to screen quad
+	}
 	
 	UIManager::RenderWindows();
-	UIManager::FinishUIRender();
 	
 	sceneFBO->CheckResize();
 

@@ -10,10 +10,8 @@ glm::mat4 Engine::GetProjectionMatrix()
     {
         return Editor::EditorCamera::GetInstance()->GetProjectionMatrix();
     }
-    else
-    {
-        return CameraManager::GetCameraManager()->GetActiveCamera()->GetProjectionMatrix();
-    }
+
+    return CameraManager::GetCameraManager()->GetActiveCamera()->GetProjectionMatrix();
 }
 
 glm::mat4 Engine::GetViewMatrix()
@@ -23,5 +21,5 @@ glm::mat4 Engine::GetViewMatrix()
         return Editor::EditorCamera::GetInstance()->GetViewMatrix();
     }
     
-    return {};
+    return CameraManager::GetCameraManager()->GetActiveCamera()->GetViewMatrix();
 }

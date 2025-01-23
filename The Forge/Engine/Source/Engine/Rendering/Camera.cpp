@@ -1,5 +1,6 @@
 ﻿#include "Camera.h"
 #include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_transform.hpp>
 
 #include "BufferRegistry.h"
 #include "Engine/JsonKeywords.h"
@@ -34,4 +35,10 @@ glm::mat4 Engine::Camera::GetProjectionMatrix()
     float y_offset = 0;
     _projection = glm::ortho(x_offset, sceneFBO->GetSize().x, sceneFBO->GetSize().y, y_offset, -1.0f, 1.0f);
     return _projection;
+}
+
+glm::mat4 Engine::Camera::GetViewMatrix()
+{
+    _view = glm::translate(glm::mat4(1.0f), glm::vec3(gameObject->transform.position.x, gameObject->transform.position.y, 0.0f));
+    return _view;
 }
