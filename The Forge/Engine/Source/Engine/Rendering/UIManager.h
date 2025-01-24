@@ -21,7 +21,7 @@ namespace Engine
 		static void Init();
 		static void CleanUp();
 
-		static void CheckForRemovals();
+		static void CheckForUpdates();
 		static void RenderWindows();
 		static void FinishUIRender();
 		
@@ -32,6 +32,7 @@ namespace Engine
 		// bool represents if the ui window should be taken out of the vector.
 		// So if bool = true then next frame it will be removed
 		static std::vector<std::pair<bool, std::shared_ptr<UIWindow>>> _uiWindows;
+		static std::vector<std::shared_ptr<UIWindow>> _windowsToAdd;
 
 	};
 }

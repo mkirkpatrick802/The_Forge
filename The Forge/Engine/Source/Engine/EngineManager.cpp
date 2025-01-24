@@ -43,6 +43,8 @@ void Engine::EngineManager::ToggleEditor(const String& args)
 		if (CommandUtils::ParseBoolean(args))
 		{
 			if (_editor != nullptr) return;
+
+			EventSystem::GetInstance()->TriggerEvent("Editor Enabled");
 			_editor = std::make_unique<Editor::EditorManager>();
 			_editorEnabled = true;
 		}

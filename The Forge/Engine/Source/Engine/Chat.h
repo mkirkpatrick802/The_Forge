@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <memory>
 
+#include "Data.h"
+
 namespace Engine
 {
     class ChatWindow;
@@ -19,7 +21,7 @@ namespace Engine
     private:
 
         void OpenChatWindow(bool slash);
-        void CloseChatWindow();
+        void CloseChatWindow(const void* p = nullptr);
 
     private:
 

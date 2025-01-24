@@ -3,6 +3,7 @@
 #include <SDL_scancode.h>
 
 #include "ChatWindow.h"
+#include "EventSystem.h"
 #include "InputManager.h"
 #include "Rendering/UIManager.h"
 
@@ -14,11 +15,13 @@ Engine::Chat::Chat()
 Engine::Chat::Chat(const std::shared_ptr<InputManager>& inputManager)
 {
     _inputManager = inputManager;
+    EventSystem::GetInstance()->RegisterEvent("Editor Enabled", this, &Chat::CloseChatWindow);
 }
 
 Engine::Chat::~Chat()
 {
     _window->CleanUp();
+    EventSystem::GetInstance()->DeregisterEvent("Editor Enabled");
 }
 
 void Engine::Chat::Update(float deltaTime)
@@ -41,7 +44,7 @@ void Engine::Chat::OpenChatWindow(bool slash)
     UIManager::AddUIWindow(_window);
 }
 
-void Engine::Chat::CloseChatWindow()
+void Engine::Chat::CloseChatWindow(const void* p)
 {
     if (_window == nullptr) return;
 

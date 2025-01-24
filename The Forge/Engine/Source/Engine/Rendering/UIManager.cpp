@@ -12,6 +12,7 @@
 #include "Engine/System.h"
 
 std::vector<std::pair<bool, std::shared_ptr<Engine::UIWindow>>> Engine::UIManager::_uiWindows;
+std::vector<std::shared_ptr<Engine::UIWindow>> Engine::UIManager::_windowsToAdd;
 bool Engine::UIManager::_isDockingEnabled = false; 
 
 void Engine::UIManager::Init()
@@ -32,8 +33,7 @@ void Engine::UIManager::Init()
 
 void Engine::UIManager::AddUIWindow(const std::shared_ptr<UIWindow>& window)
 {
-    const auto pair = std::make_pair(false, window);
-    _uiWindows.push_back(pair);
+    _windowsToAdd.push_back(window);
 }
 
 void Engine::UIManager::RemoveUIWindow(const std::shared_ptr<UIWindow>& window)
@@ -60,6 +60,7 @@ void Engine::UIManager::RemoveAllUIWindows()
 
 void Engine::UIManager::RenderWindows()
 {
+    CheckForUpdates();
     if (_uiWindows.empty()) return;
     
     ImGui_ImplOpenGL3_NewFrame();
@@ -76,11 +77,11 @@ void Engine::UIManager::RenderWindows()
 
     ImGui::Render();
     FinishUIRender();
-    CheckForRemovals();
 }
 
-void Engine::UIManager::CheckForRemovals()
+void Engine::UIManager::CheckForUpdates()
 {
+    // Remove windows that are marked for removal 
     for (auto it = _uiWindows.begin(); it != _uiWindows.end(); )
     {
         if (it->first)
@@ -91,6 +92,16 @@ void Engine::UIManager::CheckForRemovals()
         
         ++it;
     }
+
+    // Add windows marked to be added
+    for (auto window : _windowsToAdd)
+    {
+        auto pair = std::make_pair(false, window);
+        _uiWindows.push_back(pair);
+    }
+
+    _windowsToAdd.clear();
+    _windowsToAdd.shrink_to_fit();
 }
 
 void Engine::UIManager::FinishUIRender()
@@ -115,6 +126,9 @@ void Engine::UIManager::CleanUp()
 {
     _uiWindows.clear();
     _uiWindows.shrink_to_fit();
+
+    _windowsToAdd.clear();
+    _windowsToAdd.shrink_to_fit();
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
