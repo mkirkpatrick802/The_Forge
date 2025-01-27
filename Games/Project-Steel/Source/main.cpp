@@ -11,8 +11,8 @@ int main()
     System::Init();
 
     {
-        const auto engine = std::make_unique<EngineManager>();
-        engine->ToggleEditor("0");
+        const auto engine = EngineManager::GetInstance();
+        engine->ToggleEditor("1");
         
         System::CreateAppWindow();
         
@@ -23,6 +23,8 @@ int main()
         
         delete instance;
         instance = nullptr;
+
+        EngineManager::CleanUp();
     }
     
     System::CleanUp();

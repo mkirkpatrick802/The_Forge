@@ -10,8 +10,8 @@ project "Netcode"
    includedirs
    {
       "Source",
-
-      "Vendors/SteamSDK/include"
+      "Vendors/SteamSDK/include",
+      "../Engine/Source"
    }
 
    targetdir ("../../Binaries/" .. OutputDir .. "/%{prj.name}")
@@ -26,7 +26,8 @@ project "Netcode"
        postbuildcommands 
        {
             "{COPY} Vendors/SteamSDK/bin/win64/*.dll %{cfg.targetdir}",
-            "{COPY} Vendors/SteamSDK/bin/*.dll %{cfg.targetdir}"
+            "{COPY} Vendors/SteamSDK/bin/*.dll %{cfg.targetdir}",
+            "{COPY} Assets/steam_appid.txt %{cfg.targetdir}"
        }
 
    filter "configurations:Debug"

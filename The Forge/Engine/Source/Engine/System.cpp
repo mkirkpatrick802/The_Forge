@@ -15,6 +15,7 @@ _CrtMemState Engine::System::_memoryCheckpoint = {};
 HANDLE Engine::System::_errorFile = INVALID_HANDLE_VALUE;
 SDL_Window* Engine::System::_window = nullptr;
 Vector2D Engine::System::_windowSize = Vector2D(1280, 720);
+Engine::ConsoleStreamBuffer Engine::System::_consoleBuffer;
 
 void Engine::System::Init()
 {
@@ -28,6 +29,9 @@ void Engine::System::Init()
 		LogToErrorFile("SDL could not initialize!");
 		assert(0);
 	}
+
+	std::cout.rdbuf(&_consoleBuffer);
+	std::cerr.rdbuf(&_consoleBuffer);
 }
 
 void Engine::System::CreateAppWindow(const Vector2D windowSize)
@@ -62,6 +66,8 @@ void Engine::System::CreateAppWindow(const Vector2D windowSize)
 
 void Engine::System::CleanUp()
 {
+	_consoleBuffer.CleanUp();
+	
 	SDL_DestroyWindow(_window);
 	SDL_Quit();
 

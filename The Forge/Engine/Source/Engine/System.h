@@ -6,6 +6,7 @@
 #include <iostream>
 #include <SDL_render.h>
 
+#include "ConsoleStreamBuffer.h"
 #include "Data.h"
 
 #ifdef _DEBUG
@@ -47,5 +48,7 @@ namespace Engine
 
 		static Vector2D _windowSize;
 		static Window* _window;
+
+		static ConsoleStreamBuffer _consoleBuffer;
 	};
 }

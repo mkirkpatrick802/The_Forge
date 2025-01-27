@@ -6,15 +6,25 @@
 #include "CommandUtils.h"
 #include "Component.h"
 #include "EventSystem.h"
-#include "JsonKeywords.h"
 #include "System.h"
+#include "../../../Netcode/Source/Utilites/NetworkWrapper.h"
 #include "Editor/EditorManager.h"
+#include "../../../Netcode/Source/Utilites/NetObject.h"
 
 bool Engine::EngineManager::_editorEnabled = false;
+std::shared_ptr<Engine::EngineManager> Engine::EngineManager::_instance = nullptr;
+
+std::shared_ptr<Engine::EngineManager> Engine::EngineManager::GetInstance()
+{
+	_instance = _instance == nullptr ? std::make_shared<EngineManager>() : _instance;
+	return _instance;
+}
 
 Engine::EngineManager::EngineManager()
 {
 	CommandRegistry::RegisterCommand("/editor", [this](const String& args){ ToggleEditor(args); });
+	CommandRegistry::RegisterCommand("/create", [this](const String& args) { CreateLobby(args); });
+	CommandRegistry::RegisterCommand("/join", [this](const String& args) { JoinLobby(args); });
 
 	//Find config file & if it does not exist make one
 	System::EnsureDirectoryExists(CONFIG_PATH);
@@ -27,12 +37,27 @@ Engine::EngineManager::EngineManager()
 		defaults << data.dump(4);
 		defaults.close();
 	}
+
+	if ( !NetCode::InitNetcodeBackend() )
+	{
+		System::DisplayMessageBox("Error","Failed to initialize Netcode backend!!");
+	}
+}
+
+void Engine::EngineManager::CleanUp()
+{
+	_instance.reset();
 }
 
 Engine::EngineManager::~EngineManager()
 {
+	_netObject.reset();
+	NetCode::ShutdownNetcodeBackend();
+	
 	_editor.reset();
 	CommandRegistry::UnregisterCommand("/editor");
+	CommandRegistry::UnregisterCommand("/create");
+	CommandRegistry::UnregisterCommand("/join");
 	EventSystem::DestroyInstance();
 }
 
@@ -59,6 +84,21 @@ void Engine::EngineManager::ToggleEditor(const String& args)
 	{
 		std::cerr << e.what() << '\n';
 	}
+}
+
+void Engine::EngineManager::CreateLobby(const String& args)
+{
+	if (_netObject) { std::cout << "Already in-game" << '\n'; return; };
+
+	_netObject = NetCode::CreateLobby(args);
+	DEBUG_PRINT("Created Lobby...")
+}
+
+void Engine::EngineManager::JoinLobby(const String& args)
+{
+	if (_netObject) { std::cout << "Already in-game" << '\n'; return; }
+	
+	_netObject = NetCode::JoinLobby(args);
 }
 
 void Engine::EngineManager::UpdateConfigFile(const String& file, const String& jsonKeyword, const String& data)
@@ -92,4 +132,12 @@ nlohmann::json Engine::EngineManager::GetConfigData(const String& file, const St
 	config >> currentData;
 	
 	return currentData[jsonKeyword];
+}
+
+void Engine::EngineManager::UpdateNetObject()
+{
+	if (_instance == nullptr) GetInstance();
+	if (_instance->_netObject == nullptr) return;
+	
+	_instance->_netObject->Update();
 }

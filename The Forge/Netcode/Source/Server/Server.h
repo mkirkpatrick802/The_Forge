@@ -1,10 +1,12 @@
 ﻿#pragma once
+#include "Utilites/NetObject.h"
 
-namespace Netcode
+namespace NetCode
 {
-	class Server
+	class Server final : public NetObject
 	{
 	public:
-
+		Server();
+		~Server() override;
 	};
 }

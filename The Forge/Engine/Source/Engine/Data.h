@@ -1,12 +1,12 @@
 #pragma once
 #include <string>
-#include <glm/glm.hpp>
+#include <glm/vec2.hpp>
 
 typedef std::string String;
 
 typedef glm::vec2 Vector2D;
 
-typedef glm::int16 int16;
+typedef int16_t int16;
 
-typedef glm::uint8 uint8;
-typedef glm::uint32 uint32;
+typedef uint8_t uint8;
+typedef uint8_t uint32;

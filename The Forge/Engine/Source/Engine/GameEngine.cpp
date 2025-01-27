@@ -53,6 +53,8 @@ void Engine::GameEngine::StartGamePlayLoop()
 			const float deltaTime = (currentTicks - frameStart) / 1000.f;
 			frameStart = currentTicks;
 
+			EngineManager::UpdateNetObject();
+			
 			if (!EngineManager::IsEditorEnabled())
 				_chat->Update(deltaTime);
 			
