@@ -91,7 +91,6 @@ void Engine::EngineManager::CreateLobby(const String& args)
 	if (_netObject) { std::cout << "Already in-game" << '\n'; return; };
 
 	_netObject = NetCode::CreateLobby(args);
-	DEBUG_PRINT("Created Lobby...")
 }
 
 void Engine::EngineManager::JoinLobby(const String& args)

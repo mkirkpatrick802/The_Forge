@@ -34,5 +34,6 @@ namespace NetCode
         std::unique_ptr<Server> _server;
 
         CSteamID _currentLobby;
+        std::string _name;
     };
 }

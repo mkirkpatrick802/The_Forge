@@ -42,6 +42,9 @@ void NetCode::Client::OnLobbyEntered(LobbyEnter_t* pParam)
     {
         _currentLobby = pParam->m_ulSteamIDLobby;
         std::cout << "Entered Lobby: " << _currentLobby.ConvertToUint64() << '\n';
+
+        int numMembers = SteamMatchmaking()->GetNumLobbyMembers(_currentLobby);
+        std::cout << "Number of players: " << numMembers << '\n';
     }
     else
     {
