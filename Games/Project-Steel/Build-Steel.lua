@@ -9,7 +9,7 @@ project "Project-Steel"
 
    local modules = {
        "Engine",
-	"Netcode"
+       "Netcode"
    }
 
    local engine_vendor_path = "../../The Forge/Engine/Vendors/"
@@ -28,11 +28,18 @@ project "Project-Steel"
       engine_vendor_path .. "nlohmann"
    }
 
+   -- I don't remember why I did this
    prebuildcommands 
    { 
-       "{DELETE} Assets",
-       "{COPY} \"../../The Forge/Engine/Assets\" \"Assets/\"" 
+       -- "{DELETE} Assets",
+       -- "{COPY} ../../The Forge/Engine/Assets Assets/"
    }
+
+    postbuildcommands
+    {
+        "{COPY} Assets/steam_appid.txt %{cfg.targetdir}",
+        "{COPY} Assets %{cfg.targetdir}/Assets"
+    }
 
    -- Generate the postbuild command to copy DLLs from each module
    for _, module in ipairs(modules) do
@@ -45,7 +52,7 @@ project "Project-Steel"
 
        local assetCopy = "{COPY} "
        assetCopy = assetCopy .. "%{cfg.targetdir}/../" .. module .. "/Assets"
-       assetCopy = assetCopy .. " %{cfg.targetdir}/Assets"
+       assetCopy = assetCopy .. "%{cfg.targetdir}/Assets"
 
        postbuildcommands { assetCopy }
 
@@ -53,6 +60,7 @@ project "Project-Steel"
        deleteCommand = deleteCommand .. "%{cfg.targetdir}/../" .. module .. "/*.dll"
 
        postbuildcommands { deleteCommand }
+       
    end
 
    targetdir ("../../Binaries/" .. OutputDir .. "/%{prj.name}")
