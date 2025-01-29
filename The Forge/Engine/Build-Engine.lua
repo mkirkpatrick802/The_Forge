@@ -1,3 +1,5 @@
+os.execute('del /S /Q "*.vcxproj" 2>nul')
+
 project "Engine"
    kind "StaticLib"
    language "C++"

@@ -1,3 +1,5 @@
+os.execute('del /S /Q "*.vcxproj" 2>nul')
+
 project "Netcode"
    kind "StaticLib"
    language "C++"
