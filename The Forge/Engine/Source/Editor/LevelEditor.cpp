@@ -137,16 +137,32 @@ void Editor::LevelEditor::LevelSettings()
     const auto currentLevel = Engine::LevelManager::GetCurrentLevel();
     if (currentLevel== nullptr) return;
 
-    const std::string nameText = "Level Name: " + currentLevel->GetName();
-    ImGui::Text(nameText.c_str());
+    // Game Mode
+    ImGui::Separator();
+    ImGui::Text("Level Settings");
+    ImGui::Text("Level Game Mode:");
+    ImGui::SameLine();
+
+    // TODO: Make game mode objects
+    ImGui::PushItemWidth(100);
+    std::vector gamemodes = {"Main Menu", "Game"};
+    if (ImGui::Combo(" ", &_selectedLevel, gamemodes.data(), static_cast<int>(gamemodes.size())))
+    {
+        
+    }
+    
+    // Game Objects
+    
+    ImGui::Separator();
     
     if (ImGuiHelper::CenteredButtonWithPadding("Create New Game Object", 5))
     {
         currentLevel->SpawnNewGameObject();
     }
-
-    ImGui::Separator();
+    
     ImGui::Text("Hierarchy");
+    ImGui::PushItemWidth(50);
+    ImGui::Separator();
     
     const auto levelObjects = currentLevel->GetAllGameObjects();
     for (int i = 0; i < levelObjects.size(); ++i)

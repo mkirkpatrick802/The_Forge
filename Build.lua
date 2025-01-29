@@ -1,5 +1,6 @@
 -- premake5.lua
 os.execute('rmdir /S /Q Binaries 2>nul')
+os.execute('del /S /Q "*.sln" 2>nul')
 
 workspace "The Forge"
    architecture "x64"
