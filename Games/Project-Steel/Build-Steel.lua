@@ -31,8 +31,8 @@ project "Project-Steel"
    -- I don't remember why I did this
    prebuildcommands 
    { 
-       -- "{DELETE} Assets",
-       -- "{COPY} ../../The Forge/Engine/Assets Assets/"
+       "{DELETE} Assets",
+       "{COPY} \"../../The Forge/Engine/Assets\" \"Assets/\""
    }
 
     postbuildcommands

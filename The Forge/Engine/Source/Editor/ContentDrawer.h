@@ -5,6 +5,11 @@
 #include "Engine/Data.h"
 #include "Engine/Rendering/UIWindow.h"
 
+namespace Engine
+{
+    class Texture;
+}
+
 namespace Editor
 {
     struct FileNode {
@@ -17,16 +22,29 @@ namespace Editor
     class ContentDrawer : public Engine::UIWindow
     {
     public:
+
+        ContentDrawer();
+        ~ContentDrawer();
         void Render() override;
 
     private:
 
+        void LoadTextures();
         void DrawFileTree(const FileNode& node);
-        void DrawDirectoryContents(const FileNode& node);
+        void DrawDirectoryContents();
         void ScanDirectory(const std::filesystem::path& directory, FileNode& node);
 
     private:
 
         String _currentDirectory = "Assets";
+        String _searchQuery = "";
+        float _thumbnailSize = 16.0f;
+
+        bool _loadTextures = true;
+        std::shared_ptr<Engine::Texture> _emptyFolderIcon;
+        std::shared_ptr<Engine::Texture> _folderIcon;
+        std::shared_ptr<Engine::Texture> _fileIcon;
+        std::shared_ptr<Engine::Texture> _spriteIcon;
+
     };
 }

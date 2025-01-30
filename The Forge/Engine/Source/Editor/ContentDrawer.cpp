@@ -1,30 +1,46 @@
 ﻿#include "ContentDrawer.h"
 
-#include <iostream>
+#include "Engine/Rendering/TextureLoader.h"
+
+Editor::ContentDrawer::ContentDrawer()
+{
+    _loadTextures = true;
+}
+
+void Editor::ContentDrawer::LoadTextures()
+{
+    _emptyFolderIcon = CreateTexture("Assets/Sprites/Editor/EmptyFolderIcon.png", Engine::Texture::TextureType::PIXEL);
+    _folderIcon = CreateTexture("Assets/Sprites/Editor/FolderIcon.png", Engine::Texture::TextureType::PIXEL);
+    _fileIcon = CreateTexture("Assets/Sprites/Editor/FileIcon.png", Engine::Texture::TextureType::PIXEL);
+    _spriteIcon = CreateTexture("Assets/Sprites/Editor/SpriteIcon.png", Engine::Texture::TextureType::PIXEL);
+}
+
+Editor::ContentDrawer::~ContentDrawer() = default;
 
 void Editor::ContentDrawer::Render()
 {
+    if (_loadTextures)
+    {
+        LoadTextures();
+        _loadTextures = false;
+    }
+    
     FileNode root = { .name= "Assets", .isDirectory= true, .children= std::vector<FileNode>() }; // Root directory name
     ScanDirectory("Assets", root);
 
     ImGui::Begin("Content Drawer");
 
-    // Left Panel (Text-Based View)
-    ImGui::BeginChild("LeftPanel", ImVec2(ImGui::GetContentRegionAvail().x * 0.3f, 0), true);
+    // Left Panel: Directory Tree
+    ImGui::BeginChild("LeftPanel", ImVec2(ImGui::GetContentRegionAvail().x * 0.25f, 0), true);
     ImGui::Text("File Structure:");
     DrawFileTree(root);
     ImGui::EndChild();
 
     ImGui::SameLine();
 
-    // Right Panel (Image-Based View)
+    // Right Panel: Thumbnail Grid
     ImGui::BeginChild("RightPanel", ImVec2(0, 0), true);
-    ImGui::Text(("Viewing: " + _currentDirectory).c_str());
-
-    FileNode selectedNode;
-    ScanDirectory(_currentDirectory, selectedNode);
-    DrawDirectoryContents(selectedNode);
-
+    DrawDirectoryContents();
     ImGui::EndChild();
 
     ImGui::End();
@@ -33,16 +49,14 @@ void Editor::ContentDrawer::Render()
 void Editor::ContentDrawer::DrawFileTree(const FileNode& node)
 {
     ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
-    
-    // Highlight selected directory
+
     if (_currentDirectory == node.fullPath) {
         flags |= ImGuiTreeNodeFlags_Selected;
     }
 
     if (node.isDirectory) {
         bool opened = ImGui::TreeNodeEx(node.name.c_str(), flags);
-        
-        // Check if the directory is clicked
+
         if (ImGui::IsItemClicked()) {
             _currentDirectory = node.fullPath;
         }
@@ -56,23 +70,58 @@ void Editor::ContentDrawer::DrawFileTree(const FileNode& node)
     }
 }
 
-void Editor::ContentDrawer::DrawDirectoryContents(const FileNode& node) {
-    for (auto& child : node.children) {
-        if (child.isDirectory) {
-            if (ImGui::Button(child.name.c_str())) {
-                _currentDirectory = child.fullPath;  // Change directory on click
-            }
-        } else {
-            // Placeholder for image preview (Replace with actual texture rendering)
-            ImGui::Text(child.name.c_str());
+void Editor::ContentDrawer::DrawDirectoryContents()
+{
+    FileNode selectedNode;
+    ScanDirectory(_currentDirectory, selectedNode);
+
+    ImGui::Text(("Viewing: " + _currentDirectory).c_str());
+    ImGui::Separator();
+
+    // Search bar
+    ImGui::InputText("Search", _searchQuery.data(), IM_ARRAYSIZE(_searchQuery.data()));
+    ImGui::SameLine();
+    ImGui::Text("🔍");
+
+    // Thumbnail size slider
+    ImGui::SliderFloat("Thumbnail Size", &_thumbnailSize, 32.0f, 128.0f, "%.0f px");
+
+    ImGui::Separator();
+
+    // Begin a grid layout
+    int columns = std::max(1, int(ImGui::GetContentRegionAvail().x / (_thumbnailSize + 16)));
+    ImGui::Columns(columns, nullptr, false);
+
+    for (auto& child : selectedNode.children) {
+        if (!_searchQuery.empty() && child.name.find(_searchQuery) == std::string::npos) {
+            continue;  // Skip if it doesn't match the search query
         }
+
+        auto icon = child.isDirectory ? _folderIcon : _fileIcon;
+        if (child.name.ends_with(".png") || child.name.ends_with(".jpg")) {
+            icon = _spriteIcon;
+        }
+
+        ImGui::Image((void*)(intptr_t)icon->GetID(), ImVec2(_thumbnailSize, _thumbnailSize));
+
+        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) {
+            if (child.isDirectory) {
+                _currentDirectory = child.fullPath;
+            }
+        }
+
+        ImGui::TextWrapped(child.name.c_str());
+
+        ImGui::NextColumn();
     }
+
+    ImGui::Columns(1); // Reset column layout
 }
 
 void Editor::ContentDrawer::ScanDirectory(const std::filesystem::path& directory, FileNode& node)
 {
     node.fullPath = directory.string();
-    node.children.clear(); // Clear old children before rescanning
+    node.children.clear();
 
     for (const auto& entry : std::filesystem::directory_iterator(directory)) {
         FileNode child;
@@ -80,7 +129,7 @@ void Editor::ContentDrawer::ScanDirectory(const std::filesystem::path& directory
         child.fullPath = entry.path().string();
         child.isDirectory = entry.is_directory();
         if (child.isDirectory) {
-            ScanDirectory(entry.path(), child); // Recursively scan subdirectories
+            ScanDirectory(entry.path(), child);
         }
         node.children.push_back(std::move(child));
     }
