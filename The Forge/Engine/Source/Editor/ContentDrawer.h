@@ -9,6 +9,7 @@ namespace Editor
 {
     struct FileNode {
         String name;
+        String fullPath;
         bool isDirectory;
         std::vector<FileNode> children = std::vector<FileNode>();
     };
@@ -21,6 +22,11 @@ namespace Editor
     private:
 
         void DrawFileTree(const FileNode& node);
+        void DrawDirectoryContents(const FileNode& node);
         void ScanDirectory(const std::filesystem::path& directory, FileNode& node);
+
+    private:
+
+        String _currentDirectory = "Assets";
     };
 }
