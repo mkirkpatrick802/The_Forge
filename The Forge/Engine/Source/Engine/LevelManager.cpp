@@ -7,6 +7,7 @@
 #include "JsonKeywords.h"
 #include "Level.h"
 #include "System.h"
+#include "Components/ComponentRegistry.h"
 #include "Rendering/CameraManager.h"
 
 Engine::Level* Engine::LevelManager::_currentLevel = nullptr;

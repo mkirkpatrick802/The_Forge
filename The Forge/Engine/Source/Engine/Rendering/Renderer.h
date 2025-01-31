@@ -2,7 +2,7 @@
 #include <SDL_render.h>
 #include <vector>
 
-#include "Engine/ComponentPool.h"
+#include "Engine/Components/ComponentPool.h"
 #include "Engine/Data.h"
 
 namespace Engine

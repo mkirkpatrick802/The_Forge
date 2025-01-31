@@ -4,7 +4,7 @@
 
 #include "CommandRegistry.h"
 #include "CommandUtils.h"
-#include "Component.h"
+#include "Components/Component.h"
 #include "EventSystem.h"
 #include "System.h"
 #include "../../../Netcode/Source/Utilites/NetworkWrapper.h"

@@ -1,7 +1,7 @@
 ﻿#include "GameObject.h"
 
-#include "Component.h"
-#include "ComponentUtils.h"
+#include "Components/Component.h"
+#include "Components/ComponentUtils.h"
 #include "JsonKeywords.h"
 #include "Level.h"
 

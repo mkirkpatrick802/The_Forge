@@ -1,8 +1,9 @@
 #pragma once
-#include "Data.h"
+#include "Engine/Data.h"
 #include "Component.h"
-#include "Rendering/Shader.h"
-#include "Rendering/Texture.h"
+#include "ComponentRegistry.h"
+#include "Engine/Rendering/Shader.h"
+#include "Engine/Rendering/Texture.h"
 
 namespace Engine
 {
@@ -13,8 +14,7 @@ namespace Engine
         friend class Renderer;
 
     public:
-        static const uint32 ComponentID = SPRITE_RENDERER;
-
+        
         SpriteRenderer();
         
         virtual void LoadData(const json& data) override;
@@ -29,10 +29,6 @@ namespace Engine
 
         void CleanUp() override;
 
-    public:
-        
-        virtual uint32 GetComponentID() const override { return ComponentID; }
-
     private:
         
         Shader _shader;
@@ -44,4 +40,6 @@ namespace Engine
         Vector2D     _size = Vector2D(64);
 
     };
+
+    REGISTER_COMPONENT(SpriteRenderer, SPRITE_RENDERER)
 }

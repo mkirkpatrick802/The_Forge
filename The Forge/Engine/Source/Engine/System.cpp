@@ -85,6 +85,8 @@ void Engine::System::CleanUp()
 	_CrtMemState difference;
 	if (_CrtMemDifference(&difference, &_memoryCheckpoint, &newCheckpoint))
 	{
+		// Does this really mean there is a memory leak??
+		// Yes it does (maybe)
 		DisplayMessageBox("Memory Leak Detected!!", "Check output log for more details.");
 	}
 }

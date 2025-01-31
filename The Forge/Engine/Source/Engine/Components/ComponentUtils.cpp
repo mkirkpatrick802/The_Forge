@@ -1,9 +1,9 @@
 ﻿#include "ComponentUtils.h"
 
 #include "Component.h"
-#include "EventData.h"
-#include "EventSystem.h"
-#include "JsonKeywords.h"
+#include "Engine/EventData.h"
+#include "Engine/EventSystem.h"
+#include "Engine/JsonKeywords.h"
 
 std::unordered_map<uint32, Engine::componentFn> Engine::ComponentUtils::_componentCreationMap;
 Engine::ComponentUtils* Engine::ComponentUtils::_instance = nullptr;

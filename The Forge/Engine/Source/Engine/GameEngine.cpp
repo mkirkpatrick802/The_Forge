@@ -11,6 +11,7 @@
 #include "Rendering/Renderer.h"
 #include "System.h"
 #include "Time.h"
+#include "Components/Component.h"
 #include "Editor/EditorCamera.h"
 #include "Rendering/UIManager.h"
 
@@ -56,7 +57,11 @@ void Engine::GameEngine::StartGamePlayLoop()
 			EngineManager::UpdateNetObject();
 			
 			if (!EngineManager::IsEditorEnabled())
+			{
 				_chat->Update(deltaTime);
+				
+				// TODO: Call update function on component pools
+			}
 			
 			_renderer->Render();
 
@@ -68,8 +73,6 @@ void Engine::GameEngine::StartGamePlayLoop()
 void Engine::GameEngine::CleanUp()
 {
 	_levelManager->CleanUp();
-
-	Component::ClearComponentNames();
 	
 	delete _levelManager;
 	_levelManager = nullptr;

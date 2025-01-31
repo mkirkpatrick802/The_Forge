@@ -3,7 +3,7 @@
 #include <fstream>
 
 #include "CommandRegistry.h"
-#include "Component.h"
+#include "Components/Component.h"
 #include "EventSystem.h"
 #include "GameObject.h"
 #include "JsonKeywords.h"

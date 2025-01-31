@@ -2,13 +2,12 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-#include "BufferRegistry.h"
+#include "Engine/Rendering/BufferRegistry.h"
 #include "Engine/JsonKeywords.h"
-#include "Engine/System.h"
 
-Engine::Camera::Camera(): _projection()
+Engine::Camera::Camera(): _projection(), _view()
 {
-    RegisterComponent(ComponentID, "Camera");
+    
 }
 
 void Engine::Camera::CleanUp()
@@ -24,7 +23,7 @@ void Engine::Camera::LoadData(const json& data)
 nlohmann::json Engine::Camera::SaveData()
 {
     nlohmann::json data;
-    data[JsonKeywords::COMPONENT_ID] = ComponentID;
+    data[JsonKeywords::COMPONENT_ID] = GetComponentRegistry()->GetComponentID<Camera>();
     return data;
 }
 

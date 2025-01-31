@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "json.hpp"
 #include "GameObject.h"
-#include "SpriteRenderer.h"
+#include "Components/SpriteRenderer.h"
 #include "System.h"
 
 namespace Engine

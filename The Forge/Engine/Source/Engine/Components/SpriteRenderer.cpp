@@ -1,19 +1,19 @@
 #include "SpriteRenderer.h"
-#include "GameObject.h"
+#include "Engine/GameObject.h"
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-#include "EventData.h"
-#include "EventSystem.h"
-#include "JsonKeywords.h"
-#include "Rendering/CameraHelper.h"
-#include "Rendering/CameraManager.h"
-#include "Rendering/Renderer.h"
-#include "Rendering/TextureLoader.h"
+#include "Engine/EventData.h"
+#include "Engine/EventSystem.h"
+#include "Engine/JsonKeywords.h"
+#include "Engine/Rendering/CameraHelper.h"
+#include "Engine/Rendering/CameraManager.h"
+#include "Engine/Rendering/Renderer.h"
+#include "Engine/Rendering/TextureLoader.h"
 
 Engine::SpriteRenderer::SpriteRenderer(): _quadVAO(0)
 {
-    RegisterComponent(ComponentID, "Sprite Renderer");
+    
 }
 
 void Engine::SpriteRenderer::Init()
@@ -75,7 +75,7 @@ void Engine::SpriteRenderer::LoadData(const json& data)
 nlohmann::json Engine::SpriteRenderer::SaveData()
 {
     nlohmann::json data;
-    data[JsonKeywords::COMPONENT_ID] = ComponentID;
+    data[JsonKeywords::COMPONENT_ID] = GetComponentRegistry()->GetComponentID<SpriteRenderer>();
     String filepath = _texture->GetFilePath();
     data[JsonKeywords::SPRITE_RENDERER_SPRITE] = filepath;
     data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER] = _sortingLayer;

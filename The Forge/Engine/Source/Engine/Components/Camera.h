@@ -1,5 +1,6 @@
 ﻿#pragma once
-#include "Engine/Component.h"
+#include "Component.h"
+#include "ComponentRegistry.h"
 #include "Engine/Data.h"
 #include "glm/glm.hpp"
 
@@ -23,13 +24,14 @@ namespace Engine
         glm::mat4 _projection;
         glm::mat4 _view;
         Vector2D _refResolution = Vector2D(320, 240);
-        static const uint32 ComponentID = CAMERA;
 
     public:
         
-        uint32 GetComponentID() const override { return ComponentID; }
         Vector2D GetReferenceResolution() const { return _refResolution; } 
         glm::mat4 GetProjectionMatrix();
         glm::mat4 GetViewMatrix();
     };
+
+    REGISTER_COMPONENT(Camera, CAMERA)
+    
 }

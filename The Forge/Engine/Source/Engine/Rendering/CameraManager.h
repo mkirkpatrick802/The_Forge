@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <memory>
 
-#include "Camera.h"
-#include "Engine/ComponentPool.h"
+#include "Engine/Components/Camera.h"
+#include "Engine/Components/ComponentPool.h"
 
 namespace Engine
 {
