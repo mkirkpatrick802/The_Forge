@@ -2,12 +2,11 @@
 #include <string>
 #include <vector>
 
-#include "Components/ComponentUtils.h"
 #include "json.hpp"
 
 namespace Engine
 {
-    const String LEVEL_PATH = "Assets/Levels/";
+    const std::string LEVEL_PATH = "Assets/Levels/";
     
     class Level;
     class LevelManager
@@ -31,6 +30,6 @@ namespace Engine
     private:
         
         static Level* _currentLevel;
-        std::unique_ptr<ComponentUtils> _componentUtils;
+        
     };
 }

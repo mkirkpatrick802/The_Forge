@@ -4,7 +4,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-std::shared_ptr<Engine::Texture> Engine::CreateTexture(const String& filepath, Texture::TextureType type)
+std::shared_ptr<Engine::Texture> Engine::CreateTexture(const std::string& filepath, Texture::TextureType type)
 {
     int width, height, channels;
     unsigned char* image = stbi_load(filepath.c_str(), &width, &height, &channels, STBI_rgb_alpha);
@@ -29,12 +29,12 @@ std::shared_ptr<Engine::Texture> Engine::CreateTexture(const String& filepath, T
     
     stbi_image_free(image);
 
-    auto size = Vector2D(width, height);
+    auto size = glm::vec2(width, height);
     auto texture = std::make_shared<Texture>(textureID, filepath, type, size);
     return texture;
 }
 
-std::shared_ptr<Engine::Texture> Engine::CreateTexture(const Vector2D size, Texture::TextureType type)
+std::shared_ptr<Engine::Texture> Engine::CreateTexture(const glm::vec2 size, Texture::TextureType type)
 {
     GLuint textureID;
     glGenTextures(1, &textureID);

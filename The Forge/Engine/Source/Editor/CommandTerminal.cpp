@@ -2,7 +2,7 @@
 
 #include "Engine/CommandRegistry.h"
 
-std::vector<String> Editor::CommandTerminal::_outputLines;
+std::vector<std::string> Editor::CommandTerminal::_outputLines;
 
 Editor::CommandTerminal::CommandTerminal()
 {
@@ -80,7 +80,7 @@ void Editor::CommandTerminal::Render()
     ImGui::End();
 }*/
 
-void Editor::CommandTerminal::AddOutput(const String& line)
+void Editor::CommandTerminal::AddOutput(const std::string& line)
 {
     _outputLines.push_back(line);
 }

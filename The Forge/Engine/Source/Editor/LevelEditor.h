@@ -2,7 +2,7 @@
 #include <vector>
 
 #include "json.hpp"
-#include "Engine/Data.h"
+#include "Engine/Rendering/CameraManager.h"
 #include "Engine/Rendering/UIWindow.h"
 
 namespace Engine
@@ -20,21 +20,28 @@ namespace Editor
         void Render() override;
     
     private:
+        
         std::vector<const char*> ConvertLevelDataToNameList(const std::vector<nlohmann::json>& levelData);
         void LevelSettings();
 
+        void DeleteGameObjects(Engine::Level* currentLevel);
+
     private:
 
-        String _defaultLevelFilePath;
+        std::string _defaultLevelFilePath;
         int _defaultLevelIndex = -1;
-        
+        bool _showRenameTextBox = false;
+
         static std::vector<nlohmann::json> levelData;
-        static std::vector<String> filepaths;
+        static std::vector<std::string> filepaths;
         
         char _levelNameBuffer[128] = "";
+        char _newGameObjectName[128] = "";
 
         std::vector<std::string> _levelNames;
         int _selectedLevel = 0;
         int _selectedGameObject = -1;
+
+        Engine::GameObject* _gameObjectToDelete = nullptr;
     };
 }

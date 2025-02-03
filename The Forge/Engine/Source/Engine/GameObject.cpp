@@ -1,7 +1,6 @@
 ﻿#include "GameObject.h"
 
 #include "Components/Component.h"
-#include "Components/ComponentUtils.h"
 #include "JsonKeywords.h"
 #include "Level.h"
 
@@ -20,15 +19,12 @@ Engine::GameObject::GameObject(const nlohmann::json& data)
 
     if (!data.contains(JsonKeywords::COMPONENT_ARRAY)) return;
 
-    for (const auto& component_data : data[JsonKeywords::COMPONENT_ARRAY])
-        ComponentUtils::AddComponent(this, component_data);
+    //for (const auto& component_data : data[JsonKeywords::COMPONENT_ARRAY])
+        //ComponentUtils::AddComponent(this, component_data);
 }
 
 Engine::GameObject::~GameObject()
 {
-    for (const auto component : _attachedComponents)
-        component->CleanUp();
-    
     _attachedComponents.clear();
     _attachedComponents.shrink_to_fit();
 }

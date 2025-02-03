@@ -11,7 +11,7 @@
 
 Engine::Level::Level(nlohmann::json data)
 {
-    CommandRegistry::RegisterCommand("/save", [this](const String& args){ SaveLevel(args); });
+    CommandRegistry::RegisterCommand("/save", [this](const std::string& args){ SaveLevel(args); });
     
     _name = data[JsonKeywords::LEVEL_NAME];
 
@@ -75,7 +75,14 @@ bool Engine::Level::SpawnNewGameObject()
     return true;
 }
 
-void Engine::Level::SaveLevel(const String& args)
+bool Engine::Level::RemoveGameObject(GameObject* go)
+{
+    std::erase(_gameObjects, go);
+    delete go;
+    return true;
+}
+
+void Engine::Level::SaveLevel(const std::string& args)
 {
     nlohmann::json data;
     

@@ -1,46 +1,45 @@
-﻿//
-// Created by mKirkpatrick on 1/30/2024.
-//
-
-#pragma once
-#include <cassert>
-
-#include "SpriteRenderer.h"
+﻿#pragma once
 
 class GameObject;
-
 namespace Engine
 {
-    const int MAX_GAMEOBJECTS = 50;
+    const int MAX_POOL_SIZE = 50;
 
+    class BasePool
+    {
+        
+    };
+    
     template<typename T>
-    class ComponentPool
+    class ComponentPool final : public BasePool
     {
     public:
 
         ComponentPool();
+        ~ComponentPool() = default;
+        
         void Update(float deltaTime);
 
         T* New(GameObject* go);
         T* Delete(T* component);
 
-        T components[MAX_GAMEOBJECTS];
-        bool isActive[MAX_GAMEOBJECTS];
+        T components[MAX_POOL_SIZE];
+        bool isActive[MAX_POOL_SIZE];
     };
 
     template<typename T>
     ComponentPool<T>::ComponentPool()
     {
-        for (int i = 0; i < MAX_GAMEOBJECTS; i++)
+        for (bool& i : isActive)
         {
-            isActive[i] = false;
+            i = false;
         }
     }
 
     template<typename T>
     void ComponentPool<T>::Update(float deltaTime)
     {
-        for (int i = 0; i < MAX_GAMEOBJECTS; i++)
+        for (int i = 0; i < MAX_POOL_SIZE; i++)
         {
             if (isActive[i])
             {
@@ -52,7 +51,7 @@ namespace Engine
     template <typename T>
     T* ComponentPool<T>::New(GameObject* go)
     {
-        for (int i = 0; i < MAX_GAMEOBJECTS; i++)
+        for (int i = 0; i < MAX_POOL_SIZE; i++)
         {
             if (!isActive[i])
             {
@@ -62,15 +61,14 @@ namespace Engine
                 return next;
             }
         }
-
-        assert(false);
+        
         return nullptr;
     }
 
     template <typename T>
     T* ComponentPool<T>::Delete(T* component)
     {
-        for (int i = 0; i < MAX_GAMEOBJECTS; i++)
+        for (int i = 0; i < MAX_POOL_SIZE; i++)
         {
             if(!isActive[i]) continue;
 

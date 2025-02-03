@@ -11,7 +11,7 @@
 #include "Engine/LevelManager.h"
 
 std::vector<nlohmann::json> Editor::LevelEditor::levelData;
-std::vector<String> Editor::LevelEditor::filepaths;
+std::vector<std::string> Editor::LevelEditor::filepaths;
 
 Editor::LevelEditor::LevelEditor()
 {
@@ -89,7 +89,7 @@ void Editor::LevelEditor::Render()
         ImGui::PushItemWidth(100);
         if (ImGui::Combo("Default Level", &_defaultLevelIndex, levels.data(), static_cast<int>(levels.size())))
         {
-            const String newDefaultLevel(levels[_defaultLevelIndex]);
+            const std::string newDefaultLevel(levels[_defaultLevelIndex]);
             Engine::EngineManager::UpdateConfigFile(Engine::DEFAULTS_FILE, JsonKeywords::Config::DEFAULT_LEVEL, newDefaultLevel);
         }
         
@@ -152,7 +152,6 @@ void Editor::LevelEditor::LevelSettings()
     }
     
     // Game Objects
-    
     ImGui::Separator();
     
     if (ImGuiHelper::CenteredButtonWithPadding("Create New Game Object", 5))
@@ -164,7 +163,7 @@ void Editor::LevelEditor::LevelSettings()
     ImGui::PushItemWidth(50);
     ImGui::Separator();
     
-    const auto levelObjects = currentLevel->GetAllGameObjects();
+    auto levelObjects = currentLevel->GetAllGameObjects();
     for (int i = 0; i < levelObjects.size(); ++i)
     {
         // Highlight the selected item
@@ -175,6 +174,66 @@ void Editor::LevelEditor::LevelSettings()
             _selectedGameObject = i; // Update the selected item
             DetailsEditor::SetSelectedGameObject(levelObjects[i]);
         }
+
+        if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+        {
+            // Open the context menu
+            ImGui::OpenPopup("Context Menu");
+        }
+
+        if (ImGui::BeginPopup("Context Menu"))
+        {
+            if (ImGui::MenuItem("Rename"))
+            {
+                _showRenameTextBox = true;
+            }
+            
+            if (ImGui::MenuItem("Delete"))
+            {
+                _gameObjectToDelete= levelObjects[i];
+            }
+            
+            ImGui::EndPopup();
+        }
+        
         ImGui::PopID();
     }
+
+    // Conditionally show a text box for renaming
+    if (_showRenameTextBox && _selectedGameObject > -1)
+    {
+        ImGui::OpenPopup("Rename Game Object");
+        if (ImGui::BeginPopupModal("Rename Game Object", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::Text("Enter a new name:");
+            ImGui::InputText("New Name", _newGameObjectName, sizeof(_newGameObjectName));
+
+            if (ImGui::Button("OK"))
+            {
+                levelObjects[_selectedGameObject]->SetName(_newGameObjectName);
+                _newGameObjectName[0] = '\0';
+                _showRenameTextBox = false; // Close the modal after input
+            }
+
+            if (ImGui::Button("Cancel"))
+            {
+                _newGameObjectName[0] = '\0';
+                _showRenameTextBox = false; // Close the modal without saving
+            }
+
+            ImGui::EndPopup();
+        }
+    }
+
+    DeleteGameObjects(currentLevel);
+}
+
+void Editor::LevelEditor::DeleteGameObjects(Engine::Level* currentLevel)
+{
+    if (_gameObjectToDelete == nullptr) return;
+    currentLevel->RemoveGameObject(_gameObjectToDelete);
+    
+    _gameObjectToDelete = nullptr;
+
+    DetailsEditor::ClearSelectedGameObject();
 }

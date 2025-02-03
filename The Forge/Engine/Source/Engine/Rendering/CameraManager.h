@@ -2,7 +2,6 @@
 #include <memory>
 
 #include "Engine/Components/Camera.h"
-#include "Engine/Components/ComponentPool.h"
 
 namespace Engine
 {
@@ -25,6 +24,6 @@ namespace Engine
 
         static std::shared_ptr<CameraManager> _cameraManager;
         Camera* _currentCamera = nullptr;
-        ComponentPool<Camera> _cameraPool;
+        
     };
 }

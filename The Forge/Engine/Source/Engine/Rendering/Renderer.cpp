@@ -17,9 +17,6 @@ Engine::Renderer::Renderer()
 	CreateRenderer();
 	
 	UIManager::Init();
-
-	EventSystem::GetInstance()->RegisterEvent(ED_CreateComponent::GetEventName(), this, &Renderer::CreateSpriteRenderer);
-	EventSystem::GetInstance()->RegisterEvent(ED_DestroyComponent::GetEventName(), this, &Renderer::DeleteSpriteRenderer);
 }
 
 void Engine::Renderer::CreateRenderer()
@@ -64,46 +61,46 @@ void Engine::Renderer::CreateRenderer()
 
 	glBindVertexArray(0);
 
-	String vertex = "Assets/Shaders/ScreenQuad.vert";
-	String fragment = "Assets/Shaders/ScreenQuad.frag";
+	std::string vertex = "Assets/Shaders/ScreenQuad.vert";
+	std::string fragment = "Assets/Shaders/ScreenQuad.frag";
 
 	_quadShader.Compile(vertex.c_str(), fragment.c_str());
 }
 
 void Engine::Renderer::CreateSpriteRenderer(const void* data)
 {
-	const auto eventData = static_cast<const ED_CreateComponent*>(data);
-	if (!eventData || eventData->componentID != SPRITE_RENDERER) return;
-
-	// These are very necessary do not get rid of
-	Engine::GameObject* go = eventData->gameObject;   
-	SpriteRenderer* spriteRenderer = _spriteRendererPool.New(static_cast<Engine::GameObject*>(go));
-	spriteRenderer->Init();
-	
-	if (eventData->data != nullptr)
-		spriteRenderer->LoadData(eventData->data);
-	
-	eventData->gameObject->AddComponent(spriteRenderer);
-
-	const auto pair = std::pair(spriteRenderer->_sortingLayer, spriteRenderer);
-	_renderList.push_back(pair);
-	
-	SortRenderList();
+	// const auto eventData = static_cast<const ED_CreateComponent*>(data);
+	// if (!eventData || eventData->componentID != SPRITE_RENDERER) return;
+	//
+	// // These are very necessary do not get rid of
+	// Engine::GameObject* go = eventData->gameObject;   
+	// SpriteRenderer* spriteRenderer = _spriteRendererPool.New(static_cast<Engine::GameObject*>(go));
+	// spriteRenderer->Init();
+	//
+	// if (eventData->data != nullptr)
+	// 	spriteRenderer->LoadData(eventData->data);
+	//
+	// eventData->gameObject->AddComponent(spriteRenderer);
+	//
+	// const auto pair = std::pair(spriteRenderer->_sortingLayer, spriteRenderer);
+	// _renderList.push_back(pair);
+	//
+	// SortRenderList();
 }
 
 void Engine::Renderer::DeleteSpriteRenderer(const void* data)
 {
-	const auto eventData = static_cast<const ED_DestroyComponent*>(data);
-	if (!eventData) return;
-	
-	auto spriteRenderer = dynamic_cast<SpriteRenderer*>(eventData->component);
-	if (spriteRenderer == nullptr) return;
-	
-	_spriteRendererPool.Delete(spriteRenderer);
-	std::erase_if(_renderList,
-	              [spriteRenderer, eventData](const std::pair<int16_t, SpriteRenderer*>& entry) {
-		              return entry.second == spriteRenderer;
-	              });
+	// const auto eventData = static_cast<const ED_DestroyComponent*>(data);
+	// if (!eventData) return;
+	//
+	// auto spriteRenderer = dynamic_cast<SpriteRenderer*>(eventData->component);
+	// if (spriteRenderer == nullptr) return;
+	//
+	// _spriteRendererPool.Delete(spriteRenderer);
+	// std::erase_if(_renderList,
+	//               [spriteRenderer, eventData](const std::pair<int16_t, SpriteRenderer*>& entry) {
+	// 	              return entry.second == spriteRenderer;
+	//               });
 }
 
 void Engine::Renderer::SortRenderList()
@@ -132,7 +129,7 @@ void Engine::Renderer::Render()
 		
 		if (!_renderList.empty())
 			for (const auto& val : _renderList | std::views::values)
-				val->DrawSprite();
+				//val->DrawSprite();
 
 		sceneFBO->Unbind();
 	}
@@ -168,9 +165,6 @@ Engine::Renderer::~Renderer()
 	_renderList.clear();
 	_renderList.shrink_to_fit();
 	
-	EventSystem::GetInstance()->DeregisterEvent(ED_CreateComponent::GetEventName());
-	EventSystem::GetInstance()->DeregisterEvent(ED_DestroyComponent::GetEventName());
-	
 	UIManager::CleanUp();
 	BufferRegistry::GetRegistry()->CleanUp();
 	CameraManager::CleanUp();
@@ -178,8 +172,8 @@ Engine::Renderer::~Renderer()
 	SDL_GL_DeleteContext(_context);
 }
 
-Vector2D Engine::Renderer::ConvertWorldToScreen(Vector2D worldPos)
+glm::vec2 Engine::Renderer::ConvertWorldToScreen(glm::vec2 worldPos)
 {
-	const auto screenLocation = Vector2D(worldPos.x + System::GetWindowSize().x / 2, worldPos.y + System::GetWindowSize().y / 2);
+	const auto screenLocation = glm::vec2(worldPos.x + System::GetWindowSize().x / 2, worldPos.y + System::GetWindowSize().y / 2);
 	return screenLocation;
 }

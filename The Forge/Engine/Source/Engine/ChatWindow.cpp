@@ -2,7 +2,7 @@
 
 #include "CommandRegistry.h"
 
-std::vector<String> Engine::ChatWindow::_outputLines;
+std::vector<std::string> Engine::ChatWindow::_outputLines;
 
 void Engine::ChatWindow::CleanUp()
 {
@@ -93,7 +93,7 @@ void Engine::ChatWindow::Terminal()
     ImGui::End();
 }
 
-void Engine::ChatWindow::AddOutput(const String& line)
+void Engine::ChatWindow::AddOutput(const std::string& line)
 {
     _outputLines.push_back(line);
 }

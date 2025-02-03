@@ -3,14 +3,12 @@
 #include "BufferRegistry.h"
 #include "CameraHelper.h"
 #include "CameraManager.h"
-#include "Engine/Data.h"
-#include "Engine/EngineManager.h"
 #include "Engine/System.h"
 
 Engine::PixelGrid::PixelGrid()
 {
-    String vertex = "Assets/Shaders/PixelGrid.vert";
-    String fragment = "Assets/Shaders/PixelGrid.frag";
+    std::string vertex = "Assets/Shaders/PixelGrid.vert";
+    std::string fragment = "Assets/Shaders/PixelGrid.frag";
 
     _shader.Compile(vertex.c_str(), fragment.c_str());
 

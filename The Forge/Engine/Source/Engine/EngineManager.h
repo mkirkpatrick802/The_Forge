@@ -1,9 +1,7 @@
 ﻿#pragma once
 #include <memory>
 
-#include "Data.h"
 #include "json.hpp"
-
 
 namespace NetCode
 {
@@ -17,8 +15,8 @@ namespace Editor
 
 namespace Engine
 {
-	const String CONFIG_PATH = "Config/";
-	const String DEFAULTS_FILE = "defaults.json";
+	const std::string CONFIG_PATH = "Config/";
+	const std::string DEFAULTS_FILE = "defaults.json";
 	class EngineManager
 	{
 
@@ -32,18 +30,18 @@ namespace Engine
 		
 	public:
 
-		static void UpdateConfigFile(const String& file, const String& jsonKeyword, const String& data);
-		static nlohmann::json GetConfigData(const String& file, const String& jsonKeyword);
+		static void UpdateConfigFile(const std::string& file, const std::string& jsonKeyword, const std::string& data);
+		static nlohmann::json GetConfigData(const std::string& file, const std::string& jsonKeyword);
 		static bool IsEditorEnabled() {return _editorEnabled; }
 
 		static void UpdateNetObject();
 		
-		void ToggleEditor(const String& args);
+		void ToggleEditor(const std::string& args);
 	
 	private:
 		
-		void CreateLobby(const String& args);
-		void JoinLobby(const String& args);
+		void CreateLobby(const std::string& args);
+		void JoinLobby(const std::string& args);
 		
 	private:
 

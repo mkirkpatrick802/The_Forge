@@ -14,7 +14,6 @@ Engine::Level* Engine::LevelManager::_currentLevel = nullptr;
 
 Engine::LevelManager::LevelManager(const std::string& filepath)
 {
-    _componentUtils = std::make_unique<ComponentUtils>();
     CameraManager::GetCameraManager();
     
     if (const std::ifstream file(filepath); file.is_open())
@@ -25,13 +24,11 @@ void Engine::LevelManager::CleanUp()
 {
     delete _currentLevel;
     _currentLevel = nullptr;
-    
-    _componentUtils.reset();
 }
 
-bool Engine::LevelManager::CreateLevel(const String& levelName)
+bool Engine::LevelManager::CreateLevel(const std::string& levelName)
 {
-    const String filepath = LEVEL_PATH + levelName + ".json";
+    const std::string filepath = LEVEL_PATH + levelName + ".json";
 
     if (std::filesystem::exists(filepath))
     {

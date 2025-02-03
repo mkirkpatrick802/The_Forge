@@ -6,23 +6,14 @@
 #include <typeindex>
 #include <unordered_map>
 
-#define REGISTER_COMPONENT(TYPE, ID) \
+#define REGISTER_COMPONENT(TYPE) \
 class TYPE##RegisterHelper { \
 public: \
 TYPE##RegisterHelper() { \
-ComponentRegistry::GetInstance()->RegisterComponent<TYPE>(ID, #TYPE); \
+ComponentRegistry::GetInstance()->RegisterComponent<TYPE>(#TYPE); \
 } \
 }; \
 static TYPE##RegisterHelper TYPE##_register_helper;
-
-// TODO: I hate this fuck this
-#define PLAYER_CONTROLLER (uint32)0
-#define SPRITE_RENDERER (uint32)1
-#define PROJECTILE (uint32)2
-#define COLLIDER (uint32)3
-#define HEALTH (uint32)4
-#define ENEMY_CONTROLLER (uint32)5
-#define CAMERA (uint32)6
 
 namespace Engine
 {
@@ -33,7 +24,7 @@ namespace Engine
         static std::shared_ptr<ComponentRegistry> GetInstance();
         
         template <typename T>
-        void RegisterComponent(uint32_t id, const std::string& name);
+        void RegisterComponent(const std::string& name);
 
         template <typename T>
         uint32_t GetComponentID() const;
@@ -42,6 +33,8 @@ namespace Engine
         template <typename T>
         std::string GetComponentName() const;
         std::string GetComponentName(const std::type_info& typeInfo) const;
+
+        std::vector<std::pair<std::string, uint32_t>> GetListOfComponents() const;
 
     private:
 
@@ -56,8 +49,10 @@ namespace Engine
     };
 
     template <typename T>
-    void ComponentRegistry::RegisterComponent(const uint32_t id, const std::string& name)
+    void ComponentRegistry::RegisterComponent(const std::string& name)
     {
+        const uint32_t id = static_cast<uint32_t>(std::hash<std::string>{}(name));
+        
         _componentIDs[typeid(T)] = id;
         _componentNames[typeid(T)] = FormatComponentName(name);
     }

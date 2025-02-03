@@ -1,8 +1,7 @@
 ﻿#pragma once
 #include <functional>
+#include <string>
 #include <unordered_map>
-
-#include "Data.h"
 
 namespace Engine
 {
@@ -11,12 +10,12 @@ namespace Engine
     class CommandRegistry
     {
     public:
-        static void RegisterCommand(const String& name, const std::function<void(const String&)>& function);
-        static bool ExecuteCommand(const String& input);
+        static void RegisterCommand(const std::string& name, const std::function<void(const std::string&)>& function);
+        static bool ExecuteCommand(const std::string& input);
 
-        static void UnregisterCommand(const String& name);
+        static void UnregisterCommand(const std::string& name);
     private:
 
-        static std::unordered_map<String, std::function<void(const String&)>> _commands;
+        static std::unordered_map<std::string, std::function<void(const std::string&)>> _commands;
     };
 }

@@ -1,18 +1,18 @@
 ﻿#include "CommandRegistry.h"
 
-std::unordered_map<String, std::function<void(const String&)>> Engine::CommandRegistry::_commands;
+std::unordered_map<std::string, std::function<void(const std::string&)>> Engine::CommandRegistry::_commands;
 
-void Engine::CommandRegistry::RegisterCommand(const String& name, const std::function<void(const String&)>& function)
+void Engine::CommandRegistry::RegisterCommand(const std::string& name, const std::function<void(const std::string&)>& function)
 {
     _commands[name] = function;
 }
 
-bool Engine::CommandRegistry::ExecuteCommand(const String& input)
+bool Engine::CommandRegistry::ExecuteCommand(const std::string& input)
 {
     // Split command and arguments
     size_t spacePos = input.find(' ');
-    String command = input.substr(0, spacePos);
-    String args = (spacePos != String::npos) ? input.substr(spacePos + 1) : "";
+    std::string command = input.substr(0, spacePos);
+    std::string args = (spacePos != std::string::npos) ? input.substr(spacePos + 1) : "";
 
     // Find and execute the command
     if (const auto it = _commands.find(command); it != _commands.end())
@@ -24,7 +24,7 @@ bool Engine::CommandRegistry::ExecuteCommand(const String& input)
     return false;
 }
 
-void Engine::CommandRegistry::UnregisterCommand(const String& name)
+void Engine::CommandRegistry::UnregisterCommand(const std::string& name)
 {
     _commands.erase(name);
 }

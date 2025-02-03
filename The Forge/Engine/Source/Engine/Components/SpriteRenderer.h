@@ -1,5 +1,4 @@
 #pragma once
-#include "Engine/Data.h"
 #include "Component.h"
 #include "ComponentRegistry.h"
 #include "Engine/Rendering/Shader.h"
@@ -20,14 +19,12 @@ namespace Engine
         virtual void LoadData(const json& data) override;
         virtual nlohmann::json SaveData() override;
 
-        Vector2D GetSize() const { return _size; }
+        glm::vec2 GetSize() const { return _size; }
 
     private:
 
         void Init();
         void DrawSprite();
-
-        void CleanUp() override;
 
     private:
         
@@ -36,10 +33,10 @@ namespace Engine
 
         unsigned int _quadVAO;
 
-        int16        _sortingLayer = 0;
-        Vector2D     _size = Vector2D(64);
+        int16_t _sortingLayer = 0;
+        glm::vec2 _size = glm::vec2(64);
 
     };
 
-    REGISTER_COMPONENT(SpriteRenderer, SPRITE_RENDERER)
+    REGISTER_COMPONENT(SpriteRenderer)
 }

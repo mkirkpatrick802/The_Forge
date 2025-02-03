@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include <memory>
-#include "Engine/Data.h"
 #include "glm/glm.hpp"
 
 namespace Editor
@@ -16,7 +15,7 @@ namespace Editor
 
         static void CleanUp();
 
-        void UpdatePosition(Vector2D delta);
+        void UpdatePosition(glm::vec2 delta);
         
         glm::mat4 GetProjectionMatrix();
         glm::mat4 GetViewMatrix();
@@ -25,7 +24,7 @@ namespace Editor
 
         static std::shared_ptr<EditorCamera> _instance;
 
-        Vector2D _position;
+        glm::vec2 _position;
         float _dragSpeed = 1;
         
         glm::mat4 _projection;

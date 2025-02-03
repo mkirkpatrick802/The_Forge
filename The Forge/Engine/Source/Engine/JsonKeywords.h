@@ -1,23 +1,22 @@
 ﻿#pragma once
-#include "Data.h"
 
 namespace JsonKeywords
 {
     namespace Config
     {
-        const String DEFAULT_LEVEL = "Default Level";
+        const std::string DEFAULT_LEVEL = "Default Level";
     }
     
-    const String LEVEL_NAME = "Level Name";
+    const std::string LEVEL_NAME = "Level Name";
 
-    const String GAMEOBJECT_ARRAY = "Level Game Objects";
-    const String GAMEOBJECT_NAME = "Game Object Name";
+    const std::string GAMEOBJECT_ARRAY = "Level Game Objects";
+    const std::string GAMEOBJECT_NAME = "Game Object Name";
     
-    const String COMPONENT_ARRAY = "Components";
-    const String COMPONENT_ID = "Component ID";
+    const std::string COMPONENT_ARRAY = "Components";
+    const std::string COMPONENT_ID = "Component ID";
 
-    const String SPRITE_RENDERER_SPRITE = "Sprite";
-    const String SPRITE_RENDERER_SORTING_LAYER = "Sorting Layer";
-    const String SPRITE_RENDERER_VERTEX_SHADER = "Vertex Shader";
-    const String SPRITE_RENDERER_FRAGMENT_SHADER = "Fragment Shader";
+    const std::string SPRITE_RENDERER_SPRITE = "Sprite";
+    const std::string SPRITE_RENDERER_SORTING_LAYER = "Sorting Layer";
+    const std::string SPRITE_RENDERER_VERTEX_SHADER = "Vertex Shader";
+    const std::string SPRITE_RENDERER_FRAGMENT_SHADER = "Fragment Shader";
 }

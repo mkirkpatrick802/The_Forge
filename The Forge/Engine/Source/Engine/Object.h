@@ -20,11 +20,12 @@ namespace Engine
 
     protected:
         
-        String _name;
+        std::string _name;
 
     public:
 
-        String GetName() const { return _name; }
+        std::string GetName() const { return _name; }
+        void SetName(const std::string& name) { _name = name; }
         
     };
 }

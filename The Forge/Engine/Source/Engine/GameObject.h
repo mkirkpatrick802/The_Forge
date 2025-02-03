@@ -17,6 +17,7 @@ namespace Engine
         
         template <class T>
         T* GetComponent() const;
+        
         std::vector<Component*> GetAllComponents() const { return _attachedComponents; }
         
         void AddComponent(Component* component);

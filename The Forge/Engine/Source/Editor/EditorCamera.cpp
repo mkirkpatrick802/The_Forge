@@ -24,7 +24,7 @@ void Editor::EditorCamera::CleanUp()
     _instance.reset();
 }
 
-void Editor::EditorCamera::UpdatePosition(const Vector2D delta)
+void Editor::EditorCamera::UpdatePosition(const glm::vec2 delta)
 {
     _position += delta * _dragSpeed;
 }

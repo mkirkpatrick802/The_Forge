@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include <memory>
 
-#include "Data.h"
-
 namespace Engine
 {
     class ChatWindow;

@@ -10,11 +10,6 @@ Engine::Camera::Camera(): _projection(), _view()
     
 }
 
-void Engine::Camera::CleanUp()
-{
-    
-}
-
 void Engine::Camera::LoadData(const json& data)
 {
     

@@ -16,11 +16,7 @@
                     "Sprite": "Assets/Sprites/Astronaut.png"
                 }
             ],
-            "Game Object Name": "New Game Object"
-        },
-        {
-            "Components": [],
-            "Game Object Name": "New Game Object"
+            "Game Object Name": "Player"
         }
     ],
     "Level Name": "yo"

@@ -2,7 +2,6 @@
 #include <memory>
 
 #include "Texture.h"
-#include "Engine/Data.h"
 #include "glad/glad.h"
 
 namespace Engine
@@ -13,13 +12,13 @@ namespace Engine
     {
     public:
 
-        Framebuffer(Vector2D size, bool shouldUseRbo);
+        Framebuffer(glm::vec2 size, bool shouldUseRbo);
         ~Framebuffer();
 
         void Bind() const;
         void Unbind() const;
         
-        void Resize(Vector2D size);
+        void Resize(glm::vec2 size);
         void CheckResize();
         
     private:
@@ -31,14 +30,14 @@ namespace Engine
 
         GLuint GetID() const { return _FboID; }
         GLuint GetTextureID() const { return !_texture ? 0 : _texture->GetID(); }
-        Vector2D GetSize() const { return _size; }
+        glm::vec2 GetSize() const { return _size; }
         
     private:
 
         GLuint _FboID, _RboID;
         std::shared_ptr<Texture> _texture;
         
-        Vector2D _size;
+        glm::vec2 _size;
         
         bool _shouldResize, _shouldUseRbo;
     };

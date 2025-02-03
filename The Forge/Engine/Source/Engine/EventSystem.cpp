@@ -12,12 +12,12 @@ void Engine::EventSystem::DestroyInstance()
     _instance.reset();
 }
 
-void Engine::EventSystem::RegisterEvent(const String& name, const EventCallback& callback)
+void Engine::EventSystem::RegisterEvent(const std::string& name, const EventCallback& callback)
 {
     _eventMap[name].push_back(callback);
 }
 
-void Engine::EventSystem::TriggerEvent(const String& name, const void* data)
+void Engine::EventSystem::TriggerEvent(const std::string& name, const void* data)
 {
     if (const auto it = _eventMap.find(name); it != _eventMap.end())
     {
@@ -28,7 +28,7 @@ void Engine::EventSystem::TriggerEvent(const String& name, const void* data)
     }
 }
 
-void Engine::EventSystem::DeregisterEvent(const String& name)
+void Engine::EventSystem::DeregisterEvent(const std::string& name)
 {
     _eventMap.erase(name);
 }

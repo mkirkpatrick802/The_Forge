@@ -5,9 +5,9 @@
 
 #include <iostream>
 #include <SDL_render.h>
+#include <glm/vec2.hpp>
 
 #include "ConsoleStreamBuffer.h"
-#include "Data.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
@@ -27,18 +27,18 @@ namespace Engine
 	public:
 
 		static void Init();
-		static void CreateAppWindow(Vector2D windowSize = Vector2D(1280, 720));
+		static void CreateAppWindow(glm::vec2 windowSize = glm::vec2(1280, 720));
 		static void CleanUp();
 
-		static void LogToErrorFile(const String& message);
-		static void DisplayMessageBox(const String& caption, const String& message);
+		static void LogToErrorFile(const std::string& message);
+		static void DisplayMessageBox(const std::string& caption, const std::string& message);
 		static void LogToConsole(const char* format, ...);
 
 		static Window* GetWindow() { return _window; }
-		static Vector2D GetWindowSize() { return _windowSize; }
+		static glm::vec2 GetWindowSize() { return _windowSize; }
 
 		// File Helpers
-		static void EnsureDirectoryExists(const String& path);
+		static void EnsureDirectoryExists(const std::string& path);
 		
 
 	private:
@@ -46,7 +46,7 @@ namespace Engine
 		static _CrtMemState _memoryCheckpoint;
 		static HANDLE _errorFile;
 
-		static Vector2D _windowSize;
+		static glm::vec2 _windowSize;
 		static Window* _window;
 
 		static ConsoleStreamBuffer _consoleBuffer;

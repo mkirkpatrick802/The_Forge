@@ -30,8 +30,8 @@ Engine::GameEngine::GameEngine()
 	const auto defaultData = EngineManager::GetConfigData(Engine::DEFAULTS_FILE, JsonKeywords::Config::DEFAULT_LEVEL);
 	if (defaultData.is_string())
 	{
-		const String filename = defaultData;
-		const String filepath = LEVEL_PATH + filename + ".json";
+		const std::string filename = defaultData;
+		const std::string filepath = LEVEL_PATH + filename + ".json";
 		_levelManager = DEBUG_NEW LevelManager(filepath);
 	}
 	else

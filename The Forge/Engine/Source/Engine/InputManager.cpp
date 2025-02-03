@@ -8,16 +8,16 @@
 Engine::InputManager::InputManager()
 {
     // Keyboard State Init
-    const uint8* currentKeys = SDL_GetKeyboardState(&_numKeys);
-    _keysLastFrame = DEBUG_NEW uint8[_numKeys];
-    _keysThisFrame = DEBUG_NEW uint8[_numKeys];
+    const uint8_t* currentKeys = SDL_GetKeyboardState(&_numKeys);
+    _keysLastFrame = DEBUG_NEW uint8_t[_numKeys];
+    _keysThisFrame = DEBUG_NEW uint8_t[_numKeys];
 
     memcpy(_keysLastFrame, currentKeys, _numKeys);
     memcpy(_keysThisFrame, currentKeys, _numKeys);
 
     // Mouse State Init
     int X, Y;
-    const uint32 currentState = SDL_GetMouseState(&X, &Y);
+    const uint32_t currentState = SDL_GetMouseState(&X, &Y);
     _buttonsLastFrame = currentState;
     _buttonsThisFrame = currentState;
 }
@@ -57,14 +57,14 @@ void Engine::InputManager::EndProcessInputs()
 {
     {
         // Keyboard Buffer Switch
-        uint8* temp = _keysThisFrame;
+        uint8_t* temp = _keysThisFrame;
         _keysThisFrame = _keysLastFrame;
         _keysLastFrame = temp;
     }
 
     {
         // Mouse Buffer Switch
-        uint32 temp = _buttonsThisFrame;
+        uint32_t temp = _buttonsThisFrame;
         _buttonsThisFrame = _buttonsLastFrame;
         _buttonsLastFrame = temp;
     }
@@ -87,23 +87,23 @@ int Engine::InputManager::GetKeyDown(const int keycode) const
     return false;
 }
 
-int Engine::InputManager::GetButton(const uint32 button, Vector2D& mousePos) const
+int Engine::InputManager::GetButton(const uint32_t button, glm::vec2& mousePos) const
 {
     int X, Y;
     SDL_GetMouseState(&X, &Y);
-    mousePos = Vector2D((float)X, (float)Y);
+    mousePos = glm::vec2((float)X, (float)Y);
     return _buttonsThisFrame & button;
 }
 
-int Engine::InputManager::GetButtonDown(const uint32 button, Vector2D& mousePos) const
+int Engine::InputManager::GetButtonDown(const uint32_t button, glm::vec2& mousePos) const
 {
     int X, Y;
     SDL_GetMouseState(&X, &Y);
-    mousePos = Vector2D((float)X, (float)Y);
+    mousePos = glm::vec2((float)X, (float)Y);
     return _buttonsThisFrame & button && (!_buttonsLastFrame) & button;
 }
 
-int Engine::InputManager::GetButtonDown(uint32 button) const
+int Engine::InputManager::GetButtonDown(uint32_t button) const
 {
     return _buttonsThisFrame & button && (!_buttonsLastFrame) & button;
 }

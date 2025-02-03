@@ -1,9 +1,6 @@
 ﻿#include "DetailsEditor.h"
 
-#include <iostream>
-
 #include "Engine/Components/Component.h"
-#include "Engine/Components/ComponentUtils.h"
 #include "Engine/GameObject.h"
 #include "Engine/Level.h"
 #include "Engine/Components/ComponentRegistry.h"
@@ -14,7 +11,7 @@ void Editor::DetailsEditor::Render()
 {
     if (!_selectedGameObject) return;
     
-    const String title = _selectedGameObject->GetName() + " Details";
+    const std::string title = _selectedGameObject->GetName() + " Details";
     ImGui::Begin(title.c_str());
 
     ImGui::PushItemWidth(100);
@@ -27,7 +24,7 @@ void Editor::DetailsEditor::Render()
     
     for (const auto component : _selectedGameObject->GetAllComponents())
     {
-        const String& name = Engine::GetComponentRegistry()->GetComponentName(typeid(*component));
+        const std::string& name = Engine::GetComponentRegistry()->GetComponentName(typeid(*component));
         ImGui::Text(name.c_str());
     }
     
@@ -45,8 +42,8 @@ void Editor::DetailsEditor::Render()
 
         // Dropdown items
         // TODO: This should use the component registry
-        if (ImGui::Selectable("Sprite Renderer")) { Engine::ComponentUtils::AddComponent(_selectedGameObject, SPRITE_RENDERER); }
-        if (ImGui::Selectable("Camera")) {Engine::ComponentUtils::AddComponent(_selectedGameObject, CAMERA); }
+        /*for (const auto& [fst, snd] : Engine::GetComponentRegistry()->GetListOfComponents())
+            if (ImGui::Selectable(fst.c_str())) { _selectedGameObject->AddComponent(); }*/
 
         ImGui::EndPopup();
     }

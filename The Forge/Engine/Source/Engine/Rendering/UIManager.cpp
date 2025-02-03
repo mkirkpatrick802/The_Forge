@@ -73,7 +73,10 @@ void Engine::UIManager::RenderWindows()
     }
         
     for (const auto& val : _uiWindows | std::views::values)
-        val->Render();
+    {
+        if (val == nullptr) continue;
+            val->Render();
+    }
 
     ImGui::Render();
     FinishUIRender();

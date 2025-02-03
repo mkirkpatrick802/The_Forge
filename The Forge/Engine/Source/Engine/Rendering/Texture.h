@@ -1,5 +1,7 @@
 ﻿#pragma once
-#include "Engine/Data.h"
+#include <string>
+#include <glm/vec2.hpp>
+
 #include "glad/glad.h"
 
 namespace Engine
@@ -11,21 +13,21 @@ namespace Engine
         
         enum class TextureType { PIXEL = 0, FRAMEBUFFER };
         
-        Texture(GLuint ID, const String& filepath, TextureType type, Vector2D size);
-        Texture(GLuint ID, TextureType type, Vector2D size);
+        Texture(GLuint ID, const std::string& filepath, TextureType type, glm::vec2 size);
+        Texture(GLuint ID, TextureType type, glm::vec2 size);
         ~Texture() = default;
 
     public:
 
         GLuint GetID() const { return _ID; }
-        Vector2D GetSize() const { return _size; }
-        String GetFilePath() const { return _filepath; }
+        glm::vec2 GetSize() const { return _size; }
+        std::string GetFilePath() const { return _filepath; }
         
     private:
 
         GLuint _ID;
-        String _filepath;
-        Vector2D _size;
+        std::string _filepath;
+        glm::vec2 _size;
         TextureType _type;
     };
 }

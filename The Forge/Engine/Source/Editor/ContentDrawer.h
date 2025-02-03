@@ -2,7 +2,6 @@
 #include <filesystem>
 #include <vector>
 
-#include "Engine/Data.h"
 #include "Engine/Rendering/UIWindow.h"
 
 namespace Engine
@@ -13,8 +12,8 @@ namespace Engine
 namespace Editor
 {
     struct FileNode {
-        String name;
-        String fullPath;
+        std::string name;
+        std::string fullPath;
         bool isDirectory;
         std::vector<FileNode> children = std::vector<FileNode>();
     };
@@ -36,8 +35,8 @@ namespace Editor
 
     private:
 
-        String _currentDirectory = "Assets";
-        String _searchQuery = "";
+        std::string _currentDirectory = "Assets";
+        std::string _searchQuery = "";
         float _thumbnailSize = 16.0f;
 
         bool _loadTextures = true;

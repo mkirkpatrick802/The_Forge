@@ -22,14 +22,14 @@ std::shared_ptr<Engine::EngineManager> Engine::EngineManager::GetInstance()
 
 Engine::EngineManager::EngineManager()
 {
-	CommandRegistry::RegisterCommand("/editor", [this](const String& args){ ToggleEditor(args); });
-	CommandRegistry::RegisterCommand("/create", [this](const String& args) { CreateLobby(args); });
-	CommandRegistry::RegisterCommand("/join", [this](const String& args) { JoinLobby(args); });
+	CommandRegistry::RegisterCommand("/editor", [this](const std::string& args){ ToggleEditor(args); });
+	CommandRegistry::RegisterCommand("/create", [this](const std::string& args) { CreateLobby(args); });
+	CommandRegistry::RegisterCommand("/join", [this](const std::string& args) { JoinLobby(args); });
 
 	//Find config file & if it does not exist make one
 	System::EnsureDirectoryExists(CONFIG_PATH);
 	
-	const String filepath = CONFIG_PATH + DEFAULTS_FILE;
+	const std::string filepath = CONFIG_PATH + DEFAULTS_FILE;
 	if (!std::filesystem::exists(filepath))
 	{
 		std::ofstream defaults(filepath);
@@ -61,7 +61,7 @@ Engine::EngineManager::~EngineManager()
 	EventSystem::DestroyInstance();
 }
 
-void Engine::EngineManager::ToggleEditor(const String& args)
+void Engine::EngineManager::ToggleEditor(const std::string& args)
 {
 	try
 	{
@@ -86,23 +86,23 @@ void Engine::EngineManager::ToggleEditor(const String& args)
 	}
 }
 
-void Engine::EngineManager::CreateLobby(const String& args)
+void Engine::EngineManager::CreateLobby(const std::string& args)
 {
 	if (_netObject) { std::cout << "Already in-game" << '\n'; return; };
 
 	_netObject = NetCode::CreateLobby(args);
 }
 
-void Engine::EngineManager::JoinLobby(const String& args)
+void Engine::EngineManager::JoinLobby(const std::string& args)
 {
 	if (_netObject) { std::cout << "Already in-game" << '\n'; return; }
 	
 	_netObject = NetCode::JoinLobby(args);
 }
 
-void Engine::EngineManager::UpdateConfigFile(const String& file, const String& jsonKeyword, const String& data)
+void Engine::EngineManager::UpdateConfigFile(const std::string& file, const std::string& jsonKeyword, const std::string& data)
 {
-	const String path = CONFIG_PATH + file;
+	const std::string path = CONFIG_PATH + file;
 	
 	// Read in config
 	std::ifstream input(path);
@@ -120,9 +120,9 @@ void Engine::EngineManager::UpdateConfigFile(const String& file, const String& j
 	output.close();
 }
 
-nlohmann::json Engine::EngineManager::GetConfigData(const String& file, const String& jsonKeyword)
+nlohmann::json Engine::EngineManager::GetConfigData(const std::string& file, const std::string& jsonKeyword)
 {
-	const String path = CONFIG_PATH + file;
+	const std::string path = CONFIG_PATH + file;
 	
 	std::ifstream config(path);
 	if (!config.is_open()) return {};

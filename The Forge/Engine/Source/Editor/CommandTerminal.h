@@ -1,7 +1,7 @@
 ﻿#pragma once
+#include <string>
 #include <vector>
 
-#include "Engine/Data.h"
 #include "Engine/Rendering/UIWindow.h"
 
 namespace Editor
@@ -17,12 +17,12 @@ namespace Editor
 
     private:
         
-        void AddOutput(const String& line);
+        void AddOutput(const std::string& line);
         void ClearOutput();
         
     private:
         char _inputBuffer[256]{};
-        static std::vector<String> _outputLines;
+        static std::vector<std::string> _outputLines;
         bool _scrollToBottom = true;
         
     };

@@ -46,12 +46,12 @@ void Engine::SpriteRenderer::Init()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    const String filepath = "Assets/Sprites/Astronaut.png";
+    const std::string filepath = "Assets/Sprites/Astronaut.png";
     
     _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
     
-    String vertex = "Assets/Shaders/Sprite.vert";
-    String fragment = "Assets/Shaders/Sprite.frag";
+    std::string vertex = "Assets/Shaders/Sprite.vert";
+    std::string fragment = "Assets/Shaders/Sprite.frag";
 
     _shader.Compile(vertex.c_str(), fragment.c_str());
     _sortingLayer = 0;
@@ -59,24 +59,24 @@ void Engine::SpriteRenderer::Init()
 
 void Engine::SpriteRenderer::LoadData(const json& data)
 {
-    const String filepath = data[JsonKeywords::SPRITE_RENDERER_SPRITE];
+    const std::string filepath = data[JsonKeywords::SPRITE_RENDERER_SPRITE];
     
     _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
 
-    String vertex = "Assets/Shaders/Sprite.vert";
-    String fragment = "Assets/Shaders/Sprite.frag";
+    std::string vertex = "Assets/Shaders/Sprite.vert";
+    std::string fragment = "Assets/Shaders/Sprite.frag";
     //String vertex = data[JsonKeywords::SPRITE_RENDERER_VERTEX_SHADER];
     //String fragment = data[JsonKeywords::SPRITE_RENDERER_FRAGMENT_SHADER];
 
     _shader.Compile(vertex.c_str(), fragment.c_str());
-    _sortingLayer = (int16)data.value(JsonKeywords::SPRITE_RENDERER_SORTING_LAYER, 0);
+    _sortingLayer = (int16_t)data.value(JsonKeywords::SPRITE_RENDERER_SORTING_LAYER, 0);
 }
 
 nlohmann::json Engine::SpriteRenderer::SaveData()
 {
     nlohmann::json data;
     data[JsonKeywords::COMPONENT_ID] = GetComponentRegistry()->GetComponentID<SpriteRenderer>();
-    String filepath = _texture->GetFilePath();
+    std::string filepath = _texture->GetFilePath();
     data[JsonKeywords::SPRITE_RENDERER_SPRITE] = filepath;
     data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER] = _sortingLayer;
 
@@ -88,7 +88,7 @@ nlohmann::json Engine::SpriteRenderer::SaveData()
 void Engine::SpriteRenderer::DrawSprite()
 {
 	const float rotation = gameObject->transform.rotation;
-	const auto position = Vector2D(gameObject->transform.position.x - _size.x / PIXEL_SCALE, (gameObject->transform.position.y * -1) - _size.y / PIXEL_SCALE);
+	const auto position = glm::vec2(gameObject->transform.position.x - _size.x / PIXEL_SCALE, (gameObject->transform.position.y * -1) - _size.y / PIXEL_SCALE);
     
     _shader.Use();
 	auto model = glm::mat4(1.0f);
@@ -111,12 +111,4 @@ void Engine::SpriteRenderer::DrawSprite()
     glBindVertexArray(_quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
-}
-
-void Engine::SpriteRenderer::CleanUp()
-{
-    ED_DestroyComponent eventData;
-    eventData.component = this;
-    
-    EventSystem::GetInstance()->TriggerEvent(ED_DestroyComponent::GetEventName(), &eventData);
 }

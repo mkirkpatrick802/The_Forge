@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <stdexcept>
 
-bool CommandUtils::ParseBoolean(const String& str)
+bool CommandUtils::ParseBoolean(const std::string& str)
 {
     std::string input = str;
     std::ranges::transform(input, input.begin(), ::tolower);

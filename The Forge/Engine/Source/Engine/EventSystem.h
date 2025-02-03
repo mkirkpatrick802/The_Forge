@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include <functional>
 
-#include "Data.h"
 #include "System.h"
 
 namespace Engine
@@ -17,11 +16,11 @@ namespace Engine
         ~EventSystem() = default;
         
         template <typename T>
-        void RegisterEvent(const String& name, T* obj, void (T::*func)(const void*));
-        void RegisterEvent(const String& name, const EventCallback& callback);
+        void RegisterEvent(const std::string& name, T* obj, void (T::*func)(const void*));
+        void RegisterEvent(const std::string& name, const EventCallback& callback);
         
-        void TriggerEvent(const String& name, const void* data = nullptr);
-        void DeregisterEvent(const String& name);
+        void TriggerEvent(const std::string& name, const void* data = nullptr);
+        void DeregisterEvent(const std::string& name);
         
     private:
         
@@ -36,7 +35,7 @@ namespace Engine
     };
 
     template <typename T>
-    void EventSystem::RegisterEvent(const String& name, T* obj, void(T::* func)(const void*))
+    void EventSystem::RegisterEvent(const std::string& name, T* obj, void(T::* func)(const void*))
     {
         _eventMap[name].push_back([=](const void* data) {(obj->*func)(data);});
     }

@@ -1,9 +1,10 @@
 ﻿#pragma once
+#include <memory>
 #include <SDL_render.h>
 #include <vector>
 
-#include "Engine/Components/ComponentPool.h"
-#include "Engine/Data.h"
+#include "Shader.h"
+#include "glad/glad.h"
 
 namespace Engine
 {
@@ -12,9 +13,9 @@ namespace Engine
 	class PixelGrid;
 	typedef SDL_GLContext Context;
 
-	const Vector2D ReferenceResolution = Vector2D(320, 180);
+	const glm::vec2 ReferenceResolution = glm::vec2(320, 180);
 	
-	typedef std::vector<std::pair<int16, SpriteRenderer*>> RenderListPair;
+	typedef std::vector<std::pair<int16_t, SpriteRenderer*>> RenderListPair;
 	class Renderer
 	{
 	public:
@@ -26,7 +27,7 @@ namespace Engine
 		
 		~Renderer();
 
-		static Vector2D ConvertWorldToScreen(Vector2D worldPos);
+		static glm::vec2 ConvertWorldToScreen(glm::vec2 worldPos);
 		
 	private:
 
@@ -44,7 +45,6 @@ namespace Engine
 		Shader _quadShader;
 		
 		RenderListPair _renderList;
-		ComponentPool<SpriteRenderer> _spriteRendererPool;
 
 		std::unique_ptr<PixelGrid> _grid;
 	};

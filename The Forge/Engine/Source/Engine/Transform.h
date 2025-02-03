@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "Data.h"
+#include <glm/vec2.hpp>
 
 namespace Engine
 {
@@ -13,17 +13,17 @@ namespace Engine
 
         Transform()
         {
-            position = Vector2D();
+            position = glm::vec2();
         }
 
         Transform(float x, float y)
         {
-            position = Vector2D(x, y);
+            position = glm::vec2(x, y);
         }
 
     public:
 
-        Vector2D position = Vector2D();
+        glm::vec2 position = glm::vec2();
         float rotation = 0; // degrees
 
     };

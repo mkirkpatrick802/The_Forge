@@ -1,5 +1,6 @@
 ﻿#pragma once
-#include "Data.h"
+#include <cstdint>
+#include <glm/vec2.hpp>
 
 namespace Engine
 {
@@ -21,20 +22,20 @@ namespace Engine
         int GetKey(int keycode) const;
         int GetKeyDown(int keycode) const;
 
-        int GetButton(uint32 button, Vector2D& mousePos) const;
-        int GetButtonDown(uint32 button, Vector2D& mousePos) const;
-        int GetButtonDown(uint32 button) const;
+        int GetButton(uint32_t button, glm::vec2& mousePos) const;
+        int GetButtonDown(uint32_t button, glm::vec2& mousePos) const;
+        int GetButtonDown(uint32_t button) const;
 
 	private:
 
         // Keyboard Inputs
-        uint8* _keysLastFrame;
-        uint8* _keysThisFrame;
+        uint8_t* _keysLastFrame;
+        uint8_t* _keysThisFrame;
         int _numKeys;
 
         // Mouse Inputs
-        uint32 _buttonsLastFrame;
-        uint32 _buttonsThisFrame;
+        uint32_t _buttonsLastFrame;
+        uint32_t _buttonsThisFrame;
 
 	};
 }

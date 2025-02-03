@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include <string>
 #include <vector>
-
-#include "Data.h"
 #include "json.hpp"
 
 namespace Editor
@@ -23,20 +21,21 @@ namespace Engine
     public:
         
         bool SpawnNewGameObject();
+        bool RemoveGameObject(GameObject* go);
         
         std::vector<GameObject*> GetAllGameObjects() { return _gameObjects; }
-        String GetName() { return _name; }
+        std::string GetName() { return _name; }
 
     private:
         
         Level(nlohmann::json data);
         ~Level();
 
-        void SaveLevel(const String& args);
+        void SaveLevel(const std::string& args);
         
     private:
-        String _name;
-        String _path;
+        std::string _name;
+        std::string _path;
         
         std::vector<GameObject*> _gameObjects;
     };

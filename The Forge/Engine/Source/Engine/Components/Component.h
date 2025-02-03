@@ -21,7 +21,6 @@ namespace Engine
         virtual void Update(float deltaTime) {}
 
         virtual void OnDestroyed() {}
-        virtual void CleanUp() = 0;
         
     public:
         

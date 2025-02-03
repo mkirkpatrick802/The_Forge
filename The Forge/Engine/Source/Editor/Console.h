@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include <vector>
 
-#include "Engine/Data.h"
 #include "Engine/System.h"
 #include "Engine/Rendering/UIWindow.h"
 
@@ -20,7 +19,7 @@ namespace Editor
         
     private:
 
-        std::vector<std::pair<String, Engine::LogType>> _log;
+        std::vector<std::pair<std::string, Engine::LogType>> _log;
         
     };
 }

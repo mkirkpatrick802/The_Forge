@@ -17,6 +17,23 @@ std::string Engine::ComponentRegistry::GetComponentName(const std::type_info& ty
     return _componentNames.at(typeInfo);
 }
 
+std::vector<std::pair<std::string, uint32_t>> Engine::ComponentRegistry::GetListOfComponents() const
+{
+    std::vector<std::pair<std::string, uint32_t>> result;
+
+    // Iterate over _componentNames and _componentIDs to create the pairs
+    for (const auto& [fst, snd] : _componentNames)
+    {
+        const auto& name = snd;
+        if (auto idIter = _componentIDs.find(fst); idIter != _componentIDs.end())
+        {
+            result.emplace_back(name, idIter->second);
+        }
+    }
+
+    return result;
+}
+
 std::string Engine::ComponentRegistry::FormatComponentName(const std::string& name) const
 {
     std::string formattedName;

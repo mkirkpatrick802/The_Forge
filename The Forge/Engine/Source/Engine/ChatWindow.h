@@ -1,7 +1,7 @@
 ﻿#pragma once
+#include <string>
 #include <vector>
 
-#include "Data.h"
 #include "Rendering/UIWindow.h"
 
 namespace Engine
@@ -20,7 +20,7 @@ namespace Engine
         void History();
         void Terminal();
 
-        void AddOutput(const String& line);
+        void AddOutput(const std::string& line);
         void ClearOutput();
         
     private:
@@ -28,7 +28,7 @@ namespace Engine
         // TODO: This should be tracked in the command registry or smth else,
         //       so commands can be saved across editor and game
         char _inputBuffer[256]{};
-        static std::vector<String> _outputLines;
+        static std::vector<std::string> _outputLines;
 
         ImGuiWindowFlags _windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
                                ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |

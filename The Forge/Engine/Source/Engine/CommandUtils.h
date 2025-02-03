@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "Data.h"
+#include <string>
 
 struct CommandUtils
 {
-    static bool ParseBoolean(const String& str);
+    static bool ParseBoolean(const std::string& str);
 };

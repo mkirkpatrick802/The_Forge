@@ -27,7 +27,7 @@ void Editor::SceneDisplay::Render()
             );
         
         // Check for resize based on window size
-        const Vector2D windowSize(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y); 
+        const glm::vec2 windowSize(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y); 
         if (sceneFBO->GetSize() != windowSize)
             sceneFBO->Resize(windowSize);
     }
@@ -42,7 +42,7 @@ void Editor::SceneDisplay::ClickAndDrag()
     {
         if (ImGui::IsMouseDragging(ImGuiMouseButton_Left))
         {
-            const auto dragDelta = Vector2D(ImGui::GetMouseDragDelta().x, ImGui::GetMouseDragDelta().y);
+            const auto dragDelta = glm::vec2(ImGui::GetMouseDragDelta().x, ImGui::GetMouseDragDelta().y);
             
             EditorCamera::GetInstance()->UpdatePosition(dragDelta);
             

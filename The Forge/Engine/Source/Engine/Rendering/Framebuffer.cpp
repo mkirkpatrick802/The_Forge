@@ -3,7 +3,7 @@
 #include "TextureLoader.h"
 #include "Engine/System.h"
 
-Engine::Framebuffer::Framebuffer(const Vector2D size, const bool shouldUseRbo)
+Engine::Framebuffer::Framebuffer(const glm::vec2 size, const bool shouldUseRbo)
 {
     _size = size;
     _shouldUseRbo = shouldUseRbo;
@@ -52,7 +52,7 @@ void Engine::Framebuffer::Unbind() const
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Engine::Framebuffer::Resize(const Vector2D size)
+void Engine::Framebuffer::Resize(const glm::vec2 size)
 {
     _size = size;
     _shouldResize = true;
