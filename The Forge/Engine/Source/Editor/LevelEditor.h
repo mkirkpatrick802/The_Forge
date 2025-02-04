@@ -7,6 +7,7 @@
 
 namespace Engine
 {
+    class Level;
     class GameObject;
 }
 

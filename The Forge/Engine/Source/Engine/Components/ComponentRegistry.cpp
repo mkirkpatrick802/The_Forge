@@ -1,20 +1,38 @@
 ﻿#include "ComponentRegistry.h"
 
-std::shared_ptr<Engine::ComponentRegistry> Engine::ComponentRegistry::_instance = nullptr;
-std::shared_ptr<Engine::ComponentRegistry> Engine::ComponentRegistry::GetInstance()
+#include <stdexcept>
+
+Engine::ComponentRegistry& Engine::ComponentRegistry::GetInstance()
 {
-    _instance = _instance == nullptr ? std::make_shared<ComponentRegistry>() : _instance;
-    return _instance;
+    static std::unique_ptr<ComponentRegistry> instance;
+    if (instance == nullptr)
+        instance = std::make_unique<ComponentRegistry>();
+    
+    return *instance;
 }
 
 uint32_t Engine::ComponentRegistry::GetComponentID(const std::type_info& typeInfo) const
 {
-    return _componentIDs.at(typeInfo);
+    if (const auto it = _componentIDs.find(typeInfo); it != _componentIDs.end())
+        return it->second;
+
+    throw std::runtime_error("Component Type not found!");
 }
 
 std::string Engine::ComponentRegistry::GetComponentName(const std::type_info& typeInfo) const
 {
-    return _componentNames.at(typeInfo);
+    if (const auto it = _componentNames.find(typeInfo); it != _componentNames.end())
+        return it->second;
+
+    throw std::runtime_error("Component Type not found!");
+}
+
+std::type_index Engine::ComponentRegistry::GetComponentTypeFromID(const uint32_t id) const
+{
+    if (const auto it = _componentTypes.find(id); it != _componentTypes.end()) 
+        return it->second;
+    
+    throw std::runtime_error("Component ID not found!");
 }
 
 std::vector<std::pair<std::string, uint32_t>> Engine::ComponentRegistry::GetListOfComponents() const

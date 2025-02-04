@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "Component.h"
-#include "ComponentRegistry.h"
 
 namespace Engine
 {
@@ -11,5 +10,5 @@ namespace Engine
         nlohmann::json SaveData() override;
     };
 
-    REGISTER_COMPONENT(PlayerStart);
+    //REGISTER_COMPONENT(PlayerStart);
 }

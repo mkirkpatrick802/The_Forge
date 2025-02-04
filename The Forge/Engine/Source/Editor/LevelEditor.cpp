@@ -135,7 +135,7 @@ std::vector<const char*> Editor::LevelEditor::ConvertLevelDataToNameList(const s
 void Editor::LevelEditor::LevelSettings()
 {
     const auto currentLevel = Engine::LevelManager::GetCurrentLevel();
-    if (currentLevel== nullptr) return;
+    if (currentLevel == nullptr) return;
 
     // Game Mode
     ImGui::Separator();
@@ -146,7 +146,8 @@ void Editor::LevelEditor::LevelSettings()
     // TODO: Make game mode objects
     ImGui::PushItemWidth(100);
     std::vector gamemodes = {"Main Menu", "Game"};
-    if (ImGui::Combo(" ", &_selectedLevel, gamemodes.data(), static_cast<int>(gamemodes.size())))
+    int selectedGameMode = 0;
+    if (ImGui::Combo(" ", &selectedGameMode, gamemodes.data(), static_cast<int>(gamemodes.size())))
     {
         
     }

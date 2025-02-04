@@ -1,11 +1,10 @@
 ﻿#pragma once
 #include "Component.h"
-#include "ComponentRegistry.h"
 #include "glm/glm.hpp"
 
 namespace Engine
 {
-    class Camera : public Component
+    class Camera final : public Component
     {
     public:
         
@@ -29,7 +28,6 @@ namespace Engine
         glm::mat4 GetProjectionMatrix();
         glm::mat4 GetViewMatrix();
     };
-
-    REGISTER_COMPONENT(Camera)
     
+    //REGISTER_COMPONENT(Camera)
 }

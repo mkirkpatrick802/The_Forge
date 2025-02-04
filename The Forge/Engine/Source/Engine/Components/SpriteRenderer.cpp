@@ -3,8 +3,7 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-#include "Engine/EventData.h"
-#include "Engine/EventSystem.h"
+#include "ComponentRegistry.h"
 #include "Engine/JsonKeywords.h"
 #include "Engine/Rendering/CameraHelper.h"
 #include "Engine/Rendering/CameraManager.h"
@@ -75,7 +74,7 @@ void Engine::SpriteRenderer::LoadData(const json& data)
 nlohmann::json Engine::SpriteRenderer::SaveData()
 {
     nlohmann::json data;
-    data[JsonKeywords::COMPONENT_ID] = GetComponentRegistry()->GetComponentID<SpriteRenderer>();
+    data[JsonKeywords::COMPONENT_ID] = GetComponentRegistry().GetComponentID<SpriteRenderer>();
     std::string filepath = _texture->GetFilePath();
     data[JsonKeywords::SPRITE_RENDERER_SPRITE] = filepath;
     data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER] = _sortingLayer;

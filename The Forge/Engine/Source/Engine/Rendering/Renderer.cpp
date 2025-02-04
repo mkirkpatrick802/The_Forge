@@ -9,6 +9,7 @@
 #include "Engine/EngineManager.h"
 #include "Engine/EventData.h"
 #include "Engine/EventSystem.h"
+#include "Engine/Components/SpriteRenderer.h"
 
 Engine::Context Engine::Renderer::_context = nullptr;
 
@@ -129,7 +130,7 @@ void Engine::Renderer::Render()
 		
 		if (!_renderList.empty())
 			for (const auto& val : _renderList | std::views::values)
-				//val->DrawSprite();
+				val->DrawSprite();
 
 		sceneFBO->Unbind();
 	}

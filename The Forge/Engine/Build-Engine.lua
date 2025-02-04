@@ -7,7 +7,7 @@ project "Engine"
    targetdir "Binaries/%{cfg.buildcfg}"
    staticruntime "off"
 
-   files { "Source/**.h", "Source/**.cpp" }
+   files { "Source/**.h", "Source/**.cpp", "Source/**.inl" }
    files { "Vendors/glad/**.h", "Vendors/glad/**.c"}
    files { "Vendors/imgui-1.90.5-docking/**.h", "Vendors/imgui-1.90.5-docking/**.cpp"}
    files { "Vendors/stb/**.h"}

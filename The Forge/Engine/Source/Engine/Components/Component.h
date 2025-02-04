@@ -1,14 +1,11 @@
 ﻿#pragma once
 #include <json.hpp>
-#include "Engine/GameObject.h"
 
 using json = nlohmann::json;
 
 namespace Engine
 {
-    
     class GameObject;
-    
     class Component
     {
     public:
