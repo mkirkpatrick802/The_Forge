@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Component.h"
 
 class GameObject;
 namespace Engine
@@ -13,6 +14,8 @@ namespace Engine
     template<typename T>
     class ComponentPool final : public BasePool
     {
+        static_assert(std::is_base_of_v<Component, T>, "T must be derived from Component");
+        
     public:
 
         ComponentPool();
@@ -23,6 +26,10 @@ namespace Engine
         T* New(GameObject* go);
         void Delete(T* component);
 
+        std::vector<T*> GetActive();
+
+    private:
+        
         T components[MAX_POOL_SIZE];
         bool isActive[MAX_POOL_SIZE];
     };
@@ -57,6 +64,7 @@ namespace Engine
             {
                 T* next = &components[i];
                 next->gameObject = go;
+                next->OnActivation();
                 isActive[i] = true;
                 return next;
             }
@@ -70,7 +78,7 @@ namespace Engine
     {
         for (int i = 0; i < MAX_POOL_SIZE; i++)
         {
-            if(!isActive[i]) continue;
+            if (!isActive[i]) continue;
 
             if (&components[i] == component)
             {
@@ -78,5 +86,18 @@ namespace Engine
                 isActive[i] = false;
             }
         }
+    }
+
+    template <typename T>
+    std::vector<T*> ComponentPool<T>::GetActive()
+    {
+        std::vector<T*> active;
+        for (int i = 0; i < MAX_POOL_SIZE; i++)
+        {
+            if (!isActive[i]) continue;
+            active.push_back(&components[i]);
+        }
+
+        return active;
     }
 }

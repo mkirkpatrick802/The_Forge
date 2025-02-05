@@ -15,6 +15,7 @@ namespace Editor
     const uint8_t COMMAND_TERMINAL = 4;
     const uint8_t CONSOLE = 5;
     const uint8_t CONTENT_DRAWER = 6;
+    const uint8_t MENU_BAR = 7;
     
     // This class will hold a list of all the editor panels and keep track of which ones are active or not.
     // This should be the only editor class to talk with the UI manager class

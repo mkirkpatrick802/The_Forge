@@ -152,7 +152,6 @@ Engine::Renderer::~Renderer()
 	
 	UIManager::CleanUp();
 	BufferRegistry::GetRegistry()->CleanUp();
-	CameraManager::CleanUp();
 	
 	SDL_GL_DeleteContext(_context);
 }

@@ -34,6 +34,7 @@ namespace Engine
 
 		Renderer& GetRenderer() const { return *_renderer; }
 		InputManager& GetInputManager() const { return *_inputManager; }
+		LevelManager& GetLevelManager() const { return *_levelManager; }
 		
 	};
 
@@ -50,5 +51,10 @@ namespace Engine
 	inline GameEngine& GetGameEngine()
 	{
 		return GameEngine::GetInstance();
+	}
+
+	inline LevelManager& GetLevelManager()
+	{
+		return GameEngine::GetInstance().GetLevelManager();
 	}
 }

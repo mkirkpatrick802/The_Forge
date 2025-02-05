@@ -7,7 +7,8 @@ namespace Engine
     class PlayerStart final : public Component
     {
     public:
-        PlayerStart();
+        PlayerStart() = default;
+        
         void Deserialize(const json& data) override;
         nlohmann::json Serialize() override;
     };

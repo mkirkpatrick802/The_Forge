@@ -9,15 +9,12 @@ namespace Engine
     class Component
     {
     public:
-        virtual ~Component() = default;
 
         virtual void Deserialize(const json& data) = 0;
         virtual nlohmann::json Serialize() = 0;
 
-        virtual void BeginPlay() {}
-        virtual void Update(float deltaTime) {}
-
-        virtual void OnDestroyed() {}
+        // Triggers when component is activated within the pool
+        virtual void OnActivation() {};
 
     public:
         

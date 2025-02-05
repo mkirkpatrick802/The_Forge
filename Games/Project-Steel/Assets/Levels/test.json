@@ -1,8 +1,20 @@
 {
     "Level Game Objects": [
         {
-            "Components": [],
+            "Components": [
+                {
+                    "Component ID": 658613692
+                }
+            ],
             "Game Object Name": "Player Start"
+        },
+        {
+            "Components": [
+                {
+                    "Component ID": 1181213486
+                }
+            ],
+            "Game Object Name": "Camera"
         }
     ],
     "Level Name": "test"

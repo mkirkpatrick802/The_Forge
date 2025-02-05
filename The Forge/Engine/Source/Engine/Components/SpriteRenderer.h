@@ -13,9 +13,11 @@ namespace Engine
         friend class Renderer;
 
     public:
-        
+
         SpriteRenderer();
         ~SpriteRenderer();
+
+        void OnActivation() override;
         
         virtual void Deserialize(const json& data) override;
         virtual nlohmann::json Serialize() override;
@@ -23,13 +25,11 @@ namespace Engine
         glm::vec2 GetSize() const { return _size; }
 
     private:
-
-        void Init();
+        
         void DrawSprite();
 
     private:
-
-        bool _isInitialized = false;
+        
         Shader _shader;
         std::unique_ptr<Texture> _texture;
 

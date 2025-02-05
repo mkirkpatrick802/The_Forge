@@ -7,12 +7,15 @@ namespace Engine
     class GameModeBase
     {
     public:
-        GameModeBase() = default;
+        
+        GameModeBase();
         ~GameModeBase() = default;
+
+        void Start();
 
     private:
 
-        std::vector<PlayerStart> _playerStarts;
+        std::vector<PlayerStart*> _playerStarts;
         
     };
 }

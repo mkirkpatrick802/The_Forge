@@ -1,0 +1,10 @@
+{
+    "Components": [
+        {
+            "Component ID": 2525770811,
+            "Sorting Layer": 0,
+            "Sprite": "Assets/Sprites/Astronaut.png"
+        }
+    ],
+    "Game Object Name": "Player"
+}

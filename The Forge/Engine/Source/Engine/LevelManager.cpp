@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 
+#include "EngineManager.h"
 #include "json.hpp"
 #include "JsonKeywords.h"
 #include "Level.h"
@@ -14,10 +15,19 @@ Engine::Level* Engine::LevelManager::_currentLevel = nullptr;
 
 Engine::LevelManager::LevelManager(const std::string& filepath)
 {
-    CameraManager::GetCameraManager();
-    
     if (const std::ifstream file(filepath); file.is_open())
         LoadLevel(filepath);
+}
+
+void Engine::LevelManager::StartCurrentLevel()
+{
+    GetEngineManager().ToggleEditor("0");
+
+    const auto cameras = GetComponentManager().GetPool<Camera>()->GetActive();
+    if (!cameras.empty())
+        CameraManager::GetCameraManager().SetActiveCamera(cameras[0]);
+    
+    _currentLevel->Start();
 }
 
 void Engine::LevelManager::CleanUp()

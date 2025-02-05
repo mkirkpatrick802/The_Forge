@@ -7,6 +7,7 @@
 #include "Console.h"
 #include "ContentDrawer.h"
 #include "EditorCamera.h"
+#include "MenuBar.h"
 #include "Engine/Rendering/UIManager.h"
 
 Editor::EditorManager::EditorManager()
@@ -17,6 +18,7 @@ Editor::EditorManager::EditorManager()
     EditorWindows[COMMAND_TERMINAL] = std::make_shared<CommandTerminal>();
     EditorWindows[CONSOLE] = std::make_shared<Console>();
     EditorWindows[CONTENT_DRAWER] = std::make_shared<ContentDrawer>();
+    EditorWindows[MENU_BAR] = std::make_shared<MenuBar>();
     
     Engine::UIManager::SetDockingEnabled(true);
     Engine::UIManager::AddUIWindow(EditorWindows[LEVEL_EDITOR_INDEX]);
@@ -25,6 +27,7 @@ Editor::EditorManager::EditorManager()
     Engine::UIManager::AddUIWindow(EditorWindows[COMMAND_TERMINAL]);
     Engine::UIManager::AddUIWindow(EditorWindows[CONSOLE]);
     Engine::UIManager::AddUIWindow(EditorWindows[CONTENT_DRAWER]);
+    Engine::UIManager::AddUIWindow(EditorWindows[MENU_BAR]);
 }
 
 Editor::EditorManager::~EditorManager()
@@ -36,6 +39,7 @@ Editor::EditorManager::~EditorManager()
     Engine::UIManager::RemoveUIWindow(EditorWindows[COMMAND_TERMINAL]);
     Engine::UIManager::RemoveUIWindow(EditorWindows[CONSOLE]);
     Engine::UIManager::RemoveUIWindow(EditorWindows[CONTENT_DRAWER]);
+    Engine::UIManager::RemoveUIWindow(EditorWindows[MENU_BAR]);
     EditorCamera::CleanUp();
 
     // For some reason IMGUi SetCursor does not work here

@@ -9,7 +9,7 @@ glm::mat4 Engine::GetProjectionMatrix()
     if (GetEngineManager().IsEditorEnabled())
         return Editor::EditorCamera::GetInstance()->GetProjectionMatrix();
 
-    if (const auto activeCamera = CameraManager::GetCameraManager()->GetActiveCamera())
+    if (const auto activeCamera = CameraManager::GetCameraManager().GetActiveCamera())
         return activeCamera->GetProjectionMatrix();
 
     return {};
@@ -22,7 +22,7 @@ glm::mat4 Engine::GetViewMatrix()
         return Editor::EditorCamera::GetInstance()->GetViewMatrix();
     }
     
-    if (const auto activeCamera = CameraManager::GetCameraManager()->GetActiveCamera())
+    if (const auto activeCamera = CameraManager::GetCameraManager().GetActiveCamera())
         return activeCamera->GetViewMatrix();
 
     return {};

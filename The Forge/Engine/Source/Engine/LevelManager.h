@@ -14,12 +14,16 @@ namespace Engine
         friend class GameEngine;
         
     public:
+        
         static bool LoadLevel(const std::string& filepath);
         static bool CreateLevel(const std::string& levelName);
 
         LevelManager(const std::string& filepath);
+
+        void StartCurrentLevel();
         
     public:
+        
         static Level* GetCurrentLevel() { return _currentLevel; }
 
         //Returns the list of file paths, and gives out the list of json data

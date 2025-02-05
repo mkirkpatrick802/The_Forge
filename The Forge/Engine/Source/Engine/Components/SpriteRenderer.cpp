@@ -13,29 +13,23 @@
 
 Engine::SpriteRenderer::SpriteRenderer(): _quadVAO(0)
 {
-    
 }
 
-Engine::SpriteRenderer::~SpriteRenderer()
-{
-    GetRenderer().RemoveSpriteRendererFromRenderList(this);
-}
-
-void Engine::SpriteRenderer::Init()
+void Engine::SpriteRenderer::OnActivation()
 {
     // configure VAO/VBO
     unsigned int VBO;
     const float vertices[] = {
 
-            // pos      // tex
-            0.0f, 1.0f, 0.0f, 1.0f,
-            1.0f, 0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 0.0f,
+        // pos      // tex
+        0.0f, 1.0f, 0.0f, 1.0f,
+        1.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 0.0f,
 
-            0.0f, 1.0f, 0.0f, 1.0f,
-            1.0f, 1.0f, 1.0f, 1.0f,
-            1.0f, 0.0f, 1.0f, 0.0f
-    };
+        0.0f, 1.0f, 0.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 0.0f, 1.0f, 0.0f
+};
 
     glGenVertexArrays(1, &_quadVAO);
     glBindVertexArray(_quadVAO);
@@ -52,14 +46,19 @@ void Engine::SpriteRenderer::Init()
 
     GetRenderer().AddSpriteRendererToRenderList(this);
     
-    /*const std::string filepath = "Assets/Sprites/Astronaut.png";
-    _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);*/
+    const std::string filepath = "Assets/Sprites/Astronaut.png";
+    _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
     
-    /*std::string vertex = "Assets/Shaders/Sprite.vert";
+    std::string vertex = "Assets/Shaders/Sprite.vert";
     std::string fragment = "Assets/Shaders/Sprite.frag";
 
     _shader.Compile(vertex.c_str(), fragment.c_str());
-    _sortingLayer = 0;*/
+    _sortingLayer = 0;
+}
+
+Engine::SpriteRenderer::~SpriteRenderer()
+{
+    GetRenderer().RemoveSpriteRendererFromRenderList(this);
 }
 
 void Engine::SpriteRenderer::Deserialize(const json& data)
@@ -74,20 +73,18 @@ void Engine::SpriteRenderer::Deserialize(const json& data)
 
     _shader.Compile(vertex.c_str(), fragment.c_str());
     _sortingLayer = (int16_t)data.value(JsonKeywords::SPRITE_RENDERER_SORTING_LAYER, 0);
-
-    Init();
-    _isInitialized = true;
 }
 
 nlohmann::json Engine::SpriteRenderer::Serialize()
 {
-    if (!_isInitialized) {Init(); _isInitialized = true;}
-    
     nlohmann::json data;
     data[JsonKeywords::COMPONENT_ID] = GetComponentRegistry().GetComponentID<SpriteRenderer>();
-    
-    std::string filepath = _texture->GetFilePath();
-    data[JsonKeywords::SPRITE_RENDERER_SPRITE] = filepath;
+
+    if (_texture)
+    {
+        std::string filepath = _texture->GetFilePath();
+        data[JsonKeywords::SPRITE_RENDERER_SPRITE] = filepath;
+    }
     
     data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER] = _sortingLayer;
 
@@ -98,8 +95,6 @@ nlohmann::json Engine::SpriteRenderer::Serialize()
 
 void Engine::SpriteRenderer::DrawSprite()
 {
-    if (!_isInitialized) {Init(); _isInitialized = true;}
-    
 	const float rotation = gameObject->transform.rotation;
 	const auto position = glm::vec2(gameObject->transform.position.x - _size.x / PIXEL_SCALE, (gameObject->transform.position.y * -1) - _size.y / PIXEL_SCALE);
     

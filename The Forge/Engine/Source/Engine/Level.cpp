@@ -1,8 +1,8 @@
 ﻿#include "Level.h"
-
 #include <fstream>
 
 #include "CommandRegistry.h"
+#include "GameModeBase.h"
 #include "Components/Component.h"
 #include "GameObject.h"
 #include "JsonKeywords.h"
@@ -22,6 +22,8 @@ Engine::Level::Level(nlohmann::json data)
         const auto go = DEBUG_NEW GameObject(go_data);
         _gameObjects.push_back(go);
     }
+
+    _gameMode = std::make_unique<GameModeBase>();
 }
 
 Engine::Level::~Level()
@@ -36,6 +38,11 @@ Engine::Level::~Level()
     }
 
     _gameObjects.clear();
+}
+
+void Engine::Level::Start()
+{
+    _gameMode->Start();
 }
 
 bool Engine::Level::SpawnNewGameObject()
@@ -97,7 +104,8 @@ void Engine::Level::SaveLevel(const std::string& args)
     if (std::ofstream outputFile(_path); outputFile.is_open())
     {
         outputFile << data.dump(4);
-        System::GetInstance().DisplayMessageBox("Message", "Current Level Saved!!");
         outputFile.close();
     }
+
+    std::cout << "Level Saved Successfully!" << std::endl;
 }
