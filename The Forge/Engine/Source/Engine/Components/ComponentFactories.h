@@ -4,8 +4,8 @@
 #include <unordered_map>
 
 #include "ComponentHasher.h"
-#include "Engine/GameObject.h"
 #include "ComponentManager.h"
+#include "Engine/GameObject.h"
 
 namespace Engine
 {
@@ -24,8 +24,8 @@ namespace Engine
 
     private:
 
-        std::unordered_map<uint32_t, std::function<Component*(GameObject*)>> _componentCreationFactories;
-        std::unordered_map<std::type_index, std::function<void(Component*)>>        _componentDeletionFactories;
+        std::unordered_map<uint32_t, std::function<Component*(GameObject*)>>     _componentCreationFactories;
+        std::unordered_map<std::type_index, std::function<void(Component*)>>     _componentDeletionFactories;
         
     };
 
@@ -43,5 +43,10 @@ namespace Engine
         {
             GetComponentManager().DeleteComponent<T>(component);
         };
+    }
+
+    inline ComponentFactories& GetComponentFactories()
+    {
+        return ComponentFactories::GetInstance();
     }
 }

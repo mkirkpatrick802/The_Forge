@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include <functional>
 #include <memory>
 #include <string>
 #include <typeindex>
@@ -63,5 +62,10 @@ namespace Engine
             return;
         
         pool->Delete(static_cast<T*>(component));
+    }
+
+    inline ComponentManager& GetComponentManager()
+    {
+        return ComponentManager::GetInstance();
     }
 }

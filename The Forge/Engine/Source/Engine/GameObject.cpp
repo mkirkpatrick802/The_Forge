@@ -3,6 +3,7 @@
 #include "Components/Component.h"
 #include "JsonKeywords.h"
 #include "Level.h"
+#include "Components/ComponentFactories.h"
 
 Engine::GameObject::GameObject()
 {

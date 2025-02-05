@@ -63,4 +63,9 @@ namespace Engine
     {
         return _componentNames.at(typeid(T));
     }
+
+    inline ComponentRegistry& GetComponentRegistry()
+    {
+        return ComponentRegistry::GetInstance();
+    }
 }

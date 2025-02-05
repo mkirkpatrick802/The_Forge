@@ -1,5 +1,6 @@
 ﻿#include "DetailsEditor.h"
 
+#include "Engine/GameObject.h"
 #include "Engine/Components/Component.h"
 #include "Engine/Components/ComponentRegistry.h"
 #include "Engine/Components/ComponentFactories.h"
