@@ -4,17 +4,12 @@
 
 #include "ChatWindow.h"
 #include "EventSystem.h"
+#include "GameEngine.h"
 #include "InputManager.h"
 #include "Rendering/UIManager.h"
 
 Engine::Chat::Chat()
 {
-    
-}
-
-Engine::Chat::Chat(const std::shared_ptr<InputManager>& inputManager)
-{
-    _inputManager = inputManager;
     EventSystem::GetInstance()->RegisterEvent("Editor Enabled", this, &Chat::CloseChatWindow);
 }
 
@@ -26,13 +21,13 @@ Engine::Chat::~Chat()
 
 void Engine::Chat::Update(float deltaTime)
 {
-    if (_inputManager->GetKeyDown(SDL_SCANCODE_T))
+    if (GetInputManager().GetKeyDown(SDL_SCANCODE_T))
         OpenChatWindow(false);
 
-    if (_inputManager->GetKeyDown(SDL_SCANCODE_SLASH))
+    if (GetInputManager().GetKeyDown(SDL_SCANCODE_SLASH))
         OpenChatWindow(true);
 			
-    if (_inputManager->GetKeyDown(SDL_SCANCODE_ESCAPE))
+    if (GetInputManager().GetKeyDown(SDL_SCANCODE_ESCAPE))
         CloseChatWindow();
 }
 

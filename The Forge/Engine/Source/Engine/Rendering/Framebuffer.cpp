@@ -9,7 +9,7 @@ Engine::Framebuffer::Framebuffer(const glm::vec2 size, const bool shouldUseRbo)
     _shouldUseRbo = shouldUseRbo;
 
     _texture = CreateTexture(size, Texture::TextureType::FRAMEBUFFER);
-    if (!_texture || !Init()) System::DisplayMessageBox("Error", "Failed to create or init framebuffer texture!!!");
+    if (!_texture || !Init()) System::GetInstance().DisplayMessageBox("Error", "Failed to create or init framebuffer texture!!!");
 }
 
 bool Engine::Framebuffer::Init()

@@ -26,7 +26,7 @@ namespace Editor
         void LevelSettings();
 
         void DeleteGameObjects(Engine::Level* currentLevel);
-
+        void CreatePrefab(Engine::GameObject* go) const;
     private:
 
         std::string _defaultLevelFilePath;

@@ -31,10 +31,10 @@ void Editor::ContentDrawer::Render()
     ImGui::Begin("Content Drawer");
 
     // Left Panel: Directory Tree
-    ImGui::BeginChild("LeftPanel", ImVec2(ImGui::GetContentRegionAvail().x * 0.25f, 0), true);
+    /*ImGui::BeginChild("LeftPanel", ImVec2(ImGui::GetContentRegionAvail().x * 0.25f, 0), true);
     ImGui::Text("File Structure:");
     DrawFileTree(root);
-    ImGui::EndChild();
+    ImGui::EndChild();*/
 
     ImGui::SameLine();
 
@@ -75,47 +75,58 @@ void Editor::ContentDrawer::DrawDirectoryContents()
     FileNode selectedNode;
     ScanDirectory(_currentDirectory, selectedNode);
 
-    ImGui::Text(("Viewing: " + _currentDirectory).c_str());
-    ImGui::Separator();
+    // Display navigable path
+    std::filesystem::path currentPath = _currentDirectory;
+    std::vector<std::filesystem::path> pathParts;
 
-    // Search bar
-    ImGui::InputText("Search", _searchQuery.data(), IM_ARRAYSIZE(_searchQuery.data()));
+    for (auto it = currentPath.begin(); it != currentPath.end(); ++it)
+    {
+        pathParts.push_back(*it);
+    }
+
+    ImGui::Text("Viewing: ");
     ImGui::SameLine();
-    ImGui::Text("🔍");
+    
+    std::filesystem::path accumulatedPath;
+    for (size_t i = 0; i < pathParts.size(); ++i)
+    {
+        accumulatedPath /= pathParts[i];
 
-    // Thumbnail size slider
-    ImGui::SliderFloat("Thumbnail Size", &_thumbnailSize, 32.0f, 128.0f, "%.0f px");
+        if (ImGui::Button(pathParts[i].string().c_str()))
+            _currentDirectory = accumulatedPath.string();
+        
+        if (i < pathParts.size() - 1)
+        {
+            ImGui::SameLine();
+            ImGui::Text("/");
+            ImGui::SameLine();
+        }
+    }
 
     ImGui::Separator();
 
-    // Begin a grid layout
     int columns = std::max(1, int(ImGui::GetContentRegionAvail().x / (_thumbnailSize + 16)));
     ImGui::Columns(columns, nullptr, false);
 
-    for (auto& child : selectedNode.children) {
-        if (!_searchQuery.empty() && child.name.find(_searchQuery) == std::string::npos) {
-            continue;  // Skip if it doesn't match the search query
-        }
+    for (auto& child : selectedNode.children)
+    {
 
         auto icon = child.isDirectory ? _folderIcon : _fileIcon;
-        if (child.name.ends_with(".png") || child.name.ends_with(".jpg")) {
+        if (child.name.ends_with(".png") || child.name.ends_with(".jpg"))
             icon = _spriteIcon;
-        }
 
         ImGui::Image((void*)(intptr_t)icon->GetID(), ImVec2(_thumbnailSize, _thumbnailSize));
 
-        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) {
-            if (child.isDirectory) {
+        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+            if (child.isDirectory) 
                 _currentDirectory = child.fullPath;
-            }
-        }
+            
 
         ImGui::TextWrapped(child.name.c_str());
-
         ImGui::NextColumn();
     }
 
-    ImGui::Columns(1); // Reset column layout
+    ImGui::Columns(1);
 }
 
 void Editor::ContentDrawer::ScanDirectory(const std::filesystem::path& directory, FileNode& node)

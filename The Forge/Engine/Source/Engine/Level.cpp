@@ -4,7 +4,6 @@
 
 #include "CommandRegistry.h"
 #include "Components/Component.h"
-#include "EventSystem.h"
 #include "GameObject.h"
 #include "JsonKeywords.h"
 #include "System.h"
@@ -49,7 +48,7 @@ bool Engine::Level::SpawnNewGameObject()
     std::ifstream readFile(_path);
     if (!readFile.is_open())
     {
-        System::DisplayMessageBox("Error", "Could not open file: " + _path);
+        System::GetInstance().DisplayMessageBox("Error", "Could not open file: " + _path);
         return false;
     }
 
@@ -66,7 +65,7 @@ bool Engine::Level::SpawnNewGameObject()
     std::ofstream writeFile(_path);
     if (!readFile.is_open())
     {
-        System::DisplayMessageBox("Error", "Could not open file: " + _path);
+        System::GetInstance().DisplayMessageBox("Error", "Could not open file: " + _path);
         return false;
     }
 
@@ -92,13 +91,13 @@ void Engine::Level::SaveLevel(const std::string& args)
     // Update game objects
     data[JsonKeywords::GAMEOBJECT_ARRAY] = json::array();
     for (const auto go : _gameObjects)
-        data[JsonKeywords::GAMEOBJECT_ARRAY].push_back(go->SaveObject());
+        data[JsonKeywords::GAMEOBJECT_ARRAY].push_back(go->Serialize());
 
     // Write new data
     if (std::ofstream outputFile(_path); outputFile.is_open())
     {
         outputFile << data.dump(4);
-        System::DisplayMessageBox("Message", "Current Level Saved!!");
+        System::GetInstance().DisplayMessageBox("Message", "Current Level Saved!!");
         outputFile.close();
     }
 }

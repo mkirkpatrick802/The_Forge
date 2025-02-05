@@ -12,12 +12,12 @@ Engine::Camera::Camera(): _projection(), _view()
     
 }
 
-void Engine::Camera::LoadData(const json& data)
+void Engine::Camera::Deserialize(const json& data)
 {
     
 }
 
-nlohmann::json Engine::Camera::SaveData()
+nlohmann::json Engine::Camera::Serialize()
 {
     nlohmann::json data;
     data[JsonKeywords::COMPONENT_ID] = GetComponentRegistry().GetComponentID<Camera>();

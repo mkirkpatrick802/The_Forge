@@ -32,7 +32,7 @@ bool Engine::LevelManager::CreateLevel(const std::string& levelName)
 
     if (std::filesystem::exists(filepath))
     {
-        System::DisplayMessageBox("Error", "File already exists!");
+        System::GetInstance().DisplayMessageBox("Error", "File already exists!");
         return false;
     }
     
@@ -106,7 +106,7 @@ bool Engine::LevelManager::LoadLevel(const std::string& filepath)
     std::ifstream level(filepath);
     if (!level.is_open())
     {
-        System::DisplayMessageBox("Error", "Unable to open file for reading: " + filepath);
+        System::GetInstance().DisplayMessageBox("Error", "Unable to open file for reading: " + filepath);
         return false;
     }
 

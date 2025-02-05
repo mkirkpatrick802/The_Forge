@@ -15,9 +15,10 @@ namespace Engine
     public:
         
         SpriteRenderer();
+        ~SpriteRenderer();
         
-        virtual void LoadData(const json& data) override;
-        virtual nlohmann::json SaveData() override;
+        virtual void Deserialize(const json& data) override;
+        virtual nlohmann::json Serialize() override;
 
         glm::vec2 GetSize() const { return _size; }
 
@@ -27,9 +28,10 @@ namespace Engine
         void DrawSprite();
 
     private:
-        
+
+        bool _isInitialized = false;
         Shader _shader;
-        std::shared_ptr<Texture> _texture;
+        std::unique_ptr<Texture> _texture;
 
         unsigned int _quadVAO;
 

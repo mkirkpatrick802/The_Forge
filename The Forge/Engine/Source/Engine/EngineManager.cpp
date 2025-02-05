@@ -11,13 +11,10 @@
 #include "Editor/EditorManager.h"
 #include "../../../Netcode/Source/Utilites/NetObject.h"
 
-bool Engine::EngineManager::_editorEnabled = false;
-std::shared_ptr<Engine::EngineManager> Engine::EngineManager::_instance = nullptr;
-
-std::shared_ptr<Engine::EngineManager> Engine::EngineManager::GetInstance()
+Engine::EngineManager& Engine::EngineManager::GetInstance()
 {
-	_instance = _instance == nullptr ? std::make_shared<EngineManager>() : _instance;
-	return _instance;
+	static auto instance = std::make_unique<EngineManager>();
+	return *instance;
 }
 
 Engine::EngineManager::EngineManager()
@@ -40,13 +37,8 @@ Engine::EngineManager::EngineManager()
 
 	if ( !NetCode::InitNetcodeBackend() )
 	{
-		System::DisplayMessageBox("Error","Failed to initialize Netcode backend!!");
+		System::GetInstance().DisplayMessageBox("Error","Failed to initialize Netcode backend!!");
 	}
-}
-
-void Engine::EngineManager::CleanUp()
-{
-	_instance.reset();
 }
 
 Engine::EngineManager::~EngineManager()
@@ -135,8 +127,7 @@ nlohmann::json Engine::EngineManager::GetConfigData(const std::string& file, con
 
 void Engine::EngineManager::UpdateNetObject()
 {
-	if (_instance == nullptr) GetInstance();
-	if (_instance->_netObject == nullptr) return;
+	/*if (_netObject == nullptr) return;
 	
-	_instance->_netObject->Update();
+	_instance->_netObject->Update();*/
 }

@@ -22,19 +22,17 @@ namespace Engine
 
 	public:
 
-		static std::shared_ptr<EngineManager> GetInstance();
+		static EngineManager& GetInstance();
 		EngineManager();
-
-		static void CleanUp();
 		~EngineManager();
 		
 	public:
 
-		static void UpdateConfigFile(const std::string& file, const std::string& jsonKeyword, const std::string& data);
-		static nlohmann::json GetConfigData(const std::string& file, const std::string& jsonKeyword);
-		static bool IsEditorEnabled() {return _editorEnabled; }
+		void UpdateConfigFile(const std::string& file, const std::string& jsonKeyword, const std::string& data);
+		nlohmann::json GetConfigData(const std::string& file, const std::string& jsonKeyword);
+		bool IsEditorEnabled() const {return _editorEnabled; }
 
-		static void UpdateNetObject();
+		void UpdateNetObject();
 		
 		void ToggleEditor(const std::string& args);
 	
@@ -44,11 +42,14 @@ namespace Engine
 		void JoinLobby(const std::string& args);
 		
 	private:
-
-		static std::shared_ptr<EngineManager> _instance;
-		static bool _editorEnabled;
+		
+		bool _editorEnabled;
 		std::unique_ptr<Editor::EditorManager> _editor;
 		std::shared_ptr<NetCode::NetObject> _netObject;
-
 	};
+
+	inline EngineManager& GetEngineManager()
+	{
+		return EngineManager::GetInstance();
+	}
 }

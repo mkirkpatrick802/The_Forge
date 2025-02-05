@@ -11,14 +11,14 @@ namespace Engine
     public:
         virtual ~Component() = default;
 
-        virtual void LoadData(const json& data) = 0;
-        virtual nlohmann::json SaveData() = 0;
+        virtual void Deserialize(const json& data) = 0;
+        virtual nlohmann::json Serialize() = 0;
 
         virtual void BeginPlay() {}
         virtual void Update(float deltaTime) {}
 
         virtual void OnDestroyed() {}
-        
+
     public:
         
         GameObject* gameObject = nullptr;

@@ -4,10 +4,7 @@
 
 Engine::ComponentRegistry& Engine::ComponentRegistry::GetInstance()
 {
-    static std::unique_ptr<ComponentRegistry> instance;
-    if (instance == nullptr)
-        instance = std::make_unique<ComponentRegistry>();
-    
+    static auto instance = std::make_unique<ComponentRegistry>();
     return *instance;
 }
 

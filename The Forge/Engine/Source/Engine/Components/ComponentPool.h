@@ -21,7 +21,7 @@ namespace Engine
         void Update(float deltaTime);
 
         T* New(GameObject* go);
-        T* Delete(T* component);
+        void Delete(T* component);
 
         T components[MAX_POOL_SIZE];
         bool isActive[MAX_POOL_SIZE];
@@ -66,7 +66,7 @@ namespace Engine
     }
 
     template <typename T>
-    T* ComponentPool<T>::Delete(T* component)
+    void ComponentPool<T>::Delete(T* component)
     {
         for (int i = 0; i < MAX_POOL_SIZE; i++)
         {
@@ -74,10 +74,9 @@ namespace Engine
 
             if (&components[i] == component)
             {
+                components[i].~T();
                 isActive[i] = false;
             }
         }
-
-        return nullptr;
     }
 }

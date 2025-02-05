@@ -4,6 +4,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "ComponentRegistry.h"
+#include "Engine/GameEngine.h"
 #include "Engine/JsonKeywords.h"
 #include "Engine/Rendering/CameraHelper.h"
 #include "Engine/Rendering/CameraManager.h"
@@ -13,6 +14,11 @@
 Engine::SpriteRenderer::SpriteRenderer(): _quadVAO(0)
 {
     
+}
+
+Engine::SpriteRenderer::~SpriteRenderer()
+{
+    GetRenderer().RemoveSpriteRendererFromRenderList(this);
 }
 
 void Engine::SpriteRenderer::Init()
@@ -31,7 +37,6 @@ void Engine::SpriteRenderer::Init()
             1.0f, 0.0f, 1.0f, 0.0f
     };
 
-
     glGenVertexArrays(1, &_quadVAO);
     glBindVertexArray(_quadVAO);
 
@@ -45,21 +50,21 @@ void Engine::SpriteRenderer::Init()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    const std::string filepath = "Assets/Sprites/Astronaut.png";
+    GetRenderer().AddSpriteRendererToRenderList(this);
     
-    _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
+    /*const std::string filepath = "Assets/Sprites/Astronaut.png";
+    _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);*/
     
-    std::string vertex = "Assets/Shaders/Sprite.vert";
+    /*std::string vertex = "Assets/Shaders/Sprite.vert";
     std::string fragment = "Assets/Shaders/Sprite.frag";
 
     _shader.Compile(vertex.c_str(), fragment.c_str());
-    _sortingLayer = 0;
+    _sortingLayer = 0;*/
 }
 
-void Engine::SpriteRenderer::LoadData(const json& data)
+void Engine::SpriteRenderer::Deserialize(const json& data)
 {
     const std::string filepath = data[JsonKeywords::SPRITE_RENDERER_SPRITE];
-    
     _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
 
     std::string vertex = "Assets/Shaders/Sprite.vert";
@@ -69,23 +74,32 @@ void Engine::SpriteRenderer::LoadData(const json& data)
 
     _shader.Compile(vertex.c_str(), fragment.c_str());
     _sortingLayer = (int16_t)data.value(JsonKeywords::SPRITE_RENDERER_SORTING_LAYER, 0);
+
+    Init();
+    _isInitialized = true;
 }
 
-nlohmann::json Engine::SpriteRenderer::SaveData()
+nlohmann::json Engine::SpriteRenderer::Serialize()
 {
+    if (!_isInitialized) {Init(); _isInitialized = true;}
+    
     nlohmann::json data;
     data[JsonKeywords::COMPONENT_ID] = GetComponentRegistry().GetComponentID<SpriteRenderer>();
+    
     std::string filepath = _texture->GetFilePath();
     data[JsonKeywords::SPRITE_RENDERER_SPRITE] = filepath;
+    
     data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER] = _sortingLayer;
 
-    // Save Shader Information
-    //data[JsonKeywords::SPRITE_RENDERER_VERTEX_SHADER] = 
+    // TODO: Save Shader Information
+    
     return data;
 }
 
 void Engine::SpriteRenderer::DrawSprite()
 {
+    if (!_isInitialized) {Init(); _isInitialized = true;}
+    
 	const float rotation = gameObject->transform.rotation;
 	const auto position = glm::vec2(gameObject->transform.position.x - _size.x / PIXEL_SCALE, (gameObject->transform.position.y * -1) - _size.y / PIXEL_SCALE);
     

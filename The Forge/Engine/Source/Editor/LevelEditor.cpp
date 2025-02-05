@@ -1,5 +1,6 @@
 ﻿#include "LevelEditor.h"
 
+#include <fstream>
 #include <iostream>
 
 #include "DetailsEditor.h"
@@ -15,8 +16,7 @@ std::vector<std::string> Editor::LevelEditor::filepaths;
 
 Editor::LevelEditor::LevelEditor()
 {
-    const auto defaultData = Engine::EngineManager::GetConfigData(Engine::DEFAULTS_FILE, JsonKeywords::Config::DEFAULT_LEVEL);
-    if (defaultData.is_string())
+    if (const auto defaultData = Engine::GetEngineManager().GetConfigData(Engine::DEFAULTS_FILE, JsonKeywords::Config::DEFAULT_LEVEL); defaultData.is_string())
         _defaultLevelFilePath = defaultData;
 }
 
@@ -71,7 +71,7 @@ void Editor::LevelEditor::Render()
                     _selectedLevel = i;
 
                     //TODO: Move this to Level Manager
-                    Engine::LevelManager::LoadLevel(filepaths[i]);
+                    //Engine::LevelManager::LoadLevel(filepaths[i]);
                 }
             }   
         }
@@ -90,7 +90,7 @@ void Editor::LevelEditor::Render()
         if (ImGui::Combo("Default Level", &_defaultLevelIndex, levels.data(), static_cast<int>(levels.size())))
         {
             const std::string newDefaultLevel(levels[_defaultLevelIndex]);
-            Engine::EngineManager::UpdateConfigFile(Engine::DEFAULTS_FILE, JsonKeywords::Config::DEFAULT_LEVEL, newDefaultLevel);
+            Engine::GetEngineManager().UpdateConfigFile(Engine::DEFAULTS_FILE, JsonKeywords::Config::DEFAULT_LEVEL, newDefaultLevel);
         }
         
         ImGui::EndTable();
@@ -184,6 +184,11 @@ void Editor::LevelEditor::LevelSettings()
 
         if (ImGui::BeginPopup("Context Menu"))
         {
+            if (ImGui::MenuItem("Create Prefab"))
+            {
+                CreatePrefab(levelObjects[_selectedGameObject]);
+            }
+            
             if (ImGui::MenuItem("Rename"))
             {
                 _showRenameTextBox = true;
@@ -191,7 +196,7 @@ void Editor::LevelEditor::LevelSettings()
             
             if (ImGui::MenuItem("Delete"))
             {
-                _gameObjectToDelete= levelObjects[i];
+                _gameObjectToDelete = levelObjects[i];
             }
             
             ImGui::EndPopup();
@@ -237,4 +242,15 @@ void Editor::LevelEditor::DeleteGameObjects(Engine::Level* currentLevel)
     _gameObjectToDelete = nullptr;
 
     DetailsEditor::ClearSelectedGameObject();
+}
+
+void Editor::LevelEditor::CreatePrefab(Engine::GameObject* go) const
+{
+    if (go == nullptr) return;
+
+    const json data = go->Serialize();
+    if (std::ofstream file("Assets/" + go->GetName() + ".prefab"); file.is_open()) {
+        file << data.dump(4); // Pretty print with 4 spaces
+        file.close();
+    }
 }

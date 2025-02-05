@@ -18,7 +18,7 @@ namespace Engine
         static ComponentManager& GetInstance();
         ComponentManager() = default;
         ~ComponentManager() = default;
-
+        
         void UpdateComponents(float deltaTime);
         
         template <typename T>
@@ -27,30 +27,41 @@ namespace Engine
         template <typename T>
         ComponentPool<T>* GetPool();
 
+        template <typename T>
+        void DeleteComponent(Component* component);
+
     private:
         
-        std::unordered_map<std::type_index, std::unique_ptr<BasePool>> _componentPoolsByType;
+        std::unordered_map<std::type_index, std::unique_ptr<BasePool>> _componentPools;
         
     };
 
     template <typename T>
     void ComponentManager::RegisterComponentPool(const std::string& name)
     {
-        //const uint32_t id = HASH_COMPONENT(name);
-        auto pool = std::make_unique<ComponentPool<T>>();
-        
         // Create pools if it doesn't exist
-        if (const auto type = std::type_index(typeid(T)); !_componentPoolsByType.contains(type))
-            _componentPoolsByType[type] = std::move(pool);
+        if (const auto type = std::type_index(typeid(T)); !_componentPools.contains(type))
+            _componentPools[type] = std::make_unique<ComponentPool<T>>();
     }
 
     template <typename T>
     ComponentPool<T>* ComponentManager::GetPool()
     {
         const auto typeId = std::type_index(typeid(T));
-        if (const auto it = _componentPoolsByType.find(typeId); it != _componentPoolsByType.end()) 
+        if (const auto it = _componentPools.find(typeId); it != _componentPools.end()) 
             return static_cast<ComponentPool<T>*>(it->second.get());
         
         return nullptr;
+    }
+
+    template <typename T>
+    void ComponentManager::DeleteComponent(Component* component)
+    {
+        auto pool = GetPool<T>();
+        
+        if (pool == nullptr)
+            return;
+        
+        pool->Delete(static_cast<T*>(component));
     }
 }

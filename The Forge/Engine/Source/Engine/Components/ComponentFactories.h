@@ -5,6 +5,7 @@
 
 #include "ComponentHasher.h"
 #include "Engine/GameObject.h"
+#include "ComponentManager.h"
 
 namespace Engine
 {
@@ -19,10 +20,12 @@ namespace Engine
         void RegisterComponentFactories(const std::string& name);
 
         Component* CreateComponentFromID(uint32_t id, GameObject* obj);
+        void DeleteComponent(Component* component);
 
     private:
 
-        std::unordered_map<uint32_t, std::function<Component*(GameObject*)>> _componentFactories;
+        std::unordered_map<uint32_t, std::function<Component*(GameObject*)>> _componentCreationFactories;
+        std::unordered_map<std::type_index, std::function<void(Component*)>>        _componentDeletionFactories;
         
     };
 
@@ -31,8 +34,14 @@ namespace Engine
     {
         // Store a factory function that adds the component
         const uint32_t id = HASH_COMPONENT(name);
-        _componentFactories[id] = [](GameObject* obj) -> Component* {
+        _componentCreationFactories[id] = [](GameObject* obj) -> Component*
+        {
             return obj->AddComponent<T>();
+        };
+
+        _componentDeletionFactories[typeid(T)] = [](Component* component) -> void
+        {
+            GetComponentManager().DeleteComponent<T>(component);
         };
     }
 }

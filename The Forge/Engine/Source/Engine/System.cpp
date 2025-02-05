@@ -11,60 +11,30 @@
 
 const std::string ERROR_FILENAME = "ErrorFile";
 
-_CrtMemState Engine::System::_memoryCheckpoint = {};
-HANDLE Engine::System::_errorFile = INVALID_HANDLE_VALUE;
-SDL_Window* Engine::System::_window = nullptr;
-glm::vec2 Engine::System::_windowSize = glm::vec2(1280, 720);
-Engine::ConsoleStreamBuffer Engine::System::_consoleBuffer;
+Engine::System& Engine::System::GetInstance()
+{
+	static auto instance = std::make_unique<System>();
+	return *instance;
+}
 
-void Engine::System::Init()
+Engine::System::System(): _errorFile(nullptr), _window(nullptr)
 {
 	_CrtMemCheckpoint(&_memoryCheckpoint);
 
-	if (std::remove(ERROR_FILENAME.c_str()) != 0)
-		LogToErrorFile("Failed to Destroy " + ERROR_FILENAME);
-
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) 
+	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
 		LogToErrorFile("SDL could not initialize!");
 		assert(0);
 	}
 
+	if (std::remove(ERROR_FILENAME.c_str()) != 0)
+		LogToErrorFile("Failed to Destroy " + ERROR_FILENAME);
+
 	std::cout.rdbuf(&_consoleBuffer);
 	std::cerr.rdbuf(&_consoleBuffer);
 }
 
-void Engine::System::CreateAppWindow(const glm::vec2 windowSize)
-{
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
-
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-
-	SDL_DisplayMode displayMode;
-	SDL_GetCurrentDisplayMode(0, &displayMode);
-	_windowSize = glm::vec2(displayMode.w, displayMode.h);
-
-	const auto window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE | ImGuiWindowFlags_NoBringToFrontOnFocus | SDL_WINDOW_MOUSE_CAPTURE | SDL_WINDOW_MAXIMIZED);
-	_window = SDL_CreateWindow("The Forge", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, (int)_windowSize.x, (int)_windowSize.y, window_flags);
-	if (_window == nullptr)
-	{
-		LogToErrorFile("SDL window could not be made!");
-		assert(0);
-	}
-
-	if (SDL_Surface* logoSurface = IMG_Load("Assets/Sprites/logo.png"))
-	{
-		SDL_SetWindowIcon(_window, logoSurface);
-		SDL_FreeSurface(logoSurface);
-	}
-}
-
-void Engine::System::CleanUp()
+Engine::System::~System()
 {
 	_consoleBuffer.CleanUp();
 	
@@ -85,10 +55,46 @@ void Engine::System::CleanUp()
 	_CrtMemState difference;
 	if (_CrtMemDifference(&difference, &_memoryCheckpoint, &newCheckpoint))
 	{
-		// Does this really mean there is a memory leak??
-		// Yes it does (maybe)
 		DisplayMessageBox("Memory Leak Detected!!", "Check output log for more details.");
 	}
+}
+
+Engine::Window* Engine::System::CreateAppWindow()
+{
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
+
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
+	SDL_DisplayMode displayMode;
+	SDL_GetCurrentDisplayMode(0, &displayMode);
+	
+	const auto window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE | ImGuiWindowFlags_NoBringToFrontOnFocus | SDL_WINDOW_MOUSE_CAPTURE | SDL_WINDOW_MAXIMIZED);
+	_window = SDL_CreateWindow("The Forge", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, displayMode.w, displayMode.h, window_flags);
+	if (_window == nullptr)
+	{
+		LogToErrorFile("SDL window could not be made!");
+		assert(0);
+	}
+
+	if (SDL_Surface* logoSurface = IMG_Load("Assets/Sprites/logo.png"))
+	{
+		SDL_SetWindowIcon(_window, logoSurface);
+		SDL_FreeSurface(logoSurface);
+	}
+
+	return _window;
+}
+
+glm::vec2 Engine::System::GetWindowSize() const
+{
+	int width, height;
+	SDL_GetWindowSize(_window, &width, &height);
+	return glm::vec2(width, height);
 }
 
 void Engine::System::LogToErrorFile(const std::string& message)
@@ -104,7 +110,7 @@ void Engine::System::LogToErrorFile(const std::string& message)
 	WriteFile(_errorFile, message.c_str(), strlen(message.c_str()), &bytesWritten, nullptr);
 }
 
-void Engine::System::DisplayMessageBox(const std::string& caption, const std::string& message)
+void Engine::System::DisplayMessageBox(const std::string& caption, const std::string& message) const
 {
 	const std::wstring wCaption(caption.begin(), caption.end());
 	const std::wstring wMessage(message.begin(), message.end());
@@ -112,7 +118,7 @@ void Engine::System::DisplayMessageBox(const std::string& caption, const std::st
 	MessageBox(nullptr, wMessage.c_str(), wCaption.c_str(), MB_OK);
 }
 
-void Engine::System::LogToConsole(const char* format, ...)
+void Engine::System::LogToConsole(const char* format, ...) const
 {
 #ifndef _DEBUG
 	return;

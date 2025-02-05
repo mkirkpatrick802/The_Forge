@@ -7,32 +7,31 @@
 #include "PixelGrid.h"
 #include "UIManager.h"
 #include "Engine/EngineManager.h"
-#include "Engine/EventData.h"
 #include "Engine/EventSystem.h"
 #include "Engine/Components/SpriteRenderer.h"
 
 Engine::Context Engine::Renderer::_context = nullptr;
-
 Engine::Renderer::Renderer()
 {
 	CreateRenderer();
-	
 	UIManager::Init();
 }
 
 void Engine::Renderer::CreateRenderer()
 {
-	const auto window = System::GetWindow();
+	const auto window = GetAppWindow();
+	if (window == nullptr) return;
+	
 	_context = SDL_GL_CreateContext(window);
 	SDL_GL_MakeCurrent(window, _context);
 	SDL_GL_SetSwapInterval(1);
-
+	
 	if (!gladLoadGLLoader(SDL_GL_GetProcAddress))
 	{
-		System::DisplayMessageBox("Failed to Load GLAD", "gladLoadGLLoader has failed us");
+		System::GetInstance().DisplayMessageBox("Failed to Load GLAD", "gladLoadGLLoader has failed us");
 		assert(0);
 	}
-
+	
 	BufferRegistry::GetRegistry()->AddBuffer(BufferRegistry::BufferType::SCENE, std::make_shared<Framebuffer>(ReferenceResolution, false));
 	_grid = std::make_unique<PixelGrid>();
 
@@ -68,40 +67,25 @@ void Engine::Renderer::CreateRenderer()
 	_quadShader.Compile(vertex.c_str(), fragment.c_str());
 }
 
-void Engine::Renderer::CreateSpriteRenderer(const void* data)
+void Engine::Renderer::AddSpriteRendererToRenderList(SpriteRenderer* spriteRenderer)
 {
-	// const auto eventData = static_cast<const ED_CreateComponent*>(data);
-	// if (!eventData || eventData->componentID != SPRITE_RENDERER) return;
-	//
-	// // These are very necessary do not get rid of
-	// Engine::GameObject* go = eventData->gameObject;   
-	// SpriteRenderer* spriteRenderer = _spriteRendererPool.New(static_cast<Engine::GameObject*>(go));
-	// spriteRenderer->Init();
-	//
-	// if (eventData->data != nullptr)
-	// 	spriteRenderer->LoadData(eventData->data);
-	//
-	// eventData->gameObject->AddComponent(spriteRenderer);
-	//
-	// const auto pair = std::pair(spriteRenderer->_sortingLayer, spriteRenderer);
-	// _renderList.push_back(pair);
-	//
-	// SortRenderList();
+	if (spriteRenderer == nullptr) return;
+	const auto pair = std::pair(spriteRenderer->_sortingLayer, spriteRenderer);
+	_renderList.push_back(pair);
+	
+	SortRenderList();
 }
 
-void Engine::Renderer::DeleteSpriteRenderer(const void* data)
+void Engine::Renderer::RemoveSpriteRendererFromRenderList(SpriteRenderer* spriteRenderer)
 {
-	// const auto eventData = static_cast<const ED_DestroyComponent*>(data);
-	// if (!eventData) return;
-	//
-	// auto spriteRenderer = dynamic_cast<SpriteRenderer*>(eventData->component);
-	// if (spriteRenderer == nullptr) return;
-	//
-	// _spriteRendererPool.Delete(spriteRenderer);
-	// std::erase_if(_renderList,
-	//               [spriteRenderer, eventData](const std::pair<int16_t, SpriteRenderer*>& entry) {
-	// 	              return entry.second == spriteRenderer;
-	//               });
+	if (spriteRenderer == nullptr) return;
+
+	std::erase_if(_renderList,
+	              [spriteRenderer](const std::pair<int16_t, SpriteRenderer*>& sprite) {
+	              		return sprite.second == spriteRenderer;
+	              });
+	
+	SortRenderList();
 }
 
 void Engine::Renderer::SortRenderList()
@@ -135,9 +119,9 @@ void Engine::Renderer::Render()
 		sceneFBO->Unbind();
 	}
 
-	if (!EngineManager::IsEditorEnabled())
+	if (!GetEngineManager().IsEditorEnabled())
 	{
-		sceneFBO->Resize(System::GetWindowSize());
+		sceneFBO->Resize(GetAppWindowSize());
 		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.f, 0.f, 0.f, 1.0f);
@@ -158,7 +142,7 @@ void Engine::Renderer::Render()
 	
 	sceneFBO->CheckResize();
 
-	SDL_GL_SwapWindow(System::GetWindow());
+	SDL_GL_SwapWindow(GetAppWindow());
 }
 
 Engine::Renderer::~Renderer()
@@ -175,6 +159,6 @@ Engine::Renderer::~Renderer()
 
 glm::vec2 Engine::Renderer::ConvertWorldToScreen(glm::vec2 worldPos)
 {
-	const auto screenLocation = glm::vec2(worldPos.x + System::GetWindowSize().x / 2, worldPos.y + System::GetWindowSize().y / 2);
+	const auto screenLocation = glm::vec2(worldPos.x + GetAppWindowSize().x / 2, worldPos.y + GetAppWindowSize().y / 2);
 	return screenLocation;
 }

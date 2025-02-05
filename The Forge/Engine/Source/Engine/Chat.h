@@ -10,7 +10,6 @@ namespace Engine
     public:
 
         Chat();
-        Chat(const std::shared_ptr<InputManager>& inputManager);
 
         ~Chat();
         
@@ -22,8 +21,7 @@ namespace Engine
         void CloseChatWindow(const void* p = nullptr);
 
     private:
-
-        std::shared_ptr<InputManager> _inputManager;
+        
         std::shared_ptr<ChatWindow> _window;
     };
 }

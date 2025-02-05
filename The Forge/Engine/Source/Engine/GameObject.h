@@ -10,11 +10,12 @@ namespace Engine
     class GameObject
     {
         friend class Level;
+        
     public:
 
         GameObject();
         GameObject(const nlohmann::json& data);
-        ~GameObject() = default;
+        ~GameObject();
         
         template <class T>
         T* GetComponent() const;
@@ -24,11 +25,8 @@ namespace Engine
         template <typename T>
         T* AddComponent();
 
-        Component* AddComponentByID(uint32_t id);
-
-    private:
-        
-        nlohmann::json SaveObject();
+        void Deserialize(const nlohmann::json& data);
+        nlohmann::json Serialize();
         
     public:
 

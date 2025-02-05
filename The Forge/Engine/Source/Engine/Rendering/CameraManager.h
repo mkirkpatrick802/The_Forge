@@ -10,9 +10,6 @@ namespace Engine
     public:
         static std::shared_ptr<CameraManager> GetCameraManager();
         CameraManager();
-
-        void CreateCamera(const void* data);
-        void DeleteCamera(const void* data);
         
         Camera* GetActiveCamera() const {return _currentCamera; }
         void SetActiveCamera(Camera* camera) {  _currentCamera = camera; }

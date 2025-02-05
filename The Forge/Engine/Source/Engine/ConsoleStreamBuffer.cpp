@@ -9,7 +9,7 @@ int Engine::ConsoleStreamBuffer::overflow(int c)
 
     // If we hit a newline, log the accumulated string
     if (c == '\n') {
-        System::LogToConsole("%s", _buffer.c_str());  // Log the full string to the console
+        System::GetInstance().LogToConsole("%s", _buffer.c_str());  // Log the full string to the console
         _buffer.clear();  // Clear the buffer for the next message
     }
 
@@ -19,7 +19,7 @@ int Engine::ConsoleStreamBuffer::overflow(int c)
 int Engine::ConsoleStreamBuffer::sync()
 {
     if (!_buffer.empty()) {
-        System::LogToConsole("%s", _buffer.c_str());  // Log any remaining message
+        System::GetInstance().LogToConsole("%s", _buffer.c_str());  // Log any remaining message
         _buffer.clear();
     }
     return 0;

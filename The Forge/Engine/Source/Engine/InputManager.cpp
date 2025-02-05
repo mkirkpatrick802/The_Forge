@@ -32,7 +32,7 @@ bool Engine::InputManager::StartProcessInputs()
         if (event.type == SDL_QUIT)
             return false;
 
-        if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(System::GetWindow()))
+        if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(GetAppWindow()))
             return false;
     }
 

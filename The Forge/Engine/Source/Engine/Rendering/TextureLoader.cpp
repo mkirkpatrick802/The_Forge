@@ -4,13 +4,13 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-std::shared_ptr<Engine::Texture> Engine::CreateTexture(const std::string& filepath, Texture::TextureType type)
+std::unique_ptr<Engine::Texture> Engine::CreateTexture(const std::string& filepath, Texture::TextureType type)
 {
     int width, height, channels;
     unsigned char* image = stbi_load(filepath.c_str(), &width, &height, &channels, STBI_rgb_alpha);
     if (!image) 
     {
-        System::LogToErrorFile("Failed to Load Texture in Texture Loader");
+        System::GetInstance().LogToErrorFile("Failed to Load Texture in Texture Loader");
         return nullptr;
     }
     
@@ -30,11 +30,11 @@ std::shared_ptr<Engine::Texture> Engine::CreateTexture(const std::string& filepa
     stbi_image_free(image);
 
     auto size = glm::vec2(width, height);
-    auto texture = std::make_shared<Texture>(textureID, filepath, type, size);
-    return texture;
+    auto texture = std::make_unique<Texture>(textureID, filepath, type, size);
+    return std::move(texture);
 }
 
-std::shared_ptr<Engine::Texture> Engine::CreateTexture(const glm::vec2 size, Texture::TextureType type)
+std::unique_ptr<Engine::Texture> Engine::CreateTexture(const glm::vec2 size, Texture::TextureType type)
 {
     GLuint textureID;
     glGenTextures(1, &textureID);
@@ -48,6 +48,6 @@ std::shared_ptr<Engine::Texture> Engine::CreateTexture(const glm::vec2 size, Tex
 
     glBindTexture(GL_TEXTURE_2D, 0);
     
-    auto texture = std::make_shared<Texture>(textureID, type, size);
-    return texture;
+    auto texture = std::make_unique<Texture>(textureID, type, size);
+    return std::move(texture);
 }

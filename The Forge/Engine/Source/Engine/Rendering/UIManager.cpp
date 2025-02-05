@@ -27,7 +27,7 @@ void Engine::UIManager::Init()
 
     ImGui::StyleColorsDark();
 
-    ImGui_ImplSDL2_InitForOpenGL(System::GetWindow(), Renderer::GetContext());
+    ImGui_ImplSDL2_InitForOpenGL(GetAppWindow(), Renderer::GetContext());
     ImGui_ImplOpenGL3_Init("#version 130");
 }
 

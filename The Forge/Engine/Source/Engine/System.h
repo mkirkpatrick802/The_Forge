@@ -15,9 +15,10 @@
 #define DBG_NEW new
 #endif
 
+#define DEBUG_PRINT(Format, ...) Engine::System::GetInstance().LogToConsole(Format, ##__VA_ARGS__);
+
 namespace Engine
 {
-#define DEBUG_PRINT(Format, ...) System::LogToConsole(Format, ##__VA_ARGS__);
 	enum class LogType : uint8_t {MESSAGE_LOG = 1, WARNING_LOG, ERROR_LOG}; 
 	
 	typedef SDL_Window Window;
@@ -26,16 +27,18 @@ namespace Engine
 	{
 	public:
 
-		static void Init();
-		static void CreateAppWindow(glm::vec2 windowSize = glm::vec2(1280, 720));
-		static void CleanUp();
+		static System& GetInstance();
+		System();
+		~System();
+		
+		Window* CreateAppWindow();
 
-		static void LogToErrorFile(const std::string& message);
-		static void DisplayMessageBox(const std::string& caption, const std::string& message);
-		static void LogToConsole(const char* format, ...);
+		void LogToErrorFile(const std::string& message);
+		void DisplayMessageBox(const std::string& caption, const std::string& message) const;
+		void LogToConsole(const char* format, ...) const;
 
-		static Window* GetWindow() { return _window; }
-		static glm::vec2 GetWindowSize() { return _windowSize; }
+		Window* GetWindow() const { return _window; }
+		glm::vec2 GetWindowSize() const;
 
 		// File Helpers
 		static void EnsureDirectoryExists(const std::string& path);
@@ -43,12 +46,27 @@ namespace Engine
 
 	private:
 
-		static _CrtMemState _memoryCheckpoint;
-		static HANDLE _errorFile;
+		_CrtMemState _memoryCheckpoint;
+		HANDLE _errorFile;
+		
+		Window* _window;
 
-		static glm::vec2 _windowSize;
-		static Window* _window;
-
-		static ConsoleStreamBuffer _consoleBuffer;
+		ConsoleStreamBuffer _consoleBuffer;
 	};
+
+	inline Window* CreateAppWindow()
+	{
+		return System::GetInstance().CreateAppWindow();
+	}
+	
+	inline Window* GetAppWindow()
+	{
+		return System::GetInstance().GetWindow();
+	}
+
+	inline glm::vec2 GetAppWindowSize()
+	{
+		return System::GetInstance().GetWindowSize();
+	}
+	
 }

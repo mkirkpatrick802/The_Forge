@@ -36,8 +36,7 @@ namespace Editor
     private:
 
         std::string _currentDirectory = "Assets";
-        std::string _searchQuery = "";
-        float _thumbnailSize = 16.0f;
+        float _thumbnailSize = 64.0f;
 
         bool _loadTextures = true;
         std::shared_ptr<Engine::Texture> _emptyFolderIcon;

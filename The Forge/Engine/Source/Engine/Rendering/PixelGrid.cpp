@@ -46,8 +46,8 @@ void Engine::PixelGrid::Render()
     //for (int x = (int)-sceneFBO->GetWindowSize().x / 2; x <= (int)sceneFBO->GetWindowSize().x / 2; x += _gridSize)
     {
         int lineVertices[] = {
-            0, (int)System::GetWindowSize().y / 2,  // Start point of the line
-            (int)System::GetWindowSize().x, (int)System::GetWindowSize().y / 2    // End point of the line
+            0, (int)GetAppWindowSize().y / 2,  // Start point of the line
+            (int)GetAppWindowSize().x, (int)GetAppWindowSize().y / 2    // End point of the line
         };
         
         glBufferData(GL_ARRAY_BUFFER, sizeof(lineVertices), lineVertices, GL_STATIC_DRAW);
@@ -57,8 +57,8 @@ void Engine::PixelGrid::Render()
     //for (int y = (int)-sceneFBO->GetWindowSize().y / 2; y <= (int)sceneFBO->GetWindowSize().y / 2; y += _gridSize)
     {
         int lineVertices[] = {
-            (int)System::GetWindowSize().x / 2, 0,  // Start point of the line
-            (int)System::GetWindowSize().x / 2, (int)System::GetWindowSize().y    // End point of the line
+            (int)GetAppWindowSize().x / 2, 0,  // Start point of the line
+            (int)GetAppWindowSize().x / 2, (int)GetAppWindowSize().y    // End point of the line
         };
         
         glBufferData(GL_ARRAY_BUFFER, sizeof(lineVertices), lineVertices, GL_STATIC_DRAW);

@@ -13,28 +13,26 @@ namespace Engine
 	class PixelGrid;
 	typedef SDL_GLContext Context;
 
-	const glm::vec2 ReferenceResolution = glm::vec2(320, 180);
+	const auto ReferenceResolution = glm::vec2(320, 180);
 	
-	typedef std::vector<std::pair<int16_t, SpriteRenderer*>> RenderListPair;
+	typedef std::vector<std::pair<int16_t, SpriteRenderer*>> RenderList;
 	class Renderer
 	{
 	public:
+		
 		Renderer();
-
+		~Renderer();
+		
 		void Render();
 		
-		static Context* GetContext() { return &_context; }
-		
-		~Renderer();
-
 		static glm::vec2 ConvertWorldToScreen(glm::vec2 worldPos);
+
+		void AddSpriteRendererToRenderList(SpriteRenderer* spriteRenderer);
+		void RemoveSpriteRendererFromRenderList(SpriteRenderer* spriteRenderer);
 		
 	private:
 
 		void CreateRenderer();
-		void CreateSpriteRenderer(const void* data);
-		void DeleteSpriteRenderer(const void* data);
-		
 		void SortRenderList();
   
 	private:
@@ -44,8 +42,13 @@ namespace Engine
 		GLuint _quadVAO, _quadVBO;
 		Shader _quadShader;
 		
-		RenderListPair _renderList;
+		RenderList _renderList;
 
 		std::unique_ptr<PixelGrid> _grid;
+
+	public:
+		
+		static Context* GetContext() { return &_context; }
+		
 	};
 }

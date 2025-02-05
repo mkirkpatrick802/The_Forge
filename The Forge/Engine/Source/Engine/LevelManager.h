@@ -16,6 +16,8 @@ namespace Engine
     public:
         static bool LoadLevel(const std::string& filepath);
         static bool CreateLevel(const std::string& levelName);
+
+        LevelManager(const std::string& filepath);
         
     public:
         static Level* GetCurrentLevel() { return _currentLevel; }
@@ -24,7 +26,7 @@ namespace Engine
         static std::vector<std::string> GetAllLevels(std::vector<nlohmann::json>& levelData);
 
     private:
-        LevelManager(const std::string& filepath);
+        
         void CleanUp();
         
     private:

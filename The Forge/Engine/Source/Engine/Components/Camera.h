@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Component.h"
+#include "ComponentUtils.h"
 #include "glm/glm.hpp"
 
 namespace Engine
@@ -10,8 +11,8 @@ namespace Engine
         
         Camera();
         
-        void LoadData(const json& data) override;
-        nlohmann::json SaveData() override;
+        void Deserialize(const json& data) override;
+        nlohmann::json Serialize() override;
     
     public:
     
@@ -29,5 +30,5 @@ namespace Engine
         glm::mat4 GetViewMatrix();
     };
     
-    //REGISTER_COMPONENT(Camera)
+    REGISTER_COMPONENT(Camera)
 }
