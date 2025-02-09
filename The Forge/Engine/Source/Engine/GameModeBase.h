@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <string>
 #include <vector>
 
 namespace Engine
@@ -12,10 +13,12 @@ namespace Engine
         ~GameModeBase() = default;
 
         void Start();
+        void SpawnPlayer();
 
     private:
 
         std::vector<PlayerStart*> _playerStarts;
+        std::string _playerPrefab = "Assets/Player.prefab";
         
     };
 }

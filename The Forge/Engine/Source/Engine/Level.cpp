@@ -45,40 +45,27 @@ void Engine::Level::Start()
     _gameMode->Start();
 }
 
-bool Engine::Level::SpawnNewGameObject()
+Engine::GameObject* Engine::Level::SpawnNewGameObject(const std::string& filepath)
 {
     // Create Game Object
     const auto go = DEBUG_NEW GameObject();
+    if (!filepath.empty())
+    {
+        std::ifstream file(filepath);
+        if (!file.is_open())
+        {
+            std::cerr << "Failed to open file " << filepath << '\n';
+            return nullptr;
+        }
+        
+        json j;
+        file >> j; // Parse JSON from the file stream
+        go->Deserialize(j);
+    }
+    
     _gameObjects.push_back(go);
 
-    //Open Level File To Read
-    std::ifstream readFile(_path);
-    if (!readFile.is_open())
-    {
-        System::GetInstance().DisplayMessageBox("Error", "Could not open file: " + _path);
-        return false;
-    }
-
-    //Update Json Data
-    nlohmann::json data;
-    readFile >> data;
-
-    if (!data.contains(JsonKeywords::GAMEOBJECT_ARRAY))
-        data[JsonKeywords::GAMEOBJECT_ARRAY] = nlohmann::json::array();
-    
-    data[JsonKeywords::GAMEOBJECT_ARRAY].push_back(go->_defaultData);
-
-    //Open Level File To Write
-    std::ofstream writeFile(_path);
-    if (!readFile.is_open())
-    {
-        System::GetInstance().DisplayMessageBox("Error", "Could not open file: " + _path);
-        return false;
-    }
-
-    writeFile << data.dump(4);
-    
-    return true;
+    return go;
 }
 
 bool Engine::Level::RemoveGameObject(GameObject* go)
@@ -107,5 +94,5 @@ void Engine::Level::SaveLevel(const std::string& args)
         outputFile.close();
     }
 
-    std::cout << "Level Saved Successfully!" << std::endl;
+    std::cout << "Level Saved Successfully!" << '\n';
 }

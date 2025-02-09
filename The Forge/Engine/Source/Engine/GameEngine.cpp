@@ -7,6 +7,8 @@
 #include "Rendering/Renderer.h"
 #include "System.h"
 #include "Time.h"
+#include "../../../Netcode/Source/GamerServices.h"
+#include "Components/ComponentManager.h"
 
 Engine::GameEngine& Engine::GameEngine::GetInstance()
 {
@@ -54,13 +56,12 @@ void Engine::GameEngine::StartGameplayLoop()
 			const float deltaTime = (currentTicks - frameStart) / 1000.f;
 			frameStart = currentTicks;
 
-			//EngineManager::UpdateNetObject();
+			NetCode::GetGamerService().Update();
 			
 			if (!GetEngineManager().IsEditorEnabled())
 			{
 				_chat->Update(deltaTime);
-				
-				// TODO: Call update function on component pools
+				GetComponentManager().UpdateComponents(deltaTime);
 			}
 			
 			_renderer->Render();

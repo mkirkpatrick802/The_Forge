@@ -12,7 +12,7 @@ Editor::Console::Console()
 
 Editor::Console::~Console()
 {
-    Engine::EventSystem::GetInstance()->DeregisterEvent(Engine::ED_LogToConsole::GetEventName());
+    Engine::EventSystem::GetInstance()->DeregisterEvent(Engine::ED_LogToConsole::GetEventName(), this);
 
     _log.clear();
     _log.shrink_to_fit();

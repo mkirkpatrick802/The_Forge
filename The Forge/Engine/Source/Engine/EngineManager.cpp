@@ -7,9 +7,7 @@
 #include "Components/Component.h"
 #include "EventSystem.h"
 #include "System.h"
-#include "../../../Netcode/Source/Utilites/NetworkWrapper.h"
 #include "Editor/EditorManager.h"
-#include "../../../Netcode/Source/Utilites/NetObject.h"
 
 Engine::EngineManager& Engine::EngineManager::GetInstance()
 {
@@ -20,9 +18,7 @@ Engine::EngineManager& Engine::EngineManager::GetInstance()
 Engine::EngineManager::EngineManager()
 {
 	CommandRegistry::RegisterCommand("/editor", [this](const std::string& args){ ToggleEditor(args); });
-	CommandRegistry::RegisterCommand("/create", [this](const std::string& args) { CreateLobby(args); });
-	CommandRegistry::RegisterCommand("/join", [this](const std::string& args) { JoinLobby(args); });
-
+	
 	//Find config file & if it does not exist make one
 	System::EnsureDirectoryExists(CONFIG_PATH);
 	
@@ -34,17 +30,11 @@ Engine::EngineManager::EngineManager()
 		defaults << data.dump(4);
 		defaults.close();
 	}
-
-	if ( !NetCode::InitNetcodeBackend() )
-	{
-		System::GetInstance().DisplayMessageBox("Error","Failed to initialize Netcode backend!!");
-	}
 }
 
 Engine::EngineManager::~EngineManager()
 {
 	_netObject.reset();
-	NetCode::ShutdownNetcodeBackend();
 	
 	_editor.reset();
 	CommandRegistry::UnregisterCommand("/editor");
@@ -78,20 +68,6 @@ void Engine::EngineManager::ToggleEditor(const std::string& args)
 	}
 }
 
-void Engine::EngineManager::CreateLobby(const std::string& args)
-{
-	if (_netObject) { std::cout << "Already in-game" << '\n'; return; };
-
-	_netObject = NetCode::CreateLobby(args);
-}
-
-void Engine::EngineManager::JoinLobby(const std::string& args)
-{
-	if (_netObject) { std::cout << "Already in-game" << '\n'; return; }
-	
-	_netObject = NetCode::JoinLobby(args);
-}
-
 void Engine::EngineManager::UpdateConfigFile(const std::string& file, const std::string& jsonKeyword, const std::string& data)
 {
 	const std::string path = CONFIG_PATH + file;
@@ -123,11 +99,4 @@ nlohmann::json Engine::EngineManager::GetConfigData(const std::string& file, con
 	config >> currentData;
 	
 	return currentData[jsonKeyword];
-}
-
-void Engine::EngineManager::UpdateNetObject()
-{
-	/*if (_netObject == nullptr) return;
-	
-	_instance->_netObject->Update();*/
 }

@@ -25,13 +25,14 @@ namespace Engine
         
     public:
         
-        bool SpawnNewGameObject();
+        GameObject* SpawnNewGameObject(const std::string& filepath = "");
         bool RemoveGameObject(GameObject* go);
 
         void SaveLevel(const std::string& args = "");
         
         std::vector<GameObject*> GetAllGameObjects() { return _gameObjects; }
         std::string GetName() { return _name; }
+        GameModeBase& GetGameMode() const { return *_gameMode; }
     
     private:
         

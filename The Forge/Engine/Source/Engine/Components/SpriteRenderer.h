@@ -15,7 +15,7 @@ namespace Engine
     public:
 
         SpriteRenderer();
-        ~SpriteRenderer();
+        ~SpriteRenderer() override;
 
         void OnActivation() override;
         

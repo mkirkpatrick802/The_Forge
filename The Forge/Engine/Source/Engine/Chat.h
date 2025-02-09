@@ -10,14 +10,10 @@ namespace Engine
     public:
 
         Chat();
-
         ~Chat();
         
         void Update(float deltaTime);
-
-    private:
-
-        void OpenChatWindow(bool slash);
+        
         void CloseChatWindow(const void* p = nullptr);
 
     private:

@@ -13,7 +13,8 @@ project "Netcode"
    {
       "Source",
       "Vendors/SteamSDK/include",
-      "../Engine/Source"
+      "../Engine/Source",
+      "../Engine/Vendors/nlohmann"
    }
 
    targetdir ("../../Binaries/" .. OutputDir .. "/%{prj.name}")

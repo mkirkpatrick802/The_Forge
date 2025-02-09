@@ -8,7 +8,8 @@ namespace Engine
 
     class BasePool
     {
-        
+    public:
+        virtual void Update(float deltaTime) {}
     };
     
     template<typename T>
@@ -21,7 +22,7 @@ namespace Engine
         ComponentPool();
         ~ComponentPool() = default;
         
-        void Update(float deltaTime);
+        void Update(float deltaTime) override;
 
         T* New(GameObject* go);
         void Delete(T* component);

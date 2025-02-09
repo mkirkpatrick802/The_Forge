@@ -46,18 +46,19 @@ void Engine::SpriteRenderer::OnActivation()
 
     GetRenderer().AddSpriteRendererToRenderList(this);
     
-    const std::string filepath = "Assets/Sprites/Astronaut.png";
+    /*const std::string filepath = "Assets/Sprites/Astronaut.png";
     _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
     
     std::string vertex = "Assets/Shaders/Sprite.vert";
     std::string fragment = "Assets/Shaders/Sprite.frag";
 
     _shader.Compile(vertex.c_str(), fragment.c_str());
-    _sortingLayer = 0;
+    _sortingLayer = 0;*/
 }
 
 Engine::SpriteRenderer::~SpriteRenderer()
 {
+    _texture.reset();
     GetRenderer().RemoveSpriteRendererFromRenderList(this);
 }
 

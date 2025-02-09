@@ -31,15 +31,8 @@ namespace Engine
 		void UpdateConfigFile(const std::string& file, const std::string& jsonKeyword, const std::string& data);
 		nlohmann::json GetConfigData(const std::string& file, const std::string& jsonKeyword);
 		bool IsEditorEnabled() const {return _editorEnabled; }
-
-		void UpdateNetObject();
 		
 		void ToggleEditor(const std::string& args);
-	
-	private:
-		
-		void CreateLobby(const std::string& args);
-		void JoinLobby(const std::string& args);
 		
 	private:
 		

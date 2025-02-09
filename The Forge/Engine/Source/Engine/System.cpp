@@ -8,6 +8,7 @@
 
 #include "EventData.h"
 #include "EventSystem.h"
+#include "../../../Netcode/Source/GamerServices.h"
 
 const std::string ERROR_FILENAME = "ErrorFile";
 
@@ -20,6 +21,8 @@ Engine::System& Engine::System::GetInstance()
 Engine::System::System(): _errorFile(nullptr), _window(nullptr)
 {
 	_CrtMemCheckpoint(&_memoryCheckpoint);
+
+	NetCode::GamerServices::Init();
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
@@ -36,6 +39,8 @@ Engine::System::System(): _errorFile(nullptr), _window(nullptr)
 
 Engine::System::~System()
 {
+	NetCode::GamerServices::CleanUp();
+	
 	_consoleBuffer.CleanUp();
 	
 	SDL_DestroyWindow(_window);
@@ -136,7 +141,9 @@ void Engine::System::LogToConsole(const char* format, ...) const
 	log.message = buffer;
 	log.type = LogType::MESSAGE_LOG;
 	if (const auto eventSystem = EventSystem::GetInstance())
+	{
 		eventSystem->TriggerEvent(ED_LogToConsole::GetEventName(), &log);
+	}
 }
 
 void Engine::System::EnsureDirectoryExists(const std::string& path)

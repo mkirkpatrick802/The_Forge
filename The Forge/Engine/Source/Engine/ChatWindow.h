@@ -6,29 +6,30 @@
 
 namespace Engine
 {
+    enum class LogType : uint8_t;
+
     class ChatWindow final : public UIWindow
     {
     public:
-        
-        ChatWindow() = default;
-        void CleanUp();
+
+        ChatWindow();
+        ~ChatWindow();
         
         void Render() override;
 
     private:
 
-        void History();
+        void History() const;
         void Terminal();
 
         void AddOutput(const std::string& line);
+        void AddToLog(const void* p);
         void ClearOutput();
         
     private:
-
-        // TODO: This should be tracked in the command registry or smth else,
-        //       so commands can be saved across editor and game
+        
         char _inputBuffer[256]{};
-        static std::vector<std::string> _outputLines;
+        std::vector<std::pair<std::string, LogType>> _outputBuffer;
 
         ImGuiWindowFlags _windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
                                ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |

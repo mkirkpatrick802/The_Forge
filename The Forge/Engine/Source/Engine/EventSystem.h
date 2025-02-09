@@ -5,6 +5,16 @@
 
 namespace Engine
 {
+    // Custom hash for std::pair<const void*, std::string>
+    struct pair_hash {
+        template <typename T1, typename T2>
+        std::size_t operator ()(const std::pair<T1, T2>& p) const {
+            auto h1 = std::hash<T1>{}(p.first);
+            auto h2 = std::hash<T2>{}(p.second);
+            return h1 ^ (h2 << 1);  // Combine hashes
+        }
+    };
+    
     using EventCallback = std::function<void(const void*)>;
     class EventSystem
     {
@@ -17,10 +27,10 @@ namespace Engine
         
         template <typename T>
         void RegisterEvent(const std::string& name, T* obj, void (T::*func)(const void*));
-        void RegisterEvent(const std::string& name, const EventCallback& callback);
+        void RegisterEvent(const std::string& name, void* obj, const EventCallback& callback);
         
         void TriggerEvent(const std::string& name, const void* data = nullptr);
-        void DeregisterEvent(const std::string& name);
+        void DeregisterEvent(const std::string& name, void* obj);
         
     private:
         
@@ -31,12 +41,15 @@ namespace Engine
         EventSystem& operator=(EventSystem&&) = delete;
 
         static std::shared_ptr<EventSystem> _instance;
-        std::unordered_map<std::string, std::vector<EventCallback>> _eventMap;
+        
+        // Map each event name to a map of objects and their associated callbacks
+        std::unordered_map<std::string, std::unordered_map<void*, std::vector<EventCallback>>> _eventMap;
     };
 
     template <typename T>
     void EventSystem::RegisterEvent(const std::string& name, T* obj, void(T::* func)(const void*))
     {
-        _eventMap[name].push_back([=](const void* data) {(obj->*func)(data);});
+        //const auto pair = std::make_pair(static_cast<const void*>(obj), name);
+        _eventMap[name][static_cast<void*>(obj)].push_back([=](const void* data) {(obj->*func)(data);});
     }
 }

@@ -22,7 +22,7 @@ Engine::LevelManager::LevelManager(const std::string& filepath)
 void Engine::LevelManager::StartCurrentLevel()
 {
     GetEngineManager().ToggleEditor("0");
-
+    
     const auto cameras = GetComponentManager().GetPool<Camera>()->GetActive();
     if (!cameras.empty())
         CameraManager::GetCameraManager().SetActiveCamera(cameras[0]);
