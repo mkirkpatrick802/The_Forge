@@ -102,8 +102,6 @@ void NetCode::NetworkManager::EnterLobby(const uint64_t lobbyID)
 
     if (_isOwner)
         OnboardNewPlayer(_localUserID);
-
-    DEBUG_LOG("I am player: %d", _localUserID)
 }
 
 void NetCode::NetworkManager::UpdateLobbyPlayers()
@@ -132,7 +130,7 @@ void NetCode::NetworkManager::OnboardNewPlayer(uint64_t playerID)
         uint32_t type = 10;
         stream.Write(type);
         Engine::LevelManager::GetCurrentLevel()->Write(stream);
-        DEBUG_LOG("Sent world state: %d", GetGamerService().SendP2PReliable(stream, playerID))
+        GetGamerService().SendP2PReliable(stream, playerID);
     }
 }
 
