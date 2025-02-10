@@ -139,7 +139,6 @@ void NetCode::InputByteStream::Read(std::string& data)
     uint32_t elementCount;
     Read(elementCount);
     data.resize(elementCount);
-    data.clear();
     
     for (auto& element : data)
         Read(element);
@@ -149,8 +148,6 @@ void NetCode::InputByteStream::Read(std::vector<Engine::GameObject*>& data)
 {
     uint32_t elementCount;
     Read(elementCount);
-    data.resize(elementCount);
-    data.clear();
     
     for (int i = 0; i < elementCount; i++)
     {

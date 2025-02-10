@@ -126,7 +126,7 @@ void NetCode::NetworkManager::OnboardNewPlayer(uint64_t playerID)
     DEBUG_LOG("Onboard new player: %d", playerID)
     auto player = Engine::LevelManager::GetCurrentLevel()->GetGameMode().SpawnPlayer(playerID);
     
-    if (playerID != _ownerID)
+    //if (playerID != _ownerID)
     {
         OutputByteStream stream;
         uint32_t type = 10;
