@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <json.hpp>
 
+#include "ByteStream.h"
+
 using json = nlohmann::json;
 
 namespace Engine
@@ -8,6 +10,8 @@ namespace Engine
     class GameObject;
     class Component
     {
+        friend class NetCode::InputByteStream;
+        friend class NetCode::OutputByteStream;
     public:
         virtual ~Component() = default;
 
@@ -18,7 +22,7 @@ namespace Engine
         
         // Triggers when component is activated within the pool
         virtual void OnActivation() {}
-
+    
     public:
         GameObject* gameObject = nullptr;
         bool isReplicated = false;

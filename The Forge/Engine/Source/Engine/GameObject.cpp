@@ -4,6 +4,7 @@
 #include "JsonKeywords.h"
 #include "Level.h"
 #include "Components/ComponentFactories.h"
+#include "Components/ComponentRegistry.h"
 
 Engine::GameObject::GameObject()
 {
@@ -68,6 +69,14 @@ void Engine::GameObject::Write(NetCode::OutputByteStream& stream) const
     stream.Write(id);
     stream.Write(transform.position);
     stream.Write(transform.rotation);
+
+    uint32_t componentCount = static_cast<uint32_t>(_components.size());
+    stream.Write(componentCount);
+    for (const auto& val : _components | std::views::values)
+    {
+        uint32_t componentID = GetComponentRegistry().GetComponentID(typeid(*val));
+        stream.Write(componentID);
+    }
 }
 
 void Engine::GameObject::Read(NetCode::InputByteStream& stream)
@@ -76,4 +85,13 @@ void Engine::GameObject::Read(NetCode::InputByteStream& stream)
     stream.Read(id);
     stream.Read(transform.position);
     stream.Read(transform.rotation);
+
+    uint32_t componentCount;
+    stream.Read(componentCount);
+    for (uint32_t i = 0; i < componentCount; i++)
+    {
+        uint32_t componentID;
+        stream.Read(componentID);
+        GetComponentFactories().CreateComponentFromID(componentID, this);
+    }
 }

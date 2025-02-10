@@ -33,7 +33,7 @@ void NetCode::NetworkManager::StartNetCode()
 
 void NetCode::NetworkManager::Update()
 {
-    
+    ProcessIncomingPackets();
 }
 
 void NetCode::NetworkManager::ProcessIncomingPackets()
@@ -81,10 +81,9 @@ void NetCode::NetworkManager::ProcessQueuedPackets()
 
 void NetCode::NetworkManager::ProcessPacket(InputByteStream& stream, uint64_t playerID)
 {
-    std::string type;
+    uint32_t type;
     stream.Read(type);
-
-    if (type == "Start")
+    if (type == 10)
     {
         Engine::LevelManager::GetCurrentLevel()->Read(stream);
     }
@@ -103,6 +102,8 @@ void NetCode::NetworkManager::EnterLobby(const uint64_t lobbyID)
 
     if (_isOwner)
         OnboardNewPlayer(_localUserID);
+
+    DEBUG_LOG("I am player: %d", _localUserID)
 }
 
 void NetCode::NetworkManager::UpdateLobbyPlayers()
@@ -128,10 +129,10 @@ void NetCode::NetworkManager::OnboardNewPlayer(uint64_t playerID)
     if (playerID != _ownerID)
     {
         OutputByteStream stream;
-        std::string type("Start");
+        uint32_t type = 10;
         stream.Write(type);
         Engine::LevelManager::GetCurrentLevel()->Write(stream);
-        GetGamerService().SendP2PReliable(stream, playerID);
+        DEBUG_LOG("Sent world state: %d", GetGamerService().SendP2PReliable(stream, playerID))
     }
 }
 

@@ -4,6 +4,7 @@
 #include <SDL_scancode.h>
 #include <glm/geometric.hpp>
 
+#include "NetworkManager.h"
 #include "Engine/GameEngine.h"
 #include "Engine/InputManager.h"
 
@@ -21,6 +22,8 @@ nlohmann::json Engine::PlayerController::Serialize()
 
 void Engine::PlayerController::Update(float deltaTime)
 {
+    if (NetCode::GetNetworkManager().GetLocalUserID() != gameObject->id) return;
+    
     // Get movement input
     const glm::vec2 movementInput = {
         (float)(GetInputManager().GetKey(SDL_SCANCODE_D) - GetInputManager().GetKey(SDL_SCANCODE_A)),

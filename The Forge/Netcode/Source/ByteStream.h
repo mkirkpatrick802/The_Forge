@@ -2,12 +2,15 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <typeindex>
 #include <type_traits>
+#include <unordered_map>
 #include <vector>
 #include <glm/vec2.hpp>
 
 namespace Engine
 {
+    class Component;
     class GameObject;
 }
 

@@ -42,7 +42,7 @@ namespace NetCode
 
         void StartNetCode();
 
-        static void Update();
+        void Update();
         void ProcessIncomingPackets();
         void ReadIncomingPacketsIntoQueue();
         void ProcessQueuedPackets();
@@ -71,6 +71,7 @@ namespace NetCode
 
     public:
         bool GetIsOwner() const { return _isOwner; }
+        uint64_t GetLocalUserID() const { return _localUserID; }
     };
 
     inline NetworkManager& GetNetworkManager()

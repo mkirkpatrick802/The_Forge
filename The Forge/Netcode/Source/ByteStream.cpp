@@ -1,6 +1,8 @@
 ﻿#include "ByteStream.h"
 
 #include "Engine/GameObject.h"
+#include "Engine/GameObject.h"
+#include "Engine/Components/ComponentFactories.h"
 
 /*
  *      Output Byte Stream
@@ -137,6 +139,7 @@ void NetCode::InputByteStream::Read(std::string& data)
     uint32_t elementCount;
     Read(elementCount);
     data.resize(elementCount);
+    data.clear();
     
     for (auto& element : data)
         Read(element);
@@ -147,8 +150,12 @@ void NetCode::InputByteStream::Read(std::vector<Engine::GameObject*>& data)
     uint32_t elementCount;
     Read(elementCount);
     data.resize(elementCount);
-
-    for (const auto& element : data)
-        if (element->isReplicated)
-            element->Read(*this);
+    data.clear();
+    
+    for (int i = 0; i < elementCount; i++)
+    {
+        Engine::GameObject* gameObject = new Engine::GameObject();
+        gameObject->Read(*this);
+        data.push_back(gameObject);
+    }
 }
