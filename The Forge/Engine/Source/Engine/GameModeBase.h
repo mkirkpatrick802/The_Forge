@@ -4,6 +4,7 @@
 
 namespace Engine
 {
+    class GameObject;
     class PlayerStart;
     class GameModeBase
     {
@@ -13,7 +14,7 @@ namespace Engine
         ~GameModeBase() = default;
 
         void Start();
-        void SpawnPlayer();
+        GameObject* SpawnPlayer(uint64_t playerID) const;
 
     private:
 

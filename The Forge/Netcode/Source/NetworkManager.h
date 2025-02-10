@@ -1,7 +1,10 @@
 ﻿#pragma once
 #include <cstdint>
+#include <list>
+#include <queue>
 #include <string>
 
+#include "ByteStream.h"
 #include "GamerServices.h"
 
 namespace NetCode
@@ -16,6 +19,20 @@ namespace NetCode
         NMS_Delay,
     };
     
+    class ReceivedPacket
+    {
+    public:
+        ReceivedPacket(const InputByteStream& inStream, const uint64_t inFromPlayer) : _stream(inStream), _playerID(inFromPlayer) {}
+
+        uint64_t GetFromPlayer() const { return _playerID; }
+        InputByteStream& GetByteStream() { return _stream; }
+
+    private:
+        InputByteStream	_stream;
+        uint64_t _playerID;
+
+    };
+    
     class NetworkManager
     {
     public:
@@ -25,9 +42,22 @@ namespace NetCode
 
         void StartNetCode();
 
+        static void Update();
+        void ProcessIncomingPackets();
+        void ReadIncomingPacketsIntoQueue();
+        void ProcessQueuedPackets();
+        static void ProcessPacket(InputByteStream& stream, uint64_t playerID);
+        static void UpdateBytesSentLastFrame();
+
         void EnterLobby(uint64_t lobbyID);
         void UpdateLobbyPlayers();
-    
+
+        // TODO: move this to a server class
+        void OnboardNewPlayer(uint64_t playerID);
+        
+        bool IsPlayerInGame(uint64_t playerID) const;
+        void HandleConnectionReset(uint64_t playerID);
+
     private:
         NetworkManagerState	_state;
         uint64_t _lobbyID;
@@ -37,6 +67,10 @@ namespace NetCode
         int _playerCount;
         bool _isOwner;
         std::map<uint64_t, std::string> _playerNames;
+        std::queue<ReceivedPacket, std::list<ReceivedPacket>> _packetQueue;
+
+    public:
+        bool GetIsOwner() const { return _isOwner; }
     };
 
     inline NetworkManager& GetNetworkManager()

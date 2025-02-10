@@ -49,17 +49,17 @@ void Engine::EngineManager::ToggleEditor(const std::string& args)
 	{
 		if (CommandUtils::ParseBoolean(args))
 		{
+			_editorEnabled = true;
 			if (_editor != nullptr) return;
 
 			EventSystem::GetInstance()->TriggerEvent("Editor Enabled");
 			_editor = std::make_unique<Editor::EditorManager>();
-			_editorEnabled = true;
 		}
 		else
 		{
+			_editorEnabled = false;
 			if (_editor == nullptr) return;
 			_editor.reset();
-			_editorEnabled = false;
 		}
 	}
 	catch (const std::invalid_argument& e)

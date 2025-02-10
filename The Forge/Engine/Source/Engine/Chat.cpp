@@ -1,8 +1,11 @@
 ﻿#include "Chat.h"
 
+#include <SDL_scancode.h>
+
 #include "ChatWindow.h"
 #include "EventSystem.h"
 #include "GameEngine.h"
+#include "InputManager.h"
 #include "Rendering/UIManager.h"
 
 Engine::Chat::Chat()
@@ -25,14 +28,14 @@ void Engine::Chat::Update(float deltaTime)
         UIManager::AddUIWindow(_window);
     }
     
-    /*if (GetInputManager().GetKeyDown(SDL_SCANCODE_T))
-        OpenChatWindow(false);
+    if (GetInputManager().GetKeyDown(SDL_SCANCODE_T))
+        _window->EnableTerminal(true);
 
     if (GetInputManager().GetKeyDown(SDL_SCANCODE_SLASH))
-        OpenChatWindow(true);
+        _window->EnableTerminal(true);
 			
     if (GetInputManager().GetKeyDown(SDL_SCANCODE_ESCAPE))
-        CloseChatWindow();*/
+        _window->EnableTerminal(false);
 }
 
 void Engine::Chat::CloseChatWindow(const void* p)

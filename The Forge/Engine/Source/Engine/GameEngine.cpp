@@ -4,6 +4,7 @@
 #include "InputManager.h"
 #include "JsonKeywords.h"
 #include "LevelManager.h"
+#include "NetworkManager.h"
 #include "Rendering/Renderer.h"
 #include "System.h"
 #include "Time.h"
@@ -55,17 +56,16 @@ void Engine::GameEngine::StartGameplayLoop()
 		{
 			const float deltaTime = (currentTicks - frameStart) / 1000.f;
 			frameStart = currentTicks;
-
-			NetCode::GetGamerService().Update();
 			
 			if (!GetEngineManager().IsEditorEnabled())
 			{
+				NetCode::GetGamerService().Update();
+				NetCode::GetNetworkManager().Update();
 				_chat->Update(deltaTime);
 				GetComponentManager().UpdateComponents(deltaTime);
 			}
 			
 			_renderer->Render();
-
 			_inputManager->EndProcessInputs();
 		}
 	}

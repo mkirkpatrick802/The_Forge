@@ -5,6 +5,7 @@
 
 namespace NetCode
 {
+    class OutputByteStream;
     class GamerServices
     {
     public:
@@ -25,9 +26,9 @@ namespace NetCode
         void LeaveLobby(uint64_t inLobbyID);
 
         // P2P networking
-        //bool SendP2PReliable( const OutputMemoryBitStream& inOutputStream, uint64_t inToPlayer );
-        //bool IsP2PPacketAvailable( uint32_t& outPacketSize );
-        //uint32_t ReadP2PPacket( void* inToReceive, uint32_t inMaxLength, uint64_t& outFromPlayer );
+        bool SendP2PReliable( const OutputByteStream& inOutputStream, uint64_t inToPlayer );
+        bool IsP2PPacketAvailable( uint32_t& outPacketSize );
+        uint32_t ReadP2PPacket( void* inToReceive, uint32_t inMaxLength, uint64_t& outFromPlayer );
     
     public:
         ~GamerServices();

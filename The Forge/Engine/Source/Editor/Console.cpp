@@ -7,7 +7,7 @@
 Editor::Console::Console()
 {
     Engine::EventSystem::GetInstance()->RegisterEvent(Engine::ED_LogToConsole::GetEventName(), this, &Console::AddToLog);
-    DEBUG_PRINT("Hello Debug Console")
+    DEBUG_LOG("Hello Debug Console")
 }
 
 Editor::Console::~Console()

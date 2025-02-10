@@ -11,14 +11,14 @@ namespace Engine
     class ChatWindow final : public UIWindow
     {
     public:
-
         ChatWindow();
         ~ChatWindow();
         
         void Render() override;
 
+        void EnableTerminal(const bool enable) {_terminalActive = enable;}
+        
     private:
-
         void History() const;
         void Terminal();
 
@@ -27,7 +27,6 @@ namespace Engine
         void ClearOutput();
         
     private:
-        
         char _inputBuffer[256]{};
         std::vector<std::pair<std::string, LogType>> _outputBuffer;
 
@@ -36,5 +35,6 @@ namespace Engine
                                ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
 
         float _lineHeight;
+        bool _terminalActive = false;
     };
 }

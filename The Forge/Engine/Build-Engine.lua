@@ -16,6 +16,7 @@ project "Engine"
    includedirs
    {
       "Source",
+      "../Netcode/Source",
 
       "Vendors/SDL2-2.30.2/include",
       "Vendors/imgui-1.90.5-docking",
@@ -38,7 +39,7 @@ project "Engine"
        postbuildcommands 
        {
             "{COPY} Vendors/SDL2-2.30.2/lib/x64/*.dll %{cfg.targetdir}",
-            "{COPY} Assets %{cfg.targetdir}/Assets"
+            "{COPY} Assets %{cfg.targetdir}/Assets"   
        }
 
    filter "configurations:Debug"

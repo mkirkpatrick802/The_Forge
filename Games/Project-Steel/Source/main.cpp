@@ -8,6 +8,12 @@ using namespace Editor;
 int main()
 {
     CreateAppWindow();
-    GetEngineManager().ToggleEditor("1");
+    
+#ifdef DEBUG
+    GetEngineManager().ToggleEditor("0");
+#else
+    GetEngineManager().ToggleEditor("0");
+#endif
+    
     GetGameEngine().StartGameplayLoop();
 }

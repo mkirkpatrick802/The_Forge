@@ -9,8 +9,8 @@ Engine::InputManager::InputManager()
 {
     // Keyboard State Init
     const uint8_t* currentKeys = SDL_GetKeyboardState(&_numKeys);
-    _keysLastFrame = DEBUG_NEW uint8_t[_numKeys];
-    _keysThisFrame = DEBUG_NEW uint8_t[_numKeys];
+    _keysLastFrame = new uint8_t[_numKeys];
+    _keysThisFrame = new uint8_t[_numKeys];
 
     memcpy(_keysLastFrame, currentKeys, _numKeys);
     memcpy(_keysThisFrame, currentKeys, _numKeys);

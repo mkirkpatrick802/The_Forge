@@ -38,7 +38,8 @@ project "Project-Steel"
     postbuildcommands
     {
         "{COPY} Assets/steam_appid.txt %{cfg.targetdir}",
-        "{COPY} Assets %{cfg.targetdir}/Assets"
+        "{COPY} Assets %{cfg.targetdir}/Assets",
+        "{COPY} Config %{cfg.targetdir}/Config" 
     }
 
    -- Generate the postbuild command to copy DLLs from each module

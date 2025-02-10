@@ -1,7 +1,14 @@
 ﻿#pragma once
 #include <string>
 #include <vector>
+
+#include "ByteStream.h"
 #include "json.hpp"
+
+namespace NetCode
+{
+    class NetworkManager;
+}
 
 namespace Engine
 {
@@ -22,9 +29,9 @@ namespace Engine
     {
         friend class LevelManager;
         friend class Editor::DetailsEditor;
+        friend class NetCode::NetworkManager;
         
     public:
-        
         GameObject* SpawnNewGameObject(const std::string& filepath = "");
         bool RemoveGameObject(GameObject* go);
 
@@ -33,8 +40,11 @@ namespace Engine
         std::vector<GameObject*> GetAllGameObjects() { return _gameObjects; }
         std::string GetName() { return _name; }
         GameModeBase& GetGameMode() const { return *_gameMode; }
-    
+
+        
     private:
+        void Write(NetCode::OutputByteStream& stream) const;
+        void Read(NetCode::InputByteStream& stream);
         
         Level(nlohmann::json data);
         ~Level();
@@ -47,6 +57,6 @@ namespace Engine
         std::string _path;
         
         std::vector<GameObject*> _gameObjects;
-        std::unique_ptr<GameModeBase> _gameMode;
+        std::unique_ptr<GameModeBase> _gameMode; // Only exists on the server
     };
 }

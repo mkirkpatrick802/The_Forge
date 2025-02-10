@@ -45,15 +45,18 @@ void Engine::SpriteRenderer::OnActivation()
     glBindVertexArray(0);
 
     GetRenderer().AddSpriteRendererToRenderList(this);
-    
-    /*const std::string filepath = "Assets/Sprites/Astronaut.png";
-    _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
-    
-    std::string vertex = "Assets/Shaders/Sprite.vert";
-    std::string fragment = "Assets/Shaders/Sprite.frag";
 
-    _shader.Compile(vertex.c_str(), fragment.c_str());
-    _sortingLayer = 0;*/
+    if (!_texture)
+    {
+        const std::string filepath = "Assets/Sprites/Astronaut.png";
+        _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
+    
+        std::string vertex = "Assets/Shaders/Sprite.vert";
+        std::string fragment = "Assets/Shaders/Sprite.frag";
+
+        _shader.Compile(vertex.c_str(), fragment.c_str());
+        _sortingLayer = 0;
+    }
 }
 
 Engine::SpriteRenderer::~SpriteRenderer()

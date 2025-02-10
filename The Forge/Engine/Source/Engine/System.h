@@ -4,7 +4,6 @@
 #include "Windows.h"
 
 #include <iostream>
-#include <SDL_render.h>
 #include <glm/vec2.hpp>
 
 #include "ConsoleStreamBuffer.h"
@@ -15,14 +14,12 @@
 #define DBG_NEW new
 #endif
 
-#define DEBUG_PRINT(Format, ...) Engine::System::GetInstance().LogToConsole(Format, ##__VA_ARGS__);
+#define DEBUG_LOG(Format, ...) Engine::System::GetInstance().LogToConsole(Format, ##__VA_ARGS__);
 
+struct SDL_Window;
 namespace Engine
 {
 	enum class LogType : uint8_t {MESSAGE_LOG = 1, WARNING_LOG, ERROR_LOG}; 
-	
-	typedef SDL_Window Window;
-
 	class System
 	{
 	public:
@@ -31,13 +28,13 @@ namespace Engine
 		System();
 		~System();
 		
-		Window* CreateAppWindow();
+		SDL_Window* CreateAppWindow();
 
 		void LogToErrorFile(const std::string& message);
 		void DisplayMessageBox(const std::string& caption, const std::string& message) const;
 		void LogToConsole(const char* format, ...) const;
 
-		Window* GetWindow() const { return _window; }
+		SDL_Window* GetWindow() const { return _window; }
 		glm::vec2 GetWindowSize() const;
 
 		// File Helpers
@@ -49,17 +46,17 @@ namespace Engine
 		_CrtMemState _memoryCheckpoint;
 		HANDLE _errorFile;
 		
-		Window* _window;
+		SDL_Window* _window;
 
 		ConsoleStreamBuffer _consoleBuffer;
 	};
 
-	inline Window* CreateAppWindow()
+	inline SDL_Window* CreateAppWindow()
 	{
 		return System::GetInstance().CreateAppWindow();
 	}
 	
-	inline Window* GetAppWindow()
+	inline SDL_Window* GetAppWindow()
 	{
 		return System::GetInstance().GetWindow();
 	}

@@ -1,7 +1,9 @@
 ﻿#include <iostream>
 
+#include "ByteStream.h"
 #include "GamerServices.h"
 #include "NetworkManager.h"
+#include "Engine/System.h"
 #include "steam/steam_api.h"
 
 using namespace NetCode;
@@ -50,16 +52,20 @@ GamerServices::Impl::Impl():
 void GamerServices::Impl::OnLobbyMatchListCallback(LobbyMatchList_t* inCallback, bool inIOFailure)
 {
     if (inIOFailure) return;
-
-    // If we have available lobbies, enter the first one
+    
     if(inCallback->m_nLobbiesMatching > 0)
     {
+        DEBUG_LOG("Lobby found!");
+
+        // If we have available lobbies, enter the first one
         lobbyID = SteamMatchmaking()->GetLobbyByIndex(0);
         SteamAPICall_t call = SteamMatchmaking()->JoinLobby(lobbyID);
         lobbyEnteredResult.Set( call, this, &Impl::OnLobbyEnteredCallback );
     }
     else
     {
+        DEBUG_LOG("Not lobby found, creating one...")
+        
         // Need to make our own lobby
         SteamAPICall_t call = SteamMatchmaking()->CreateLobby(k_ELobbyTypePublic, 4);
         lobbyCreateResult.Set(call, this, &Impl::OnLobbyCreateCallback);
@@ -71,6 +77,7 @@ void GamerServices::Impl::OnLobbyCreateCallback(LobbyCreated_t* inCallback, bool
     if(inCallback->m_eResult == k_EResultOK && !inIOFailure)
     {
         lobbyID = inCallback->m_ulSteamIDLobby;
+        DEBUG_LOG("Lobby created!")
         
         // Set our game so others can find this lobby
         SteamMatchmaking()->SetLobbyData(lobbyID, "game", GAME_NAME);
@@ -80,21 +87,44 @@ void GamerServices::Impl::OnLobbyCreateCallback(LobbyCreated_t* inCallback, bool
 
 void GamerServices::Impl::OnLobbyEnteredCallback(LobbyEnter_t* inCallback, bool inIOFailure)
 {
+    if(inIOFailure) return;
+
+    if (inCallback->m_EChatRoomEnterResponse == k_EChatRoomEnterResponseSuccess)
+    {
+        lobbyID = inCallback->m_ulSteamIDLobby;
+        DEBUG_LOG("Lobby joined!");
+        DEBUG_LOG("Lobby host: %d", GetGamerService().GetOwnerID(lobbyID.ConvertToUint64()))
+        
+        GetNetworkManager().EnterLobby(lobbyID.ConvertToUint64());
+    }
+    else
+    {
+        DEBUG_LOG("Failed to join lobby!")
+    }
 }
 
-void GamerServices::Impl::OnLobbyChatUpdate( LobbyChatUpdate_t* inCallback )
+void GamerServices::Impl::OnLobbyChatUpdate(LobbyChatUpdate_t* inCallback)
 {
     GetNetworkManager().UpdateLobbyPlayers();
+
+    if (inCallback->m_rgfChatMemberStateChange & k_EChatMemberStateChangeEntered)
+    {
+        // New player has joined the game
+        if (!GetNetworkManager().GetIsOwner()) return;
+        GetNetworkManager().OnboardNewPlayer(inCallback->m_ulSteamIDUserChanged);
+    }
 }
 
 void GamerServices::Impl::OnP2PSessionRequest( P2PSessionRequest_t* inCallback )
 {
-    
+    CSteamID playerID = inCallback->m_steamIDRemote;
+    if (GetNetworkManager().IsPlayerInGame(playerID.ConvertToUint64()))
+        SteamNetworking()->AcceptP2PSessionWithUser(playerID);
 }
 
 void GamerServices::Impl::OnP2PSessionFail( P2PSessionConnectFail_t* inCallback )
 {
-    
+    GetNetworkManager().HandleConnectionReset(inCallback->m_steamIDRemote.ConvertToUint64());
 }
 /*
  *      Gamer Services Exclusive
@@ -126,6 +156,8 @@ GamerServices::GamerServices()
 
 void GamerServices::LobbySearchAsync()
 {
+    DEBUG_LOG("Searching for lobby...");
+    
     // Set search parameters
     SteamMatchmaking()->AddRequestLobbyListStringFilter("game", GAME_NAME, k_ELobbyComparisonEqual);
     SteamMatchmaking()->AddRequestLobbyListResultCountFilter(1);
@@ -170,6 +202,30 @@ void GamerServices::GetLobbyPlayerMap(const uint64_t inLobbyID, std::map<uint64_
             outPlayerMap.emplace(playerID.ConvertToUint64(), GetRemotePlayerName(playerID.ConvertToUint64()));
         }
     }
+}
+
+void GamerServices::LeaveLobby(uint64_t inLobbyID)
+{
+    
+}
+
+bool GamerServices::SendP2PReliable(const OutputByteStream& inOutputStream, uint64_t inToPlayer)
+{
+    return SteamNetworking()->SendP2PPacket(inToPlayer, inOutputStream.GetBuffer(), inOutputStream.GetByteLength(), k_EP2PSendReliable);
+}
+
+bool GamerServices::IsP2PPacketAvailable(uint32_t& outPacketSize)
+{
+    return SteamNetworking()->IsP2PPacketAvailable(&outPacketSize);
+}
+
+uint32_t GamerServices::ReadP2PPacket(void* inToReceive, uint32_t inMaxLength, uint64_t& outFromPlayer)
+{
+    uint32_t packetSize;
+    CSteamID fromID;
+    SteamNetworking()->ReadP2PPacket(inToReceive, inMaxLength, &packetSize, &fromID);
+    outFromPlayer = fromID.ConvertToUint64();
+    return packetSize;
 }
 
 int GamerServices::GetLobbyNumPlayers(const uint64_t inLobbyID) const

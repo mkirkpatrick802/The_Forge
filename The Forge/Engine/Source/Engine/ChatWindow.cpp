@@ -50,12 +50,16 @@ void Engine::ChatWindow::Render()
 
     ImGui::PopStyleColor();
 
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, .5f));
-    ImGui::SetNextWindowSize(ImVec2(x, _lineHeight));
-    ImGui::SetNextWindowPos(ImVec2(mainViewport->Pos.x + 10, mainViewport->Pos.y + mainViewport->Size.y - _lineHeight - 15));
-    Terminal();
-
-    ImGui::PopStyleColor();
+    if (_terminalActive)
+    {
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, .5f));
+        ImGui::SetNextWindowSize(ImVec2(x, _lineHeight));
+        ImGui::SetNextWindowPos(ImVec2(mainViewport->Pos.x + 10, mainViewport->Pos.y + mainViewport->Size.y - _lineHeight - 15));
+        Terminal();
+        
+        ImGui::PopStyleColor();
+    }
+    
     ImGui::PopStyleVar(3);
 }
 

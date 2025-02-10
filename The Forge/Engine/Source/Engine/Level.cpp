@@ -19,7 +19,7 @@ Engine::Level::Level(nlohmann::json data)
 
     for (const auto& go_data : data[JsonKeywords::GAMEOBJECT_ARRAY])
     {
-        const auto go = DEBUG_NEW GameObject(go_data);
+        const auto go = new GameObject(go_data);
         _gameObjects.push_back(go);
     }
 
@@ -48,7 +48,7 @@ void Engine::Level::Start()
 Engine::GameObject* Engine::Level::SpawnNewGameObject(const std::string& filepath)
 {
     // Create Game Object
-    const auto go = DEBUG_NEW GameObject();
+    const auto go = new GameObject();
     if (!filepath.empty())
     {
         std::ifstream file(filepath);
@@ -95,4 +95,14 @@ void Engine::Level::SaveLevel(const std::string& args)
     }
 
     std::cout << "Level Saved Successfully!" << '\n';
+}
+
+void Engine::Level::Write(NetCode::OutputByteStream& stream) const
+{
+    stream.Write(_gameObjects);
+}
+
+void Engine::Level::Read(NetCode::InputByteStream& stream)
+{
+    stream.Read(_gameObjects);
 }

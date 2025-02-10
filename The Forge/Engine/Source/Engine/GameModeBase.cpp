@@ -17,7 +17,13 @@ void Engine::GameModeBase::Start()
     NetCode::GetNetworkManager().StartNetCode();
 }
 
-void Engine::GameModeBase::SpawnPlayer()
+Engine::GameObject* Engine::GameModeBase::SpawnPlayer(const uint64_t playerID) const
 {
-    LevelManager::GetCurrentLevel()->SpawnNewGameObject("Assets/Player.prefab");
+    const auto go = LevelManager::GetCurrentLevel()->SpawnNewGameObject("Assets/Player.prefab");
+    const Transform transform = _playerStarts.empty() ? Transform() : _playerStarts[0]->gameObject->transform;
+    go->transform.position = transform.position;
+    go->transform.rotation = transform.rotation;
+    go->id 	= playerID;
+
+    return go;
 }

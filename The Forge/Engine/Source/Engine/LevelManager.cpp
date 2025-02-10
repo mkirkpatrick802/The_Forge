@@ -17,6 +17,9 @@ Engine::LevelManager::LevelManager(const std::string& filepath)
 {
     if (const std::ifstream file(filepath); file.is_open())
         LoadLevel(filepath);
+
+    if (!GetEngineManager().IsEditorEnabled())
+        StartCurrentLevel();
 }
 
 void Engine::LevelManager::StartCurrentLevel()
@@ -125,7 +128,7 @@ bool Engine::LevelManager::LoadLevel(const std::string& filepath)
     
     //Create Level Object
     delete _currentLevel;
-    _currentLevel = DEBUG_NEW Level(data);
+    _currentLevel = new Level(data);
     _currentLevel->_path = filepath;
     
     return true;
