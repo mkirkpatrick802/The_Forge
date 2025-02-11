@@ -7,6 +7,11 @@
 #include "ByteStream.h"
 #include "GamerServices.h"
 
+namespace Engine
+{
+    class GameObject;   
+}
+
 namespace NetCode
 {
     enum NetworkManagerState : uint8_t
@@ -17,6 +22,14 @@ namespace NetCode
         NMS_Starting,
         NMS_Playing,
         NMS_Delay,
+    };
+
+    enum PacketType : uint8_t
+    {
+        PT_Hello = 0,
+        PT_WorldStateUpdate,
+        PT_Disconnect,
+        PT_Max
     };
     
     class ReceivedPacket
@@ -43,17 +56,23 @@ namespace NetCode
         void StartNetCode();
 
         void Update();
+
+        // Process Incoming Packets
         void ProcessIncomingPackets();
         void ReadIncomingPacketsIntoQueue();
         void ProcessQueuedPackets();
-        static void ProcessPacket(InputByteStream& stream, uint64_t playerID);
-        static void UpdateBytesSentLastFrame();
+        void ProcessPacket(InputByteStream& stream, uint64_t playerID) const;
 
+        // Prep World State Update
+        void SendWorldStateUpdate();
+
+        // Temp
+        void SendGameObjectState(const Engine::GameObject* go) const;
+        
         void EnterLobby(uint64_t lobbyID);
         void UpdateLobbyPlayers();
-
-        // TODO: move this to a server class
-        void OnboardNewPlayer(uint64_t playerID);
+        
+        void OnboardNewPlayer(uint64_t playerID) const;
         
         bool IsPlayerInGame(uint64_t playerID) const;
         void HandleConnectionReset(uint64_t playerID);
@@ -68,6 +87,9 @@ namespace NetCode
         bool _isOwner;
         std::map<uint64_t, std::string> _playerNames;
         std::queue<ReceivedPacket, std::list<ReceivedPacket>> _packetQueue;
+
+        uint64_t _lastUpdateSentTicks = 0;
+        uint64_t _targetStateUpdateDelay = 100; // Starting place (balance accordingly)
 
     public:
         bool GetIsOwner() const { return _isOwner; }

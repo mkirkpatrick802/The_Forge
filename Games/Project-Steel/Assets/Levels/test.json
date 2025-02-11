@@ -6,7 +6,8 @@
                     "Component ID": 658613692
                 }
             ],
-            "Game Object Name": "Player Start"
+            "Game Object Name": "Player Start",
+            "Is Replicated": false
         },
         {
             "Components": [
@@ -14,7 +15,8 @@
                     "Component ID": 1181213486
                 }
             ],
-            "Game Object Name": "Camera"
+            "Game Object Name": "Camera",
+            "Is Replicated": false
         }
     ],
     "Level Name": "test"

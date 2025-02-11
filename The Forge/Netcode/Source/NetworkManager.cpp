@@ -3,9 +3,11 @@
 
 #include "GamerServices.h"
 #include "Engine/GameModeBase.h"
+#include "Engine/GameObject.h"
 #include "Engine/Level.h"
 #include "Engine/LevelManager.h"
 #include "Engine/System.h"
+#include "Engine/Time.h"
 
 NetCode::NetworkManager& NetCode::NetworkManager::GetInstance()
 {
@@ -34,13 +36,14 @@ void NetCode::NetworkManager::StartNetCode()
 void NetCode::NetworkManager::Update()
 {
     ProcessIncomingPackets();
+
+    SendWorldStateUpdate();
 }
 
 void NetCode::NetworkManager::ProcessIncomingPackets()
 {
     ReadIncomingPacketsIntoQueue();
     ProcessQueuedPackets();
-    UpdateBytesSentLastFrame();
 }
 
 void NetCode::NetworkManager::ReadIncomingPacketsIntoQueue()
@@ -50,7 +53,7 @@ void NetCode::NetworkManager::ReadIncomingPacketsIntoQueue()
     InputByteStream stream(packetSize * 8);
     uint64_t fromPlayer;
 
-    //keep reading until we don't have anything to read ( or we hit a max number that we'll process per frame )
+    // Keep reading until we don't have anything to read (or we hit a max number that we'll process per frame)
     int receivedPackedCount = 0;
     while(GetGamerService().IsP2PPacketAvailable(incomingSize) && receivedPackedCount < 10)
     {
@@ -62,7 +65,7 @@ void NetCode::NetworkManager::ReadIncomingPacketsIntoQueue()
                 stream.ResetToCapacity(readByteCount);
                 ++receivedPackedCount;
 
-                //shove the packet into the queue and we'll handle it as soon as we should...
+                // Shove the packet into the queue, and we'll handle it as soon as we should...
                 _packetQueue.emplace(stream, fromPlayer);
             }
         }
@@ -79,19 +82,55 @@ void NetCode::NetworkManager::ProcessQueuedPackets()
     }
 }
 
-void NetCode::NetworkManager::ProcessPacket(InputByteStream& stream, uint64_t playerID)
+void NetCode::NetworkManager::ProcessPacket(InputByteStream& stream, uint64_t playerID) const
 {
-    uint32_t type;
+    PacketType type;
     stream.Read(type);
-    if (type == 10)
+    switch (type)
     {
+    case PT_Hello:
+        DEBUG_LOG("Host has welcomed us into the server!")
+        break;
+    case PT_WorldStateUpdate:
+        DEBUG_LOG("Reading World State Data...")
         Engine::LevelManager::GetCurrentLevel()->Read(stream);
+        break;
+    case PT_Disconnect:
+        break;
+    default:
+        DEBUG_LOG("Unhandled Packet Received!")
     }
 }
 
-void NetCode::NetworkManager::UpdateBytesSentLastFrame()
+void NetCode::NetworkManager::SendWorldStateUpdate()
 {
+    if (_playerCount <= 1) return;
+    if (!_isOwner) return;
+
+    const uint64_t currentTicks = Engine::Time::GetTicks(); 
+    if (currentTicks - _lastUpdateSentTicks >= _targetStateUpdateDelay)
+    {
+        _lastUpdateSentTicks = currentTicks;
+
+        // Send Update
+        OutputByteStream stream;
+        stream.Write(PT_WorldStateUpdate);
+        Engine::LevelManager::GetCurrentLevel()->Write(stream);
+        for (const auto key : _playerNames | std::views::keys)
+        {
+            if (key == _localUserID) return;
+            GetGamerService().SendP2PReliable(stream, key);
+        }
+    }
+}
+
+void NetCode::NetworkManager::SendGameObjectState(const Engine::GameObject* go) const
+{
+    if (_isOwner) return;
     
+    OutputByteStream stream;
+    go->Write(stream);
+    GetGamerService().SendP2PReliable(stream, _ownerID);
 }
 
 void NetCode::NetworkManager::EnterLobby(const uint64_t lobbyID)
@@ -119,17 +158,14 @@ void NetCode::NetworkManager::UpdateLobbyPlayers()
 
 // TODO: Move this to a server class (only gets called on the owners machine)
 // Spawn new player, and send current world state
-void NetCode::NetworkManager::OnboardNewPlayer(uint64_t playerID)
+void NetCode::NetworkManager::OnboardNewPlayer(uint64_t playerID) const
 {
-    DEBUG_LOG("Onboard new player: %d", playerID)
     auto player = Engine::LevelManager::GetCurrentLevel()->GetGameMode().SpawnPlayer(playerID);
     
-    //if (playerID != _ownerID)
+    if (playerID != _ownerID)
     {
         OutputByteStream stream;
-        uint32_t type = 10;
-        stream.Write(type);
-        Engine::LevelManager::GetCurrentLevel()->Write(stream);
+        stream.Write(PT_Hello);
         GetGamerService().SendP2PReliable(stream, playerID);
     }
 }

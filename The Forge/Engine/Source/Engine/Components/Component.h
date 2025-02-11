@@ -22,6 +22,9 @@ namespace Engine
         
         // Triggers when component is activated within the pool
         virtual void OnActivation() {}
+
+        virtual void Read(NetCode::InputByteStream& stream) {}
+        virtual void Write(NetCode::OutputByteStream& stream) const {}
     
     public:
         GameObject* gameObject = nullptr;

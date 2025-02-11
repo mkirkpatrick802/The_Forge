@@ -14,18 +14,25 @@ void Editor::DetailsEditor::Render()
     const std::string title = _selectedGameObject->GetName() + " Details";
     ImGui::Begin(title.c_str());
 
-    ImGui::PushItemWidth(100);
-    ImGui::InputFloat("X Position", &_selectedGameObject->transform.position.x, 1);
-    
+    ImGui::PushItemWidth(50);
+    ImGui::Text("Position:");
     ImGui::SameLine();
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 10); // Small padding
+    ImGui::InputFloat("##X", &_selectedGameObject->transform.position.x, 0, 0);
+    ImGui::SameLine();
+    ImGui::InputFloat("##Y", &_selectedGameObject->transform.position.y, 0, 0);
+    ImGui::PopItemWidth();
+
+    ImGui::Checkbox("Is Replicated", &_selectedGameObject->isReplicated);
+    ImGui::Spacing();
     
-    ImGui::PushItemWidth(100);
-    ImGui::InputFloat("Y Position", &_selectedGameObject->transform.position.y, 1);
+    ImGui::Separator();
     
     for (const auto component : _selectedGameObject->GetAllComponents())
     {
         const std::string& name = Engine::GetComponentRegistry().GetComponentName(typeid(*component));
         ImGui::Text(name.c_str());
+        ImGui::Spacing();
     }
     
     ImGui::Separator();

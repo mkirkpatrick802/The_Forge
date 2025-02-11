@@ -22,7 +22,7 @@ nlohmann::json Engine::PlayerController::Serialize()
 
 void Engine::PlayerController::Update(float deltaTime)
 {
-    if (NetCode::GetNetworkManager().GetLocalUserID() != gameObject->id) return;
+    if (NetCode::GetNetworkManager().GetLocalUserID() != _controllingPlayer) return;
     
     // Get movement input
     const glm::vec2 movementInput = {
@@ -39,4 +39,20 @@ void Engine::PlayerController::Update(float deltaTime)
 
     // Apply movement
     gameObject->transform.position += movement * _walkSpeed * deltaTime;
+
+    NetCode::GetNetworkManager().SendGameObjectState(gameObject);
+}
+
+void Engine::PlayerController::Write(NetCode::OutputByteStream& stream) const
+{
+    Component::Write(stream);
+
+    stream.Write(_controllingPlayer);
+}
+
+void Engine::PlayerController::Read(NetCode::InputByteStream& stream)
+{
+    Component::Read(stream);
+
+    stream.Read(_controllingPlayer);
 }

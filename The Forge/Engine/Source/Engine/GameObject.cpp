@@ -40,6 +40,9 @@ std::vector<Engine::Component*> Engine::GameObject::GetAllComponents() const
 void Engine::GameObject::Deserialize(const nlohmann::json& data)
 {
     _name = data[JsonKeywords::GAMEOBJECT_NAME];
+    
+    if (data.contains(JsonKeywords::GAMEOBJECT_ISREPLICATED))
+        isReplicated = data[JsonKeywords::GAMEOBJECT_ISREPLICATED];
 
     if (!data.contains(JsonKeywords::COMPONENT_ARRAY)) return;
 
@@ -55,6 +58,8 @@ nlohmann::json Engine::GameObject::Serialize()
 {
     nlohmann::json data;
     data[JsonKeywords::GAMEOBJECT_NAME] = _name;
+    data[JsonKeywords::GAMEOBJECT_ISREPLICATED] = isReplicated;
+    
     //TODO: save transform data (position & rotation)
     data[JsonKeywords::COMPONENT_ARRAY] = json::array();
     for (const auto& component : GetAllComponents())
@@ -76,6 +81,7 @@ void Engine::GameObject::Write(NetCode::OutputByteStream& stream) const
     {
         uint32_t componentID = GetComponentRegistry().GetComponentID(typeid(*val));
         stream.Write(componentID);
+        val->Write(stream);
     }
 }
 
@@ -92,6 +98,15 @@ void Engine::GameObject::Read(NetCode::InputByteStream& stream)
     {
         uint32_t componentID;
         stream.Read(componentID);
-        GetComponentFactories().CreateComponentFromID(componentID, this);
+        auto type = GetComponentRegistry().GetComponentTypeFromID(componentID);
+        if (auto it = _components.find(type); it == _components.end())
+        {
+            const auto component = GetComponentFactories().CreateComponentFromID(componentID, this);
+            component->Read(stream);
+        }
+        else
+        {
+            it->second->Read(stream);
+        }
     }
 }

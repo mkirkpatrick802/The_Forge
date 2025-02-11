@@ -1,10 +1,8 @@
 ﻿#include "Time.h"
-
 #include <SDL_timer.h>
 
-
-float Engine::Time::GetTicks()
+uint64_t Engine::Time::GetTicks()
 {
-	return (float)SDL_GetTicks64();
+	return SDL_GetTicks64();
 }
 

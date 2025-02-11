@@ -5,6 +5,7 @@
 #include "System.h"
 #include "../../../Netcode/Source/NetworkManager.h"
 #include "Components/ComponentUtils.h"
+#include "Components/PlayerController.h"
 #include "Components/PlayerStart.h"
 
 Engine::GameModeBase::GameModeBase()
@@ -23,7 +24,9 @@ Engine::GameObject* Engine::GameModeBase::SpawnPlayer(const uint64_t playerID) c
     const Transform transform = _playerStarts.empty() ? Transform() : _playerStarts[0]->gameObject->transform;
     go->transform.position = transform.position;
     go->transform.rotation = transform.rotation;
-    go->id 	= playerID;
 
+    if (const auto controller = go->GetComponent<PlayerController>())
+        controller->_controllingPlayer = playerID;
+    
     return go;
 }

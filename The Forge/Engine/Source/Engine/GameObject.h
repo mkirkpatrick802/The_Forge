@@ -2,19 +2,21 @@
 #include <typeindex>
 #include <vector>
 
-#include "EngineManager.h"
 #include "json.hpp"
 #include "Transform.h"
 #include "ByteStream.h"
+#include "NetworkManager.h"
 
 namespace Engine
 {
     class Component;
     class GameObject
     {
+        // TODO: Get rid of these
         friend class Level;
         friend class NetCode::InputByteStream;
         friend class NetCode::OutputByteStream;
+        friend class NetCode::NetworkManager;
         
     public:
         GameObject();
@@ -39,7 +41,7 @@ namespace Engine
     public:
         Transform transform;
         uint64_t id;
-        bool isReplicated = true; // TODO: changes this
+        bool isReplicated = true;
 
     private:
         std::string _name;

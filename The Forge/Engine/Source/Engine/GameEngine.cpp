@@ -47,12 +47,12 @@ void Engine::GameEngine::StartGameplayLoop()
 {
 	SceneStartup();
 	
-	float frameStart = Time::GetTicks();
+	float frameStart = (float)Time::GetTicks();
 
 	_inputManager->ClearInputBuffers();
 	while (_inputManager->StartProcessInputs())
 	{
-		if (const float currentTicks = Time::GetTicks(); currentTicks - frameStart >= 16)
+		if (const float currentTicks = (float)Time::GetTicks(); currentTicks - frameStart >= 16)
 		{
 			const float deltaTime = (currentTicks - frameStart) / 1000.f;
 			frameStart = currentTicks;

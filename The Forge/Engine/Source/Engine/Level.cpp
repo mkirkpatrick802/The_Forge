@@ -99,6 +99,7 @@ void Engine::Level::SaveLevel(const std::string& args)
 
 void Engine::Level::Write(NetCode::OutputByteStream& stream) const
 {
+    // TODO: Update this so that only changes are written
     stream.Write(_gameObjects);
 }
 

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <cstdint>
 
 namespace Engine
 {
@@ -7,7 +8,7 @@ namespace Engine
 	public:
 
 		// Number of Ticks Since Engine Initialization
-		static float GetTicks();
+		static uint64_t GetTicks();
 
 	};
 }
