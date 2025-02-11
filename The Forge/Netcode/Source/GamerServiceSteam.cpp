@@ -135,6 +135,8 @@ void GamerServices::Init()
     if(!SteamAPI_Init())
     {
         std::cout << "Failed to initialize Steam. Make sure you are running a Steam client." << '\n';
+        MessageBox(NULL, L"Failed to initialize Steam. Make sure you are running a Steam client.", L"Error", MB_OK | MB_ICONERROR);
+        exit(1);
     }
     else
     {
