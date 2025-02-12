@@ -12,10 +12,7 @@ namespace Engine
     class Component;
     class GameObject
     {
-        // TODO: Get rid of these
         friend class Level;
-        friend class NetCode::InputByteStream;
-        friend class NetCode::OutputByteStream;
         friend class NetCode::NetworkManager;
         
     public:
@@ -35,7 +32,7 @@ namespace Engine
         nlohmann::json Serialize();
     
     private:
-        void Write(NetCode::OutputByteStream& stream) const;
+        void Write(NetCode::OutputByteStream& stream);
         void Read(NetCode::InputByteStream& stream);
         
     public:

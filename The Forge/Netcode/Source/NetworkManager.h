@@ -65,9 +65,6 @@ namespace NetCode
 
         // Prep World State Update
         void SendWorldStateUpdate();
-
-        // Temp
-        void SendGameObjectState(const Engine::GameObject* go) const;
         
         void EnterLobby(uint64_t lobbyID);
         void UpdateLobbyPlayers();

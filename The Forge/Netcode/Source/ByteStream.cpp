@@ -61,26 +61,6 @@ void NetCode::OutputByteStream::Write(const std::string& data)
         Write(element);
 }
 
-void NetCode::OutputByteStream::Write(const std::vector<Engine::GameObject*>& data)
-{
-    // TODO: This is so inefficient, there has gotta be a better way
-    uint32_t replicatedCount = 0;
-    for (const auto& element : data)
-        if (element->isReplicated)
-            ++replicatedCount;
-
-    Write(replicatedCount);
-
-    for (Engine::GameObject* element : data)
-        if (element->isReplicated)
-        {
-            const uint32_t networkID = GetLinkingContext().GetNetworkID(element);
-            Write(networkID);
-            element->Write(*this);
-        }
-
-}
-
 void NetCode::OutputByteStream::ReallocBuffer(const uint32_t newSize)
 {
     if (_buffer == nullptr)
@@ -154,25 +134,4 @@ void NetCode::InputByteStream::Read(std::string& data)
     
     for (auto& element : data)
         Read(element);
-}
-
-void NetCode::InputByteStream::Read(std::vector<Engine::GameObject*>& data)
-{
-    uint32_t elementCount;
-    Read(elementCount);
-    
-    for (int i = 0; i < elementCount; i++)
-    {
-        uint32_t networkID;
-        Read(networkID);
-        auto go = GetLinkingContext().GetGameObject(networkID);
-        if (go == nullptr)
-        {
-            go = new Engine::GameObject();
-            GetLinkingContext().AddGameObject(go, networkID);
-            data.push_back(go);
-        }
-        
-        go->Read(*this);
-    }
 }

@@ -2,6 +2,7 @@
 #include <memory>
 
 #include "GamerServices.h"
+#include "LinkingContext.h"
 #include "Engine/GameModeBase.h"
 #include "Engine/GameObject.h"
 #include "Engine/Level.h"
@@ -92,7 +93,6 @@ void NetCode::NetworkManager::ProcessPacket(InputByteStream& stream, uint64_t pl
         DEBUG_LOG("Host has welcomed us into the server!")
         break;
     case PT_WorldStateUpdate:
-        DEBUG_LOG("Reading World State Data...")
         Engine::LevelManager::GetCurrentLevel()->Read(stream);
         break;
     case PT_Disconnect:
@@ -105,9 +105,8 @@ void NetCode::NetworkManager::ProcessPacket(InputByteStream& stream, uint64_t pl
 void NetCode::NetworkManager::SendWorldStateUpdate()
 {
     if (_playerCount <= 1) return;
-    if (!_isOwner) return;
 
-    const uint64_t currentTicks = Engine::Time::GetTicks(); 
+    const uint64_t currentTicks = Engine::Time::GetTicks();
     if (currentTicks - _lastUpdateSentTicks >= _targetStateUpdateDelay)
     {
         _lastUpdateSentTicks = currentTicks;
@@ -122,15 +121,6 @@ void NetCode::NetworkManager::SendWorldStateUpdate()
             GetGamerService().SendP2PReliable(stream, key);
         }
     }
-}
-
-void NetCode::NetworkManager::SendGameObjectState(const Engine::GameObject* go) const
-{
-    if (_isOwner) return;
-    
-    OutputByteStream stream;
-    go->Write(stream);
-    GetGamerService().SendP2PReliable(stream, _ownerID);
 }
 
 void NetCode::NetworkManager::EnterLobby(const uint64_t lobbyID)

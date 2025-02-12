@@ -39,8 +39,6 @@ void Engine::PlayerController::Update(float deltaTime)
 
     // Apply movement
     gameObject->transform.position += movement * _walkSpeed * deltaTime;
-
-    NetCode::GetNetworkManager().SendGameObjectState(gameObject);
 }
 
 void Engine::PlayerController::Write(NetCode::OutputByteStream& stream) const

@@ -3,6 +3,7 @@
 #include "Components/Component.h"
 #include "JsonKeywords.h"
 #include "Level.h"
+#include "LinkingContext.h"
 #include "Components/ComponentFactories.h"
 #include "Components/ComponentRegistry.h"
 
@@ -68,7 +69,7 @@ nlohmann::json Engine::GameObject::Serialize()
     return data;
 }
 
-void Engine::GameObject::Write(NetCode::OutputByteStream& stream) const
+void Engine::GameObject::Write(NetCode::OutputByteStream& stream)
 {
     stream.Write(_name);
     stream.Write(id);

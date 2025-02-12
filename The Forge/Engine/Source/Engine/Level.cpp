@@ -6,6 +6,7 @@
 #include "Components/Component.h"
 #include "GameObject.h"
 #include "JsonKeywords.h"
+#include "LinkingContext.h"
 #include "System.h"
 
 Engine::Level::Level(nlohmann::json data)
@@ -99,11 +100,40 @@ void Engine::Level::SaveLevel(const std::string& args)
 
 void Engine::Level::Write(NetCode::OutputByteStream& stream) const
 {
-    // TODO: Update this so that only changes are written
-    stream.Write(_gameObjects);
+    // TODO: This is so inefficient, there has gotta be a better way
+    uint32_t replicatedCount = 0;
+    for (const auto& element : _gameObjects)
+        if (element->isReplicated)
+            ++replicatedCount;
+
+    stream.Write(replicatedCount);
+
+    for (GameObject* element : _gameObjects)
+        if (element->isReplicated)
+        {
+            const uint32_t networkID = NetCode::GetLinkingContext().GetNetworkID(element);
+            stream.Write(networkID);
+            element->Write(stream);
+        }
 }
 
 void Engine::Level::Read(NetCode::InputByteStream& stream)
 {
-    stream.Read(_gameObjects);
+    uint32_t elementCount;
+    stream.Read(elementCount);
+    
+    for (int i = 0; i < elementCount; i++)
+    {
+        uint32_t networkID;
+        stream.Read(networkID);
+        auto go = NetCode::GetLinkingContext().GetGameObject(networkID);
+        if (go == nullptr)
+        {
+            go = new GameObject();
+            NetCode::GetLinkingContext().AddGameObject(go, networkID);
+            _gameObjects.push_back(go);
+        }
+        
+        go->Read(stream);
+    }
 }

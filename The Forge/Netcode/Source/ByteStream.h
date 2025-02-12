@@ -36,7 +36,6 @@ namespace NetCode
         void Write (const bool data) { WriteBits(&data, 1); }
         void Write (const glm::vec2& data);
         void Write (const std::string& data);
-        void Write (const std::vector<Engine::GameObject*>& data);
         
         const void* GetBuffer() const { return reinterpret_cast<const char*>(_buffer->data()); }
         uint32_t GetBitLength() const { return _head; }
@@ -80,7 +79,6 @@ namespace NetCode
         void Read(bool& data) { ReadBits(&data, 1); }
         void Read(glm::vec2& data);
         void Read(std::string& data);
-        void Read(std::vector<Engine::GameObject*>& data);
         
         char* GetBuffer() const { return reinterpret_cast<char*>(_buffer->data()); }
         uint32_t GetRemainingBitCount() const { return _capacity - _head; }

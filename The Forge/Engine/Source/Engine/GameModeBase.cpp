@@ -2,6 +2,7 @@
 
 #include "Level.h"
 #include "LevelManager.h"
+#include "LinkingContext.h"
 #include "System.h"
 #include "../../../Netcode/Source/NetworkManager.h"
 #include "Components/ComponentUtils.h"
