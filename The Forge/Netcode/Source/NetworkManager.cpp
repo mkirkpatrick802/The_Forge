@@ -9,6 +9,7 @@
 #include "Engine/LevelManager.h"
 #include "Engine/System.h"
 #include "Engine/Time.h"
+#include "Engine/Components/PlayerController.h"
 
 NetCode::NetworkManager& NetCode::NetworkManager::GetInstance()
 {
@@ -179,6 +180,10 @@ void NetCode::NetworkManager::HandleConnectionReset(uint64_t playerID)
 {
     if (_playerNames.contains(playerID))
     {
+        for (const auto players = Engine::GetComponentManager().GetPool<Engine::PlayerController>()->GetActive(); const auto player : players)
+            if (player->GetControllingPlayerID() == playerID)
+                Engine::LevelManager::GetCurrentLevel()->RemoveGameObject(player->gameObject);
+        
         DEBUG_LOG("Player %llu disconnected", playerID)
         _playerNames.erase(playerID);
         _playerCount--;

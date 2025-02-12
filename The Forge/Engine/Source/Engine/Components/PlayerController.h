@@ -19,7 +19,10 @@ namespace Engine
         
     private:
         float _walkSpeed = 100;
-        uint64_t _controllingPlayer = 0; // TODO: this needs to be set somewheres
+        uint64_t _controllingPlayer = 0;
+
+    public:
+        uint64_t GetControllingPlayerID() const {return _controllingPlayer;}
     };
 
     REGISTER_COMPONENT(PlayerController);

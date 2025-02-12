@@ -105,14 +105,14 @@ void GamerServices::Impl::OnLobbyEnteredCallback(LobbyEnter_t* inCallback, bool 
 
 void GamerServices::Impl::OnLobbyChatUpdate(LobbyChatUpdate_t* inCallback)
 {
-    GetNetworkManager().UpdateLobbyPlayers();
-
+    if (inCallback->m_rgfChatMemberStateChange & k_EChatMemberStateChangeLeft)
+        GetNetworkManager().HandleConnectionReset(inCallback->m_ulSteamIDUserChanged);
+    
     if (inCallback->m_rgfChatMemberStateChange & k_EChatMemberStateChangeEntered)
-    {
-        // New player has joined the game
-        if (!GetNetworkManager().GetIsOwner()) return;
-        GetNetworkManager().OnboardNewPlayer(inCallback->m_ulSteamIDUserChanged);
-    }
+        if (GetNetworkManager().GetIsOwner())
+            GetNetworkManager().OnboardNewPlayer(inCallback->m_ulSteamIDUserChanged);
+
+    GetNetworkManager().UpdateLobbyPlayers();
 }
 
 void GamerServices::Impl::OnP2PSessionRequest( P2PSessionRequest_t* inCallback )

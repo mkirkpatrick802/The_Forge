@@ -71,6 +71,7 @@ Engine::GameObject* Engine::Level::SpawnNewGameObject(const std::string& filepat
 
 bool Engine::Level::RemoveGameObject(GameObject* go)
 {
+    NetCode::GetLinkingContext().RemoveGameObject(go);
     std::erase(_gameObjects, go);
     delete go;
     return true;
