@@ -98,23 +98,36 @@ void Engine::Level::SaveLevel(const std::string& args)
     std::cout << "Level Saved Successfully!" << '\n';
 }
 
-void Engine::Level::Write(NetCode::OutputByteStream& stream) const
+void Engine::Level::Write(NetCode::OutputByteStream& stream, bool isCompleteState) const
 {
-    // TODO: This is so inefficient, there has gotta be a better way
+    // Count replicated objects that need to be sent
     uint32_t replicatedCount = 0;
     for (const auto& element : _gameObjects)
-        if (element->isReplicated)
+    {
+        if (element->isReplicated && (isCompleteState || element->isDirty))
+        {
             ++replicatedCount;
+        }
+    }
 
     stream.Write(replicatedCount);
 
+    // Write the data for each replicated object
     for (GameObject* element : _gameObjects)
-        if (element->isReplicated)
+    {
+        if (element->isReplicated && (isCompleteState || element->isDirty))
         {
             const uint32_t networkID = NetCode::GetLinkingContext().GetNetworkID(element);
             stream.Write(networkID);
             element->Write(stream);
+
+            // If it's not a complete state, mark the object as clean
+            if (!isCompleteState)
+            {
+                element->isDirty = false;
+            }
         }
+    }
 }
 
 void Engine::Level::Read(NetCode::InputByteStream& stream)

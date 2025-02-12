@@ -39,6 +39,7 @@ void Engine::PlayerController::Update(float deltaTime)
 
     // Apply movement
     gameObject->transform.position += movement * _walkSpeed * deltaTime;
+    gameObject->isDirty = true;
 }
 
 void Engine::PlayerController::Write(NetCode::OutputByteStream& stream) const

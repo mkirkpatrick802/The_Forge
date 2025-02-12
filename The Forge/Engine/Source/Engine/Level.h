@@ -43,7 +43,7 @@ namespace Engine
 
         
     private:
-        void Write(NetCode::OutputByteStream& stream) const;
+        void Write(NetCode::OutputByteStream& stream, bool isCompleteState = true) const;
         void Read(NetCode::InputByteStream& stream);
         
         Level(nlohmann::json data);

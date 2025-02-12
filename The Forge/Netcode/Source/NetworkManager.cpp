@@ -114,10 +114,10 @@ void NetCode::NetworkManager::SendWorldStateUpdate()
         // Send Update
         OutputByteStream stream;
         stream.Write(PT_WorldStateUpdate);
-        Engine::LevelManager::GetCurrentLevel()->Write(stream);
+        Engine::LevelManager::GetCurrentLevel()->Write(stream, false);
         for (const auto key : _playerNames | std::views::keys)
         {
-            if (key == _localUserID) return;
+            if (key == _localUserID) continue;
             GetGamerService().SendP2PReliable(stream, key);
         }
     }
@@ -154,9 +154,16 @@ void NetCode::NetworkManager::OnboardNewPlayer(uint64_t playerID) const
     
     if (playerID != _ownerID)
     {
+        // Send Welcome Message
         OutputByteStream stream;
         stream.Write(PT_Hello);
         GetGamerService().SendP2PReliable(stream, playerID);
+
+        // Send Current World State
+        OutputByteStream newStream;
+        newStream.Write(PT_WorldStateUpdate);
+        Engine::LevelManager::GetCurrentLevel()->Write(newStream);
+        GetGamerService().SendP2PReliable(newStream, playerID);
     }
 }
 
