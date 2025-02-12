@@ -108,6 +108,13 @@ int Engine::InputManager::GetButtonDown(uint32_t button) const
     return _buttonsThisFrame & button && (!_buttonsLastFrame) & button;
 }
 
+void Engine::InputManager::GetMousePos(glm::vec2& mousePos) const
+{
+    int X, Y;
+    SDL_GetMouseState(&X, &Y);
+    mousePos = glm::vec2((float)X, (float)Y);
+}
+
 Engine::InputManager::~InputManager()
 {
     delete[] _keysLastFrame;

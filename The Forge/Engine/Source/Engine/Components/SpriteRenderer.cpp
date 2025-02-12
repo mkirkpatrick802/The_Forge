@@ -100,7 +100,7 @@ nlohmann::json Engine::SpriteRenderer::Serialize()
 void Engine::SpriteRenderer::DrawSprite()
 {
 	const float rotation = gameObject->transform.rotation;
-	const auto position = glm::vec2(gameObject->transform.position.x - _size.x / PIXEL_SCALE, (gameObject->transform.position.y * -1) - _size.y / PIXEL_SCALE);
+	const auto position = glm::vec2(gameObject->transform.position.x - _size.x / 2, (gameObject->transform.position.y * -1) - _size.y / 2);
     
     _shader.Use();
 	auto model = glm::mat4(1.0f);

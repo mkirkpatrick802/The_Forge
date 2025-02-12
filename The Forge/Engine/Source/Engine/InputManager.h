@@ -26,6 +26,9 @@ namespace Engine
         int GetButtonDown(uint32_t button, glm::vec2& mousePos) const;
         int GetButtonDown(uint32_t button) const;
 
+		// Mouse Position in Screen Space
+		void GetMousePos(glm::vec2& mousePos) const;
+
 	private:
 
         // Keyboard Inputs

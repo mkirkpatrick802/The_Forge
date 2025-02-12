@@ -2,11 +2,13 @@
 
 #include "Engine/JsonKeywords.h"
 #include <SDL_scancode.h>
-#include <glm/geometric.hpp>
+#include <glm/ext/scalar_constants.hpp>
 
 #include "NetworkManager.h"
 #include "Engine/GameEngine.h"
 #include "Engine/InputManager.h"
+#include "Engine/System.h"
+#include "Engine/Rendering/Renderer.h"
 
 void Engine::PlayerController::Deserialize(const json& data)
 {
@@ -30,6 +32,15 @@ void Engine::PlayerController::Update(float deltaTime)
         (float)(GetInputManager().GetKey(SDL_SCANCODE_W) - GetInputManager().GetKey(SDL_SCANCODE_S))
     };
 
+    glm::vec2 mousePos;
+    GetInputManager().GetMousePos(mousePos);
+    mousePos = Renderer::ConvertScreenToWorld(mousePos);
+
+    glm::vec2 direction = mousePos - gameObject->transform.position;
+    direction = glm::normalize(direction);
+    float angle = glm::atan(direction.y, direction.x);
+    gameObject->transform.rotation = angle * 180/glm::pi<float>() + 90.f;
+    
     // Prevent diagonal speed boost by normalizing
     glm::vec2 movement = movementInput;
     if (length(movement) > 0.0f)

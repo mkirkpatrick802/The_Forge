@@ -6,8 +6,6 @@
 
 namespace Engine
 {
-    const int PIXEL_SCALE = 1;
-
     class SpriteRenderer : public Component
     {
         friend class Renderer;
