@@ -1,9 +1,13 @@
 #include "SpriteRenderer.h"
+
+#include <iostream>
+
 #include "Engine/GameObject.h"
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
 #include "ComponentRegistry.h"
+#include "imgui.h"
 #include "Engine/GameEngine.h"
 #include "Engine/JsonKeywords.h"
 #include "Engine/Rendering/CameraHelper.h"
@@ -72,8 +76,6 @@ void Engine::SpriteRenderer::Deserialize(const json& data)
 
     std::string vertex = "Assets/Shaders/Sprite.vert";
     std::string fragment = "Assets/Shaders/Sprite.frag";
-    //String vertex = data[JsonKeywords::SPRITE_RENDERER_VERTEX_SHADER];
-    //String fragment = data[JsonKeywords::SPRITE_RENDERER_FRAGMENT_SHADER];
 
     _shader.Compile(vertex.c_str(), fragment.c_str());
     _sortingLayer = (int16_t)data.value(JsonKeywords::SPRITE_RENDERER_SORTING_LAYER, 0);
@@ -95,6 +97,35 @@ nlohmann::json Engine::SpriteRenderer::Serialize()
     // TODO: Save Shader Information
     
     return data;
+}
+
+void Engine::SpriteRenderer::DrawDetails()
+{
+    const char* filePath = nullptr; // Store the dropped file path
+    if (ImGui::Button("Drop File Here", ImVec2(200, 50))) {}
+
+    // Drag & Drop Target
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
+        {
+            filePath = static_cast<const char*>(payload->Data); // Retrieve the file path
+            if (filePath != _texture->GetFilePath().c_str())
+            {
+                _texture.reset();
+                _texture = CreateTexture(filePath, Texture::TextureType::PIXEL);
+            }
+            
+            std::cout << "Dropped new file: " << filePath << '\n';
+        }
+        ImGui::EndDragDropTarget();
+    }
+
+    // Display saved file path
+    if (!_texture->GetFilePath().empty())
+    {
+        ImGui::Text("Saved Path: %s", _texture->GetFilePath().c_str());
+    }
 }
 
 void Engine::SpriteRenderer::DrawSprite()

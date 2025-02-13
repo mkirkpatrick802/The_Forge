@@ -39,7 +39,7 @@ namespace Engine
         Transform transform;
         uint64_t id;
         bool isReplicated = true;
-        bool isDirty = true;
+        bool isDirty = false;
 
     private:
         std::string _name;

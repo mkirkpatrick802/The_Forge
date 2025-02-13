@@ -29,7 +29,6 @@ namespace Editor
     private:
 
         void LoadTextures();
-        void DrawFileTree(const FileNode& node);
         void DrawDirectoryContents();
         void ScanDirectory(const std::filesystem::path& directory, FileNode& node);
 

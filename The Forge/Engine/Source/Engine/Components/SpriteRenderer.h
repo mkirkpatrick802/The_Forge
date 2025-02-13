@@ -20,6 +20,8 @@ namespace Engine
         virtual void Deserialize(const json& data) override;
         virtual nlohmann::json Serialize() override;
 
+        virtual void DrawDetails() override;
+        
         glm::vec2 GetSize() const { return _size; }
 
     private:

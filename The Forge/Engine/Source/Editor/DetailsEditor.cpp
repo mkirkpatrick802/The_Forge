@@ -33,6 +33,8 @@ void Editor::DetailsEditor::Render()
         const std::string& name = Engine::GetComponentRegistry().GetComponentName(typeid(*component));
         ImGui::Text(name.c_str());
         ImGui::Spacing();
+
+        component->DrawDetails();
     }
     
     ImGui::Separator();

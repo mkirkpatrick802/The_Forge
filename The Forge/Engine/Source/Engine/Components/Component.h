@@ -25,6 +25,8 @@ namespace Engine
 
         virtual void Read(NetCode::InputByteStream& stream) {}
         virtual void Write(NetCode::OutputByteStream& stream) const {}
+
+        virtual void DrawDetails() {}
     
     public:
         GameObject* gameObject = nullptr;

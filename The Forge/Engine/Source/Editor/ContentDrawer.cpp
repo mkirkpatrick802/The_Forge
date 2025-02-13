@@ -30,12 +30,6 @@ void Editor::ContentDrawer::Render()
 
     ImGui::Begin("Content Drawer");
 
-    // Left Panel: Directory Tree
-    /*ImGui::BeginChild("LeftPanel", ImVec2(ImGui::GetContentRegionAvail().x * 0.25f, 0), true);
-    ImGui::Text("File Structure:");
-    DrawFileTree(root);
-    ImGui::EndChild();*/
-
     ImGui::SameLine();
 
     // Right Panel: Thumbnail Grid
@@ -44,30 +38,6 @@ void Editor::ContentDrawer::Render()
     ImGui::EndChild();
 
     ImGui::End();
-}
-
-void Editor::ContentDrawer::DrawFileTree(const FileNode& node)
-{
-    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
-
-    if (_currentDirectory == node.fullPath) {
-        flags |= ImGuiTreeNodeFlags_Selected;
-    }
-
-    if (node.isDirectory) {
-        bool opened = ImGui::TreeNodeEx(node.name.c_str(), flags);
-
-        if (ImGui::IsItemClicked()) {
-            _currentDirectory = node.fullPath;
-        }
-
-        if (opened) {
-            for (auto& child : node.children) {
-                DrawFileTree(child);
-            }
-            ImGui::TreePop();
-        }
-    }
 }
 
 void Editor::ContentDrawer::DrawDirectoryContents()
@@ -110,21 +80,38 @@ void Editor::ContentDrawer::DrawDirectoryContents()
 
     for (auto& child : selectedNode.children)
     {
-
         auto icon = child.isDirectory ? _folderIcon : _fileIcon;
         if (child.name.ends_with(".png") || child.name.ends_with(".jpg"))
             icon = _spriteIcon;
 
-        ImGui::Image((void*)(intptr_t)icon->GetID(), ImVec2(_thumbnailSize, _thumbnailSize));
-
-        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-            if (child.isDirectory) 
+        // Create a selectable button-like image to enable drag
+        ImGui::PushID(child.name.c_str()); // Ensure unique ID for each item
+        if (ImGui::ImageButton((void*)(intptr_t)icon->GetID(), ImVec2(_thumbnailSize, _thumbnailSize)))
+        {
+            if (child.isDirectory)
                 _currentDirectory = child.fullPath;
-            
+        }
 
-        ImGui::TextWrapped(child.name.c_str());
+        // Begin drag operation from the image button
+        if (ImGui::IsItemActive() && ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+        {
+            ImGui::SetDragDropPayload("FILE_PATH", child.fullPath.c_str(), child.fullPath.size() + 1); // Use full path for proper loading
+            ImGui::Text("Dragging: %s", child.name.c_str()); // Optional: Display drag info
+            ImGui::EndDragDropSource();
+        }
+        
+        // Get the available width for text wrapping
+        float availableWidth = _thumbnailSize; // Use the same size as the icon
+
+        // Enable text wrapping
+        ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + availableWidth);
+        ImGui::TextUnformatted(child.name.c_str());
+        ImGui::PopTextWrapPos();
+
+        ImGui::PopID(); // Restore ID stack
         ImGui::NextColumn();
     }
+
 
     ImGui::Columns(1);
 }

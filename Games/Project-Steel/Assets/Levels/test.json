@@ -17,6 +17,17 @@
             ],
             "Game Object Name": "Camera",
             "Is Replicated": false
+        },
+        {
+            "Components": [
+                {
+                    "Component ID": 2525770811,
+                    "Sorting Layer": 0,
+                    "Sprite": "Assets\\Sprites\\Astroid.png"
+                }
+            ],
+            "Game Object Name": "Astroid",
+            "Is Replicated": true
         }
     ],
     "Level Name": "test"
