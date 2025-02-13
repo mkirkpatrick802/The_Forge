@@ -86,7 +86,7 @@ namespace NetCode
         std::queue<ReceivedPacket, std::list<ReceivedPacket>> _packetQueue;
 
         uint64_t _lastUpdateSentTicks = 0;
-        uint64_t _targetStateUpdateDelay = 100; // Starting place (balance accordingly)
+        uint64_t _targetStateUpdateDelay = 60; // Starting place (balance accordingly)
 
     public:
         bool GetIsOwner() const { return _isOwner; }

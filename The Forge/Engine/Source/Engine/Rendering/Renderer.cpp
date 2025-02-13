@@ -164,6 +164,6 @@ glm::vec2 Engine::Renderer::ConvertWorldToScreen(glm::vec2 worldPos)
 
 glm::vec2 Engine::Renderer::ConvertScreenToWorld(glm::vec2 screenPos)
 {
-	const auto worldLocation = glm::vec2(screenPos.x - GetAppWindowSize().x / 2, screenPos.y - GetAppWindowSize().y / 2);
+	const auto worldLocation = glm::vec2(screenPos.x - GetAppWindowSize().x / 2, (screenPos.y - GetAppWindowSize().y / 2) *-1);
 	return worldLocation;
 }

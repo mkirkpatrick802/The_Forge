@@ -23,6 +23,8 @@ namespace Engine
         int GetKeyDown(int keycode) const;
 
         int GetButton(uint32_t button, glm::vec2& mousePos) const;
+        int GetButton(uint32_t button) const;
+		
         int GetButtonDown(uint32_t button, glm::vec2& mousePos) const;
         int GetButtonDown(uint32_t button) const;
 

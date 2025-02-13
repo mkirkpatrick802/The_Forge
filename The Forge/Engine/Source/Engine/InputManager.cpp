@@ -95,6 +95,11 @@ int Engine::InputManager::GetButton(const uint32_t button, glm::vec2& mousePos) 
     return _buttonsThisFrame & button;
 }
 
+int Engine::InputManager::GetButton(const uint32_t button) const
+{
+    return _buttonsThisFrame & button;
+}
+
 int Engine::InputManager::GetButtonDown(const uint32_t button, glm::vec2& mousePos) const
 {
     int X, Y;
