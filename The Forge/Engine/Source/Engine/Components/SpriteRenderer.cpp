@@ -24,16 +24,16 @@ void Engine::SpriteRenderer::OnActivation()
     // configure VAO/VBO
     unsigned int VBO;
     const float vertices[] = {
+        // pos         // tex
+        0.0f, 1.0f, 0.0f, 0.0f,  // flipped tex y: 1.0 -> 0.0
+        1.0f, 0.0f, 1.0f, 1.0f,  // flipped tex y: 0.0 -> 1.0
+        0.0f, 0.0f, 0.0f, 1.0f,  // flipped tex y: 0.0 -> 1.0
 
-        // pos      // tex
-        0.0f, 1.0f, 0.0f, 1.0f,
-        1.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,  // flipped tex y: 1.0 -> 0.0
+        1.0f, 1.0f, 1.0f, 0.0f,  // flipped tex y: 1.0 -> 0.0
+        1.0f, 0.0f, 1.0f, 1.0f   // flipped tex y: 0.0 -> 1.0
+    };
 
-        0.0f, 1.0f, 0.0f, 1.0f,
-        1.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 0.0f, 1.0f, 0.0f
-};
 
     glGenVertexArrays(1, &_quadVAO);
     glBindVertexArray(_quadVAO);

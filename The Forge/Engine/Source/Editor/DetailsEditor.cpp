@@ -11,9 +11,10 @@ void Editor::DetailsEditor::Render()
 {
     if (!_selectedGameObject) return;
     
-    const std::string title = _selectedGameObject->GetName() + " Details";
-    ImGui::Begin(title.c_str());
-
+    ImGui::Begin("Details Panel");
+    
+    ImGui::TextUnformatted(_selectedGameObject->GetName().c_str());
+    ImGui::Spacing();
     ImGui::PushItemWidth(50);
     ImGui::Text("Position:");
     ImGui::SameLine();
@@ -31,7 +32,7 @@ void Editor::DetailsEditor::Render()
     for (const auto component : _selectedGameObject->GetAllComponents())
     {
         const std::string& name = Engine::GetComponentRegistry().GetComponentName(typeid(*component));
-        ImGui::Text(name.c_str());
+        ImGui::TextUnformatted(name.c_str());
         ImGui::Spacing();
 
         component->DrawDetails();
