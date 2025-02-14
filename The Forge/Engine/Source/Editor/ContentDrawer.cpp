@@ -1,5 +1,10 @@
 ﻿#include "ContentDrawer.h"
 
+#include <fstream>
+
+#include "DetailsEditor.h"
+#include "Engine/GameObject.h"
+#include "Engine/System.h"
 #include "Engine/Rendering/TextureLoader.h"
 
 Editor::ContentDrawer::ContentDrawer()
@@ -9,10 +14,10 @@ Editor::ContentDrawer::ContentDrawer()
 
 void Editor::ContentDrawer::LoadTextures()
 {
-    _emptyFolderIcon = CreateTexture("Assets/Sprites/Editor/EmptyFolderIcon.png", Engine::Texture::TextureType::PIXEL);
-    _folderIcon = CreateTexture("Assets/Sprites/Editor/FolderIcon.png", Engine::Texture::TextureType::PIXEL);
-    _fileIcon = CreateTexture("Assets/Sprites/Editor/FileIcon.png", Engine::Texture::TextureType::PIXEL);
-    _spriteIcon = CreateTexture("Assets/Sprites/Editor/SpriteIcon.png", Engine::Texture::TextureType::PIXEL);
+    _emptyFolderIcon = CreateTexture("../../The Forge/Engine/Assets/Sprites/Editor/EmptyFolderIcon.png", Engine::Texture::TextureType::PIXEL);
+    _folderIcon = CreateTexture("../../The Forge/Engine/Assets/Sprites/Editor/FolderIcon.png", Engine::Texture::TextureType::PIXEL);
+    _fileIcon = CreateTexture("../../The Forge/Engine/Assets/Sprites/Editor/FileIcon.png", Engine::Texture::TextureType::PIXEL);
+    _spriteIcon = CreateTexture("../../The Forge/Engine/Assets/Sprites/Editor/SpriteIcon.png", Engine::Texture::TextureType::PIXEL);
 }
 
 Editor::ContentDrawer::~ContentDrawer() = default;
@@ -75,7 +80,7 @@ void Editor::ContentDrawer::DrawDirectoryContents()
 
     ImGui::Separator();
 
-    int columns = std::max(1, int(ImGui::GetContentRegionAvail().x / (_thumbnailSize + 16)));
+    int columns = max(1, int(ImGui::GetContentRegionAvail().x / (_thumbnailSize + 16)));
     ImGui::Columns(columns, nullptr, false);
 
     for (auto& child : selectedNode.children)
@@ -90,6 +95,23 @@ void Editor::ContentDrawer::DrawDirectoryContents()
         {
             if (child.isDirectory)
                 _currentDirectory = child.fullPath;
+
+            // Edit prefab
+            if (child.name.ends_with(".prefab"))
+            {
+                std::ifstream prefab(child.fullPath);
+                auto go = DEBUG_NEW Engine::GameObject();
+                
+                nlohmann::json data;
+                prefab >> data;
+                prefab.close();
+                
+                go->Deserialize(data);
+                go->isPrefab = true;
+                go->filepath = child.fullPath;
+                
+                DetailsEditor::SetSelectedGameObject(go);
+            }
         }
 
         // Begin drag operation from the image button

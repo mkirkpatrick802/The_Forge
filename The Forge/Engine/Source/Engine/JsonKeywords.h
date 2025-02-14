@@ -12,6 +12,8 @@ namespace JsonKeywords
     const std::string GAMEOBJECT_ARRAY = "Level Game Objects";
     const std::string GAMEOBJECT_NAME = "Game Object Name";
     const std::string GAMEOBJECT_ISREPLICATED = "Is Replicated";
+    const std::string GAMEOBJECT_POSITION_X = "X position";
+    const std::string GAMEOBJECT_POSITION_Y = "Y position";
     
     const std::string COMPONENT_ARRAY = "Components";
     const std::string COMPONENT_ID = "Component ID";

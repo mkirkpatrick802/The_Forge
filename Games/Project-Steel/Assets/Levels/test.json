@@ -7,16 +7,9 @@
                 }
             ],
             "Game Object Name": "Player Start",
-            "Is Replicated": false
-        },
-        {
-            "Components": [
-                {
-                    "Component ID": 1181213486
-                }
-            ],
-            "Game Object Name": "Camera",
-            "Is Replicated": false
+            "Is Replicated": false,
+            "X position": 0.0,
+            "Y position": 0.0
         },
         {
             "Components": [
@@ -27,7 +20,9 @@
                 }
             ],
             "Game Object Name": "Astroid",
-            "Is Replicated": true
+            "Is Replicated": true,
+            "X position": -200.0,
+            "Y position": 100.0
         }
     ],
     "Level Name": "test"

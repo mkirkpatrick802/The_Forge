@@ -1,9 +1,11 @@
+local scriptDir = path.getdirectory(_SCRIPT)
+
 project "Project-Steel"
    kind "WindowedApp"
    language "C++"
    cppdialect "C++20"
    targetdir "Binaries/%{cfg.buildcfg}"
-   debugdir "%{cfg.targetdir}"
+   debugdir ""
    staticruntime "off"
 
    files { "Source/**.h", "Source/**.cpp" }
@@ -28,14 +30,14 @@ project "Project-Steel"
       engine_vendor_path .. "stb",
       engine_vendor_path .. "nlohmann"
    }
-
-    postbuildcommands
-    {
-        "{COPY} Assets/steam_appid.txt %{cfg.targetdir}",
-        "{COPY} Assets %{cfg.targetdir}/Assets",
-        "{COPY} Config %{cfg.targetdir}/Config",
-        "{COPY} %{cfg.targetdir}/../Engine/Assets %{cfg.targetdir}/Assets"
-    }
+ 
+   postbuildcommands
+   {
+       "{COPY} Assets/steam_appid.txt %{cfg.targetdir}",
+       "{COPY} Assets %{cfg.targetdir}/Assets",
+       "{COPY} Config %{cfg.targetdir}/Config",
+       "{COPY} %{cfg.targetdir}/../Engine/Assets %{cfg.targetdir}/Assets"
+   }
 
    -- Generate the postbuild command to copy DLLs from each module
    for _, module in ipairs(modules) do

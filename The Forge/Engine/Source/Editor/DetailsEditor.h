@@ -11,14 +11,18 @@ namespace Editor
     class DetailsEditor final : public Engine::UIWindow
     {
     public:
+        ~DetailsEditor();
+        
         void Render() override;
 
     private:
+
+        static void CleanUpPrefab();
         
     public:
 
         static void SetSelectedGameObject(Engine::GameObject* go);
-        static void ClearSelectedGameObject() { _selectedGameObject = nullptr; }
+        static void ClearSelectedGameObject();
         
     private:
 

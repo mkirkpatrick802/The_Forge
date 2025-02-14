@@ -7,7 +7,13 @@
         },
         {
             "Component ID": 2703934440
+        },
+        {
+            "Component ID": 1181213486
         }
     ],
-    "Game Object Name": "Player"
+    "Game Object Name": "Player",
+    "Is Replicated": true,
+    "X position": 0.0,
+    "Y position": 0.0
 }

@@ -10,6 +10,8 @@ namespace Engine
     public:
         
         Camera();
+
+        void OnActivation() override;
         
         void Deserialize(const json& data) override;
         nlohmann::json Serialize() override;

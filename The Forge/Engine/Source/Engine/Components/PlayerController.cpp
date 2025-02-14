@@ -61,7 +61,7 @@ void Engine::PlayerController::CollectInput(float deltaTime)
 
     // Apply rotation if valid
     if (glm::length(targetDirection) > 0.0f) {
-        gameObject->transform.rotation = glm::atan(targetDirection.x, targetDirection.y) * 180.0f / glm::pi<float>();
+        gameObject->transform.rotation = (glm::atan(targetDirection.y, targetDirection.x) * 180.0f / glm::pi<float>()) - 90.f;
     }
     
     gameObject->isDirty = true;

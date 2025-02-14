@@ -1,11 +1,18 @@
 ﻿#include "DetailsEditor.h"
 
+#include <fstream>
+
 #include "Engine/GameObject.h"
 #include "Engine/Components/Component.h"
 #include "Engine/Components/ComponentRegistry.h"
 #include "Engine/Components/ComponentFactories.h"
 
 Engine::GameObject* Editor::DetailsEditor::_selectedGameObject = nullptr;
+
+Editor::DetailsEditor::~DetailsEditor()
+{
+    CleanUpPrefab();
+}
 
 void Editor::DetailsEditor::Render()
 {
@@ -60,7 +67,31 @@ void Editor::DetailsEditor::Render()
     ImGui::End();
 }
 
+void Editor::DetailsEditor::CleanUpPrefab()
+{
+    if (_selectedGameObject && _selectedGameObject->isPrefab)
+    {
+        json data = _selectedGameObject->Serialize();
+        
+        // Write new data
+        if (std::ofstream outputFile(_selectedGameObject->filepath); outputFile.is_open())
+        {
+            outputFile << data.dump(4);
+            outputFile.close();
+        }
+        
+        delete _selectedGameObject;
+    }
+}
+
 void Editor::DetailsEditor::SetSelectedGameObject(Engine::GameObject* go)
 {
+    CleanUpPrefab();
+    
     _selectedGameObject = go;
+}
+
+void Editor::DetailsEditor::ClearSelectedGameObject()
+{
+    _selectedGameObject = nullptr;
 }

@@ -86,7 +86,7 @@ SDL_Window* Engine::System::CreateAppWindow()
 		assert(0);
 	}
 
-	if (SDL_Surface* logoSurface = IMG_Load("Assets/Sprites/logo.png"))
+	if (SDL_Surface* logoSurface = IMG_Load("../../The Forge/Engine/Assets/Sprites/logo.png"))
 	{
 		SDL_SetWindowIcon(_window, logoSurface);
 		SDL_FreeSurface(logoSurface);
