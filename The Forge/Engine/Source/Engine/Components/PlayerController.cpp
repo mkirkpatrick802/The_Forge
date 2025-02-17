@@ -29,19 +29,8 @@ void Engine::PlayerController::Update(float deltaTime)
 {
     // This should be handled somewheres else
     if (!GetCameraManager().GetActiveCamera())
-    {
-        const auto camera = gameObject->GetComponent<Camera>();
-        if (camera && IsLocalPlayer())
-        {
+        if (const auto camera = gameObject->GetComponent<Camera>(); camera && IsLocalPlayer())
             GetCameraManager().SetActiveCamera(camera);
-        }
-        else
-        {
-            const auto cameras = GetComponentManager().GetPool<Camera>()->GetActive();
-            if (!cameras.empty())
-                GetCameraManager().SetActiveCamera(cameras[0]);
-        }
-    }
     
     CollectInput(deltaTime);
     UpdatePosition(deltaTime);

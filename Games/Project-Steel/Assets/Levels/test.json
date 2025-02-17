@@ -23,6 +23,19 @@
             "Is Replicated": true,
             "X position": -300.0,
             "Y position": 200.0
+        },
+        {
+            "Components": [
+                {
+                    "Component ID": 2525770811,
+                    "Sorting Layer": 0,
+                    "Sprite": "Assets\\Sprites\\Astroid.png"
+                }
+            ],
+            "Game Object Name": "New Game Object",
+            "Is Replicated": true,
+            "X position": 200.0,
+            "Y position": -150.0
         }
     ],
     "Level Name": "test"

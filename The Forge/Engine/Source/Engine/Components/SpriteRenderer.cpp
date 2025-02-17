@@ -50,18 +50,12 @@ void Engine::SpriteRenderer::OnActivation()
     glBindVertexArray(0);
 
     GetRenderer().AddSpriteRendererToRenderList(this);
-
-    if (!_texture)
-    {
-        const std::string filepath = "Assets/Sprites/Astronaut.png";
-        _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
     
-        std::string vertex = "Assets/Shaders/Sprite.vert";
-        std::string fragment = "Assets/Shaders/Sprite.frag";
+    std::string vertex = "Assets/Shaders/Sprite.vert";
+    std::string fragment = "Assets/Shaders/Sprite.frag";
 
-        _shader.Compile(vertex.c_str(), fragment.c_str());
-        _sortingLayer = 0;
-    }
+    _shader.Compile(vertex.c_str(), fragment.c_str());
+    _sortingLayer = 0;
 }
 
 Engine::SpriteRenderer::~SpriteRenderer()
@@ -111,11 +105,9 @@ void Engine::SpriteRenderer::DrawDetails()
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
         {
             filePath = static_cast<const char*>(payload->Data); // Retrieve the file path
-            if (filePath != _texture->GetFilePath().c_str())
-            {
-                _texture.reset();
-                _texture = CreateTexture(filePath, Texture::TextureType::PIXEL);
-            }
+            
+            _texture.reset();
+            _texture = CreateTexture(filePath, Texture::TextureType::PIXEL);
             
             std::cout << "Dropped new file: " << filePath << '\n';
         }
@@ -123,6 +115,7 @@ void Engine::SpriteRenderer::DrawDetails()
     }
 
     // Display saved file path
+    if (!_texture) return;
     if (!_texture->GetFilePath().empty())
     {
         ImGui::Text("Saved Path: %s", _texture->GetFilePath().c_str());
@@ -145,6 +138,7 @@ void Engine::SpriteRenderer::DrawSprite()
 
     model = scale(model, glm::vec3(_size, 1.0f));
 
+    if (!_texture) return;
     glBindTextureUnit(0, _texture->GetID());
 
     _shader.SetMatrix4("model", model);
