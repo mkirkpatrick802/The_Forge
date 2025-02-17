@@ -27,14 +27,30 @@ nlohmann::json Engine::PlayerController::Serialize()
 
 void Engine::PlayerController::Update(float deltaTime)
 {
+    // This should be handled somewheres else
+    if (!GetCameraManager().GetActiveCamera())
+    {
+        const auto camera = gameObject->GetComponent<Camera>();
+        if (camera && IsLocalPlayer())
+        {
+            GetCameraManager().SetActiveCamera(camera);
+        }
+        else
+        {
+            const auto cameras = GetComponentManager().GetPool<Camera>()->GetActive();
+            if (!cameras.empty())
+                GetCameraManager().SetActiveCamera(cameras[0]);
+        }
+    }
+    
     CollectInput(deltaTime);
     UpdatePosition(deltaTime);
 }
 
 void Engine::PlayerController::CollectInput(float deltaTime)
 {
-    if (NetCode::GetNetworkManager().GetLocalUserID() != _controllingPlayer) return;
-
+    if (!IsLocalPlayer()) return;
+    
     // Get movement input
     glm::vec2 movementInput = {
         static_cast<float>(GetInputManager().GetKey(SDL_SCANCODE_D) - GetInputManager().GetKey(SDL_SCANCODE_A)),
@@ -89,4 +105,9 @@ void Engine::PlayerController::Read(NetCode::InputByteStream& stream)
 
     stream.Read(_controllingPlayer);
     stream.Read(_velocity);
+}
+
+bool Engine::PlayerController::IsLocalPlayer() const
+{
+    return _controllingPlayer == NetCode::GetNetworkManager().GetLocalUserID();
 }

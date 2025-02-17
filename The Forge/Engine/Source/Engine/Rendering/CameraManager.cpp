@@ -22,6 +22,8 @@ glm::vec2 Engine::CameraManager::ConvertWorldToScreen(glm::vec2 worldPos)
 
 glm::vec2 Engine::CameraManager::ConvertScreenToWorld(glm::vec2 screenPos)
 {
+    if (!GetActiveCamera()) return glm::vec2(0.0f);
+    
     auto worldLocation = glm::vec2(screenPos.x - GetAppWindowSize().x / 2, (screenPos.y - GetAppWindowSize().y / 2) * -1);
     return worldLocation + GetActiveCamera()->gameObject->transform.position;
 }

@@ -3,6 +3,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "ComponentRegistry.h"
+#include "PlayerController.h"
 #include "Engine/GameObject.h"
 #include "Engine/Rendering/BufferRegistry.h"
 #include "Engine/JsonKeywords.h"
@@ -15,7 +16,9 @@ Engine::Camera::Camera(): _projection(), _view()
 
 void Engine::Camera::OnActivation()
 {
-    GetCameraManager().SetActiveCamera(this);
+    /*if (const auto controller = gameObject->GetComponent<PlayerController>())
+        if (NetCode::GetNetworkManager().GetLocalUserID() == controller->GetControllingPlayerID())
+            GetCameraManager().SetActiveCamera(this);*/
 }
 
 void Engine::Camera::Deserialize(const json& data)

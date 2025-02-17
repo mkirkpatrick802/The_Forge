@@ -11,7 +11,7 @@ namespace Engine
         static CameraManager& GetInstance();
         CameraManager();
         
-        Camera* GetActiveCamera() const {return _currentCamera; }
+        Camera* GetActiveCamera() const { return _currentCamera; }
         void SetActiveCamera(Camera* camera) {  _currentCamera = camera; }
 
         glm::vec2 ConvertWorldToScreen(glm::vec2 worldPos);

@@ -17,7 +17,7 @@
 
 Engine::SpriteRenderer::SpriteRenderer(): _quadVAO(0)
 {
-    isReplicated = true;
+    
 }
 
 void Engine::SpriteRenderer::OnActivation()

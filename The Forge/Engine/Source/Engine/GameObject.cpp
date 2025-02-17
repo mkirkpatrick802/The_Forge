@@ -86,9 +86,10 @@ void Engine::GameObject::Write(NetCode::OutputByteStream& stream)
     std::vector<Component*> replicatedComponents;
     for (const auto& component : GetAllComponents())
     {
-        if (component->isReplicated == false) continue;
+        //if (component->isReplicated == false) continue;
         replicatedComponents.push_back(component);
     }
+    
     uint32_t componentCount = static_cast<uint32_t>(replicatedComponents.size());
     stream.Write(componentCount);
     for (const auto& component : replicatedComponents)
