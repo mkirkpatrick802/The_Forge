@@ -19,10 +19,10 @@
                     "Sprite": "Assets\\Sprites\\Astroid.png"
                 }
             ],
-            "Game Object Name": "Astroid",
+            "Game Object Name": "New Game Object",
             "Is Replicated": true,
-            "X position": -200.0,
-            "Y position": 100.0
+            "X position": -300.0,
+            "Y position": 200.0
         }
     ],
     "Level Name": "test"

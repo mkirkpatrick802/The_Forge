@@ -155,16 +155,3 @@ Engine::Renderer::~Renderer()
 	
 	SDL_GL_DeleteContext(_context);
 }
-
-// TODO: Move these to camera manager
-glm::vec2 Engine::Renderer::ConvertWorldToScreen(glm::vec2 worldPos)
-{
-	const auto screenLocation = glm::vec2(worldPos.x + GetAppWindowSize().x / 2, worldPos.y + GetAppWindowSize().y / 2);
-	return screenLocation;
-}
-
-glm::vec2 Engine::Renderer::ConvertScreenToWorld(glm::vec2 screenPos)
-{
-	auto worldLocation = glm::vec2(screenPos.x - GetAppWindowSize().x / 2, (screenPos.y - GetAppWindowSize().y / 2));
-	return worldLocation;
-}

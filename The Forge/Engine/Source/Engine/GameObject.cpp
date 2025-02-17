@@ -83,13 +83,19 @@ void Engine::GameObject::Write(NetCode::OutputByteStream& stream)
     stream.Write(transform.position);
     stream.Write(transform.rotation);
 
-    uint32_t componentCount = static_cast<uint32_t>(_components.size());
-    stream.Write(componentCount);
-    for (const auto& val : _components | std::views::values)
+    std::vector<Component*> replicatedComponents;
+    for (const auto& component : GetAllComponents())
     {
-        uint32_t componentID = GetComponentRegistry().GetComponentID(typeid(*val));
+        if (component->isReplicated == false) continue;
+        replicatedComponents.push_back(component);
+    }
+    uint32_t componentCount = static_cast<uint32_t>(replicatedComponents.size());
+    stream.Write(componentCount);
+    for (const auto& component : replicatedComponents)
+    {
+        uint32_t componentID = GetComponentRegistry().GetComponentID(typeid(*component));
         stream.Write(componentID);
-        val->Write(stream);
+        component->Write(stream);
     }
 }
 

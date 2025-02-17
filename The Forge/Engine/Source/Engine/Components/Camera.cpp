@@ -15,7 +15,7 @@ Engine::Camera::Camera(): _projection(), _view()
 
 void Engine::Camera::OnActivation()
 {
-    CameraManager::GetCameraManager().SetActiveCamera(this);
+    GetCameraManager().SetActiveCamera(this);
 }
 
 void Engine::Camera::Deserialize(const json& data)
@@ -32,10 +32,20 @@ nlohmann::json Engine::Camera::Serialize()
 
 glm::mat4 Engine::Camera::GetProjectionMatrix()
 {
-    const auto sceneFBO = BufferRegistry::GetRegistry()->GetBuffer(BufferRegistry::BufferType::SCENE);
-    float x_offset = 0;
-    float y_offset = 0;
-    _projection = glm::ortho(x_offset, sceneFBO->GetSize().x, sceneFBO->GetSize().y, y_offset, -1.0f, 1.0f);
+    // FBO size is your window size
+    auto sceneFBO = BufferRegistry::GetRegistry()->GetBuffer(BufferRegistry::BufferType::SCENE);
+    glm::vec2 windowSize = sceneFBO->GetSize();
+
+    // Set your camera bounds
+    _bounds.left = 0; 
+    _bounds.right = windowSize.x;
+    _bounds.bottom = windowSize.y;
+    _bounds.top = 0;
+
+    // Create the orthographic projection matrix with camera bounds
+    _projection = glm::ortho(_bounds.left, _bounds.right, _bounds.bottom, _bounds.top, -1.0f, 1.0f);
+
+    // Return the projection matrix
     return _projection;
 }
 

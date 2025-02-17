@@ -14,3 +14,4 @@ Makefile
 # Exclude
 !Vendors/Binaries
 /The Forge.sln.DotSettings.user
+/Games/Project-Steel/Assets/Engine Assets

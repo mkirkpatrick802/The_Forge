@@ -2,6 +2,7 @@
 #include <string>
 #include <glm/vec2.hpp>
 
+#include "Engine/System.h"
 #include "glad/glad.h"
 
 namespace Engine
@@ -18,14 +19,13 @@ namespace Engine
         ~Texture() = default;
 
     public:
-
-        GLuint GetID() const { return _ID; }
+        GLuint GetID() const { if (_ID == -1) {System::GetInstance().DisplayMessageBox("Error", "Failed to get Texture ID"); exit(1);} return _ID; }
         glm::vec2 GetSize() const { return _size; }
         std::string GetFilePath() const { return _filepath; }
         
     private:
 
-        GLuint _ID;
+        GLuint _ID = -1;
         std::string _filepath;
         glm::vec2 _size;
         TextureType _type;

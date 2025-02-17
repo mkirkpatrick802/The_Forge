@@ -135,7 +135,8 @@ void Engine::SpriteRenderer::DrawSprite()
     
     _shader.Use();
 	auto model = glm::mat4(1.0f);
-    model = translate(model, glm::vec3(Renderer::ConvertWorldToScreen(position), 0.0f));
+    auto screenPos = GetCameraManager().ConvertWorldToScreen(position);
+    model = translate(model, glm::vec3(screenPos, 0.0f));
 
     model = translate(model, glm::vec3(0.5f * _size.x, 0.5f * _size.y, 0.0f));
     model = rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));

@@ -31,12 +31,18 @@ project "Project-Steel"
       engine_vendor_path .. "nlohmann"
    }
  
+   prebuildcommands 
+   { 
+       "{DELETE} Assets/Engine Assets",
+       "{COPY} \"../../The Forge/Engine/Assets\" \"Assets/Engine Assets\""
+   }
+   
    postbuildcommands
    {
        "{COPY} Assets/steam_appid.txt %{cfg.targetdir}",
        "{COPY} Assets %{cfg.targetdir}/Assets",
        "{COPY} Config %{cfg.targetdir}/Config",
-       "{COPY} %{cfg.targetdir}/../Engine/Assets %{cfg.targetdir}/Assets"
+       "{COPY} imgui.ini %{cfg.targetdir}"
    }
 
    -- Generate the postbuild command to copy DLLs from each module

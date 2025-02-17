@@ -24,9 +24,6 @@ namespace Engine
 		~Renderer();
 		
 		void Render();
-		
-		static glm::vec2 ConvertWorldToScreen(glm::vec2 worldPos);
-		static glm::vec2 ConvertScreenToWorld(glm::vec2 screenPos);
 
 		void AddSpriteRendererToRenderList(SpriteRenderer* spriteRenderer);
 		void RemoveSpriteRendererFromRenderList(SpriteRenderer* spriteRenderer);

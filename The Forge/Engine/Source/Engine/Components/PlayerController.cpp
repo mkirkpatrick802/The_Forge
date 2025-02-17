@@ -10,6 +10,7 @@
 #include "Engine/GameEngine.h"
 #include "Engine/InputManager.h"
 #include "Engine/System.h"
+#include "Engine/Rendering/CameraManager.h"
 #include "Engine/Rendering/Renderer.h"
 
 void Engine::PlayerController::Deserialize(const json& data)
@@ -55,13 +56,13 @@ void Engine::PlayerController::CollectInput(float deltaTime)
     glm::vec2 targetDirection = movementInput; // Default to movement input direction
     glm::vec2 mousePos;
     if (GetInputManager().GetButton(SDL_BUTTON_LEFT, mousePos) || glm::length(movementInput) == 0.0f) {
-        mousePos = Renderer::ConvertScreenToWorld(mousePos);
+        mousePos = GetCameraManager().ConvertScreenToWorld(mousePos);
         targetDirection = glm::normalize(mousePos - gameObject->transform.position);
     }
 
     // Apply rotation if valid
     if (glm::length(targetDirection) > 0.0f) {
-        gameObject->transform.rotation = (glm::atan(targetDirection.y, targetDirection.x) * 180.0f / glm::pi<float>()) - 90.f;
+        gameObject->transform.rotation = (glm::atan(targetDirection.x, targetDirection.y) * 180.0f / glm::pi<float>() - 180.f);
     }
     
     gameObject->isDirty = true;

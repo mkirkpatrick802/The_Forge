@@ -14,10 +14,10 @@ Editor::ContentDrawer::ContentDrawer()
 
 void Editor::ContentDrawer::LoadTextures()
 {
-    _emptyFolderIcon = CreateTexture("../../The Forge/Engine/Assets/Sprites/Editor/EmptyFolderIcon.png", Engine::Texture::TextureType::PIXEL);
-    _folderIcon = CreateTexture("../../The Forge/Engine/Assets/Sprites/Editor/FolderIcon.png", Engine::Texture::TextureType::PIXEL);
-    _fileIcon = CreateTexture("../../The Forge/Engine/Assets/Sprites/Editor/FileIcon.png", Engine::Texture::TextureType::PIXEL);
-    _spriteIcon = CreateTexture("../../The Forge/Engine/Assets/Sprites/Editor/SpriteIcon.png", Engine::Texture::TextureType::PIXEL);
+    _emptyFolderIcon = CreateTexture("Assets/Engine Assets/Sprites/Editor/EmptyFolderIcon.png", Engine::Texture::TextureType::PIXEL);
+    _folderIcon = CreateTexture("Assets/Engine Assets/Sprites/Editor/FolderIcon.png", Engine::Texture::TextureType::PIXEL);
+    _fileIcon = CreateTexture("Assets/Engine Assets/Sprites/Editor/FileIcon.png", Engine::Texture::TextureType::PIXEL);
+    _spriteIcon = CreateTexture("Assets/Engine Assets/Sprites/Editor/SpriteIcon.png", Engine::Texture::TextureType::PIXEL);
 }
 
 Editor::ContentDrawer::~ContentDrawer() = default;
