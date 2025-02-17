@@ -20,7 +20,7 @@
                 }
             ],
             "Game Object Name": "New Game Object",
-            "Is Replicated": true,
+            "Is Replicated": false,
             "X position": -300.0,
             "Y position": 200.0
         },
@@ -33,7 +33,7 @@
                 }
             ],
             "Game Object Name": "New Game Object",
-            "Is Replicated": true,
+            "Is Replicated": false,
             "X position": 200.0,
             "Y position": -150.0
         }

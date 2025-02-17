@@ -94,6 +94,20 @@ nlohmann::json Engine::SpriteRenderer::Serialize()
     return data;
 }
 
+void Engine::SpriteRenderer::Write(NetCode::OutputByteStream& stream) const
+{
+    stream.Write(_texture->GetFilePath());
+}
+
+void Engine::SpriteRenderer::Read(NetCode::InputByteStream& stream)
+{
+    std::string filepath;
+    stream.Read(filepath);
+
+    if (_texture) return;
+    _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
+}
+
 void Engine::SpriteRenderer::DrawDetails()
 {
     const char* filePath = nullptr; // Store the dropped file path

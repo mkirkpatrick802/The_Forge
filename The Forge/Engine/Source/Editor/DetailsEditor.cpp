@@ -11,7 +11,8 @@ Engine::GameObject* Editor::DetailsEditor::_selectedGameObject = nullptr;
 
 Editor::DetailsEditor::~DetailsEditor()
 {
-    CleanUpPrefab();
+    delete _selectedGameObject;
+    _selectedGameObject = nullptr;
 }
 
 void Editor::DetailsEditor::Render()

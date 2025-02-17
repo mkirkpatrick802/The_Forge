@@ -20,6 +20,9 @@ namespace Engine
         virtual void Deserialize(const json& data) override;
         virtual nlohmann::json Serialize() override;
 
+        void Write(NetCode::OutputByteStream& stream) const override;
+        void Read(NetCode::InputByteStream& stream) override;
+        
         virtual void DrawDetails() override;
         
         glm::vec2 GetSize() const { return _size; }
