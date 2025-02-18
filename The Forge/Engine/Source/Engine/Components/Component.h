@@ -18,9 +18,14 @@ namespace Engine
         virtual void Deserialize(const json& data) = 0;
         virtual nlohmann::json Serialize() = 0;
 
+        // Called before the first update frame for this object
+        virtual void Start() {}
+
+        // Called every frame
         virtual void Update(float deltaTime) {}
         
         // Triggers when component is activated within the pool
+        // May not have access to other component on the game object 
         virtual void OnActivation() {}
 
         virtual void Read(NetCode::InputByteStream& stream) {}
@@ -31,6 +36,6 @@ namespace Engine
     public:
         GameObject* gameObject = nullptr;
         bool isReplicated = false;
-
+        
     };
 }

@@ -8,7 +8,7 @@
 class TYPE##RegisterHelper { \
 public: \
 TYPE##RegisterHelper() { \
-RegisterComponentHelper<TYPE>(#TYPE); \
+Engine::RegisterComponentHelper<TYPE>(#TYPE); \
 } \
 }; \
 static TYPE##RegisterHelper TYPE##_register_helper;

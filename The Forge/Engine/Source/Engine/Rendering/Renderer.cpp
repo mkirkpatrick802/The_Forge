@@ -61,8 +61,8 @@ void Engine::Renderer::CreateRenderer()
 
 	glBindVertexArray(0);
 
-	std::string vertex = "Assets/Shaders/ScreenQuad.vert";
-	std::string fragment = "Assets/Shaders/ScreenQuad.frag";
+	std::string vertex = "Assets/Engine Assets/Shaders/ScreenQuad.vert";
+	std::string fragment = "Assets/Engine Assets/Shaders/ScreenQuad.frag";
 
 	_quadShader.Compile(vertex.c_str(), fragment.c_str());
 }
@@ -114,7 +114,7 @@ void Engine::Renderer::Render()
 		
 		if (!_renderList.empty())
 			for (const auto& val : _renderList | std::views::values)
-				val->DrawSprite();
+				val->Render();
 
 		sceneFBO->Unbind();
 	}

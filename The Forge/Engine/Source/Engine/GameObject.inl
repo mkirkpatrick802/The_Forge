@@ -4,7 +4,7 @@
 namespace Engine
 {
     template <typename T>
-   T* GameObject::GetComponent() const
+    T* GameObject::GetComponent() const
     {
         if (const auto it = _components.find(typeid(T)); it != _components.end()) 
         {

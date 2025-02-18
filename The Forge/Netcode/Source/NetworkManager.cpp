@@ -176,6 +176,7 @@ bool NetCode::NetworkManager::IsPlayerInGame(uint64_t playerID) const
     return false;
 }
 
+// TODO: Should not use the player controller class
 void NetCode::NetworkManager::HandleConnectionReset(uint64_t playerID)
 {
     if (_playerNames.contains(playerID))

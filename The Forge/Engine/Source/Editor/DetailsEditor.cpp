@@ -44,9 +44,9 @@ void Editor::DetailsEditor::Render()
         ImGui::Spacing();
 
         component->DrawDetails();
+        ImGui::Spacing();
+        ImGui::Separator();
     }
-    
-    ImGui::Separator();
     
     if (ImGui::Button("Add Component"))
     {

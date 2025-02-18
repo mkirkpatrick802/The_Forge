@@ -35,7 +35,6 @@ void Engine::SpriteRenderer::OnActivation()
         1.0f, 0.0f, 1.0f, 1.0f   // flipped tex y: 0.0 -> 1.0
     };
 
-
     glGenVertexArrays(1, &_quadVAO);
     glBindVertexArray(_quadVAO);
 
@@ -51,8 +50,8 @@ void Engine::SpriteRenderer::OnActivation()
 
     GetRenderer().AddSpriteRendererToRenderList(this);
     
-    std::string vertex = "Assets/Shaders/Sprite.vert";
-    std::string fragment = "Assets/Shaders/Sprite.frag";
+    std::string vertex = "Assets/Engine Assets/Shaders/Sprite.vert";
+    std::string fragment = "Assets/Engine Assets/Shaders/Sprite.frag";
 
     _shader.Compile(vertex.c_str(), fragment.c_str());
     _sortingLayer = 0;
@@ -68,9 +67,10 @@ void Engine::SpriteRenderer::Deserialize(const json& data)
 {
     const std::string filepath = data[JsonKeywords::SPRITE_RENDERER_SPRITE];
     _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
+    _size = _texture->GetSize();
 
-    std::string vertex = "Assets/Shaders/Sprite.vert";
-    std::string fragment = "Assets/Shaders/Sprite.frag";
+    std::string vertex = "Assets/Engine Assets/Shaders/Sprite.vert";
+    std::string fragment = "Assets/Engine Assets/Shaders/Sprite.frag";
 
     _shader.Compile(vertex.c_str(), fragment.c_str());
     _sortingLayer = (int16_t)data.value(JsonKeywords::SPRITE_RENDERER_SORTING_LAYER, 0);
@@ -106,6 +106,7 @@ void Engine::SpriteRenderer::Read(NetCode::InputByteStream& stream)
 
     if (_texture) return;
     _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
+    _size = _texture->GetSize();
 }
 
 void Engine::SpriteRenderer::DrawDetails()
@@ -136,7 +137,7 @@ void Engine::SpriteRenderer::DrawDetails()
     }
 }
 
-void Engine::SpriteRenderer::DrawSprite()
+void Engine::SpriteRenderer::Render()
 {
 	const float rotation = gameObject->transform.rotation;
 	const auto position = glm::vec2(gameObject->transform.position.x - _size.x / 2, (gameObject->transform.position.y * -1) - _size.y / 2);

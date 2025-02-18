@@ -18,7 +18,6 @@ namespace Engine
         static_assert(std::is_base_of_v<Component, T>, "T must be derived from Component");
         
     public:
-
         ComponentPool();
         ~ComponentPool() = default;
         
@@ -30,15 +29,20 @@ namespace Engine
         std::vector<T*> GetActive();
 
     private:
-        
         T components[MAX_POOL_SIZE];
         bool isActive[MAX_POOL_SIZE];
+        bool isStarted[MAX_POOL_SIZE];
     };
 
     template<typename T>
     ComponentPool<T>::ComponentPool()
     {
         for (bool& i : isActive)
+        {
+            i = false;
+        }
+
+        for (bool& i : isStarted)
         {
             i = false;
         }
@@ -51,6 +55,12 @@ namespace Engine
         {
             if (isActive[i])
             {
+                if (!isStarted[i])
+                {
+                    components[i].Start();
+                    isStarted[i] = true;
+                }
+                
                 components[i].Update(deltaTime);
             }
         }
@@ -85,6 +95,7 @@ namespace Engine
             {
                 components[i].~T();
                 isActive[i] = false;
+                isStarted[i] = false;
             }
         }
     }

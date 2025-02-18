@@ -23,6 +23,7 @@ project "Project-Steel"
 
       -- Include Engine Files
       "../../The Forge/Engine/Source",
+      "../../The Forge/Netcode/Source",
       engine_vendor_path .. "glm",
       engine_vendor_path .. "imgui-1.90.5-docking",
       engine_vendor_path .. "SDL2-2.30.2/include",

@@ -1,9 +1,9 @@
 ﻿#pragma once
-#include "Component.h"
 #include "ComponentUtils.h"
 
 namespace Engine
 {
+    // TODO: Move this to the game source not the engine
     class PlayerController final : public Component
     {
         friend class GameModeBase;

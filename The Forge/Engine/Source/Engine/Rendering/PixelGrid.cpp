@@ -7,8 +7,8 @@
 
 Engine::PixelGrid::PixelGrid()
 {
-    std::string vertex = "Assets/Shaders/PixelGrid.vert";
-    std::string fragment = "Assets/Shaders/PixelGrid.frag";
+    std::string vertex = "Assets/Engine Assets/Shaders/PixelGrid.vert";
+    std::string fragment = "Assets/Engine Assets/Shaders/PixelGrid.frag";
 
     _shader.Compile(vertex.c_str(), fragment.c_str());
 

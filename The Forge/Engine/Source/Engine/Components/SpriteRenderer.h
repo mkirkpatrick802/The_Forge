@@ -11,7 +11,6 @@ namespace Engine
         friend class Renderer;
 
     public:
-
         SpriteRenderer();
         ~SpriteRenderer() override;
 
@@ -27,19 +26,16 @@ namespace Engine
         
         glm::vec2 GetSize() const { return _size; }
 
-    private:
-        
-        void DrawSprite();
+    protected:
+        virtual void Render();
 
-    private:
-        
+    protected:
+        unsigned int _quadVAO;
         Shader _shader;
         std::unique_ptr<Texture> _texture;
 
-        unsigned int _quadVAO;
-
         int16_t _sortingLayer = 0;
-        glm::vec2 _size = glm::vec2(64);
+        glm::vec2 _size;
 
     };
 

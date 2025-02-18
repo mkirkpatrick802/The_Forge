@@ -27,6 +27,9 @@ namespace Engine
         ComponentPool<T>* GetPool();
 
         template <typename T>
+        std::vector<T*> GetAllComponents();
+
+        template <typename T>
         void DeleteComponent(Component* component);
 
     private:
@@ -51,6 +54,15 @@ namespace Engine
             return static_cast<ComponentPool<T>*>(it->second.get());
         
         return nullptr;
+    }
+
+    template <typename T>
+    std::vector<T*> ComponentManager::GetAllComponents()
+    {
+        if (auto pool = GetPool<T>())
+            return pool->GetActive();
+
+        return std::vector<T*>();
     }
 
     template <typename T>
