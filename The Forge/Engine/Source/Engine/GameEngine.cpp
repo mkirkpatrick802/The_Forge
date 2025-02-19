@@ -10,6 +10,7 @@
 #include "Time.h"
 #include "../../../Netcode/Source/GamerServices.h"
 #include "Components/ComponentManager.h"
+#include "Editor/EditorManager.h"
 
 Engine::GameEngine& Engine::GameEngine::GetInstance()
 {
@@ -63,6 +64,8 @@ void Engine::GameEngine::StartGameplayLoop()
 				NetCode::GetNetworkManager().Update();
 				_chat->Update(deltaTime);
 				GetComponentManager().UpdateComponents(deltaTime);
+			}else{
+				GetEditorManager().Update();
 			}
 			
 			_renderer->Render();
