@@ -3,7 +3,9 @@
 #include <vector>
 
 #include "ByteStream.h"
+#include "GameEngine.h"
 #include "json.hpp"
+#include "LevelManager.h"
 
 namespace NetCode
 {
@@ -59,4 +61,9 @@ namespace Engine
         std::vector<GameObject*> _gameObjects;
         std::unique_ptr<GameModeBase> _gameMode; // Only exists on the server
     };
+
+    inline void Destroy(GameObject* go)
+    {
+        LevelManager::GetCurrentLevel()->RemoveGameObject(go);
+    }
 }

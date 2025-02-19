@@ -2,6 +2,7 @@
 
 #include <SDL_mouse.h>
 
+#include "Destructible.h"
 #include "Engine/GameEngine.h"
 #include "Engine/InputManager.h"
 #include "Engine/JsonKeywords.h"
@@ -57,6 +58,18 @@ void FluxWrench::EnableWrench(Engine::GameObject* target, glm::vec2 mousePos, Wr
     }
 
     _currentState = state;
+
+    switch (_currentState)
+    {
+    case WS_Mining:
+        if (const auto destructible = gameObject->GetComponent<Destructible>())
+        {
+            destructible->TakeDamage(gameObject, 2);
+        }
+        break;
+    case WS_Repairing:
+        break;
+    }
 }
 
 void FluxWrench::DisableWrench()
