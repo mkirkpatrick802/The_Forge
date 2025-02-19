@@ -33,6 +33,8 @@ namespace Engine
 		bool IsEditorEnabled() const {return _editorEnabled; }
 		
 		void ToggleEditor(const std::string& args);
+
+		Editor::EditorManager& GetEditorManager() const { return *_editor;}
 		
 	private:
 		
@@ -44,5 +46,10 @@ namespace Engine
 	inline EngineManager& GetEngineManager()
 	{
 		return EngineManager::GetInstance();
+	}
+
+	inline Editor::EditorManager& GetEditorManager()
+	{
+		return EngineManager::GetInstance().GetEditorManager();
 	}
 }

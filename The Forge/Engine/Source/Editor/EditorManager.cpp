@@ -7,6 +7,7 @@
 #include "Console.h"
 #include "ContentDrawer.h"
 #include "EditorCamera.h"
+#include "EditorShortcuts.h"
 #include "MenuBar.h"
 #include "Engine/Rendering/UIManager.h"
 
@@ -45,4 +46,9 @@ Editor::EditorManager::~EditorManager()
     // For some reason IMGUi SetCursor does not work here
     const HCURSOR defaultCursor = LoadCursor(nullptr, IDC_ARROW);
     SetCursor(defaultCursor);
+}
+
+void Editor::EditorManager::Update()
+{
+    EditorShortcuts::GetInstance().Update();
 }

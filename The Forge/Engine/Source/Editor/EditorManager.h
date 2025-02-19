@@ -25,6 +25,8 @@ namespace Editor
 
         EditorManager();
         ~EditorManager();
+
+        void Update();
     
     private:
 
