@@ -9,6 +9,7 @@
 #include "Engine/Components/BoxCollider.h"
 #include "Engine/Rendering/CameraManager.h"
 #include "Engine/Components/LineRenderer.h"
+#include "Engine/Components/PlayerController.h"
 
 using namespace Engine;
 
@@ -19,9 +20,12 @@ void FluxWrench::Update(float deltaTime)
 
 void FluxWrench::CollectInputs()
 {
+    if (auto controller = gameObject->GetComponent<PlayerController>())
+        if (!controller->IsLocalPlayer()) return;
+    
     glm::vec2 mousePos;
-    const bool isRightClick = GetInputManager().GetButton(SDL_BUTTON_RIGHT, mousePos);
-    const bool isLeftClick = GetInputManager().GetButton(SDL_BUTTON_LEFT, mousePos);
+    const bool isRightClick = GetInputManager().GetButton(SDL_BUTTON(SDL_BUTTON_RIGHT), mousePos);
+    const bool isLeftClick = GetInputManager().GetButton(SDL_BUTTON(SDL_BUTTON_LEFT), mousePos);
 
     if (isRightClick || isLeftClick)
     {
@@ -46,13 +50,22 @@ void FluxWrench::CollectInputs()
 
 void FluxWrench::EnableWrench(Engine::GameObject* target, glm::vec2 mousePos, WrenchState state)
 {
-    
+    if (const auto line = gameObject->GetComponent<LineRenderer>())
+    {
+        line->SetHidden(false);
+        line->SetStartAndEnd(gameObject->transform.position, mousePos);
+    }
+
+    _currentState = state;
 }
 
 void FluxWrench::DisableWrench()
 {
     if (_currentState == WS_Off) return;
 
+    if (const auto line = gameObject->GetComponent<LineRenderer>())
+        line->SetHidden(true);
+    
     _currentState = WS_Off;
 }
 

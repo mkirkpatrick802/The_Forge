@@ -15,9 +15,8 @@
 #include "Engine/Rendering/Renderer.h"
 #include "Engine/Rendering/TextureLoader.h"
 
-Engine::SpriteRenderer::SpriteRenderer(): _quadVAO(0)
+Engine::SpriteRenderer::SpriteRenderer(): _quadVAO(0), _size(), _hidden(false)
 {
-    
 }
 
 void Engine::SpriteRenderer::OnActivation()
@@ -26,13 +25,13 @@ void Engine::SpriteRenderer::OnActivation()
     unsigned int VBO;
     const float vertices[] = {
         // pos         // tex
-        0.0f, 1.0f, 0.0f, 0.0f,  // flipped tex y: 1.0 -> 0.0
-        1.0f, 0.0f, 1.0f, 1.0f,  // flipped tex y: 0.0 -> 1.0
-        0.0f, 0.0f, 0.0f, 1.0f,  // flipped tex y: 0.0 -> 1.0
+        0.0f, 1.0f, 0.0f, 1.0f,
+        1.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 0.0f,
 
-        0.0f, 1.0f, 0.0f, 0.0f,  // flipped tex y: 1.0 -> 0.0
-        1.0f, 1.0f, 1.0f, 0.0f,  // flipped tex y: 1.0 -> 0.0
-        1.0f, 0.0f, 1.0f, 1.0f   // flipped tex y: 0.0 -> 1.0
+        0.0f, 1.0f, 0.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 0.0f, 1.0f, 0.0f
     };
 
     glGenVertexArrays(1, &_quadVAO);
@@ -54,14 +53,39 @@ void Engine::SpriteRenderer::OnActivation()
     std::string fragment = "Assets/Engine Assets/Shaders/Sprite.frag";
 
     _shader.Compile(vertex.c_str(), fragment.c_str());
-    _sortingLayer = 0;
 }
 
-Engine::SpriteRenderer::~SpriteRenderer()
+void Engine::SpriteRenderer::Render()
 {
-    _texture.reset();
-    GetRenderer().RemoveSpriteRendererFromRenderList(this);
+    if (!_texture || _hidden) return;
+    const float rotation = gameObject->transform.rotation;
+    const auto position = glm::vec2(gameObject->transform.position.x - _size.x / 2, (gameObject->transform.position.y * -1) - _size.y / 2);
+    
+    _shader.Use();
+    auto model = glm::mat4(1.0f);
+    auto screenPos = GetCameraManager().ConvertWorldToScreen(position);
+    model = translate(model, glm::vec3(screenPos, 0.0f));
+
+    model = translate(model, glm::vec3(0.5f * _size.x, 0.5f * _size.y, 0.0f));
+    model = rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+    model = translate(model, glm::vec3(-0.5f * _size.x, -0.5f * _size.y, 0.0f));
+
+    model = scale(model, glm::vec3(_size, 1.0f));
+    
+    glBindTextureUnit(0, _texture->GetID());
+
+    _shader.SetMatrix4("model", model);
+    
+    _shader.SetMatrix4("projection", GetProjectionMatrix());
+    _shader.SetMatrix4("view", GetViewMatrix());
+    _shader.SetInteger("image", 0);
+    
+    glBindVertexArray(_quadVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
 }
+
+// Serialization 
 
 void Engine::SpriteRenderer::Deserialize(const json& data)
 {
@@ -73,7 +97,10 @@ void Engine::SpriteRenderer::Deserialize(const json& data)
     std::string fragment = "Assets/Engine Assets/Shaders/Sprite.frag";
 
     _shader.Compile(vertex.c_str(), fragment.c_str());
-    _sortingLayer = (int16_t)data.value(JsonKeywords::SPRITE_RENDERER_SORTING_LAYER, 0);
+    if (data.contains(JsonKeywords::SPRITE_RENDERER_SORTING_LAYER))
+        _sortingLayer = data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER];
+    
+    GetRenderer().AddSpriteRendererToRenderList(this);
 }
 
 nlohmann::json Engine::SpriteRenderer::Serialize()
@@ -88,9 +115,6 @@ nlohmann::json Engine::SpriteRenderer::Serialize()
     }
     
     data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER] = _sortingLayer;
-
-    // TODO: Save Shader Information
-    
     return data;
 }
 
@@ -109,8 +133,21 @@ void Engine::SpriteRenderer::Read(NetCode::InputByteStream& stream)
     _size = _texture->GetSize();
 }
 
+Engine::SpriteRenderer::~SpriteRenderer()
+{
+    _texture.reset();
+    GetRenderer().RemoveSpriteRendererFromRenderList(this);
+}
+
+// Find a better place to put editor code
 void Engine::SpriteRenderer::DrawDetails()
 {
+    ImGui::Checkbox("Hidden", &_hidden);
+    ImGui::Spacing();
+
+    std::string label = "Sorting Layer##" + std::to_string((uintptr_t)this);
+    ImGui::InputInt(label.c_str(), &_sortingLayer);
+    
     const char* filePath = nullptr; // Store the dropped file path
     if (ImGui::Button("Drop File Here", ImVec2(200, 50))) {}
 
@@ -132,37 +169,5 @@ void Engine::SpriteRenderer::DrawDetails()
     // Display saved file path
     if (!_texture) return;
     if (!_texture->GetFilePath().empty())
-    {
         ImGui::Text("Saved Path: %s", _texture->GetFilePath().c_str());
-    }
-}
-
-void Engine::SpriteRenderer::Render()
-{
-	const float rotation = gameObject->transform.rotation;
-	const auto position = glm::vec2(gameObject->transform.position.x - _size.x / 2, (gameObject->transform.position.y * -1) - _size.y / 2);
-    
-    _shader.Use();
-	auto model = glm::mat4(1.0f);
-    auto screenPos = GetCameraManager().ConvertWorldToScreen(position);
-    model = translate(model, glm::vec3(screenPos, 0.0f));
-
-    model = translate(model, glm::vec3(0.5f * _size.x, 0.5f * _size.y, 0.0f));
-    model = rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
-    model = translate(model, glm::vec3(-0.5f * _size.x, -0.5f * _size.y, 0.0f));
-
-    model = scale(model, glm::vec3(_size, 1.0f));
-
-    if (!_texture) return;
-    glBindTextureUnit(0, _texture->GetID());
-
-    _shader.SetMatrix4("model", model);
-    
-    _shader.SetMatrix4("projection", GetProjectionMatrix());
-    _shader.SetMatrix4("view", GetViewMatrix());
-    _shader.SetInteger("image", 0);
-    
-    glBindVertexArray(_quadVAO);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(0);
 }

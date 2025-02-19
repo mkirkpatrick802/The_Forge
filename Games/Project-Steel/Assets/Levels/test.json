@@ -8,6 +8,7 @@
             ],
             "Game Object Name": "Player Start",
             "Is Replicated": false,
+            "Rotation": 0.0,
             "X position": 0.0,
             "Y position": 0.0
         },
@@ -24,6 +25,7 @@
             ],
             "Game Object Name": "Asteroid",
             "Is Replicated": false,
+            "Rotation": 180.0,
             "X position": -300.0,
             "Y position": 200.0
         },
@@ -40,21 +42,9 @@
             ],
             "Game Object Name": "Asteroid",
             "Is Replicated": false,
-            "X position": 200.0,
-            "Y position": -150.0
-        },
-        {
-            "Components": [
-                {
-                    "Component ID": 3276240104,
-                    "Sorting Layer": 0,
-                    "Sprite": "Assets\\Sprites\\Beam.png"
-                }
-            ],
-            "Game Object Name": "Line Test",
-            "Is Replicated": false,
-            "X position": 0.0,
-            "Y position": 0.0
+            "Rotation": 0.0,
+            "X position": 100.0,
+            "Y position": 100.0
         }
     ],
     "Level Name": "test"

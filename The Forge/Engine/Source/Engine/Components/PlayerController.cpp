@@ -60,14 +60,14 @@ void Engine::PlayerController::CollectInput(float deltaTime)
     // Determine rotation direction (face movement or mouse)
     glm::vec2 targetDirection = movementInput; // Default to movement input direction
     glm::vec2 mousePos;
-    if (GetInputManager().GetButton(SDL_BUTTON_LEFT, mousePos) || glm::length(movementInput) == 0.0f) {
+    if (GetInputManager().GetButton(SDL_BUTTON(SDL_BUTTON_LEFT), mousePos) || GetInputManager().GetButton(SDL_BUTTON(SDL_BUTTON_RIGHT)) || length(movementInput) == 0.0f) {
         mousePos = GetCameraManager().ConvertScreenToWorld(mousePos);
         targetDirection = glm::normalize(mousePos - gameObject->transform.position);
     }
 
     // Apply rotation if valid
     if (glm::length(targetDirection) > 0.0f) {
-        gameObject->transform.rotation = (glm::atan(targetDirection.x, targetDirection.y) * 180.0f / glm::pi<float>() - 180.f);
+        gameObject->transform.rotation = (glm::atan(targetDirection.x, targetDirection.y) * 180.0f / glm::pi<float>());
     }
     
     gameObject->isDirty = true;

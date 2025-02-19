@@ -34,8 +34,12 @@ namespace Engine
         Shader _shader;
         std::unique_ptr<Texture> _texture;
 
-        int16_t _sortingLayer = 0;
+        int _sortingLayer = 0;
         glm::vec2 _size;
+        bool _hidden;
+
+    public:
+        inline void SetHidden(const bool hidden) { _hidden = hidden; }
 
     };
 

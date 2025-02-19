@@ -71,7 +71,20 @@ void Engine::Renderer::AddSpriteRendererToRenderList(SpriteRenderer* spriteRende
 {
 	if (spriteRenderer == nullptr) return;
 	const auto pair = std::pair(spriteRenderer->_sortingLayer, spriteRenderer);
-	_renderList.push_back(pair);
+	for (const auto val : _renderList) // This is gross
+		if (val.second == spriteRenderer)
+		{
+			if (val == pair)
+			{
+				return;
+			}
+			else
+			{
+				RemoveSpriteRendererFromRenderList(spriteRenderer);
+			}
+		}
+	
+	_renderList.emplace_back(pair);
 	
 	SortRenderList();
 }

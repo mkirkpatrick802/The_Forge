@@ -51,6 +51,9 @@ void Engine::GameObject::Deserialize(const nlohmann::json& data)
         transform.position.y = data[JsonKeywords::GAMEOBJECT_POSITION_Y];
     }
 
+    if (data.contains(JsonKeywords::GAMEOBJECT_ROTATION))
+        transform.rotation = data[JsonKeywords::GAMEOBJECT_ROTATION];
+
     if (!data.contains(JsonKeywords::COMPONENT_ARRAY)) return;
 
     for (const auto& component_data : data[JsonKeywords::COMPONENT_ARRAY])
@@ -68,6 +71,7 @@ nlohmann::json Engine::GameObject::Serialize()
     data[JsonKeywords::GAMEOBJECT_ISREPLICATED] = isReplicated;
     data[JsonKeywords::GAMEOBJECT_POSITION_X] = transform.position.x;
     data[JsonKeywords::GAMEOBJECT_POSITION_Y] = transform.position.y;
+    data[JsonKeywords::GAMEOBJECT_ROTATION] = transform.rotation;
     
     data[JsonKeywords::COMPONENT_ARRAY] = json::array();
     for (const auto& component : GetAllComponents())
