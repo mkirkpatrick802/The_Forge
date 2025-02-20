@@ -26,6 +26,7 @@ private:
     WrenchState _currentState = WS_Off;
     float _damage = 10.f;
     float _range = 30.f;
+    
 };
 
 REGISTER_COMPONENT(FluxWrench)

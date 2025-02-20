@@ -4,6 +4,7 @@
 
 #include "DetailsEditor.h"
 #include "Engine/GameObject.h"
+#include "Engine/GameObject.h"
 #include "Engine/System.h"
 #include "Engine/Rendering/TextureLoader.h"
 
@@ -100,17 +101,15 @@ void Editor::ContentDrawer::DrawDirectoryContents()
             if (child.name.ends_with(".prefab"))
             {
                 std::ifstream prefab(child.fullPath);
-                auto go = DEBUG_NEW Engine::GameObject();
+                auto go = std::make_unique<Engine::GameObject>();
                 
                 nlohmann::json data;
                 prefab >> data;
                 prefab.close();
                 
                 go->Deserialize(data);
-                go->isPrefab = true;
                 go->filepath = child.fullPath;
-                
-                DetailsEditor::SetSelectedGameObject(go);
+                DetailsEditor::SetSelectedPrefab(std::move(go));
             }
         }
 

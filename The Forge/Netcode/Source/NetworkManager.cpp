@@ -4,11 +4,11 @@
 #include "GamerServices.h"
 #include "LinkingContext.h"
 #include "Engine/GameModeBase.h"
-#include "Engine/GameObject.h"
 #include "Engine/Level.h"
 #include "Engine/LevelManager.h"
 #include "Engine/System.h"
 #include "Engine/Time.h"
+#include "Engine/Components/ComponentManager.h"
 #include "Engine/Components/PlayerController.h"
 
 NetCode::NetworkManager& NetCode::NetworkManager::GetInstance()

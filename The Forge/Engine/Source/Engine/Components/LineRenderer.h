@@ -4,11 +4,10 @@
 
 namespace Engine
 {
-    class LineRenderer : public SpriteRenderer
+    class LineRenderer final: public SpriteRenderer
     {
     public:
         LineRenderer();
-
         void Render() override;
         
         void Deserialize(const json& data) override;

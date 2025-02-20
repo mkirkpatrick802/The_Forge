@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <cstdint>
+#include <memory>
 #include <unordered_map>
 
 namespace Engine

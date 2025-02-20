@@ -35,11 +35,11 @@ namespace Engine
         
     public:
         GameObject* SpawnNewGameObject(const std::string& filepath = "");
-        bool RemoveGameObject(GameObject* go);
+        bool RemoveGameObject(const GameObject* go);
 
         void SaveLevel(const std::string& args = "");
         
-        std::vector<GameObject*> GetAllGameObjects() { return _gameObjects; }
+        std::vector<GameObject*> GetAllGameObjects() const;
         std::string GetName() { return _name; }
         GameModeBase& GetGameMode() const { return *_gameMode; }
 
@@ -51,18 +51,18 @@ namespace Engine
         Level(nlohmann::json data);
         ~Level();
 
-        void Start();
+        void Start() const;
         
     private:
         
         std::string _name;
         std::string _path;
         
-        std::vector<GameObject*> _gameObjects;
+        std::vector<std::unique_ptr<GameObject>> _gameObjects;
         std::unique_ptr<GameModeBase> _gameMode; // Only exists on the server
     };
 
-    inline void Destroy(GameObject* go)
+    inline void Destroy(const GameObject* go)
     {
         LevelManager::GetCurrentLevel()->RemoveGameObject(go);
     }

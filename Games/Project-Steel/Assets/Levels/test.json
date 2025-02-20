@@ -16,11 +16,16 @@
             "Components": [
                 {
                     "Component ID": 2525770811,
+                    "Fragment Shader": "Assets\\Engine Assets\\Shaders\\Sprite.frag",
                     "Sorting Layer": 0,
-                    "Sprite": "Assets\\Sprites\\Astroid.png"
+                    "Sprite": "Assets\\Sprites\\Astroid.png",
+                    "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"
                 },
                 {
                     "Component ID": 1673950826
+                },
+                {
+                    "Component ID": 3309965179
                 }
             ],
             "Game Object Name": "Asteroid",
@@ -33,11 +38,16 @@
             "Components": [
                 {
                     "Component ID": 2525770811,
+                    "Fragment Shader": "Assets\\Engine Assets\\Shaders\\Sprite.frag",
                     "Sorting Layer": 0,
-                    "Sprite": "Assets\\Sprites\\Astroid.png"
+                    "Sprite": "Assets\\Sprites\\Astroid.png",
+                    "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"
                 },
                 {
                     "Component ID": 1673950826
+                },
+                {
+                    "Component ID": 3309965179
                 }
             ],
             "Game Object Name": "Asteroid",

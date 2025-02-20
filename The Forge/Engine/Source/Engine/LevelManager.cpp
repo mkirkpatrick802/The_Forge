@@ -9,6 +9,7 @@
 #include "Level.h"
 #include "System.h"
 #include "Components/ComponentRegistry.h"
+#include "Editor/DetailsEditor.h"
 #include "Rendering/CameraManager.h"
 
 Engine::Level* Engine::LevelManager::_currentLevel = nullptr;
@@ -24,7 +25,14 @@ Engine::LevelManager::LevelManager(const std::string& filepath)
 
 void Engine::LevelManager::StartCurrentLevel()
 {
+    Editor::DetailsEditor::ClearSelectedPrefab();
+    
+    GetCurrentLevel()->SaveLevel();
     GetEngineManager().ToggleEditor("0");
+
+    // Need to make a copy of the file path because it will get deleted in the LoadLevel function
+    const std::string path = GetCurrentLevel()->_path;
+    LoadLevel(path);
     
     const auto cameras = GetComponentManager().GetPool<Camera>()->GetActive();
     if (!cameras.empty())
@@ -115,6 +123,8 @@ std::vector<std::string> Engine::LevelManager::GetAllLevels(std::vector<nlohmann
 
 bool Engine::LevelManager::LoadLevel(const std::string& filepath)
 {
+    delete _currentLevel;
+    
     //Find Level Json File
     std::ifstream level(filepath);
     if (!level.is_open())
@@ -125,9 +135,9 @@ bool Engine::LevelManager::LoadLevel(const std::string& filepath)
 
     nlohmann::json data;
     level >> data;
+    level.close();
     
     //Create Level Object
-    delete _currentLevel;
     _currentLevel = new Level(data);
     _currentLevel->_path = filepath;
     

@@ -62,7 +62,7 @@ void FluxWrench::EnableWrench(Engine::GameObject* target, glm::vec2 mousePos, Wr
     switch (_currentState)
     {
     case WS_Mining:
-        if (const auto destructible = gameObject->GetComponent<Destructible>())
+        if (const auto destructible = target->GetComponent<Destructible>())
         {
             destructible->TakeDamage(gameObject, 2);
         }

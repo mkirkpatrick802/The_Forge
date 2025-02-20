@@ -94,6 +94,8 @@ namespace Engine
             if (&components[i] == component)
             {
                 components[i].~T();
+                new (&components[i]) T();
+                
                 isActive[i] = false;
                 isStarted[i] = false;
             }

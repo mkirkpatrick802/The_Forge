@@ -40,9 +40,7 @@ namespace Engine
         uint64_t id;
         bool isReplicated = true;
         bool isDirty = false;
-
-        // TODO: This is trash but it will work for now
-        bool isPrefab = false;
+        
         std::string filepath;
         
     private:

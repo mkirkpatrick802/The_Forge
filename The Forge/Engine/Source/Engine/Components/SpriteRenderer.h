@@ -32,6 +32,10 @@ namespace Engine
     protected:
         unsigned int _quadVAO;
         Shader _shader;
+        
+        std::string _vertexShaderFilepath;
+        std::string _fragmentShaderFilepath;
+        
         std::unique_ptr<Texture> _texture;
 
         int _sortingLayer = 0;

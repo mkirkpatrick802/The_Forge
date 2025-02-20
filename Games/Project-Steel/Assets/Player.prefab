@@ -1,27 +1,32 @@
 {
     "Components": [
         {
-            "Component ID": 2703934440
+            "Component ID": 2525770811,
+            "Fragment Shader": "Assets\\Engine Assets\\Shaders\\Sprite.frag",
+            "Sorting Layer": 1,
+            "Sprite": "Assets/Sprites/Astronaut.png",
+            "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"
         },
         {
-            "Component ID": 2525770811,
-            "Sorting Layer": 1,
-            "Sprite": "Assets/Sprites/Astronaut.png"
+            "Component ID": 2703934440
         },
         {
             "Component ID": 1181213486
         },
         {
-            "Component ID": 3276240104,
-            "Sorting Layer": -1,
-            "Sprite": "Assets\\Sprites\\Beam.png"
+            "Component ID": 1793857451
         },
         {
-            "Component ID": 1793857451
+            "Component ID": 3276240104,
+            "Fragment Shader": "Assets\\Engine Assets\\Shaders\\Sprite.frag",
+            "Sorting Layer": -1,
+            "Sprite": "Assets\\Sprites\\Beam.png",
+            "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"
         }
     ],
     "Game Object Name": "Player",
     "Is Replicated": true,
+    "Rotation": 0.0,
     "X position": 0.0,
     "Y position": 0.0
 }

@@ -19,6 +19,7 @@ public:
 
     // compiles the shader from given source code
     void    Compile(const char* vertexSource, const char* fragmentSource, const char* geometrySource = nullptr);
+    void    Reset() const;
 
     // utility functions
     void    SetFloat(const char* name, float value, bool useShader = false);

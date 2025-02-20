@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <memory>
+
 #include "Engine/Rendering/UIWindow.h"
 
 namespace Engine
@@ -12,20 +14,18 @@ namespace Editor
     {
     public:
         ~DetailsEditor();
-        
         void Render() override;
-
-    private:
-
-        static void CleanUpPrefab();
         
     public:
-
         static void SetSelectedGameObject(Engine::GameObject* go);
         static void ClearSelectedGameObject();
+
+        static void SetSelectedPrefab(std::unique_ptr<Engine::GameObject> prefab);
+        static void ClearSelectedPrefab();
         
     private:
 
         static Engine::GameObject* _selectedGameObject;
+        static std::unique_ptr<Engine::GameObject> _selectedPrefab;
     };
 }

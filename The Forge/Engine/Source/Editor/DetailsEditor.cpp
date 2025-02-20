@@ -1,18 +1,16 @@
 ﻿#include "DetailsEditor.h"
 
-#include <fstream>
-
 #include "Engine/GameObject.h"
 #include "Engine/Components/Component.h"
 #include "Engine/Components/ComponentRegistry.h"
 #include "Engine/Components/ComponentFactories.h"
 
 Engine::GameObject* Editor::DetailsEditor::_selectedGameObject = nullptr;
+std::unique_ptr<Engine::GameObject> Editor::DetailsEditor::_selectedPrefab = nullptr;
 
 Editor::DetailsEditor::~DetailsEditor()
 {
-    delete _selectedGameObject;
-    _selectedGameObject = nullptr;
+    
 }
 
 void Editor::DetailsEditor::Render()
@@ -76,31 +74,28 @@ void Editor::DetailsEditor::Render()
     ImGui::End();
 }
 
-void Editor::DetailsEditor::CleanUpPrefab()
-{
-    if (_selectedGameObject && _selectedGameObject->isPrefab)
-    {
-        json data = _selectedGameObject->Serialize();
-        
-        // Write new data
-        if (std::ofstream outputFile(_selectedGameObject->filepath); outputFile.is_open())
-        {
-            outputFile << data.dump(4);
-            outputFile.close();
-        }
-        
-        delete _selectedGameObject;
-    }
-}
-
 void Editor::DetailsEditor::SetSelectedGameObject(Engine::GameObject* go)
 {
-    CleanUpPrefab();
+    ClearSelectedPrefab();
     
     _selectedGameObject = go;
 }
 
 void Editor::DetailsEditor::ClearSelectedGameObject()
 {
+    ClearSelectedPrefab();
+    
     _selectedGameObject = nullptr;
+}
+
+void Editor::DetailsEditor::SetSelectedPrefab(std::unique_ptr<Engine::GameObject> prefab)
+{
+    _selectedPrefab = std::move(prefab);
+    _selectedGameObject = _selectedPrefab.get();
+}
+
+void Editor::DetailsEditor::ClearSelectedPrefab()
+{
+    if (_selectedPrefab)
+        _selectedPrefab.reset();
 }

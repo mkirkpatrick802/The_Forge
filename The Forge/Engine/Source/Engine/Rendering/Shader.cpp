@@ -15,6 +15,8 @@ Shader& Shader::Use()
 
 void Shader::Compile(const char* vertexSource, const char* fragmentSource, const char* geometrySource)
 {
+    Reset();
+    
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
     std::string fragmentCode;
@@ -95,6 +97,11 @@ void Shader::Compile(const char* vertexSource, const char* fragmentSource, const
     glDeleteShader(sFragment);
     if (geometrySource != nullptr)
         glDeleteShader(gShader);
+}
+
+void Shader::Reset() const
+{
+    glDeleteProgram(ID);
 }
 
 void Shader::SetFloat(const char* name, float value, bool useShader)

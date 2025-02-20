@@ -6,6 +6,7 @@ class Destructible : public Engine::Component
 public:
     Destructible();
     void OnActivation() override;
+    void Start() override;
 
     void TakeDamage(Engine::GameObject* dealer, float damage);
     

@@ -15,10 +15,14 @@ void Destructible::OnActivation()
     _health = _maxHealth;
 }
 
+void Destructible::Start()
+{
+    
+}
+
 void Destructible::TakeDamage(Engine::GameObject* dealer, const float damage)
 {
     _health -= damage;
-    DEBUG_LOG("%d", _health)
     if (_health <= 0)
         Destroy(gameObject);
 }

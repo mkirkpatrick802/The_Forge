@@ -20,8 +20,8 @@ Engine::Level::Level(nlohmann::json data)
 
     for (const auto& go_data : data[JsonKeywords::GAMEOBJECT_ARRAY])
     {
-        const auto go = new GameObject(go_data);
-        _gameObjects.push_back(go);
+        auto go = std::make_unique<GameObject>(go_data);
+        _gameObjects.push_back(std::move(go));
     }
 
     _gameMode = std::make_unique<GameModeBase>();
@@ -30,18 +30,11 @@ Engine::Level::Level(nlohmann::json data)
 Engine::Level::~Level()
 {
     CommandRegistry::UnregisterCommand("/save");
-    
-    // Clean Up all the game objects
-    for (auto go : _gameObjects)
-    {
-        delete go;
-        go = nullptr;
-    }
 
     _gameObjects.clear();
 }
 
-void Engine::Level::Start()
+void Engine::Level::Start() const
 {
     _gameMode->Start();
 }
@@ -49,7 +42,7 @@ void Engine::Level::Start()
 Engine::GameObject* Engine::Level::SpawnNewGameObject(const std::string& filepath)
 {
     // Create Game Object
-    const auto go = new GameObject();
+    auto go = std::make_unique<GameObject>();
     if (!filepath.empty())
     {
         std::ifstream file(filepath);
@@ -64,16 +57,30 @@ Engine::GameObject* Engine::Level::SpawnNewGameObject(const std::string& filepat
         go->Deserialize(j);
     }
     
-    _gameObjects.push_back(go);
+    // Move the unique_ptr into the vector
+    auto* rawPtr = go.get();
+    _gameObjects.push_back(std::move(go));
 
-    return go;
+    // Return the raw pointer which now safely points to the object in the vector
+    return rawPtr;
 }
 
-bool Engine::Level::RemoveGameObject(GameObject* go)
-{
+
+bool Engine::Level::RemoveGameObject(const GameObject* go)
+{   
     NetCode::GetLinkingContext().RemoveGameObject(go);
-    std::erase(_gameObjects, go);
-    delete go;
+    for (auto it = _gameObjects.begin(); it != _gameObjects.end(); )
+    {
+        if (it->get() == go) // Compare raw pointers
+        {
+            it = _gameObjects.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+    
     return true;
 }
 
@@ -86,7 +93,7 @@ void Engine::Level::SaveLevel(const std::string& args)
 
     // Update game objects
     data[JsonKeywords::GAMEOBJECT_ARRAY] = json::array();
-    for (const auto go : _gameObjects)
+    for (const auto& go : _gameObjects)
         data[JsonKeywords::GAMEOBJECT_ARRAY].push_back(go->Serialize());
 
     // Write new data
@@ -114,11 +121,11 @@ void Engine::Level::Write(NetCode::OutputByteStream& stream, bool isCompleteStat
     stream.Write(replicatedCount);
 
     // Write the data for each replicated object
-    for (GameObject* element : _gameObjects)
+    for (auto& element : _gameObjects)
     {
         if (element->isReplicated && (isCompleteState || element->isDirty))
         {
-            const uint32_t networkID = NetCode::GetLinkingContext().GetNetworkID(element);
+            const uint32_t networkID = NetCode::GetLinkingContext().GetNetworkID(element.get());
             stream.Write(networkID);
             element->Write(stream);
 
@@ -136,18 +143,30 @@ void Engine::Level::Read(NetCode::InputByteStream& stream)
     uint32_t elementCount;
     stream.Read(elementCount);
     
-    for (int i = 0; i < elementCount; i++)
+    for (int i = 0; i < (int)elementCount; i++)
     {
         uint32_t networkID;
         stream.Read(networkID);
-        auto go = NetCode::GetLinkingContext().GetGameObject(networkID);
+        const auto go = NetCode::GetLinkingContext().GetGameObject(networkID);
         if (go == nullptr)
         {
-            go = new GameObject();
-            NetCode::GetLinkingContext().AddGameObject(go, networkID);
-            _gameObjects.push_back(go);
+            auto newGo = std::make_unique<GameObject>();
+            NetCode::GetLinkingContext().AddGameObject(newGo.get(), networkID);
+            newGo->Read(stream);
+            _gameObjects.push_back(std::move(newGo));
+            return;
         }
         
         go->Read(stream);
     }
+}
+
+std::vector<Engine::GameObject*> Engine::Level::GetAllGameObjects() const
+{
+    std::vector<GameObject*> result;
+    result.reserve(_gameObjects.size());  // Optimize memory allocation
+    for (auto& obj : _gameObjects) {
+        result.push_back(obj.get());  // Push raw pointers to GameObject
+    }
+    return result;
 }

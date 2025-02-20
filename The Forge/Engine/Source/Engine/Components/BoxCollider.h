@@ -7,6 +7,7 @@ namespace Engine
     {
     public:
         BoxCollider();
+        
         void Start() override;
         bool CheckCollision(const GameObject* go) const;
         bool CheckCollision(glm::vec2 position) const;
@@ -16,6 +17,7 @@ namespace Engine
 
     private:
         glm::vec2 size;
+        
     };
 
     REGISTER_COMPONENT(BoxCollider);

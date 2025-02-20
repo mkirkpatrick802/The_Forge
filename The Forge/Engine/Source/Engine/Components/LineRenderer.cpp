@@ -74,10 +74,13 @@ void Engine::LineRenderer::Deserialize(const json& data)
         _size = _texture->GetSize();
     }
 
-    std::string vertex = "Assets/Engine Assets/Shaders/Sprite.vert";
-    std::string fragment = "Assets/Engine Assets/Shaders/Sprite.frag";
+    if (data.contains(JsonKeywords::SPRITE_RENDERER_VERTEX_SHADER))
+        _vertexShaderFilepath = data[JsonKeywords::SPRITE_RENDERER_VERTEX_SHADER];
 
-    _shader.Compile(vertex.c_str(), fragment.c_str());
+    if (data.contains(JsonKeywords::SPRITE_RENDERER_FRAGMENT_SHADER))
+        _fragmentShaderFilepath = data[JsonKeywords::SPRITE_RENDERER_FRAGMENT_SHADER];
+
+    _shader.Compile(_vertexShaderFilepath.c_str(), _fragmentShaderFilepath.c_str());
     
     if (data.contains(JsonKeywords::SPRITE_RENDERER_SORTING_LAYER))
         _sortingLayer = data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER];
@@ -97,6 +100,8 @@ nlohmann::json Engine::LineRenderer::Serialize()
     }
 
     data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER] = _sortingLayer;
+    data[JsonKeywords::SPRITE_RENDERER_VERTEX_SHADER] = _vertexShaderFilepath;
+    data[JsonKeywords::SPRITE_RENDERER_FRAGMENT_SHADER] = _fragmentShaderFilepath;
     
     return data;
 }

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -9,7 +10,6 @@ namespace Engine
     class GameModeBase
     {
     public:
-        
         GameModeBase();
         ~GameModeBase() = default;
 
@@ -17,7 +17,6 @@ namespace Engine
         GameObject* SpawnPlayer(uint64_t playerID) const;
 
     private:
-
         std::vector<PlayerStart*> _playerStarts;
         std::string _playerPrefab = "Assets/Player.prefab";
         

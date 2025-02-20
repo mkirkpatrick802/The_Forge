@@ -1,7 +1,5 @@
 #include "SpriteRenderer.h"
 
-#include <iostream>
-
 #include "Engine/GameObject.h"
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -48,11 +46,6 @@ void Engine::SpriteRenderer::OnActivation()
     glBindVertexArray(0);
 
     GetRenderer().AddSpriteRendererToRenderList(this);
-    
-    std::string vertex = "Assets/Engine Assets/Shaders/Sprite.vert";
-    std::string fragment = "Assets/Engine Assets/Shaders/Sprite.frag";
-
-    _shader.Compile(vertex.c_str(), fragment.c_str());
 }
 
 void Engine::SpriteRenderer::Render()
@@ -93,10 +86,13 @@ void Engine::SpriteRenderer::Deserialize(const json& data)
     _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
     _size = _texture->GetSize();
 
-    std::string vertex = "Assets/Engine Assets/Shaders/Sprite.vert";
-    std::string fragment = "Assets/Engine Assets/Shaders/Sprite.frag";
+    if (data.contains(JsonKeywords::SPRITE_RENDERER_VERTEX_SHADER))
+        _vertexShaderFilepath = data[JsonKeywords::SPRITE_RENDERER_VERTEX_SHADER];
 
-    _shader.Compile(vertex.c_str(), fragment.c_str());
+    if (data.contains(JsonKeywords::SPRITE_RENDERER_FRAGMENT_SHADER))
+        _fragmentShaderFilepath = data[JsonKeywords::SPRITE_RENDERER_FRAGMENT_SHADER];
+
+    _shader.Compile(_vertexShaderFilepath.c_str(), _fragmentShaderFilepath.c_str());
     if (data.contains(JsonKeywords::SPRITE_RENDERER_SORTING_LAYER))
         _sortingLayer = data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER];
     
@@ -115,6 +111,8 @@ nlohmann::json Engine::SpriteRenderer::Serialize()
     }
     
     data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER] = _sortingLayer;
+    data[JsonKeywords::SPRITE_RENDERER_VERTEX_SHADER] = _vertexShaderFilepath;
+    data[JsonKeywords::SPRITE_RENDERER_FRAGMENT_SHADER] = _fragmentShaderFilepath;
     return data;
 }
 
@@ -136,6 +134,7 @@ void Engine::SpriteRenderer::Read(NetCode::InputByteStream& stream)
 Engine::SpriteRenderer::~SpriteRenderer()
 {
     _texture.reset();
+    _shader.Reset();
     GetRenderer().RemoveSpriteRendererFromRenderList(this);
 }
 
@@ -147,27 +146,62 @@ void Engine::SpriteRenderer::DrawDetails()
 
     std::string label = "Sorting Layer##" + std::to_string((uintptr_t)this);
     ImGui::InputInt(label.c_str(), &_sortingLayer);
-    
-    const char* filePath = nullptr; // Store the dropped file path
-    if (ImGui::Button("Drop File Here", ImVec2(200, 50))) {}
 
-    // Drag & Drop Target
+    // Sprite Filepath
+    if (ImGui::Button("Sprite", ImVec2(50, 50))) {}
     if (ImGui::BeginDragDropTarget())
     {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
         {
-            filePath = static_cast<const char*>(payload->Data); // Retrieve the file path
+            const char* sprite = nullptr;
+            sprite = static_cast<const char*>(payload->Data); // Retrieve the file path
             
             _texture.reset();
-            _texture = CreateTexture(filePath, Texture::TextureType::PIXEL);
-            
-            std::cout << "Dropped new file: " << filePath << '\n';
+            _texture = CreateTexture(sprite, Texture::TextureType::PIXEL);
         }
         ImGui::EndDragDropTarget();
     }
 
-    // Display saved file path
-    if (!_texture) return;
-    if (!_texture->GetFilePath().empty())
-        ImGui::Text("Saved Path: %s", _texture->GetFilePath().c_str());
+    // Display saved filepath for sprites
+    if (_texture)
+        if (!_texture->GetFilePath().empty())
+            ImGui::Text("Sprite Saved Path: %s", _texture->GetFilePath().c_str());
+
+    ImGui::Spacing();
+
+    // Vertex
+    if (ImGui::Button("Vert", ImVec2(50, 50))) {}
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
+        {
+            const char* vert = nullptr;
+            vert = static_cast<const char*>(payload->Data);
+            _vertexShaderFilepath = vert;
+            _shader.Compile(_vertexShaderFilepath.c_str(), _fragmentShaderFilepath.c_str());
+        }
+        ImGui::EndDragDropTarget();
+    }
+
+    ImGui::SameLine();
+    
+    // Fragment
+    if (ImGui::Button("Frag", ImVec2(50, 50))) {}
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
+        {
+            const char* frag = nullptr;
+            frag = static_cast<const char*>(payload->Data);
+            _fragmentShaderFilepath = frag;
+            _shader.Compile(_vertexShaderFilepath.c_str(), _fragmentShaderFilepath.c_str());
+        }
+        ImGui::EndDragDropTarget();
+    }
+    
+    // Display saved filepath for vertex shader
+    ImGui::Text("Vertex Saved Path: %s", _vertexShaderFilepath.c_str());
+
+    // Display saved filepath for fragment shader
+    ImGui::Text("Fragment Saved Path: %s", _fragmentShaderFilepath.c_str());
 }
