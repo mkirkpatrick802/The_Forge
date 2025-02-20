@@ -23,7 +23,7 @@ Engine::LevelManager::LevelManager(const std::string& filepath)
         StartCurrentLevel();
 }
 
-void Engine::LevelManager::StartCurrentLevel()
+void Engine::LevelManager::StartCurrentLevel() const
 {
     Editor::DetailsEditor::ClearSelectedPrefab();
     

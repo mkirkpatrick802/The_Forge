@@ -19,7 +19,7 @@ namespace Engine
         static bool CreateLevel(const std::string& levelName);
 
         LevelManager(const std::string& filepath);
-        void StartCurrentLevel();
+        void StartCurrentLevel() const;
         
     public:
         
