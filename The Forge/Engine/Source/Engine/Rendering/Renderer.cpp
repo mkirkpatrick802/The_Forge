@@ -5,6 +5,7 @@
 #include "CameraManager.h"
 #include "Framebuffer.h"
 #include "PixelGrid.h"
+#include "ShaderUniformSystem.h"
 #include "UIManager.h"
 #include "Engine/EngineManager.h"
 #include "Engine/EventSystem.h"
@@ -127,7 +128,10 @@ void Engine::Renderer::Render()
 		
 		if (!_renderList.empty())
 			for (const auto& val : _renderList | std::views::values)
-				val->Render();
+			{
+				auto data = ShaderUniformSystem::CollectUniforms(val->gameObject);
+				val->Render(data);
+			}
 
 		sceneFBO->Unbind();
 	}

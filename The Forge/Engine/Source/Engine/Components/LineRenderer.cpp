@@ -14,7 +14,12 @@ Engine::LineRenderer::LineRenderer(): _start(), _end()
 {
 }
 
-void Engine::LineRenderer::Render()
+void Engine::LineRenderer::CollectUniforms(ShaderUniformData& data)
+{
+    
+}
+
+void Engine::LineRenderer::Render(const ShaderUniformData& data)
 {
     if (!_texture || _hidden) return;
     glm::vec2 direction = _end - _start;

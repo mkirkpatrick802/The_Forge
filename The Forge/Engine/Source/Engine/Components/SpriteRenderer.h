@@ -1,12 +1,14 @@
 #pragma once
 #include "Component.h"
 #include "ComponentUtils.h"
+#include "Engine/Rendering/IShaderUniformProvider.h"
 #include "Engine/Rendering/Shader.h"
+#include "Engine/Rendering/ShaderUniformData.h"
 #include "Engine/Rendering/Texture.h"
 
 namespace Engine
 {
-    class SpriteRenderer : public Component
+    class SpriteRenderer : public Component, public IShaderUniformProvider
     {
         friend class Renderer;
 
@@ -15,6 +17,7 @@ namespace Engine
         ~SpriteRenderer() override;
 
         void OnActivation() override;
+        void CollectUniforms(ShaderUniformData& data) override;
         
         virtual void Deserialize(const json& data) override;
         virtual nlohmann::json Serialize() override;
@@ -27,7 +30,7 @@ namespace Engine
         glm::vec2 GetSize() const { return _size; }
 
     protected:
-        virtual void Render();
+        virtual void Render(const ShaderUniformData& data);
 
     protected:
         unsigned int _quadVAO;

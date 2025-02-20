@@ -8,7 +8,8 @@ namespace Engine
     {
     public:
         LineRenderer();
-        void Render() override;
+        void CollectUniforms(ShaderUniformData& data) override;
+        void Render(const ShaderUniformData& data) override;
         
         void Deserialize(const json& data) override;
         nlohmann::json Serialize() override;
@@ -25,6 +26,7 @@ namespace Engine
 
     public:
         inline void SetStartAndEnd(const glm::vec2 start, const glm::vec2 end) { _start = start; _end = end; }
+        
     };
 
     REGISTER_COMPONENT(LineRenderer);

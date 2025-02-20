@@ -48,13 +48,12 @@ void Engine::SpriteRenderer::OnActivation()
     GetRenderer().AddSpriteRendererToRenderList(this);
 }
 
-void Engine::SpriteRenderer::Render()
+void Engine::SpriteRenderer::CollectUniforms(ShaderUniformData& data)
 {
     if (!_texture || _hidden) return;
     const float rotation = gameObject->transform.rotation;
     const auto position = glm::vec2(gameObject->transform.position.x - _size.x / 2, (gameObject->transform.position.y * -1) - _size.y / 2);
     
-    _shader.Use();
     auto model = glm::mat4(1.0f);
     auto screenPos = GetCameraManager().ConvertWorldToScreen(position);
     model = translate(model, glm::vec3(screenPos, 0.0f));
@@ -64,14 +63,36 @@ void Engine::SpriteRenderer::Render()
     model = translate(model, glm::vec3(-0.5f * _size.x, -0.5f * _size.y, 0.0f));
 
     model = scale(model, glm::vec3(_size, 1.0f));
-    
-    glBindTextureUnit(0, _texture->GetID());
 
-    _shader.SetMatrix4("model", model);
+    glBindTextureUnit(0, _texture->GetID());
     
-    _shader.SetMatrix4("projection", GetProjectionMatrix());
-    _shader.SetMatrix4("view", GetViewMatrix());
-    _shader.SetInteger("image", 0);
+    data.intUniforms["image"] = 0;
+    data.mat4Uniforms["model"] = model;
+    data.mat4Uniforms["projection"] = GetProjectionMatrix();
+    data.mat4Uniforms["view"] = GetViewMatrix();
+}
+
+void Engine::SpriteRenderer::Render(const ShaderUniformData& data)
+{
+    _shader.Use();
+    
+    for (const auto& [name, value] : data.intUniforms)
+        _shader.SetInteger(name.c_str(), value);
+    
+    for (const auto& [name, value] : data.floatUniforms)
+        _shader.SetFloat(name.c_str(), value);
+    
+    for (const auto& [name, value] : data.vec2Uniforms)
+        _shader.SetVector2f(name.c_str(), value);
+    
+    for (const auto& [name, value] : data.vec3Uniforms)
+        _shader.SetVector3f(name.c_str(), value);
+    
+    for (const auto& [name, value] : data.vec4Uniforms)
+        _shader.SetVector4f(name.c_str(), value);
+
+    for (const auto& [name, value] : data.mat4Uniforms)
+        _shader.SetMatrix4(name.c_str(), value);
     
     glBindVertexArray(_quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);

@@ -1,7 +1,8 @@
 ﻿#pragma once
 #include "Engine/Components/ComponentUtils.h"
+#include "Engine/Rendering/IShaderUniformProvider.h"
 
-class Destructible : public Engine::Component
+class Destructible : public Engine::Component, public Engine::IShaderUniformProvider
 {
 public:
     Destructible();
@@ -9,6 +10,7 @@ public:
     void Start() override;
 
     void TakeDamage(Engine::GameObject* dealer, float damage);
+    void CollectUniforms(Engine::ShaderUniformData& data) override;
     
     void Deserialize(const json& data) override;
     nlohmann::json Serialize() override;
@@ -20,6 +22,7 @@ private:
 
 public:
     inline float GetHealthPercent() const { return _health / _maxHealth; }
+    
 };
 
 REGISTER_COMPONENT(Destructible)

@@ -2,6 +2,7 @@
 #include "Engine/JsonKeywords.h"
 #include "Engine/Level.h"
 #include "Engine/System.h"
+#include "Engine/Components/SpriteRenderer.h"
 
 using namespace Engine;
 
@@ -25,6 +26,14 @@ void Destructible::TakeDamage(Engine::GameObject* dealer, const float damage)
     _health -= damage;
     if (_health <= 0)
         Destroy(gameObject);
+}
+
+void Destructible::CollectUniforms(Engine::ShaderUniformData& data)
+{
+    data.floatUniforms["health"] = GetHealthPercent();
+
+    if (const auto sprite = gameObject->GetComponent<SpriteRenderer>())
+        data.vec2Uniforms["size"] = sprite->GetSize();
 }
 
 void Destructible::Deserialize(const json& data)

@@ -13,25 +13,28 @@ tags:
 
 ## Started
 
-- [ ] Sprite Renderer Component
 - [ ] Box Collider
 
 
 ## Postponed
 
 - [ ] Scene Grid
-- [ ] Editor Camera Zoom
+- [ ] Camera Zoom
+- [ ] [[Player Controller]]
+- [ ] Asteroid Spawner
 
 
 ## Doing
 
-- [ ] [[Player Controller]]
-- [ ] Destructible shader
-- [ ] Set shader properties from other class
+- [ ] FreeType Include
+- [ ] Font Class
 
 
 ## Done
 
+- [ ] Sprite Renderer Component
+- [ ] Destructible shader
+- [ ] [[Shader Uniform System]]
 - [ ] Player Controller
 - [ ] Content Drawer
 - [ ] Command History
