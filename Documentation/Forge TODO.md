@@ -5,23 +5,24 @@ tags:
 
 ---
 
-## Not Started
-
-- [ ] Sphere Collider
-- [ ] Projectile Component
-
-
-## Started
-
-- [ ] Box Collider
-
-
 ## Postponed
 
 - [ ] Scene Grid
 - [ ] Camera Zoom
 - [ ] [[Player Controller]]
 - [ ] Asteroid Spawner
+
+
+## Not Started
+
+- [ ] Sphere Collider
+- [ ] Projectile Component
+- [ ] Can't return to editor after in-game
+
+
+## Started
+
+- [ ] Box Collider
 
 
 ## Doing
@@ -32,10 +33,19 @@ tags:
 
 ## Done
 
-- [ ] Sprite Renderer Component
-- [ ] Destructible shader
+
+
+## Rejected
+
+
+
+***
+
+## Archive
+
+- [x] Sprite Renderer Component
+- [x] Destructible shader
 - [ ] [[Shader Uniform System]]
-- [ ] Player Controller
 - [ ] Content Drawer
 - [ ] Command History
 - [ ] Camera Component
@@ -52,17 +62,10 @@ tags:
 - [ ] Load a default map
 - [ ] Display editor on start up
 - [ ] Level system breaks when details panel is up
-- [ ] Component Pools
-
-
-## Rejected
-
-
-
-
+- [ ] [[Component Pools]]
 
 %% kanban:settings
 ```
-{"kanban-plugin":"board","list-collapse":[false,false,false,false,false,false]}
+{"kanban-plugin":"board","list-collapse":[false,false,false,false,false,false],"show-checkboxes":false,"move-tags":false}
 ```
 %%

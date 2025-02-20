@@ -1,5 +1,5 @@
 ---
 tags:
   - Components
-  - Netcode
+  - Systems
 ---
