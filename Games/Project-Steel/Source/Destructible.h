@@ -9,7 +9,7 @@ public:
     void OnActivation() override;
     void Start() override;
 
-    void TakeDamage(Engine::GameObject* dealer, float damage);
+    void TakeDamage(Engine::GameObject* dealer, float damage, int& resourceGain);
     void CollectUniforms(Engine::ShaderUniformData& data) override;
     
     void Deserialize(const json& data) override;
@@ -19,6 +19,7 @@ public:
 private:
     float _health;
     float _maxHealth = 100;
+    float _resourceGain = 20;
 
 public:
     inline float GetHealthPercent() const { return _health / _maxHealth; }

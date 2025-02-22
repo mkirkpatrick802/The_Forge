@@ -1,20 +1,28 @@
 ﻿#pragma once
 #include "ComponentUtils.h"
+#include "Engine/Rendering/Font.h"
 
 namespace Engine
 {
-    class Font;
-    class TextRenderer final : public Component
+    class TextRenderer : public Component
     {
     public:
         TextRenderer();
+        ~TextRenderer() override;
+        void OnActivation() override;
+        void Render(const ShaderUniformData& data) override;
         void Deserialize(const json& data) override;
         nlohmann::json Serialize() override;
+        void DrawDetails() override;
 
-    private:
+    protected:
         std::unique_ptr<Font> _font;
-        std::string _text = "Hello";
-        int _fontSize = 40;
+        glm::vec2 _screenPos = glm::vec2(0.0f); 
+        std::string _text = "Default Text";
+        int _fontSize = 50;
+
+    public:
+        inline void SetText(const std::string& text) { _text = text; }
         
     };
 

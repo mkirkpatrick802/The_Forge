@@ -3,7 +3,6 @@
 #include "ComponentUtils.h"
 #include "Engine/Rendering/IShaderUniformProvider.h"
 #include "Engine/Rendering/Shader.h"
-#include "Engine/Rendering/ShaderUniformData.h"
 #include "Engine/Rendering/Texture.h"
 
 namespace Engine
@@ -30,7 +29,7 @@ namespace Engine
         glm::vec2 GetSize() const { return _size; }
 
     protected:
-        virtual void Render(const ShaderUniformData& data);
+        void Render(const ShaderUniformData& data) override;
 
     protected:
         unsigned int _quadVAO;
@@ -40,8 +39,7 @@ namespace Engine
         std::string _fragmentShaderFilepath;
         
         std::unique_ptr<Texture> _texture;
-
-        int _sortingLayer = 0;
+        
         glm::vec2 _size;
         bool _hidden;
 

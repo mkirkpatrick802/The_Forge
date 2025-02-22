@@ -1,5 +1,7 @@
 ﻿#include "DetailsEditor.h"
 
+#include <fstream>
+
 #include "Engine/GameObject.h"
 #include "Engine/Components/Component.h"
 #include "Engine/Components/ComponentRegistry.h"
@@ -97,5 +99,15 @@ void Editor::DetailsEditor::SetSelectedPrefab(std::unique_ptr<Engine::GameObject
 void Editor::DetailsEditor::ClearSelectedPrefab()
 {
     if (_selectedPrefab)
+    {
+        // Write new data
+        const nlohmann::json data = _selectedPrefab->Serialize();
+        if (std::ofstream outputFile(_selectedPrefab->filepath); outputFile.is_open())
+        {
+            outputFile << data.dump(4);
+            outputFile.close();
+        }
+        
         _selectedPrefab.reset();
+    }
 }

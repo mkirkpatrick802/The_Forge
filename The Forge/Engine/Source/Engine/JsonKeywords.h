@@ -23,4 +23,9 @@ namespace JsonKeywords
     const std::string SPRITE_RENDERER_SORTING_LAYER = "Sorting Layer";
     const std::string SPRITE_RENDERER_VERTEX_SHADER = "Vertex Shader";
     const std::string SPRITE_RENDERER_FRAGMENT_SHADER = "Fragment Shader";
+
+    const std::string TEXT_RENDERER_TEXT = "Text";
+    const std::string TEXT_RENDERER_SIZE = "Size";
+    const std::string TEXT_RENDERER_SCREEN_POS_X = "Screen Position X";
+    const std::string TEXT_RENDERER_SCREEN_POS_Y = "Screen Position Y";
 }

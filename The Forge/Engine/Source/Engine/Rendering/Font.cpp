@@ -1,15 +1,16 @@
 ﻿#include "Font.h"
 
-#include <ft2build.h>
 #include <iostream>
 #include <ostream>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
 #include <freetype/freetype.h>
 
 #include "CameraHelper.h"
 #include "glad/glad.h"
 
-Engine::Font::Font(const std::string& fontPath, unsigned int fontSize)
+Engine::Font::Font(const std::string& fontPath, unsigned int fontSize) : _fontPath(fontPath), _fontSize(fontSize)
 {
     LoadFont(fontPath, fontSize);
     SetupRendering();
@@ -74,12 +75,24 @@ void Engine::Font::SetupRendering()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    const std::string vertex = "Assets/Engine Assets/Shaders.text.vert";
-    const std::string fragment = "Assets/Engine Assets/Shaders/text.frag";
+    const std::string vertex = "Assets/Engine Assets/Shaders/Text.vert";
+    const std::string fragment = "Assets/Engine Assets/Shaders/Text.frag";
     _shader.Compile(vertex.c_str(), fragment.c_str());
 }
 
-void Engine::Font::RenderText(const std::string& text, float x, float y, float scale, glm::vec3 color)
+void Engine::Font::SetFontSize(unsigned int fontSize)
+{
+    // Clear existing character textures
+    for (auto& [c, charData] : _characters) {
+        glDeleteTextures(1, &charData.textureID);
+    }
+    _characters.clear(); // Remove old character data
+
+    // Reload the font with the new size
+    LoadFont(_fontPath, fontSize);
+}
+
+void Engine::Font::RenderText(const std::string& text, glm::vec2 pos, float scale, glm::vec3 color)
 {
     _shader.Use();
     _shader.SetVector3f("textColor", color);
@@ -89,20 +102,20 @@ void Engine::Font::RenderText(const std::string& text, float x, float y, float s
 
     for (char c : text) {
         Character ch = _characters[c];
-
-        float xpos = x + ch.bearing.x * scale;
-        float ypos = y - (ch.size.y - ch.bearing.y) * scale;
+        
         float w = ch.size.x * scale;
         float h = ch.size.y * scale;
-
+        float xpos = pos.x + ch.bearing.x * scale;
+        float ypos = pos.y - (ch.bearing.y * scale);
+        
         float vertices[6][4] = {
-            { xpos,     ypos + h, 0.0f, 0.0f }, 
-            { xpos,     ypos,     0.0f, 1.0f }, 
-            { xpos + w, ypos,     1.0f, 1.0f }, 
+            { xpos,     ypos + h, 0.0f, 1.0f }, 
+            { xpos,     ypos,     0.0f, 0.0f }, 
+            { xpos + w, ypos,     1.0f, 0.0f }, 
 
-            { xpos,     ypos + h, 0.0f, 0.0f }, 
-            { xpos + w, ypos,     1.0f, 1.0f }, 
-            { xpos + w, ypos + h, 1.0f, 0.0f }  
+            { xpos,     ypos + h, 0.0f, 1.0f }, 
+            { xpos + w, ypos,     1.0f, 0.0f }, 
+            { xpos + w, ypos + h, 1.0f, 1.0f }  
         };
 
         glBindTexture(GL_TEXTURE_2D, ch.textureID);
@@ -110,7 +123,7 @@ void Engine::Font::RenderText(const std::string& text, float x, float y, float s
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glDrawArrays(GL_TRIANGLES, 0, 6);
-        x += (ch.advance >> 6) * scale; // Advance to next glyph
+        pos.x += (ch.advance >> 6) * scale; // Advance to next glyph
     }
 
     glBindVertexArray(0);

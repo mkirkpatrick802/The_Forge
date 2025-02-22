@@ -10,6 +10,7 @@
 #include "Engine/EngineManager.h"
 #include "Engine/EventSystem.h"
 #include "Engine/Components/SpriteRenderer.h"
+#include "Engine/Components/TextRenderer.h"
 
 Engine::Context Engine::Renderer::_context = nullptr;
 Engine::Renderer::Renderer()
@@ -68,10 +69,10 @@ void Engine::Renderer::CreateRenderer()
 	_quadShader.Compile(vertex.c_str(), fragment.c_str());
 }
 
-void Engine::Renderer::AddSpriteRendererToRenderList(SpriteRenderer* spriteRenderer)
+void Engine::Renderer::AddComponentToRenderList(Component* spriteRenderer)
 {
 	if (spriteRenderer == nullptr) return;
-	const auto pair = std::pair(spriteRenderer->_sortingLayer, spriteRenderer);
+	const auto pair = std::pair(spriteRenderer->sortingLayer, spriteRenderer);
 	for (const auto val : _renderList) // This is gross
 		if (val.second == spriteRenderer)
 		{
@@ -81,7 +82,7 @@ void Engine::Renderer::AddSpriteRendererToRenderList(SpriteRenderer* spriteRende
 			}
 			else
 			{
-				RemoveSpriteRendererFromRenderList(spriteRenderer);
+				RemoveComponentFromRenderList(spriteRenderer);
 			}
 		}
 	
@@ -90,14 +91,14 @@ void Engine::Renderer::AddSpriteRendererToRenderList(SpriteRenderer* spriteRende
 	SortRenderList();
 }
 
-void Engine::Renderer::RemoveSpriteRendererFromRenderList(SpriteRenderer* spriteRenderer)
+void Engine::Renderer::RemoveComponentFromRenderList(Component* spriteRenderer)
 {
 	if (spriteRenderer == nullptr) return;
 
 	std::erase_if(_renderList,
-	              [spriteRenderer](const std::pair<int16_t, SpriteRenderer*>& sprite) {
-	              		return sprite.second == spriteRenderer;
-	              });
+				  [spriteRenderer](const std::pair<int16_t, Component*>& sprite) {
+						  return sprite.second == spriteRenderer;
+				  });
 	
 	SortRenderList();
 }

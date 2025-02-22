@@ -22,6 +22,17 @@
             "Sorting Layer": -1,
             "Sprite": "Assets\\Sprites\\Beam.png",
             "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"
+        },
+        {
+            "Component ID": 2737607539,
+            "Screen Position X": 5.0,
+            "Screen Position Y": 20.0,
+            "Size": 20,
+            "Sorting Layer": 0,
+            "Text": "Default Text"
+        },
+        {
+            "Component ID": 903547868
         }
     ],
     "Game Object Name": "Player",

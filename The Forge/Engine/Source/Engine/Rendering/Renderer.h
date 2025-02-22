@@ -8,14 +8,14 @@
 
 namespace Engine
 {
+	class Component;
 	class Framebuffer;
-	class SpriteRenderer;
 	class PixelGrid;
 	typedef SDL_GLContext Context;
 
 	const auto ReferenceResolution = glm::vec2(320, 180);
 	
-	typedef std::vector<std::pair<int16_t, SpriteRenderer*>> RenderList;
+	typedef std::vector<std::pair<int16_t, Component*>> RenderList;
 	class Renderer
 	{
 	public:
@@ -25,8 +25,8 @@ namespace Engine
 		
 		void Render();
 
-		void AddSpriteRendererToRenderList(SpriteRenderer* spriteRenderer);
-		void RemoveSpriteRendererFromRenderList(SpriteRenderer* spriteRenderer);
+		void AddComponentToRenderList(Component* spriteRenderer);
+		void RemoveComponentFromRenderList(Component* spriteRenderer);
 		
 	private:
 

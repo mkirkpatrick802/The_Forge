@@ -3,6 +3,7 @@
 #include <SDL_mouse.h>
 
 #include "Destructible.h"
+#include "ResourceManager.h"
 #include "Engine/GameEngine.h"
 #include "Engine/InputManager.h"
 #include "Engine/JsonKeywords.h"
@@ -13,6 +14,11 @@
 #include "Engine/Components/PlayerController.h"
 
 using namespace Engine;
+
+void FluxWrench::Start()
+{
+    _resourceManager = gameObject->GetComponent<ResourceManager>();
+}
 
 void FluxWrench::Update(float deltaTime)
 {
@@ -64,7 +70,10 @@ void FluxWrench::EnableWrench(Engine::GameObject* target, glm::vec2 mousePos, Wr
     case WS_Mining:
         if (const auto destructible = target->GetComponent<Destructible>())
         {
-            destructible->TakeDamage(gameObject, 2);
+            int resourceGain = 0;
+            destructible->TakeDamage(gameObject, 2, resourceGain);
+            if (_resourceManager)
+                _resourceManager->GainResources(resourceGain);
         }
         break;
     case WS_Repairing:

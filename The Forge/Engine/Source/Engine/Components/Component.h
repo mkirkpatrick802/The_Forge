@@ -2,6 +2,7 @@
 #include <json.hpp>
 
 #include "ByteStream.h"
+#include "Engine/Rendering/ShaderUniformData.h"
 
 using json = nlohmann::json;
 
@@ -21,7 +22,10 @@ namespace Engine
         // Called before the first update frame for this object
         virtual void Start() {}
 
-        // Called every frame
+        // Called every frame from the renderer
+        virtual void Render(const ShaderUniformData& data) {}
+        
+        // Called every frame from the game engine
         virtual void Update(float deltaTime) {}
         
         // Triggers when component is activated within the pool
@@ -36,6 +40,7 @@ namespace Engine
     public:
         GameObject* gameObject = nullptr;
         bool isReplicated = false;
+        int sortingLayer = 0;
         
     };
 }

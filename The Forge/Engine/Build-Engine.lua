@@ -34,13 +34,13 @@ project "Engine"
    filter "system:windows"
        systemversion "latest"
        defines { }
-       libdirs { "Vendors/SDL2-2.30.2/lib/x64" }
-       links   { "SDL2", "SDL2main", "SDL2_image" }
+       libdirs { "Vendors/SDL2-2.30.2/lib/x64", "Vendors/freetype/release dll/win64" }
+       links   { "SDL2", "SDL2main", "SDL2_image", "freetype" }
 
-       
        postbuildcommands 
        {
             "{COPY} Vendors/SDL2-2.30.2/lib/x64/*.dll %{cfg.targetdir}",
+            "{COPY} Vendors/freetype/release dll/win64/*.dll %{cfg.targetdir}",
             "{COPY} Assets %{cfg.targetdir}/Assets"   
        }
 

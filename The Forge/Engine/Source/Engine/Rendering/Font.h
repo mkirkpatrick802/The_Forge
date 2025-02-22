@@ -20,8 +20,9 @@ namespace Engine
     {
     public:
         Font(const std::string& fontPath, unsigned int fontSize);
-        void RenderText(const std::string& text, float x, float y, float scale, glm::vec3 color);
+        void RenderText(const std::string& text, glm::vec2 pos, float scale, glm::vec3 color);
 
+        void SetFontSize(unsigned int fontSize);
     private:
         void LoadFont(const std::string& fontPath, unsigned int fontSize);
         void SetupRendering();
@@ -30,6 +31,8 @@ namespace Engine
         std::map<char, Character> _characters;
         unsigned int _vao, _vbo;
         Shader _shader;
+        std::string _fontPath;
+        int _fontSize;
     
     };
 }

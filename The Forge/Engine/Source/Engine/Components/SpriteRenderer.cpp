@@ -45,7 +45,7 @@ void Engine::SpriteRenderer::OnActivation()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    GetRenderer().AddSpriteRendererToRenderList(this);
+    GetRenderer().AddComponentToRenderList(this);
 }
 
 void Engine::SpriteRenderer::CollectUniforms(ShaderUniformData& data)
@@ -115,9 +115,9 @@ void Engine::SpriteRenderer::Deserialize(const json& data)
 
     _shader.Compile(_vertexShaderFilepath.c_str(), _fragmentShaderFilepath.c_str());
     if (data.contains(JsonKeywords::SPRITE_RENDERER_SORTING_LAYER))
-        _sortingLayer = data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER];
+        sortingLayer = data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER];
     
-    GetRenderer().AddSpriteRendererToRenderList(this);
+    GetRenderer().AddComponentToRenderList(this);
 }
 
 nlohmann::json Engine::SpriteRenderer::Serialize()
@@ -131,7 +131,7 @@ nlohmann::json Engine::SpriteRenderer::Serialize()
         data[JsonKeywords::SPRITE_RENDERER_SPRITE] = filepath;
     }
     
-    data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER] = _sortingLayer;
+    data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER] = sortingLayer;
     data[JsonKeywords::SPRITE_RENDERER_VERTEX_SHADER] = _vertexShaderFilepath;
     data[JsonKeywords::SPRITE_RENDERER_FRAGMENT_SHADER] = _fragmentShaderFilepath;
     return data;
@@ -156,7 +156,7 @@ Engine::SpriteRenderer::~SpriteRenderer()
 {
     _texture.reset();
     _shader.Reset();
-    GetRenderer().RemoveSpriteRendererFromRenderList(this);
+    GetRenderer().RemoveComponentFromRenderList(this);
 }
 
 // Find a better place to put editor code
@@ -166,7 +166,7 @@ void Engine::SpriteRenderer::DrawDetails()
     ImGui::Spacing();
 
     std::string label = "Sorting Layer##" + std::to_string((uintptr_t)this);
-    ImGui::InputInt(label.c_str(), &_sortingLayer);
+    ImGui::InputInt(label.c_str(), &sortingLayer);
 
     // Sprite Filepath
     if (ImGui::Button("Sprite", ImVec2(50, 50))) {}

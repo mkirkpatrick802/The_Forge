@@ -21,11 +21,14 @@ void Destructible::Start()
     
 }
 
-void Destructible::TakeDamage(Engine::GameObject* dealer, const float damage)
+void Destructible::TakeDamage(Engine::GameObject* dealer, const float damage, int& resourceGain)
 {
     _health -= damage;
     if (_health <= 0)
+    {
+        resourceGain =+ _resourceGain;
         Destroy(gameObject);
+    }
 }
 
 void Destructible::CollectUniforms(Engine::ShaderUniformData& data)

@@ -18,6 +18,9 @@ tags:
 - [ ] Sphere Collider
 - [ ] Projectile Component
 - [ ] Can't return to editor after in-game
+- [ ] Clean up render pipeline for components
+- [ ] Clean up build includes
+- [ ] Streamline JSON Serialization
 
 
 ## Started
@@ -27,12 +30,14 @@ tags:
 
 ## Doing
 
-- [ ] FreeType Include
-- [ ] Font Class
 
 
 ## Done
 
+- [ ] Resource UI
+- [ ] Crash when deleting game objects
+- [ ] Font Class
+- [ ] FreeType Include
 
 
 ## Rejected

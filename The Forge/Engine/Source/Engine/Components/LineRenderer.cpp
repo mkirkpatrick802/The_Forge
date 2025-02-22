@@ -88,9 +88,9 @@ void Engine::LineRenderer::Deserialize(const json& data)
     _shader.Compile(_vertexShaderFilepath.c_str(), _fragmentShaderFilepath.c_str());
     
     if (data.contains(JsonKeywords::SPRITE_RENDERER_SORTING_LAYER))
-        _sortingLayer = data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER];
+        sortingLayer = data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER];
 
-    GetRenderer().AddSpriteRendererToRenderList(this);
+    GetRenderer().AddComponentToRenderList(this);
 }
 
 nlohmann::json Engine::LineRenderer::Serialize()
@@ -104,7 +104,7 @@ nlohmann::json Engine::LineRenderer::Serialize()
         data[JsonKeywords::SPRITE_RENDERER_SPRITE] = filepath;
     }
 
-    data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER] = _sortingLayer;
+    data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER] = sortingLayer;
     data[JsonKeywords::SPRITE_RENDERER_VERTEX_SHADER] = _vertexShaderFilepath;
     data[JsonKeywords::SPRITE_RENDERER_FRAGMENT_SHADER] = _fragmentShaderFilepath;
     
