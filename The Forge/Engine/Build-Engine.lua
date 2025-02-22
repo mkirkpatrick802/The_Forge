@@ -12,6 +12,7 @@ project "Engine"
    files { "Vendors/imgui-1.90.5-docking/**.h", "Vendors/imgui-1.90.5-docking/**.cpp"}
    files { "Vendors/stb/**.h"}
    files { "Vendors/nlohmann/**.hpp"}
+   files { "Vendors/freetype/include/**.h"}
 
    includedirs
    {
@@ -23,7 +24,8 @@ project "Engine"
       "Vendors/glad",
       "Vendors/glm",
       "Vendors/stb",
-      "Vendors/nlohmann"
+      "Vendors/nlohmann",
+      "Vendors/freetype/include"
    }
 
    targetdir ("../../Binaries/" .. OutputDir .. "/%{prj.name}")
