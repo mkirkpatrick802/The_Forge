@@ -77,7 +77,9 @@ bool Engine::Level::RemoveGameObject(GameObject* go, bool replicate)
     {
         if (it->get() == go) // Compare raw pointers
         {
-            _destroyedObjects.push_back(go); // Move ownership to _destroyedObjects
+            if (replicate)
+                _destroyedObjects.push_back(go); // Move ownership to _destroyedObjects
+            
             it = _gameObjects.erase(it); // Erase and update iterator
         }
         else
