@@ -153,11 +153,13 @@ void Engine::Level::Read(NetCode::InputByteStream& stream)
             auto newGo = std::make_unique<GameObject>();
             NetCode::GetLinkingContext().AddGameObject(newGo.get(), networkID);
             newGo->Read(stream);
+            DEBUG_LOG("Creating game object: %s", newGo->GetName().c_str())
             _gameObjects.push_back(std::move(newGo));
-            return;
         }
-        
-        go->Read(stream);
+        else
+        {
+            go->Read(stream);
+        }
     }
 }
 
