@@ -84,7 +84,7 @@ nlohmann::json Engine::GameObject::Serialize()
     return data;
 }
 
-void Engine::GameObject::Write(NetCode::OutputByteStream& stream)
+void Engine::GameObject::Write(NetCode::OutputByteStream& stream) const
 {
     stream.Write(_name);
     stream.Write(id);

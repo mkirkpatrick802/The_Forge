@@ -2,7 +2,17 @@
 
 #include "Engine/GameEngine.h"
 #include "Engine/JsonKeywords.h"
+#include "Engine/Components/PlayerController.h"
 #include "Engine/Rendering/Renderer.h"
+
+void ResourceCounter::Render(const Engine::ShaderUniformData& data)
+{
+    if (const auto controller = gameObject->GetComponent<Engine::PlayerController>())
+    {
+        if (!controller->IsLocalPlayer()) return;
+        TextRenderer::Render(data);
+    }
+}
 
 void ResourceCounter::UpdateResourceCounter(const int resourceCount)
 {

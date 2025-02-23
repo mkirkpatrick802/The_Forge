@@ -5,11 +5,6 @@
 #include "Engine/JsonKeywords.h"
 #include "Engine/Rendering/Renderer.h"
 
-Engine::TextRenderer::TextRenderer()
-{
-    
-}
-
 Engine::TextRenderer::~TextRenderer()
 {
     GetRenderer().RemoveComponentFromRenderList(this);
@@ -17,7 +12,7 @@ Engine::TextRenderer::~TextRenderer()
 
 void Engine::TextRenderer::OnActivation()
 {
-    
+    GetRenderer().AddComponentToRenderList(this);
 }
 
 void Engine::TextRenderer::Render(const ShaderUniformData& data)
@@ -44,7 +39,6 @@ void Engine::TextRenderer::Deserialize(const json& data)
     }
 
     _font = std::make_unique<Font>("Assets/Engine Assets/Fonts/Consolas.ttf", _fontSize);
-    GetRenderer().AddComponentToRenderList(this);
 }
 
 nlohmann::json Engine::TextRenderer::Serialize()
@@ -87,4 +81,14 @@ void Engine::TextRenderer::DrawDetails()
             _font->SetFontSize(_fontSize);
     }
     ImGui::Spacing();
+}
+
+void Engine::TextRenderer::Read(NetCode::InputByteStream& stream)
+{
+    
+}
+
+void Engine::TextRenderer::Write(NetCode::OutputByteStream& stream) const
+{
+    
 }

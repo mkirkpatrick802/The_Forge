@@ -5,6 +5,7 @@
 class ResourceCounter final : public Engine::TextRenderer
 {
 public:
+    void Render(const Engine::ShaderUniformData& data) override;
     void UpdateResourceCounter(int resourceCount);
     void Deserialize(const json& data) override;
     nlohmann::json Serialize() override;

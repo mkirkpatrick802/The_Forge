@@ -1,6 +1,9 @@
 {
     "Components": [
         {
+            "Component ID": 2703934440
+        },
+        {
             "Component ID": 2525770811,
             "Fragment Shader": "Assets\\Engine Assets\\Shaders\\Sprite.frag",
             "Sorting Layer": 1,
@@ -8,13 +11,7 @@
             "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"
         },
         {
-            "Component ID": 2703934440
-        },
-        {
             "Component ID": 1181213486
-        },
-        {
-            "Component ID": 1793857451
         },
         {
             "Component ID": 3276240104,
@@ -24,12 +21,15 @@
             "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"
         },
         {
+            "Component ID": 1793857451
+        },
+        {
             "Component ID": 2737607539,
             "Screen Position X": 5.0,
             "Screen Position Y": 20.0,
             "Size": 20,
             "Sorting Layer": 0,
-            "Text": "Default Text"
+            "Text": "Resources: 0"
         },
         {
             "Component ID": 903547868

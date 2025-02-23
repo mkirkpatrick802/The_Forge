@@ -32,7 +32,7 @@ namespace Engine
         nlohmann::json Serialize();
     
     private:
-        void Write(NetCode::OutputByteStream& stream);
+        void Write(NetCode::OutputByteStream& stream) const;
         void Read(NetCode::InputByteStream& stream);
         
     public:
