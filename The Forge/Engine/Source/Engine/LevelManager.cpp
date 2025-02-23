@@ -143,3 +143,12 @@ bool Engine::LevelManager::LoadLevel(const std::string& filepath)
     
     return true;
 }
+
+bool Engine::LevelManager::LoadLevel(NetCode::InputByteStream& stream)
+{
+    delete _currentLevel;
+    _currentLevel = new Level(stream);
+    _currentLevel->_path = nullptr;
+
+    return true;
+}

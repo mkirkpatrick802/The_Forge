@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 
+#include "ByteStream.h"
 #include "json.hpp"
 
 namespace Engine
@@ -16,6 +17,7 @@ namespace Engine
     public:
         
         static bool LoadLevel(const std::string& filepath);
+        static bool LoadLevel(NetCode::InputByteStream& stream);
         static bool CreateLevel(const std::string& levelName);
 
         LevelManager(const std::string& filepath);

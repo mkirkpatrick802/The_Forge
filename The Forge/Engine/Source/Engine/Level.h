@@ -49,6 +49,7 @@ namespace Engine
         void Read(NetCode::InputByteStream& stream);
         
         Level(nlohmann::json data);
+        Level(NetCode::InputByteStream& stream);
         ~Level();
 
         void Start() const;

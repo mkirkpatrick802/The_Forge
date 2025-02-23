@@ -93,6 +93,9 @@ void NetCode::NetworkManager::ProcessPacket(InputByteStream& stream, uint64_t pl
     case PT_Hello:
         DEBUG_LOG("Host has welcomed us into the server!")
         break;
+    case PT_WorldState:
+        Engine::LevelManager::LoadLevel(stream);
+        break;
     case PT_WorldStateUpdate:
         Engine::LevelManager::GetCurrentLevel()->Read(stream);
         break;
@@ -162,7 +165,7 @@ void NetCode::NetworkManager::OnboardNewPlayer(uint64_t playerID) const
 
         // Send Current World State
         OutputByteStream newStream;
-        newStream.Write(PT_WorldStateUpdate);
+        newStream.Write(PT_WorldState);
         Engine::LevelManager::GetCurrentLevel()->Write(newStream);
         GetGamerService().SendP2PReliable(newStream, playerID);
     }

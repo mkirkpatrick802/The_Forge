@@ -27,6 +27,7 @@ namespace NetCode
     enum PacketType : uint8_t
     {
         PT_Hello = 0,
+        PT_WorldState,
         PT_WorldStateUpdate,
         PT_Disconnect,
         PT_Max

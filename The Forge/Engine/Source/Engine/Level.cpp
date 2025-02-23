@@ -27,6 +27,11 @@ Engine::Level::Level(nlohmann::json data)
     _gameMode = std::make_unique<GameModeBase>();
 }
 
+Engine::Level::Level(NetCode::InputByteStream& stream)
+{
+    Read(stream);
+}
+
 Engine::Level::~Level()
 {
     CommandRegistry::UnregisterCommand("/save");
