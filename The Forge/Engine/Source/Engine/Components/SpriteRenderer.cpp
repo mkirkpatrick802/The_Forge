@@ -116,8 +116,6 @@ void Engine::SpriteRenderer::Deserialize(const json& data)
     _shader.Compile(_vertexShaderFilepath.c_str(), _fragmentShaderFilepath.c_str());
     if (data.contains(JsonKeywords::SPRITE_RENDERER_SORTING_LAYER))
         sortingLayer = data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER];
-    
-    GetRenderer().AddComponentToRenderList(this);
 }
 
 nlohmann::json Engine::SpriteRenderer::Serialize()

@@ -83,12 +83,19 @@ void Engine::TextRenderer::DrawDetails()
     ImGui::Spacing();
 }
 
-void Engine::TextRenderer::Read(NetCode::InputByteStream& stream)
-{
-    
-}
-
 void Engine::TextRenderer::Write(NetCode::OutputByteStream& stream) const
 {
-    
+    stream.Write(_screenPos);
+    stream.Write(_text);
+    stream.Write(_fontSize);
+}
+
+void Engine::TextRenderer::Read(NetCode::InputByteStream& stream)
+{
+    stream.Read(_screenPos);
+    stream.Read(_text);
+    stream.Read(_fontSize);
+
+    if (!_font)
+        _font = std::make_unique<Font>("Assets/Engine Assets/Fonts/Consolas.ttf", _fontSize);
 }

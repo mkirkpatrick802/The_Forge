@@ -16,8 +16,8 @@ namespace Engine
         nlohmann::json Serialize() override;
         void DrawDetails() override;
 
-        void Read(NetCode::InputByteStream& stream) override;
         void Write(NetCode::OutputByteStream& stream) const override;
+        void Read(NetCode::InputByteStream& stream) override;
 
     protected:
         std::unique_ptr<Font> _font;
