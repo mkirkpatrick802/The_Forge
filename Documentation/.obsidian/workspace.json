@@ -11,23 +11,14 @@
             "id": "e884418ee8553f91",
             "type": "leaf",
             "state": {
-              "type": "kanban",
+              "type": "markdown",
               "state": {
-                "file": "Forge TODO.md",
-                "kanbanViewState": {
-                  "kanban-plugin": "board",
-                  "list-collapse": [
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false
-                  ]
-                }
+                "file": "Engine/Components/Systems/Component Factories.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-trello",
-              "title": "Forge TODO"
+              "icon": "lucide-file",
+              "title": "Component Factories"
             }
           }
         ]
@@ -179,10 +170,10 @@
   },
   "active": "e884418ee8553f91",
   "lastOpenFiles": [
+    "Forge TODO.md",
     "Engine/Components/Systems/Component Manager.md",
     "Engine/Components/Systems/Component Factories.md",
     "Engine/Components/Player Controller.md",
-    "Forge TODO.md",
     "Engine/Components/Systems/Component Registry.md",
     "Editor",
     "Engine/Components/Systems/Component Pools.md",
