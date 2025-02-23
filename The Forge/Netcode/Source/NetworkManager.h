@@ -93,6 +93,7 @@ namespace NetCode
     public:
         bool GetIsOwner() const { return _isOwner; }
         uint64_t GetLocalUserID() const { return _localUserID; }
+        int GetPlayerCount() const { return _playerCount; }
     };
 
     inline NetworkManager& GetNetworkManager()

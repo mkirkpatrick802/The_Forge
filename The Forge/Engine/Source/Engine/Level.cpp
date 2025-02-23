@@ -77,7 +77,9 @@ bool Engine::Level::RemoveGameObject(GameObject* go)
     {
         if (it->get() == go) // Compare raw pointers
         {
-            _destroyedObjects.push_back(std::move(*it)); // Move ownership to _destroyedObjects
+            if (NetCode::GetNetworkManager().GetPlayerCount() > 1)
+                _destroyedObjects.push_back(std::move(*it)); // Move ownership to _destroyedObjects
+            
             it = _gameObjects.erase(it); // Erase and update iterator
         }
         else
