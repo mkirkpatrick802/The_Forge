@@ -29,7 +29,7 @@
                 }
             ],
             "Game Object Name": "Asteroid",
-            "Is Replicated": false,
+            "Is Replicated": true,
             "Rotation": 180.0,
             "X position": -300.0,
             "Y position": 200.0
@@ -51,7 +51,7 @@
                 }
             ],
             "Game Object Name": "Asteroid",
-            "Is Replicated": false,
+            "Is Replicated": true,
             "Rotation": 0.0,
             "X position": 100.0,
             "Y position": 100.0
