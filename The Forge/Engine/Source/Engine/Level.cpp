@@ -71,22 +71,23 @@ Engine::GameObject* Engine::Level::SpawnNewGameObject(const std::string& filepat
 }
 
 
-bool Engine::Level::RemoveGameObject(const GameObject* go)
-{   
-    NetCode::GetLinkingContext().RemoveGameObject(go);
+bool Engine::Level::RemoveGameObject(GameObject* go)
+{
     for (auto it = _gameObjects.begin(); it != _gameObjects.end(); )
     {
         if (it->get() == go) // Compare raw pointers
         {
-            it = _gameObjects.erase(it);
+            _destroyedObjects.push_back(std::move(*it)); // Move ownership to _destroyedObjects
+            it = _gameObjects.erase(it); // Erase and update iterator
         }
         else
         {
             ++it;
         }
     }
-    
+
     return true;
+
 }
 
 void Engine::Level::SaveLevel(const std::string& args)
@@ -141,6 +142,20 @@ void Engine::Level::Write(NetCode::OutputByteStream& stream, bool isCompleteStat
             }
         }
     }
+
+    uint32_t destroyedCount = _destroyedObjects.size();
+    stream.Write(destroyedCount);
+    for (auto& element : _destroyedObjects)
+    {
+        if (element->isReplicated)
+        {
+            if (const uint32_t networkID = NetCode::GetLinkingContext().GetNetworkID(element.get(), false); networkID != 0)
+            {
+                stream.Write(networkID);
+                NetCode::GetLinkingContext().RemoveGameObject(element.get());
+            }
+        }
+    }
 }
 
 void Engine::Level::Read(NetCode::InputByteStream& stream)
@@ -165,6 +180,15 @@ void Engine::Level::Read(NetCode::InputByteStream& stream)
         {
             go->Read(stream);
         }
+    }
+
+    uint32_t destroyedCount;
+    stream.Read(destroyedCount);
+    for (int i = 0; i < (int)destroyedCount; i++)
+    {
+        uint32_t networkID;
+        stream.Read(networkID);
+        RemoveGameObject(NetCode::GetLinkingContext().GetGameObject(networkID));
     }
 }
 

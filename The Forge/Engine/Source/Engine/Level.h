@@ -35,7 +35,7 @@ namespace Engine
         
     public:
         GameObject* SpawnNewGameObject(const std::string& filepath = "");
-        bool RemoveGameObject(const GameObject* go);
+        bool RemoveGameObject(GameObject* go);
 
         void SaveLevel(const std::string& args = "");
         
@@ -60,10 +60,11 @@ namespace Engine
         std::string _path;
         
         std::vector<std::unique_ptr<GameObject>> _gameObjects;
+        std::vector<std::unique_ptr<GameObject>> _destroyedObjects;
         std::unique_ptr<GameModeBase> _gameMode; // Only exists on the server
     };
 
-    inline void Destroy(const GameObject* go)
+    inline void Destroy(GameObject* go)
     {
         LevelManager::GetCurrentLevel()->RemoveGameObject(go);
     }
