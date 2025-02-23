@@ -100,7 +100,6 @@ void Engine::SpriteRenderer::Render(const ShaderUniformData& data)
 }
 
 // Serialization 
-
 void Engine::SpriteRenderer::Deserialize(const json& data)
 {
     const std::string filepath = data[JsonKeywords::SPRITE_RENDERER_SPRITE];
@@ -137,6 +136,8 @@ nlohmann::json Engine::SpriteRenderer::Serialize()
 void Engine::SpriteRenderer::Write(NetCode::OutputByteStream& stream) const
 {
     stream.Write(_texture->GetFilePath());
+    stream.Write(_vertexShaderFilepath);
+    stream.Write(_fragmentShaderFilepath);
 }
 
 void Engine::SpriteRenderer::Read(NetCode::InputByteStream& stream)
@@ -144,9 +145,14 @@ void Engine::SpriteRenderer::Read(NetCode::InputByteStream& stream)
     std::string filepath;
     stream.Read(filepath);
 
-    if (_texture) return;
-    _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
-    _size = _texture->GetSize();
+    if (_texture)
+    {
+        _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
+        _size = _texture->GetSize();
+    }
+
+    stream.Read(_vertexShaderFilepath);
+    stream.Read(_fragmentShaderFilepath);
 }
 
 Engine::SpriteRenderer::~SpriteRenderer()
