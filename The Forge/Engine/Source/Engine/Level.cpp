@@ -77,9 +77,7 @@ bool Engine::Level::RemoveGameObject(GameObject* go)
     {
         if (it->get() == go) // Compare raw pointers
         {
-            if (NetCode::GetNetworkManager().GetPlayerCount() > 1)
-                _destroyedObjects.push_back(std::move(*it)); // Move ownership to _destroyedObjects
-            
+            _destroyedObjects.push_back(go); // Move ownership to _destroyedObjects
             it = _gameObjects.erase(it); // Erase and update iterator
         }
         else
@@ -151,10 +149,10 @@ void Engine::Level::Write(NetCode::OutputByteStream& stream, bool isCompleteStat
     {
         if (element->isReplicated)
         {
-            if (const uint32_t networkID = NetCode::GetLinkingContext().GetNetworkID(element.get(), false); networkID != 0)
+            if (const uint32_t networkID = NetCode::GetLinkingContext().GetNetworkID(element, false); networkID != 0)
             {
                 stream.Write(networkID);
-                NetCode::GetLinkingContext().RemoveGameObject(element.get());
+                NetCode::GetLinkingContext().RemoveGameObject(element);
             }
         }
     }

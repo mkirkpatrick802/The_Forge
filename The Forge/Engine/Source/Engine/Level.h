@@ -60,7 +60,7 @@ namespace Engine
         std::string _path;
         
         std::vector<std::unique_ptr<GameObject>> _gameObjects;
-        std::vector<std::unique_ptr<GameObject>> _destroyedObjects;
+        std::vector<GameObject*> _destroyedObjects;
         std::unique_ptr<GameModeBase> _gameMode; // Only exists on the server
     };
 
