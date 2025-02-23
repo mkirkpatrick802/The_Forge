@@ -62,7 +62,7 @@ namespace NetCode
         void ProcessIncomingPackets();
         void ReadIncomingPacketsIntoQueue();
         void ProcessQueuedPackets();
-        void ProcessPacket(InputByteStream& stream, uint64_t playerID) const;
+        void ProcessPacket(InputByteStream& stream, uint64_t playerID);
 
         // Prep World State Update
         void SendWorldStateUpdate();
@@ -70,7 +70,7 @@ namespace NetCode
         void EnterLobby(uint64_t lobbyID);
         void UpdateLobbyPlayers();
         
-        void OnboardNewPlayer(uint64_t playerID) const;
+        void OnboardNewPlayer(uint64_t playerID);
         
         bool IsPlayerInGame(uint64_t playerID) const;
         void HandleConnectionReset(uint64_t playerID);
@@ -88,6 +88,7 @@ namespace NetCode
 
         uint64_t _lastUpdateSentTicks = 0;
         uint64_t _targetStateUpdateDelay = 60; // Starting place (balance accordingly)
+        bool _readyToGetUpdates = false;
 
     public:
         bool GetIsOwner() const { return _isOwner; }

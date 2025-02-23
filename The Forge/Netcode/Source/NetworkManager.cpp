@@ -84,7 +84,7 @@ void NetCode::NetworkManager::ProcessQueuedPackets()
     }
 }
 
-void NetCode::NetworkManager::ProcessPacket(InputByteStream& stream, uint64_t playerID) const
+void NetCode::NetworkManager::ProcessPacket(InputByteStream& stream, uint64_t playerID)
 {
     PacketType type;
     stream.Read(type);
@@ -95,8 +95,10 @@ void NetCode::NetworkManager::ProcessPacket(InputByteStream& stream, uint64_t pl
         break;
     case PT_WorldState:
         Engine::LevelManager::LoadLevel(stream);
+        _readyToGetUpdates = true;
         break;
     case PT_WorldStateUpdate:
+        if (!_readyToGetUpdates) break;
         Engine::LevelManager::GetCurrentLevel()->Read(stream);
         break;
     case PT_Disconnect:
@@ -152,9 +154,10 @@ void NetCode::NetworkManager::UpdateLobbyPlayers()
 
 // TODO: Move this to a server class (only gets called on the owners machine)
 // Spawn new player, and send current world state
-void NetCode::NetworkManager::OnboardNewPlayer(uint64_t playerID) const
+void NetCode::NetworkManager::OnboardNewPlayer(uint64_t playerID)
 {
     auto player = Engine::LevelManager::GetCurrentLevel()->GetGameMode().SpawnPlayer(playerID);
+    _readyToGetUpdates = GetIsOwner(); 
     
     if (playerID != _ownerID)
     {
