@@ -39,18 +39,6 @@ void Destructible::CollectUniforms(Engine::ShaderUniformData& data)
         data.vec2Uniforms["size"] = sprite->GetSize();
 }
 
-void Destructible::Deserialize(const json& data)
-{
-    
-}
-
-nlohmann::json Destructible::Serialize()
-{
-    nlohmann::json data;
-    data[JsonKeywords::COMPONENT_ID] = GetComponentRegistry().GetComponentID<Destructible>();
-    return data;
-}
-
 // TODO: Need to figure out how to write ImGui stuff
 void Destructible::DrawDetails()
 {

@@ -25,7 +25,7 @@ NetCode::NetworkManager::NetworkManager(): _state(NMS_Unitialized), _lobbyID(0),
 
 NetCode::NetworkManager::~NetworkManager()
 {
-    
+    GetGamerService().LeaveLobby(_lobbyID);
 }
 
 void NetCode::NetworkManager::StartNetCode()

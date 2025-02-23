@@ -16,8 +16,8 @@ namespace Engine
     public:
         virtual ~Component() = default;
 
-        virtual void Deserialize(const json& data) = 0;
-        virtual nlohmann::json Serialize() = 0;
+        virtual void Deserialize(const json& data) {}
+        virtual nlohmann::json Serialize() { return nlohmann::json(); }
 
         // Called before the first update frame for this object
         virtual void Start() {}

@@ -10,9 +10,6 @@ namespace Engine
         LineRenderer();
         void CollectUniforms(ShaderUniformData& data) override;
         void Render(const ShaderUniformData& data) override;
-        
-        void Deserialize(const json& data) override;
-        nlohmann::json Serialize() override;
 
         // Editor Properties 
         void DrawDetails() override;

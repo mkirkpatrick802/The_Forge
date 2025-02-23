@@ -18,18 +18,6 @@ void Engine::Camera::OnActivation()
     
 }
 
-void Engine::Camera::Deserialize(const json& data)
-{
-    
-}
-
-nlohmann::json Engine::Camera::Serialize()
-{
-    nlohmann::json data;
-    data[JsonKeywords::COMPONENT_ID] = GetComponentRegistry().GetComponentID<Camera>();
-    return data;
-}
-
 glm::mat4 Engine::Camera::GetProjectionMatrix()
 {
     // FBO size is your window size

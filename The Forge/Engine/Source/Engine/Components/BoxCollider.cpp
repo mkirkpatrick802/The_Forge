@@ -29,16 +29,3 @@ bool Engine::BoxCollider::CheckCollision(glm::vec2 position) const
     return (position.x >= myPos.x - halfSize.x && position.x <= myPos.x + halfSize.x &&
             position.y >= myPos.y - halfSize.y && position.y <= myPos.y + halfSize.y);
 }
-
-
-void Engine::BoxCollider::Deserialize(const json& data)
-{
-    
-}
-
-nlohmann::json Engine::BoxCollider::Serialize()
-{
-    nlohmann::json data;
-    data[JsonKeywords::COMPONENT_ID] = GetComponentRegistry().GetComponentID<BoxCollider>();
-    return data;
-}

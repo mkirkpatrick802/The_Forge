@@ -9,8 +9,6 @@ namespace Engine
     public:
         PlayerStart() = default;
         
-        void Deserialize(const json& data) override;
-        nlohmann::json Serialize() override;
     };
 
     REGISTER_COMPONENT(PlayerStart);

@@ -70,47 +70,6 @@ void Engine::LineRenderer::RenderLine(glm::vec2 pos, glm::vec2 dir, glm::vec2 si
     glBindVertexArray(0);
 }
 
-void Engine::LineRenderer::Deserialize(const json& data)
-{
-    if (data.contains(JsonKeywords::SPRITE_RENDERER_SPRITE))
-    {
-        const std::string filepath = data[JsonKeywords::SPRITE_RENDERER_SPRITE];
-        _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
-        _size = _texture->GetSize();
-    }
-
-    if (data.contains(JsonKeywords::SPRITE_RENDERER_VERTEX_SHADER))
-        _vertexShaderFilepath = data[JsonKeywords::SPRITE_RENDERER_VERTEX_SHADER];
-
-    if (data.contains(JsonKeywords::SPRITE_RENDERER_FRAGMENT_SHADER))
-        _fragmentShaderFilepath = data[JsonKeywords::SPRITE_RENDERER_FRAGMENT_SHADER];
-
-    _shader.Compile(_vertexShaderFilepath.c_str(), _fragmentShaderFilepath.c_str());
-    
-    if (data.contains(JsonKeywords::SPRITE_RENDERER_SORTING_LAYER))
-        sortingLayer = data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER];
-
-    GetRenderer().AddComponentToRenderList(this);
-}
-
-nlohmann::json Engine::LineRenderer::Serialize()
-{
-    nlohmann::json data;
-    data[JsonKeywords::COMPONENT_ID] = GetComponentRegistry().GetComponentID<LineRenderer>();
-
-    if (_texture)
-    {
-        std::string filepath = _texture->GetFilePath();
-        data[JsonKeywords::SPRITE_RENDERER_SPRITE] = filepath;
-    }
-
-    data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER] = sortingLayer;
-    data[JsonKeywords::SPRITE_RENDERER_VERTEX_SHADER] = _vertexShaderFilepath;
-    data[JsonKeywords::SPRITE_RENDERER_FRAGMENT_SHADER] = _fragmentShaderFilepath;
-    
-    return data;
-}
-
 void Engine::LineRenderer::DrawDetails()
 {
     SpriteRenderer::DrawDetails();

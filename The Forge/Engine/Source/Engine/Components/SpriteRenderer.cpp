@@ -123,7 +123,6 @@ void Engine::SpriteRenderer::Deserialize(const json& data)
 nlohmann::json Engine::SpriteRenderer::Serialize()
 {
     nlohmann::json data;
-    data[JsonKeywords::COMPONENT_ID] = GetComponentRegistry().GetComponentID<SpriteRenderer>();
 
     if (_texture)
     {

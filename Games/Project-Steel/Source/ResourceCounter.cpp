@@ -34,7 +34,6 @@ void ResourceCounter::Deserialize(const json& data)
 nlohmann::json ResourceCounter::Serialize()
 {
     nlohmann::json data;
-    data[JsonKeywords::COMPONENT_ID] = Engine::GetComponentRegistry().GetComponentID<ResourceCounter>();
     data[JsonKeywords::TEXT_RENDERER_TEXT] = _text;
     data[JsonKeywords::TEXT_RENDERER_SIZE]= _fontSize;
     data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER] = sortingLayer;

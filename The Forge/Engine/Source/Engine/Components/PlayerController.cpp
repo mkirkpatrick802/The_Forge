@@ -13,18 +13,6 @@
 #include "Engine/Rendering/CameraManager.h"
 #include "Engine/Rendering/Renderer.h"
 
-void Engine::PlayerController::Deserialize(const json& data)
-{
-    
-}
-
-nlohmann::json Engine::PlayerController::Serialize()
-{
-    nlohmann::json data;
-    data[JsonKeywords::COMPONENT_ID] = GetComponentRegistry().GetComponentID<PlayerController>();
-    return data;
-}
-
 void Engine::PlayerController::Update(float deltaTime)
 {
     // This should be handled somewheres else

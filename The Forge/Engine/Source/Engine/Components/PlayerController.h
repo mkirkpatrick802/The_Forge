@@ -9,9 +9,7 @@ namespace Engine
         friend class GameModeBase;
         
     public:
-        void Deserialize(const json& data) override;
-        nlohmann::json Serialize() override;
-
+        
         void Update(float deltaTime) override;
         void CollectInput(float deltaTime);
         void UpdatePosition(float deltaTime);

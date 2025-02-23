@@ -50,7 +50,6 @@ void Engine::TextRenderer::Deserialize(const json& data)
 nlohmann::json Engine::TextRenderer::Serialize()
 {
     nlohmann::json data;
-    data[JsonKeywords::COMPONENT_ID] = GetComponentRegistry().GetComponentID<TextRenderer>();
     data[JsonKeywords::TEXT_RENDERER_TEXT] = _text;
     data[JsonKeywords::TEXT_RENDERER_SIZE]= _fontSize;
     data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER] = sortingLayer;

@@ -12,8 +12,6 @@ public:
     void TakeDamage(Engine::GameObject* dealer, float damage, int& resourceGain);
     void CollectUniforms(Engine::ShaderUniformData& data) override;
     
-    void Deserialize(const json& data) override;
-    nlohmann::json Serialize() override;
     void DrawDetails() override;
     
 private:

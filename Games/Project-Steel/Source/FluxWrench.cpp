@@ -90,15 +90,3 @@ void FluxWrench::DisableWrench()
     
     _currentState = WS_Off;
 }
-
-void FluxWrench::Deserialize(const json& data)
-{
-    
-}
-
-nlohmann::json FluxWrench::Serialize()
-{
-    nlohmann::json data;
-    data[JsonKeywords::COMPONENT_ID] = GetComponentRegistry().GetComponentID<FluxWrench>();
-    return data;
-}

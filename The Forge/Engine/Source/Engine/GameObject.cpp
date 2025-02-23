@@ -75,7 +75,11 @@ nlohmann::json Engine::GameObject::Serialize()
     
     data[JsonKeywords::COMPONENT_ARRAY] = json::array();
     for (const auto& component : GetAllComponents())
-        data[JsonKeywords::COMPONENT_ARRAY].push_back(component->Serialize());
+    {
+        nlohmann::json componentData = component->Serialize();
+        componentData[JsonKeywords::COMPONENT_ID] = GetComponentRegistry().GetComponentID(typeid(*component));
+        data[JsonKeywords::COMPONENT_ARRAY].push_back(componentData);
+    }
 
     return data;
 }

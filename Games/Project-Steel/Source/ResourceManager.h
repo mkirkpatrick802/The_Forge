@@ -9,8 +9,6 @@ class ResourceManager : public Engine::Component
 public:
     ResourceManager();
     void Start() override;
-    void Deserialize(const json& data) override;
-    nlohmann::json Serialize() override;
 
 private:
     ResourceCounter* _resourceCounter;

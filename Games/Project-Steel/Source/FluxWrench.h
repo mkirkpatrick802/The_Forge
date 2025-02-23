@@ -16,9 +16,6 @@ class FluxWrench : public Engine::Component
 public:
     void Start() override;
     void Update(float deltaTime) override;
-    
-    void Deserialize(const json& data) override;
-    nlohmann::json Serialize() override;
 
 private:
     void CollectInputs();

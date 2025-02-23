@@ -106,7 +106,9 @@ void GamerServices::Impl::OnLobbyEnteredCallback(LobbyEnter_t* inCallback, bool 
 void GamerServices::Impl::OnLobbyChatUpdate(LobbyChatUpdate_t* inCallback)
 {
     if (inCallback->m_rgfChatMemberStateChange & k_EChatMemberStateChangeLeft)
+    {
         GetNetworkManager().HandleConnectionReset(inCallback->m_ulSteamIDUserChanged);
+    }
     
     if (inCallback->m_rgfChatMemberStateChange & k_EChatMemberStateChangeEntered)
         if (GetNetworkManager().GetIsOwner())
@@ -208,7 +210,7 @@ void GamerServices::GetLobbyPlayerMap(const uint64_t inLobbyID, std::map<uint64_
 
 void GamerServices::LeaveLobby(uint64_t inLobbyID)
 {
-    
+    SteamMatchmaking()->LeaveLobby(inLobbyID);
 }
 
 bool GamerServices::SendP2PReliable(const OutputByteStream& inOutputStream, uint64_t inToPlayer)

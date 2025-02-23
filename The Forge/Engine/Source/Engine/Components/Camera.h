@@ -18,9 +18,6 @@ namespace Engine
 
         void OnActivation() override;
         
-        void Deserialize(const json& data) override;
-        nlohmann::json Serialize() override;
-        
     private:
         CameraBounds _bounds;
         glm::mat4 _projection;
