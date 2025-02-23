@@ -31,7 +31,7 @@ void Engine::SpriteRenderer::OnActivation()
         1.0f, 1.0f, 1.0f, 1.0f,
         1.0f, 0.0f, 1.0f, 0.0f
     };
-
+    
     glGenVertexArrays(1, &_quadVAO);
     glBindVertexArray(_quadVAO);
 
@@ -135,6 +135,7 @@ nlohmann::json Engine::SpriteRenderer::Serialize()
 
 void Engine::SpriteRenderer::Write(NetCode::OutputByteStream& stream) const
 {
+    stream.Write(sortingLayer);
     stream.Write(_texture->GetFilePath());
     stream.Write(_vertexShaderFilepath);
     stream.Write(_fragmentShaderFilepath);
@@ -142,10 +143,12 @@ void Engine::SpriteRenderer::Write(NetCode::OutputByteStream& stream) const
 
 void Engine::SpriteRenderer::Read(NetCode::InputByteStream& stream)
 {
+    stream.Read(sortingLayer);
+    
     std::string filepath;
     stream.Read(filepath);
 
-    if (_texture)
+    if (!_texture)
     {
         _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
         _size = _texture->GetSize();
@@ -153,6 +156,8 @@ void Engine::SpriteRenderer::Read(NetCode::InputByteStream& stream)
 
     stream.Read(_vertexShaderFilepath);
     stream.Read(_fragmentShaderFilepath);
+    
+    _shader.Compile(_vertexShaderFilepath.c_str(), _fragmentShaderFilepath.c_str());
 }
 
 Engine::SpriteRenderer::~SpriteRenderer()
