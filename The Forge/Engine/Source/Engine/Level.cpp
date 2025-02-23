@@ -71,7 +71,7 @@ Engine::GameObject* Engine::Level::SpawnNewGameObject(const std::string& filepat
 }
 
 
-bool Engine::Level::RemoveGameObject(GameObject* go)
+bool Engine::Level::RemoveGameObject(GameObject* go, bool replicate)
 {
     for (auto it = _gameObjects.begin(); it != _gameObjects.end(); )
     {
@@ -186,7 +186,7 @@ void Engine::Level::Read(NetCode::InputByteStream& stream)
     {
         uint32_t networkID;
         stream.Read(networkID);
-        RemoveGameObject(NetCode::GetLinkingContext().GetGameObject(networkID));
+        RemoveGameObject(NetCode::GetLinkingContext().GetGameObject(networkID), false);
     }
 }
 
