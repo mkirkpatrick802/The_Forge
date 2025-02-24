@@ -16,7 +16,7 @@
             "Components": [
                 {
                     "Component ID": 447040143,
-                    "Initial Amount": 20,
+                    "Initial Amount": 5,
                     "Prefab": "Assets\\Asteroid.prefab",
                     "Radius": 200.0,
                     "Spawn Time": 20.0
