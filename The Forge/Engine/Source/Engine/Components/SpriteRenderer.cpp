@@ -145,7 +145,13 @@ void Engine::SpriteRenderer::Write(NetCode::OutputByteStream& stream) const
 
 void Engine::SpriteRenderer::Read(NetCode::InputByteStream& stream)
 {
-    stream.Read(sortingLayer);
+    int temp;
+    stream.Read(temp);
+    if (temp != sortingLayer)
+    {
+        sortingLayer = temp;
+        GetRenderer().AddComponentToRenderList(this); // TODO: This is to update the sorting layer (it is shit)
+    }
     
     std::string filepath;
     stream.Read(filepath);
@@ -160,7 +166,6 @@ void Engine::SpriteRenderer::Read(NetCode::InputByteStream& stream)
     stream.Read(_fragmentShaderFilepath);
     
     _shader.Compile(_vertexShaderFilepath.c_str(), _fragmentShaderFilepath.c_str());
-    GetRenderer().AddComponentToRenderList(this); // TODO: This is to update the sorting layer (it is shit)
 }
 
 Engine::SpriteRenderer::~SpriteRenderer()

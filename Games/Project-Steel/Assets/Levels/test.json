@@ -15,46 +15,18 @@
         {
             "Components": [
                 {
-                    "Component ID": 2525770811,
-                    "Fragment Shader": "Assets\\Shaders\\Destructible.frag",
-                    "Sorting Layer": 0,
-                    "Sprite": "Assets\\Sprites\\Astroid.png",
-                    "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"
-                },
-                {
-                    "Component ID": 1673950826
-                },
-                {
-                    "Component ID": 3309965179
+                    "Component ID": 447040143,
+                    "Initial Amount": 20,
+                    "Prefab": "Assets\\Asteroid.prefab",
+                    "Radius": 200.0,
+                    "Spawn Time": 20.0
                 }
             ],
-            "Game Object Name": "Asteroid",
-            "Is Replicated": true,
-            "Rotation": 180.0,
-            "X position": -300.0,
-            "Y position": 200.0
-        },
-        {
-            "Components": [
-                {
-                    "Component ID": 2525770811,
-                    "Fragment Shader": "Assets\\Shaders\\Destructible.frag",
-                    "Sorting Layer": 0,
-                    "Sprite": "Assets\\Sprites\\Astroid.png",
-                    "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"
-                },
-                {
-                    "Component ID": 1673950826
-                },
-                {
-                    "Component ID": 3309965179
-                }
-            ],
-            "Game Object Name": "Asteroid",
-            "Is Replicated": true,
+            "Game Object Name": "Asteroid Spawner",
+            "Is Replicated": false,
             "Rotation": 0.0,
-            "X position": 100.0,
-            "Y position": 100.0
+            "X position": 300.0,
+            "Y position": 300.0
         }
     ],
     "Level Name": "test"
