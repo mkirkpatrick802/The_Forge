@@ -41,7 +41,7 @@ namespace Engine
         GameObject* gameObject = nullptr;
         bool isReplicated = false;
         bool isDirty = false;
-        int sortingLayer;
+        int sortingLayer = 0;
         
     };
 }
