@@ -80,10 +80,8 @@ void Engine::Renderer::AddComponentToRenderList(Component* spriteRenderer)
 			{
 				return;
 			}
-			else
-			{
-				RemoveComponentFromRenderList(spriteRenderer);
-			}
+
+			RemoveComponentFromRenderList(spriteRenderer);
 		}
 	
 	_renderList.emplace_back(pair);

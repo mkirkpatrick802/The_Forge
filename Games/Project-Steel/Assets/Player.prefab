@@ -16,7 +16,7 @@
         {
             "Component ID": 3276240104,
             "Fragment Shader": "Assets\\Engine Assets\\Shaders\\Sprite.frag",
-            "Sorting Layer": -1,
+            "Sorting Layer": -2,
             "Sprite": "Assets\\Sprites\\Beam.png",
             "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"
         },

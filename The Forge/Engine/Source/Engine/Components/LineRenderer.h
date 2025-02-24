@@ -10,7 +10,7 @@ namespace Engine
         LineRenderer();
         void CollectUniforms(ShaderUniformData& data) override;
         void Render(const ShaderUniformData& data) override;
-
+        
         // Editor Properties 
         void DrawDetails() override;
         
