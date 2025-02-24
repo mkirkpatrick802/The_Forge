@@ -18,18 +18,23 @@ using namespace Engine;
 void FluxWrench::Start()
 {
     _resourceManager = gameObject->GetComponent<ResourceManager>();
+    _playerController = gameObject->GetComponent<PlayerController>();
 }
 
 void FluxWrench::Update(float deltaTime)
 {
-    CollectInputs();
+    if (_playerController->IsLocalPlayer())
+    {
+        CollectInputs();
+    }
+    else
+    {
+        UpdateWrenchVisuals();
+    }
 }
 
 void FluxWrench::CollectInputs()
 {
-    if (auto controller = gameObject->GetComponent<PlayerController>())
-        if (!controller->IsLocalPlayer()) return;
-    
     glm::vec2 mousePos;
     const bool isRightClick = GetInputManager().GetButton(SDL_BUTTON(SDL_BUTTON_RIGHT), mousePos);
     const bool isLeftClick = GetInputManager().GetButton(SDL_BUTTON(SDL_BUTTON_LEFT), mousePos);
@@ -57,13 +62,9 @@ void FluxWrench::CollectInputs()
 
 void FluxWrench::EnableWrench(Engine::GameObject* target, glm::vec2 mousePos, WrenchState state)
 {
-    if (const auto line = gameObject->GetComponent<LineRenderer>())
-    {
-        line->SetHidden(false);
-        line->SetStartAndEnd(gameObject->transform.position, mousePos);
-    }
-
     _currentState = state;
+    _endpoint = mousePos;
+    UpdateWrenchVisuals();
 
     switch (_currentState)
     {
@@ -79,14 +80,37 @@ void FluxWrench::EnableWrench(Engine::GameObject* target, glm::vec2 mousePos, Wr
     case WS_Repairing:
         break;
     }
+    
+    gameObject->isDirty = true;
 }
 
 void FluxWrench::DisableWrench()
 {
     if (_currentState == WS_Off) return;
-
-    if (const auto line = gameObject->GetComponent<LineRenderer>())
-        line->SetHidden(true);
-    
     _currentState = WS_Off;
+
+    UpdateWrenchVisuals();
+    
+    gameObject->isDirty = true;
+}
+
+void FluxWrench::UpdateWrenchVisuals()
+{
+    if (const auto line = gameObject->GetComponent<LineRenderer>())
+    {
+        line->SetHidden(_currentState == WS_Off);
+        line->SetStartAndEnd(gameObject->transform.position, _endpoint);
+    }
+}
+
+void FluxWrench::Write(NetCode::OutputByteStream& stream) const
+{
+    stream.Write(_currentState);
+    stream.Write(_endpoint);
+}
+
+void FluxWrench::Read(NetCode::InputByteStream& stream)
+{
+    stream.Read(_currentState);
+    stream.Read(_endpoint);
 }
