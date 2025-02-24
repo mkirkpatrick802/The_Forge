@@ -8,8 +8,6 @@ NetCode::LinkingContext& NetCode::LinkingContext::GetInstance()
     return *instance;
 }
 
-NetCode::LinkingContext::LinkingContext(): _nextNetworkID(0) { }
-
 uint32_t NetCode::LinkingContext::GetNetworkID(Engine::GameObject* go, const bool shouldCreateIfNotFound)
 {
     if (const auto it = _networkIDMap.find(go); it != _networkIDMap.end())
@@ -22,7 +20,7 @@ uint32_t NetCode::LinkingContext::GetNetworkID(Engine::GameObject* go, const boo
         return networkID;
     }
     
-    return 0;
+    return NULL_ID;
 }
 
 void NetCode::LinkingContext::AddGameObject(Engine::GameObject* go, const uint32_t networkID)

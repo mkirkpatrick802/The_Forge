@@ -15,7 +15,7 @@ namespace NetCode
     {
     public:
         static LinkingContext& GetInstance();
-        LinkingContext();
+        LinkingContext() = default;
         uint32_t GetNetworkID(Engine::GameObject* go, bool shouldCreateIfNotFound = true);
 
         void AddGameObject(Engine::GameObject* go, uint32_t networkID);

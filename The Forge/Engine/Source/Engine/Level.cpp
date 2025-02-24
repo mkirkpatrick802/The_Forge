@@ -149,7 +149,8 @@ void Engine::Level::Write(NetCode::OutputByteStream& stream, bool isCompleteStat
     stream.Write(destroyedCount);
     for (auto& element : _destroyedObjects)
     {
-        if (const uint32_t networkID = NetCode::GetLinkingContext().GetNetworkID(element, false); networkID != NULL_ID)
+        const uint32_t networkID = NetCode::GetLinkingContext().GetNetworkID(element, false);
+        if (networkID != NULL_ID)
         {
             stream.Write(networkID);
             NetCode::GetLinkingContext().RemoveGameObject(element);
