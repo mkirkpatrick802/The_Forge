@@ -10,7 +10,7 @@ int main()
     CreateAppWindow();
 
 #ifdef DEBUG
-        GetEngineManager().ToggleEditor("1");
+        GetEngineManager().ToggleEditor("0");
 #else
         GetEngineManager().ToggleEditor("0");
 #endif
