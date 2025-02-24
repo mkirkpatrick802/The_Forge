@@ -160,7 +160,7 @@ GamerServices::GamerServices()
 
 void GamerServices::LobbySearchAsync()
 {
-    DEBUG_LOG("Searching for lobby...");
+    DEBUG_LOG("Searching for lobby...")
     
     // Set search parameters
     SteamMatchmaking()->AddRequestLobbyListStringFilter("game", GAME_NAME, k_ELobbyComparisonEqual);

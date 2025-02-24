@@ -10,7 +10,6 @@ tags:
 - [ ] Scene Grid
 - [ ] Camera Zoom
 - [ ] [[Player Controller]]
-- [ ] Asteroid Spawner
 
 
 ## Not Started
@@ -34,6 +33,7 @@ tags:
 
 ## Done
 
+- [ ] Asteroid Spawner
 - [ ] Resource UI
 - [ ] Crash when deleting game objects
 - [ ] Font Class

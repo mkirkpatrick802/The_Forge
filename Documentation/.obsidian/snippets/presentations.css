@@ -1,0 +1,11 @@
+.slides ul{
+    font-size: 30px;
+}
+
+.slides pre{
+    border: 1px solid #ccc;   /* Border around the code */
+    padding: 5px;             /* Padding for better readability */
+    border-radius: 8px;        /* Rounded corners */
+    font-size: 12px;           /* Larger font size */
+    font-family: "Courier New", monospace; /* Monospace font */
+}

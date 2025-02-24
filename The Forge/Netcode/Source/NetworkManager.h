@@ -29,7 +29,6 @@ namespace NetCode
         PT_Hello = 0,
         PT_WorldState,
         PT_WorldStateUpdate,
-        PT_Disconnect,
         PT_Max
     };
     

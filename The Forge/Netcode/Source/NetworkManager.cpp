@@ -38,7 +38,6 @@ void NetCode::NetworkManager::StartNetCode()
 void NetCode::NetworkManager::Update()
 {
     ProcessIncomingPackets();
-
     SendWorldStateUpdate();
 }
 
@@ -100,8 +99,6 @@ void NetCode::NetworkManager::ProcessPacket(InputByteStream& stream, uint64_t pl
     case PT_WorldStateUpdate:
         if (!_readyToGetUpdates) break;
         Engine::LevelManager::GetCurrentLevel()->Read(stream);
-        break;
-    case PT_Disconnect:
         break;
     default:
         DEBUG_LOG("Unhandled Packet Received!")
