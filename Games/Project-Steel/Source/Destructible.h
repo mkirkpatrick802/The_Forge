@@ -11,6 +11,9 @@ public:
 
     void TakeDamage(Engine::GameObject* dealer, float damage, int& resourceGain);
     void CollectUniforms(Engine::ShaderUniformData& data) override;
+
+    void Write(NetCode::OutputByteStream& stream) const override;
+    void Read(NetCode::InputByteStream& stream) override;
     
     void DrawDetails() override;
     
