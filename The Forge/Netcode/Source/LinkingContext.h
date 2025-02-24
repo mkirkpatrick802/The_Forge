@@ -10,6 +10,7 @@ namespace Engine
 
 namespace NetCode
 {
+#define NULL_ID 0
     class LinkingContext
     {
     public:
@@ -24,7 +25,7 @@ namespace NetCode
     private:
         std::unordered_map<uint32_t, Engine::GameObject*> _goMap;
         std::unordered_map<const Engine::GameObject*, uint32_t> _networkIDMap;
-        uint32_t _nextNetworkID;
+        uint32_t _nextNetworkID = 1;
     };
 
     inline LinkingContext& GetLinkingContext()
