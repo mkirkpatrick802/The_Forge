@@ -23,7 +23,6 @@ namespace NetCode
         
         NMS_Starting,
         NMS_Playing,
-        NMS_Delay,
     };
 
     enum PacketType : uint8_t
@@ -89,7 +88,6 @@ namespace NetCode
 
         uint64_t _lastUpdateSentTicks = 0;
         uint64_t _targetStateUpdateDelay = 60; // Starting place (balance accordingly)
-        bool _readyToGetUpdates = false;
         std::unordered_map<uint64_t, std::vector<uint8_t>> _reassemblyBuffer;
 
     public:

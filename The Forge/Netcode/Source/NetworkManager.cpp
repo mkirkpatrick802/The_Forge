@@ -120,10 +120,10 @@ void NetCode::NetworkManager::ProcessPacket(InputByteStream& stream, uint64_t pl
         break;
     case PT_WorldState:
         Engine::LevelManager::LoadLevel(stream);
-        _readyToGetUpdates = true;
+        _state = NMS_Playing;
         break;
     case PT_WorldStateUpdate:
-        if (!_readyToGetUpdates) break;
+        if (_state != NMS_Playing) return;
         Engine::LevelManager::GetCurrentLevel()->Read(stream);
         break;
     default:
@@ -134,6 +134,7 @@ void NetCode::NetworkManager::ProcessPacket(InputByteStream& stream, uint64_t pl
 void NetCode::NetworkManager::SendWorldStateUpdate()
 {
     if (_playerCount <= 1) return;
+    if (_state != NMS_Playing) return;
 
     const uint64_t currentTicks = Engine::Time::GetTicks();
     if (currentTicks - _lastUpdateSentTicks >= _targetStateUpdateDelay)
@@ -180,7 +181,7 @@ void NetCode::NetworkManager::UpdateLobbyPlayers()
 void NetCode::NetworkManager::OnboardNewPlayer(uint64_t playerID)
 {
     auto player = Engine::LevelManager::GetCurrentLevel()->GetGameMode().SpawnPlayer(playerID);
-    _readyToGetUpdates = GetIsOwner(); 
+    _state = GetIsOwner() ? NMS_Playing : NMS_Starting;
     
     if (playerID != _ownerID)
     {
