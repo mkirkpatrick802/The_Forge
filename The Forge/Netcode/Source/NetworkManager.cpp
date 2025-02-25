@@ -62,37 +62,34 @@ void NetCode::NetworkManager::ReadIncomingPacketsIntoQueue()
         if(incomingSize <= packetSizeBytes)
         {
             const uint32_t readByteCount = GetGamerService().ReadP2PPacket(stream.GetBuffer(), packetSizeBytes, fromPlayer);
-            if(readByteCount > 0)
+            if (readByteCount > 0)
             {
                 stream.ResetToCapacity(readByteCount);
                 ++receivedPackedCount;
 
                 uint8_t packetState;
                 stream.Read(packetState); // Read the first byte (packet ID)
-
+                
+                if (packetState == 0) // Standalone packet
+                {
+                    _packetQueue.emplace(stream, fromPlayer);
+                    continue;
+                }
+                
+                auto& buffer = _reassemblyBuffer[fromPlayer];
                 if (packetState == 1) // First packet of a split sequence
                 {
-                    _reassemblyBuffer[fromPlayer].clear(); // Start fresh for this sender
+                    buffer.clear(); // Start fresh for this sender
                 }
 
                 // Append the packet's content (excluding the first byte) to the reassembly buffer
-                auto& buffer = _reassemblyBuffer[fromPlayer];
                 buffer.insert(buffer.end(), stream.GetBuffer() + 1, stream.GetBuffer() + readByteCount);
-
-                if (packetState == 2) // Last packet of a split sequence
+                if (packetState == 3) // Last packet of a split sequence
                 {
                     // The full packet is now assembled, create a new stream and process it
                     InputByteStream completeStream(buffer.data(), static_cast<uint32_t>(buffer.size()));
                     _packetQueue.emplace(completeStream, fromPlayer);
                     _reassemblyBuffer.erase(fromPlayer); // Clear buffer after handling
-                }
-                else if (packetState == 3) // Middle packet, keep assembling
-                {
-                    return; // Wait for the last packet before pushing to the queue
-                }
-                else // If it's a single packet (not split), process immediately
-                {
-                    _packetQueue.emplace(stream, fromPlayer);
                 }
             }
         }
