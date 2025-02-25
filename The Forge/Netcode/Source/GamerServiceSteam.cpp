@@ -230,7 +230,14 @@ bool GamerServices::SendP2PReliable(const OutputByteStream& inOutputStream, uint
         
         // Create a new buffer with the packet ID at the start
         uint8_t packetBuffer[MAX_PACKET_SIZE_BYTES];
-        packetBuffer[0] = (bytesSent == 0) ? 1 : ((bytesSent + chunkSize >= bytesWritten) ? 2 : 3); // 1 = first, 2 = middle, 3 = last
+        if (bytesWritten < maxChunkSize)
+        {
+            packetBuffer[0] = 0; // 0 = standalone
+        }
+        else
+        {
+            packetBuffer[0] = (bytesSent == 0) ? 1 : ((bytesSent + chunkSize >= bytesWritten) ? 3 : 2); // 1 = first, 2 = middle, 3 = last
+        }
         
         // Copy chunk data into buffer
         std::memcpy(&packetBuffer[1], buffer + bytesSent, chunkSize);
