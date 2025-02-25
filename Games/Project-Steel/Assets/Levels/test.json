@@ -27,6 +27,22 @@
             "Rotation": 0.0,
             "X position": 300.0,
             "Y position": 300.0
+        },
+        {
+            "Components": [
+                {
+                    "Component ID": 1399211633,
+                    "Fragment Shader": "Assets\\Engine Assets\\Shaders\\Sprite.frag",
+                    "Sorting Layer": -10,
+                    "Sprite": "Assets\\Sprites\\SpaceChunck_1.png",
+                    "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"
+                }
+            ],
+            "Game Object Name": "Background",
+            "Is Replicated": false,
+            "Rotation": 0.0,
+            "X position": 0.0,
+            "Y position": 0.0
         }
     ],
     "Level Name": "test"

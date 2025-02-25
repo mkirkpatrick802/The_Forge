@@ -195,6 +195,7 @@ void Engine::SpriteRenderer::DrawDetails()
             
             _texture.reset();
             _texture = CreateTexture(sprite, Texture::TextureType::PIXEL);
+            _size = _texture->GetSize();
         }
         ImGui::EndDragDropTarget();
     }
