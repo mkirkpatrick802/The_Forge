@@ -37,7 +37,7 @@ namespace NetCode
         void Write (const glm::vec2& data);
         void Write (const std::string& data);
         
-        const void* GetBuffer() const { return reinterpret_cast<const char*>(_buffer->data()); }
+        const uint8_t* GetBuffer() const { return _buffer->data(); }
         uint32_t GetBitLength() const { return _head; }
         uint32_t GetByteLength() const { return (_head + 7) >> 3; }
             
@@ -55,6 +55,7 @@ namespace NetCode
     public:
         InputByteStream(uint32_t size);
         InputByteStream(const InputByteStream& other);
+        InputByteStream(const uint8_t* data, uint32_t size);
         ~InputByteStream() = default;
 
         void ReadBits(uint8_t& data, uint32_t size);

@@ -215,7 +215,36 @@ void GamerServices::LeaveLobby(uint64_t inLobbyID)
 
 bool GamerServices::SendP2PReliable(const OutputByteStream& inOutputStream, uint64_t inToPlayer)
 {
-    return SteamNetworking()->SendP2PPacket(inToPlayer, inOutputStream.GetBuffer(), inOutputStream.GetByteLength(), k_EP2PSendReliable);
+    const uint32_t bytesWritten = inOutputStream.GetByteLength();
+    const uint8_t* buffer = inOutputStream.GetBuffer();
+    
+    uint32_t bytesSent = 0;
+    bool success = true;
+
+    // Each packet needs space for 1 extra byte (for the packet ID)
+    const uint32_t maxChunkSize = MAX_PACKET_SIZE_BYTES - 1;
+    
+    while (bytesSent < bytesWritten)
+    {
+        uint32_t chunkSize = min(maxChunkSize, bytesWritten - bytesSent);
+        
+        // Create a new buffer with the packet ID at the start
+        uint8_t packetBuffer[MAX_PACKET_SIZE_BYTES];
+        packetBuffer[0] = (bytesSent == 0) ? 1 : ((bytesSent + chunkSize >= bytesWritten) ? 2 : 3); // 1 = first, 2 = last, 3 = middle
+        
+        // Copy chunk data into buffer
+        std::memcpy(&packetBuffer[1], buffer + bytesSent, chunkSize);
+
+        // Send packet
+        if (!SteamNetworking()->SendP2PPacket(inToPlayer, packetBuffer, chunkSize + 1, k_EP2PSendReliable))
+        {
+            success = false;
+        }
+
+        bytesSent += chunkSize;
+    }
+
+    return success;
 }
 
 bool GamerServices::IsP2PPacketAvailable(uint32_t& outPacketSize)

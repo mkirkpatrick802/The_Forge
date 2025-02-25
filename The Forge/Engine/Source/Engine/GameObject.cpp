@@ -87,7 +87,6 @@ nlohmann::json Engine::GameObject::Serialize()
 void Engine::GameObject::Write(NetCode::OutputByteStream& stream) const
 {
     stream.Write(_name);
-    stream.Write(id);
     stream.Write(transform.position);
     stream.Write(transform.rotation);
 
@@ -111,7 +110,6 @@ void Engine::GameObject::Write(NetCode::OutputByteStream& stream) const
 void Engine::GameObject::Read(NetCode::InputByteStream& stream)
 {
     stream.Read(_name);
-    stream.Read(id);
     stream.Read(transform.position);
     stream.Read(transform.rotation);
 

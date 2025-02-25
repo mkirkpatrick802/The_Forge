@@ -48,6 +48,7 @@ Engine::GameObject* Engine::Level::SpawnNewGameObject(const std::string& filepat
 {
     // Create Game Object
     auto go = std::make_unique<GameObject>();
+    go->isDirty = true;
     if (!filepath.empty())
     {
         std::ifstream file(filepath);

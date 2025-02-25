@@ -49,25 +49,51 @@ void NetCode::NetworkManager::ProcessIncomingPackets()
 
 void NetCode::NetworkManager::ReadIncomingPacketsIntoQueue()
 {
-    uint32_t packetSize = 1500;
+    uint32_t packetSizeBytes = MAX_PACKET_SIZE_BYTES;
+    uint32_t packetSizeBits = packetSizeBytes * 8;
     uint32_t incomingSize = 0;
-    InputByteStream stream(packetSize * 8);
+    InputByteStream stream(packetSizeBits);
     uint64_t fromPlayer;
 
     // Keep reading until we don't have anything to read (or we hit a max number that we'll process per frame)
     int receivedPackedCount = 0;
     while(GetGamerService().IsP2PPacketAvailable(incomingSize) && receivedPackedCount < 10)
     {
-        if(incomingSize <= packetSize)
+        if(incomingSize <= packetSizeBytes)
         {
-            const uint32_t readByteCount = GetGamerService().ReadP2PPacket(stream.GetBuffer(), packetSize, fromPlayer);
+            const uint32_t readByteCount = GetGamerService().ReadP2PPacket(stream.GetBuffer(), packetSizeBytes, fromPlayer);
             if(readByteCount > 0)
             {
                 stream.ResetToCapacity(readByteCount);
                 ++receivedPackedCount;
 
-                // Shove the packet into the queue, and we'll handle it as soon as we should...
-                _packetQueue.emplace(stream, fromPlayer);
+                uint8_t packetState;
+                stream.Read(packetState); // Read the first byte (packet ID)
+
+                if (packetState == 1) // First packet of a split sequence
+                {
+                    _reassemblyBuffer[fromPlayer].clear(); // Start fresh for this sender
+                }
+
+                // Append the packet's content (excluding the first byte) to the reassembly buffer
+                auto& buffer = _reassemblyBuffer[fromPlayer];
+                buffer.insert(buffer.end(), stream.GetBuffer() + 1, stream.GetBuffer() + readByteCount);
+
+                if (packetState == 2) // Last packet of a split sequence
+                {
+                    // The full packet is now assembled, create a new stream and process it
+                    InputByteStream completeStream(buffer.data(), static_cast<uint32_t>(buffer.size()));
+                    _packetQueue.emplace(completeStream, fromPlayer);
+                    _reassemblyBuffer.erase(fromPlayer); // Clear buffer after handling
+                }
+                else if (packetState == 3) // Middle packet, keep assembling
+                {
+                    return; // Wait for the last packet before pushing to the queue
+                }
+                else // If it's a single packet (not split), process immediately
+                {
+                    _packetQueue.emplace(stream, fromPlayer);
+                }
             }
         }
     }

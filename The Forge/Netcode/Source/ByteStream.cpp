@@ -10,7 +10,7 @@
  */
 NetCode::OutputByteStream::OutputByteStream() : _buffer(nullptr), _head(0)
 {
-    ReallocBuffer(1500 * 8);
+    ReallocBuffer(MAX_PACKET_SIZE_BYTES * 8);
 }
 
 void NetCode::OutputByteStream::WriteBits(const uint8_t data, const size_t size)
@@ -89,6 +89,11 @@ NetCode::InputByteStream::InputByteStream(const InputByteStream& other) : _head(
     auto byteCount = static_cast<int>(_capacity / 8);
     _buffer = std::make_shared<std::vector<uint8_t>>(byteCount);
     std::memcpy(_buffer->data(), other._buffer->data(), byteCount);
+}
+
+NetCode::InputByteStream::InputByteStream(const uint8_t* data, const uint32_t size): _head(0), _capacity(size * 8)
+{
+    _buffer = std::make_shared<std::vector<uint8_t>>(data, data + size);
 }
 
 void NetCode::InputByteStream::ReadBits(uint8_t& data, uint32_t size)

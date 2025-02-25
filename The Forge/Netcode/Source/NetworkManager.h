@@ -14,6 +14,8 @@ namespace Engine
 
 namespace NetCode
 {
+    constexpr uint32_t MAX_PACKET_SIZE_BYTES = 1200;
+    
     enum NetworkManagerState : uint8_t
     {
         NMS_Unitialized,
@@ -88,6 +90,7 @@ namespace NetCode
         uint64_t _lastUpdateSentTicks = 0;
         uint64_t _targetStateUpdateDelay = 60; // Starting place (balance accordingly)
         bool _readyToGetUpdates = false;
+        std::unordered_map<uint64_t, std::vector<uint8_t>> _reassemblyBuffer;
 
     public:
         bool GetIsOwner() const { return _isOwner; }
