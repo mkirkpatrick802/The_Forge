@@ -6,13 +6,14 @@ namespace Engine
     template <typename T>
     T* GameObject::GetComponent() const
     {
-        if (const auto it = _components.find(typeid(T)); it != _components.end()) 
-        {
-            return static_cast<T*>(it->second);
+        for (const auto& component : _components | std::views::values) {
+            if (T* casted = dynamic_cast<T*>(component)) {
+                return casted;  // Found a matching derived class
+            }
         }
-        
-        return nullptr;
+        return nullptr;  // No matching component found
     }
+
 
     template <typename T>
     T* GameObject::AddComponent()
@@ -23,5 +24,5 @@ namespace Engine
         T* component = pool->New(this);
         _components[typeid(T)] = component;  // Store in component list
         return component;
-    }   
+    }
 }

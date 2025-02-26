@@ -4,7 +4,7 @@
 namespace Engine
 {
     // TODO: Move this to the game source not the engine
-    class PlayerController final : public Component
+    class PlayerController : public Component
     {
         friend class GameModeBase;
         

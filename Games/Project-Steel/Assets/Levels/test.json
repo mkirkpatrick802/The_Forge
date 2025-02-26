@@ -9,6 +9,7 @@
             "Game Object Name": "Player Start",
             "Is Replicated": false,
             "Rotation": 0.0,
+            "Server Only": true,
             "X position": 0.0,
             "Y position": 0.0
         },
@@ -25,6 +26,7 @@
             "Game Object Name": "Asteroid Spawner",
             "Is Replicated": false,
             "Rotation": 0.0,
+            "Server Only": true,
             "X position": 300.0,
             "Y position": 300.0
         },
@@ -52,6 +54,7 @@
             "Game Object Name": "Background",
             "Is Replicated": false,
             "Rotation": 0.0,
+            "Server Only": false,
             "X position": -1000.0,
             "Y position": -1000.0
         }

@@ -41,19 +41,32 @@ void Editor::DetailsEditor::Render()
     ImGui::PopItemWidth();
 
     ImGui::Checkbox("Is Replicated", &_selectedGameObject->isReplicated);
+    ImGui::SameLine();
+    ImGui::Checkbox("Is Server Only", &_selectedGameObject->isServerOnly);
     ImGui::Spacing();
     
     ImGui::Separator();
     
-    for (const auto component : _selectedGameObject->GetAllComponents())
+    for (int i = 0; i < static_cast<int>(_selectedGameObject->GetAllComponents().size()); i++)
     {
+        auto component = _selectedGameObject->GetAllComponents()[i];
         const std::string& name = Engine::GetComponentRegistry().GetComponentName(typeid(*component));
-        ImGui::TextUnformatted(name.c_str());
-        ImGui::Spacing();
+        if (ImGui::CollapsingHeader(name.c_str()))
+        {
+            component->DrawDetails();
+            ImGui::Spacing();
+            ImGui::Separator();
+        }
 
-        component->DrawDetails();
-        ImGui::Spacing();
-        ImGui::Separator();
+        if (ImGui::BeginPopupContextItem(name.c_str()))
+        {
+            if (ImGui::MenuItem("Remove Component"))
+            {
+                _selectedGameObject->RemoveComponent(component);
+            }
+
+            ImGui::EndPopup();
+        }
     }
     
     if (ImGui::Button("Add Component"))

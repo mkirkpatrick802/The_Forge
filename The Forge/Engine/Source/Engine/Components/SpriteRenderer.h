@@ -30,9 +30,15 @@ namespace Engine
     protected:
         void Render(const ShaderUniformData& data) override;
 
-    protected:
+    private:
         std::unique_ptr<Texture> _texture;
         glm::vec2 _size;
+        bool _isScreenSpace;
+        glm::vec2 _screenSpace;
+
+    public:
+        glm::vec2 GetScreenSpace() const { return _screenSpace; }
+        void SetScreenSpace(const glm::vec2 screenSpace) { _screenSpace = screenSpace; }
 
     };
 

@@ -17,6 +17,7 @@
     "Game Object Name": "Asteroid",
     "Is Replicated": true,
     "Rotation": 0.0,
+    "Server Only": false,
     "X position": 0.0,
     "Y position": 0.0
 }

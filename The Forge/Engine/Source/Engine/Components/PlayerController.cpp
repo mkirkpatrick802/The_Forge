@@ -2,7 +2,6 @@
 
 #include <SDL_mouse.h>
 
-#include "Engine/JsonKeywords.h"
 #include <SDL_scancode.h>
 #include <glm/ext/scalar_constants.hpp>
 
@@ -11,7 +10,6 @@
 #include "Engine/InputManager.h"
 #include "Engine/System.h"
 #include "Engine/Rendering/CameraManager.h"
-#include "Engine/Rendering/Renderer.h"
 
 void Engine::PlayerController::Update(float deltaTime)
 {

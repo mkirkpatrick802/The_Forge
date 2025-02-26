@@ -15,7 +15,9 @@
 #include "Engine/Rendering/RenderingUtils.h"
 #include "Engine/Rendering/TextureLoader.h"
 
-Engine::SpriteRenderer::SpriteRenderer(): _size() {}
+Engine::SpriteRenderer::SpriteRenderer(): _size(), _isScreenSpace(false), _screenSpace()
+{
+}
 
 void Engine::SpriteRenderer::OnActivation()
 {
@@ -25,29 +27,52 @@ void Engine::SpriteRenderer::OnActivation()
 void Engine::SpriteRenderer::CollectUniforms(ShaderUniformData& data)
 {
     if (!_texture || IsHidden()) return;
-    const float rotation = gameObject->transform.rotation;
-    const auto position = glm::vec2(gameObject->transform.position.x - _size.x / 2, (gameObject->transform.position.y * -1) - _size.y / 2);
-    
-    auto model = glm::mat4(1.0f);
-    const auto screenPos = GetCameraManager().ConvertWorldToScreen(position);
-    model = translate(model, glm::vec3(screenPos, 0.0f));
 
+    const float rotation = gameObject->transform.rotation;
+    glm::vec2 position;
+
+    // Determine position based on space type
+    if (_isScreenSpace)
+    {
+        position = _screenSpace;  // Use screen position directly
+    }
+    else
+    {
+        position = glm::vec2(gameObject->transform.position.x - _size.x / 2, 
+                             (gameObject->transform.position.y * -1) - _size.y / 2);
+        position = GetCameraManager().ConvertWorldToScreen(position);
+    }
+
+    auto model = glm::mat4(1.0f);
+    model = translate(model, glm::vec3(position, 0.0f));
+
+    // Apply rotation around the center
     model = translate(model, glm::vec3(0.5f * _size.x, 0.5f * _size.y, 0.0f));
     model = rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
     model = translate(model, glm::vec3(-0.5f * _size.x, -0.5f * _size.y, 0.0f));
 
+    // Apply scaling
     model = scale(model, glm::vec3(_size, 1.0f));
 
     glBindTextureUnit(0, _texture->GetID());
-    
+
     data.intUniforms["image"] = 0;
     data.mat4Uniforms["model"] = model;
     data.mat4Uniforms["projection"] = GetProjectionMatrix();
-    data.mat4Uniforms["view"] = GetViewMatrix();
+    
+    // Set view matrix appropriately
+    if (_isScreenSpace) {
+        data.mat4Uniforms["view"] = glm::mat4(1.0f); // No view matrix in screen space
+    } else {
+        data.mat4Uniforms["view"] = GetViewMatrix();
+    }
+
 }
 
 void Engine::SpriteRenderer::Render(const ShaderUniformData& data)
 {
+    if (!_texture || IsHidden()) return;
+    
     shader.Use();
     
     for (const auto& [name, value] : data.intUniforms)
@@ -82,6 +107,15 @@ void Engine::SpriteRenderer::Deserialize(const json& data)
     _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
     _size = _texture->GetSize();
 
+    if (data.contains("Is Screen Space"))
+        _isScreenSpace = data["Is Screen Space"];
+
+    if (data.contains("Screen Space X") && data.contains("Screen Space Y"))
+    {
+        _screenSpace.x = data["Screen Space X"];
+        _screenSpace.y = data["Screen Space Y"];
+    }
+    
     GetRenderer().AddComponentToRenderList(this);
 }
 
@@ -94,6 +128,10 @@ nlohmann::json Engine::SpriteRenderer::Serialize()
         std::string filepath = _texture->GetFilePath();
         data[JsonKeywords::SPRITE_RENDERER_SPRITE] = filepath;
     }
+
+    data["Is Screen Space"] = _isScreenSpace;
+    data["Screen Space X"] = _screenSpace.x;
+    data["Screen Space Y"] = _screenSpace.y;
     
     return data;
 }
@@ -130,6 +168,13 @@ void Engine::SpriteRenderer::DrawDetails()
     }
 
     ImGuiHelper::DisplayFilePath("Sprite Saved Path", _texture ? _texture->GetFilePath() : "");
-
     ImGui::Spacing();
+
+    ImGui::Checkbox("Is Screen Space", &_isScreenSpace);
+    ImGui::Spacing();
+    if (_isScreenSpace)
+    {
+        ImGuiHelper::InputVector2("Screen Location", _screenSpace);
+        ImGui::Spacing();
+    }
 }

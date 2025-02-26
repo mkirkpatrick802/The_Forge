@@ -35,8 +35,8 @@ private:
     WrenchState _currentState = WS_Off;
     ResourceManager* _resourceManager = nullptr;
     Engine::PlayerController* _playerController = nullptr;
-    float _damage = 10.f;
-    float _range = 30.f;
+    float _damage = 1.f;
+    float _range = 200.f;
     glm::vec2 _endpoint = glm::vec2(0);
     
 };

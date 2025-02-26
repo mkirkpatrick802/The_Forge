@@ -12,6 +12,9 @@ public:
 
     void Deserialize(const json& data) override;
     nlohmann::json Serialize() override;
+
+    void Write(NetCode::OutputByteStream& stream) const override;
+    void Read(NetCode::InputByteStream& stream) override;
     void DrawDetails() override;
     
 private:
@@ -22,10 +25,13 @@ public:
     void CollectUniforms(Engine::ShaderUniformData& data) override {}
 
 private:
-    std::mt19937 gen;
+    std::mt19937 _gen;
     
     std::vector<std::pair<int, std::unique_ptr<Engine::Texture>>> _sprites;
-    std::vector<std::pair<glm::vec2, const Engine::Texture*>> _tiles;
+    std::vector<std::pair<glm::vec2, const Engine::Texture*>> _tiles; // pos, texture
+
+    std::vector<std::unique_ptr<Engine::Texture>> _overflow; // used in replication
+    
     glm::vec2 _gridSize;
 };
 

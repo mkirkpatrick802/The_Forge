@@ -1,5 +1,7 @@
 ﻿#include "GameObject.h"
 
+#include <algorithm>
+
 #include "Components/Component.h"
 #include "JsonKeywords.h"
 #include "Level.h"
@@ -38,12 +40,26 @@ std::vector<Engine::Component*> Engine::GameObject::GetAllComponents() const
     return componentList;
 }
 
+void Engine::GameObject::RemoveComponent(Component* component)
+{
+    if (!component) return;
+    const std::type_index type = typeid(*component);  // Get the actual type of the component
+
+    if (const auto it = _components.find(type); it != _components.end() && it->second == component)
+        _components.erase(it);
+
+    GetComponentFactories().DeleteComponent(component);
+}
+
 void Engine::GameObject::Deserialize(const nlohmann::json& data)
 {
     _name = data[JsonKeywords::GAMEOBJECT_NAME];
     
     if (data.contains(JsonKeywords::GAMEOBJECT_ISREPLICATED))
         isReplicated = data[JsonKeywords::GAMEOBJECT_ISREPLICATED];
+
+    if (data.contains("Server Only"))
+        isServerOnly = data["Server Only"];
 
     if (data.contains(JsonKeywords::GAMEOBJECT_POSITION_X) && data.contains(JsonKeywords::GAMEOBJECT_POSITION_Y))
     {
@@ -69,6 +85,7 @@ nlohmann::json Engine::GameObject::Serialize()
     nlohmann::json data;
     data[JsonKeywords::GAMEOBJECT_NAME] = _name;
     data[JsonKeywords::GAMEOBJECT_ISREPLICATED] = isReplicated;
+    data["Server Only"] = isServerOnly;
     data[JsonKeywords::GAMEOBJECT_POSITION_X] = transform.position.x;
     data[JsonKeywords::GAMEOBJECT_POSITION_Y] = transform.position.y;
     data[JsonKeywords::GAMEOBJECT_ROTATION] = transform.rotation;

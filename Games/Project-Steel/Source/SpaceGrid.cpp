@@ -10,7 +10,7 @@
 #include "Engine/Rendering/Renderer.h"
 #include "Engine/Rendering/TextureLoader.h"
 
-SpaceGrid::SpaceGrid() : gen(std::random_device{}()), _gridSize(2,2)
+SpaceGrid::SpaceGrid() : _gen(std::random_device{}()), _gridSize(2,2)
 {
     
 }
@@ -37,7 +37,7 @@ void SpaceGrid::InitTiles()
         for (int y = 0; y < (int)_gridSize.y; y++)
         {
             // Select a random index based on weights
-            const size_t randomIndex = dist(gen);
+            const size_t randomIndex = dist(_gen);
             const Engine::Texture* sprite = _sprites[randomIndex].second.get();
             if (!sprite) continue;
             
@@ -147,6 +147,40 @@ nlohmann::json SpaceGrid::Serialize()
     data["sprites"] = sprites_json;
     
     return data;
+}
+
+void SpaceGrid::Write(NetCode::OutputByteStream& stream) const
+{
+    IRenderable::Write(stream);
+    stream.Write(_gridSize);
+
+    const uint32_t size = static_cast<uint32_t>(_tiles.size());
+    stream.Write(size);
+    for (const auto& [fst, snd] : _tiles)
+    {
+        stream.Write(fst);
+        stream.Write(snd->GetFilePath());
+    }
+}
+
+void SpaceGrid::Read(NetCode::InputByteStream& stream)
+{
+    IRenderable::Read(stream);
+    stream.Read(_gridSize);
+
+    uint32_t size;
+    stream.Read(size);
+    for (uint32_t i = 0; i < size; i++)
+    {
+        glm::vec2 pos;
+        std::string filepath;
+        stream.Read(pos);
+        stream.Read(filepath);
+        std::unique_ptr<Engine::Texture> texture = CreateTexture(filepath, Engine::Texture::TextureType::PIXEL);
+        std::pair tile(pos, texture.get());
+        _tiles.emplace_back(tile);
+        _overflow.push_back(std::move(texture));
+    }
 }
 
 void SpaceGrid::DrawDetails()

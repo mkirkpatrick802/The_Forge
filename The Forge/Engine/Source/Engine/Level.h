@@ -12,11 +12,6 @@ namespace NetCode
     class NetworkManager;
 }
 
-namespace Engine
-{
-    class GameModeBase;
-}
-
 namespace Editor
 {
     class DetailsEditor;
@@ -24,6 +19,7 @@ namespace Editor
 
 namespace Engine
 {
+    class GameModeBase;
     class Level;
     class GameObject;
     
@@ -42,7 +38,6 @@ namespace Engine
         std::vector<GameObject*> GetAllGameObjects() const;
         std::string GetName() { return _name; }
         GameModeBase& GetGameMode() const { return *_gameMode; }
-
         
     private:
         void Write(NetCode::OutputByteStream& stream, bool isCompleteState = true);

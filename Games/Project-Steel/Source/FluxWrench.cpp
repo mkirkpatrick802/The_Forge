@@ -23,6 +23,7 @@ void FluxWrench::Start()
 
 void FluxWrench::Update(float deltaTime)
 {
+    if (!_playerController) return;
     if (_playerController->IsLocalPlayer())
     {
         CollectInputs();
@@ -42,16 +43,19 @@ void FluxWrench::CollectInputs()
     if (isRightClick || isLeftClick)
     {
         mousePos = GetCameraManager().ConvertScreenToWorld(mousePos);
-        const auto colliders = GetComponentManager().GetAllComponents<BoxCollider>();
-
-        if (!colliders.empty())
+        if (distance(mousePos, gameObject->transform.position) < _range)
         {
-            for (const auto collider : colliders)
+            const auto colliders = GetComponentManager().GetAllComponents<BoxCollider>();
+
+            if (!colliders.empty())
             {
-                if (collider->CheckCollision(mousePos))
+                for (const auto collider : colliders)
                 {
-                    EnableWrench(collider->gameObject, mousePos, isRightClick ? WS_Mining : WS_Repairing);
-                    return;  // Stop after the first valid click
+                    if (collider->CheckCollision(mousePos))
+                    {
+                        EnableWrench(collider->gameObject, mousePos, isRightClick ? WS_Mining : WS_Repairing);
+                        return;  // Stop after the first valid click
+                    }
                 }
             }
         }
@@ -72,7 +76,7 @@ void FluxWrench::EnableWrench(Engine::GameObject* target, glm::vec2 mousePos, Wr
         if (const auto destructible = target->GetComponent<Destructible>())
         {
             int resourceGain = 0;
-            destructible->TakeDamage(gameObject, 2, resourceGain);
+            destructible->TakeDamage(gameObject, _damage, resourceGain);
             if (_resourceManager)
                 _resourceManager->GainResources(resourceGain);
         }

@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <cstdint>
 #include <glm/vec2.hpp>
+#include <SDL_scancode.h>
 
 namespace Engine
 {

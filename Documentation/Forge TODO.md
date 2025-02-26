@@ -10,6 +10,7 @@ tags:
 - [ ] Scene Grid
 - [ ] Camera Zoom
 - [ ] [[Player Controller]]
+- [ ] Loading Screen
 
 
 ## Not Started
@@ -17,9 +18,10 @@ tags:
 - [ ] Sphere Collider
 - [ ] Projectile Component
 - [ ] Can't return to editor after in-game
-- [ ] Clean up render pipeline for components
 - [ ] Clean up build includes
 - [ ] Streamline JSON Serialization
+- [ ] Per Component Dirty State
+- [ ] Remove Components from Game Object
 
 
 ## Started
@@ -33,6 +35,7 @@ tags:
 
 ## Done
 
+- [ ] Clean up render pipeline for components
 - [ ] Asteroid Spawner
 - [ ] Resource UI
 - [ ] Crash when deleting game objects

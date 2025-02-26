@@ -28,6 +28,8 @@ namespace Engine
         template <typename T>
         T* AddComponent();
 
+        void RemoveComponent(Component* component);
+
         void Deserialize(const nlohmann::json& data);
         nlohmann::json Serialize();
     
@@ -38,6 +40,7 @@ namespace Engine
     public:
         Transform transform;
         bool isReplicated = true;
+        bool isServerOnly = false;
         bool isDirty = false;
         
         std::string filepath;
