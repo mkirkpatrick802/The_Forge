@@ -124,6 +124,8 @@ void Engine::LineRenderer::Read(NetCode::InputByteStream& stream)
 
     stream.Read(_start);
     stream.Read(_end);
+
+    GetRenderer().AddComponentToRenderList(this);
 }
 
 void Engine::LineRenderer::DrawDetails()

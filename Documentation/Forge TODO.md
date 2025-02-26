@@ -22,6 +22,7 @@ tags:
 - [ ] Streamline JSON Serialization
 - [ ] Per Component Dirty State
 - [ ] Remove Components from Game Object
+- [ ] Asteroids Not Replicating
 
 
 ## Started

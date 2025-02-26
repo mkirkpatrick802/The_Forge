@@ -9,7 +9,7 @@ void ResourceCounter::Render(const Engine::ShaderUniformData& data)
 {
     if (const auto controller = gameObject->GetComponent<Engine::PlayerController>())
     {
-        //if (!controller->IsLocalPlayer()) return;
+        if (!controller->IsLocalPlayer()) return;
         TextRenderer::Render(data);
     }
 }

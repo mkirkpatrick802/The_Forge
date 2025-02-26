@@ -27,7 +27,7 @@ void Destructible::TakeDamage(Engine::GameObject* dealer, const float damage, in
     _health -= damage;
     if (_health <= 0)
     {
-        resourceGain =+ _resourceGain;
+        resourceGain += _resourceGain;
         Destroy(gameObject);
     }
 }

@@ -3,6 +3,9 @@
         {
             "Component ID": 2525770811,
             "Fragment Shader": "Assets\\Shaders\\Destructible.frag",
+            "Is Screen Space": false,
+            "Screen Space X": 0.0,
+            "Screen Space Y": 0.0,
             "Sorting Layer": 0,
             "Sprite": "Assets\\Sprites\\Astroid.png",
             "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"

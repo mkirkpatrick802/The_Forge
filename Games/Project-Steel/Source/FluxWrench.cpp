@@ -110,9 +110,11 @@ void FluxWrench::UpdateWrenchVisuals() const
 void FluxWrench::Write(NetCode::OutputByteStream& stream) const
 {
     stream.Write(_currentState);
+    stream.Write(_endpoint);
 }
 
 void FluxWrench::Read(NetCode::InputByteStream& stream)
 {
     stream.Read(_currentState);
+    stream.Read(_endpoint);
 }
