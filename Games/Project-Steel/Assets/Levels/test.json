@@ -34,15 +34,26 @@
                     "Component ID": 1399211633,
                     "Fragment Shader": "Assets\\Engine Assets\\Shaders\\Sprite.frag",
                     "Sorting Layer": -10,
-                    "Sprite": "Assets\\Sprites\\SpaceChunck_1.png",
-                    "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"
+                    "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert",
+                    "grid size x": 10.0,
+                    "grid size y": 10.0,
+                    "sprites": [
+                        {
+                            "texture": "Assets\\Sprites\\SpaceChunck_1.png",
+                            "weight": 10
+                        },
+                        {
+                            "texture": "Assets\\Sprites\\SpaceBackgroundTile_2.png",
+                            "weight": 1
+                        }
+                    ]
                 }
             ],
             "Game Object Name": "Background",
             "Is Replicated": false,
             "Rotation": 0.0,
-            "X position": 0.0,
-            "Y position": 0.0
+            "X position": -1000.0,
+            "Y position": -1000.0
         }
     ],
     "Level Name": "test"

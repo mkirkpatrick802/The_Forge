@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "DetailsEditor.h"
-#include "ImGuiHelper.h"
+#include "Engine/Rendering/ImGuiHelper.h"
 #include "Engine/EngineManager.h"
 #include "Engine/GameObject.h"
 #include "Engine/JsonKeywords.h"
@@ -155,7 +155,7 @@ void Editor::LevelEditor::LevelSettings()
     // Game Objects
     ImGui::Separator();
     
-    if (ImGuiHelper::CenteredButtonWithPadding("Create New Game Object", 5))
+    if (Engine::ImGuiHelper::CenteredButtonWithPadding("Create New Game Object", 5))
     {
         currentLevel->SpawnNewGameObject();
     }

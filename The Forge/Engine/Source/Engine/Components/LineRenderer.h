@@ -4,12 +4,19 @@
 
 namespace Engine
 {
-    class LineRenderer final: public SpriteRenderer
+    class LineRenderer final: public Component, public IRenderable
     {
     public:
         LineRenderer();
-        void CollectUniforms(ShaderUniformData& data) override;
+        ~LineRenderer() override;
+        void OnActivation() override;
         void Render(const ShaderUniformData& data) override;
+
+        virtual void Deserialize(const json& data) override;
+        virtual nlohmann::json Serialize() override;
+
+        virtual void Write(NetCode::OutputByteStream& stream) const override;
+        virtual void Read(NetCode::InputByteStream& stream) override;
         
         // Editor Properties 
         void DrawDetails() override;
@@ -18,6 +25,9 @@ namespace Engine
         void RenderLine(glm::vec2 pos, glm::vec2 dir, glm::vec2 size);
         
     private:
+        std::unique_ptr<Texture> _texture;
+        glm::vec2 _size;
+        
         glm::vec2 _start;
         glm::vec2 _end;
 

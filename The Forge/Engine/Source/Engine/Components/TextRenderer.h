@@ -1,10 +1,11 @@
 ﻿#pragma once
 #include "ComponentUtils.h"
 #include "Engine/Rendering/Font.h"
+#include "Engine/Rendering/IRenderable.h"
 
 namespace Engine
 {
-    class TextRenderer : public Component
+    class TextRenderer : public Component, public IRenderable
     {
     public:
         TextRenderer() = default;

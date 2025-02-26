@@ -9,7 +9,7 @@ void ResourceCounter::Render(const Engine::ShaderUniformData& data)
 {
     if (const auto controller = gameObject->GetComponent<Engine::PlayerController>())
     {
-        if (!controller->IsLocalPlayer()) return;
+        //if (!controller->IsLocalPlayer()) return;
         TextRenderer::Render(data);
     }
 }
@@ -28,8 +28,8 @@ void ResourceCounter::Deserialize(const json& data)
     if (data.contains(JsonKeywords::TEXT_RENDERER_SIZE))
         _fontSize = data[JsonKeywords::TEXT_RENDERER_SIZE];
 
-    if (data.contains(JsonKeywords::SPRITE_RENDERER_SORTING_LAYER))
-        sortingLayer = data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER];
+    //if (data.contains(JsonKeywords::SPRITE_RENDERER_SORTING_LAYER))
+        //sortingLayer = data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER];
 
     if (data.contains(JsonKeywords::TEXT_RENDERER_SCREEN_POS_X) && data.contains(JsonKeywords::TEXT_RENDERER_SCREEN_POS_Y))
     {
@@ -46,7 +46,7 @@ nlohmann::json ResourceCounter::Serialize()
     nlohmann::json data;
     data[JsonKeywords::TEXT_RENDERER_TEXT] = _text;
     data[JsonKeywords::TEXT_RENDERER_SIZE]= _fontSize;
-    data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER] = sortingLayer;
+    //data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER] = sortingLayer;
     data[JsonKeywords::TEXT_RENDERER_SCREEN_POS_X] = _screenPos.x;
     data[JsonKeywords::TEXT_RENDERER_SCREEN_POS_Y] = _screenPos.y;
     return data;

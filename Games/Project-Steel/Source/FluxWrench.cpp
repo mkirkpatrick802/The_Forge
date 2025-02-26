@@ -94,7 +94,7 @@ void FluxWrench::DisableWrench()
     gameObject->isDirty = true;
 }
 
-void FluxWrench::UpdateWrenchVisuals()
+void FluxWrench::UpdateWrenchVisuals() const
 {
     if (const auto line = gameObject->GetComponent<LineRenderer>())
     {
@@ -106,11 +106,9 @@ void FluxWrench::UpdateWrenchVisuals()
 void FluxWrench::Write(NetCode::OutputByteStream& stream) const
 {
     stream.Write(_currentState);
-    stream.Write(_endpoint);
 }
 
 void FluxWrench::Read(NetCode::InputByteStream& stream)
 {
     stream.Read(_currentState);
-    stream.Read(_endpoint);
 }

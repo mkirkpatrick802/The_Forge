@@ -29,7 +29,7 @@ private:
     void CollectInputs();
     void EnableWrench(Engine::GameObject* target, glm::vec2 mousePos, WrenchState state);
     void DisableWrench();
-    void UpdateWrenchVisuals();
+    void UpdateWrenchVisuals() const;
     
 private:
     WrenchState _currentState = WS_Off;

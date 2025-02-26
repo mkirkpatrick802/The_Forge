@@ -17,13 +17,10 @@ namespace Engine
         virtual ~Component() = default;
 
         virtual void Deserialize(const json& data) {}
-        virtual nlohmann::json Serialize() { return nlohmann::json(); }
+        virtual nlohmann::json Serialize() { return {}; }
 
         // Called before the first update frame for this object
         virtual void Start() {}
-
-        // Called every frame from the renderer
-        virtual void Render(const ShaderUniformData& data) {}
         
         // Called every frame from the game engine
         virtual void Update(float deltaTime) {}
@@ -41,7 +38,6 @@ namespace Engine
         GameObject* gameObject = nullptr;
         bool isReplicated = false;
         bool isDirty = false;
-        int sortingLayer = 0;
         
     };
 }

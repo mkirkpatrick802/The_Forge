@@ -12,7 +12,7 @@ Engine::TextRenderer::~TextRenderer()
 
 void Engine::TextRenderer::OnActivation()
 {
-    GetRenderer().AddComponentToRenderList(this);
+    InitRenderable(gameObject);
 }
 
 void Engine::TextRenderer::Render(const ShaderUniformData& data)
@@ -23,14 +23,13 @@ void Engine::TextRenderer::Render(const ShaderUniformData& data)
 
 void Engine::TextRenderer::Deserialize(const json& data)
 {
+    IRenderable::Deserialize(data);
+    
     if (data.contains(JsonKeywords::TEXT_RENDERER_TEXT))
         _text = data[JsonKeywords::TEXT_RENDERER_TEXT];
 
     if (data.contains(JsonKeywords::TEXT_RENDERER_SIZE))
         _fontSize = data[JsonKeywords::TEXT_RENDERER_SIZE];
-
-    if (data.contains(JsonKeywords::SPRITE_RENDERER_SORTING_LAYER))
-        sortingLayer = data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER];
 
     if (data.contains(JsonKeywords::TEXT_RENDERER_SCREEN_POS_X) && data.contains(JsonKeywords::TEXT_RENDERER_SCREEN_POS_Y))
     {
@@ -43,10 +42,9 @@ void Engine::TextRenderer::Deserialize(const json& data)
 
 nlohmann::json Engine::TextRenderer::Serialize()
 {
-    nlohmann::json data;
+    nlohmann::json data = IRenderable::Serialize();
     data[JsonKeywords::TEXT_RENDERER_TEXT] = _text;
     data[JsonKeywords::TEXT_RENDERER_SIZE]= _fontSize;
-    data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER] = sortingLayer;
     data[JsonKeywords::TEXT_RENDERER_SCREEN_POS_X] = _screenPos.x;
     data[JsonKeywords::TEXT_RENDERER_SCREEN_POS_Y] = _screenPos.y;
     return data;
@@ -63,8 +61,8 @@ void Engine::TextRenderer::DrawDetails()
     ImGui::InputFloat("##TEXT Y", &_screenPos.y, 0, 0);
     ImGui::PopItemWidth();
     
-    std::string label = "Sorting Layer##" + std::to_string((uintptr_t)this);
-    ImGui::InputInt(label.c_str(), &sortingLayer);
+    //std::string label = "Sorting Layer##" + std::to_string((uintptr_t)this);
+    //ImGui::InputInt(label.c_str(), &sortingLayer);
     ImGui::Spacing();
 
     char buffer[256];  // Temporary buffer

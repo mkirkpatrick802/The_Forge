@@ -69,19 +69,19 @@ void Engine::Renderer::CreateRenderer()
 	_quadShader.Compile(vertex.c_str(), fragment.c_str());
 }
 
-void Engine::Renderer::AddComponentToRenderList(Component* spriteRenderer)
+void Engine::Renderer::AddComponentToRenderList(IRenderable* renderable)
 {
-	if (spriteRenderer == nullptr) return;
-	const auto pair = std::pair(spriteRenderer->sortingLayer, spriteRenderer);
+	if (renderable == nullptr) return;
+	const auto pair = std::pair(renderable->GetSortingLayer(), renderable);
 	for (const auto val : _renderList) // This is gross
-		if (val.second == spriteRenderer)
+		if (val.second == renderable)
 		{
 			if (val == pair)
 			{
 				return;
 			}
 
-			RemoveComponentFromRenderList(spriteRenderer);
+			RemoveComponentFromRenderList(renderable);
 		}
 	
 	_renderList.emplace_back(pair);
@@ -89,13 +89,13 @@ void Engine::Renderer::AddComponentToRenderList(Component* spriteRenderer)
 	SortRenderList();
 }
 
-void Engine::Renderer::RemoveComponentFromRenderList(Component* spriteRenderer)
+void Engine::Renderer::RemoveComponentFromRenderList(IRenderable* renderable)
 {
-	if (spriteRenderer == nullptr) return;
+	if (renderable == nullptr) return;
 
 	std::erase_if(_renderList,
-				  [spriteRenderer](const std::pair<int16_t, Component*>& sprite) {
-						  return sprite.second == spriteRenderer;
+				  [renderable](const std::pair<int16_t, IRenderable*>& sprite) {
+						  return sprite.second == renderable;
 				  });
 	
 	SortRenderList();
@@ -123,13 +123,16 @@ void Engine::Renderer::Render()
 		glDisable(GL_LINE_SMOOTH);
 		glDisable(GL_POLYGON_SMOOTH);
 
-		_grid->Render();
+		//_grid->Render();
 		
 		if (!_renderList.empty())
 			for (const auto& val : _renderList | std::views::values)
 			{
-				auto data = ShaderUniformSystem::CollectUniforms(val->gameObject);
-				val->Render(data);
+				if (auto go = val->GetGameObject())
+				{
+					auto data = ShaderUniformSystem::CollectUniforms(go);
+					val->Render(data);
+				}
 			}
 
 		sceneFBO->Unbind();
