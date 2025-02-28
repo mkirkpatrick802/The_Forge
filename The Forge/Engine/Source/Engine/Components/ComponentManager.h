@@ -56,13 +56,26 @@ namespace Engine
         return nullptr;
     }
 
+    // TODO: not working right (should return all children components as well)
     template <typename T>
     std::vector<T*> ComponentManager::GetAllComponents()
     {
-        if (auto pool = GetPool<T>())
-            return pool->GetActive();
+        std::vector<T*> results;
 
-        return std::vector<T*>();
+        // Iterate over all pools in _componentPools
+        for (auto& [type, basePool] : _componentPools)
+        {
+            // Check if the pool type is derived from T
+            if (std::is_base_of_v<T, decltype(*basePool)>)
+            {
+                // Cast the base pool to the correct type and get active components
+                auto* pool = static_cast<ComponentPool<T>*>(basePool.get());
+                auto activeComponents = pool->GetActive();
+                results.insert(results.end(), activeComponents.begin(), activeComponents.end());
+            }
+        }
+
+        return results;
     }
 
     template <typename T>

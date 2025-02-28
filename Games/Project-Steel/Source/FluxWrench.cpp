@@ -8,7 +8,7 @@
 #include "Engine/InputManager.h"
 #include "Engine/JsonKeywords.h"
 #include "Engine/System.h"
-#include "Engine/Components/BoxCollider.h"
+#include "Engine/Components/RectangleCollider.h"
 #include "Engine/Rendering/CameraManager.h"
 #include "Engine/Components/LineRenderer.h"
 #include "Engine/Components/PlayerController.h"
@@ -45,7 +45,7 @@ void FluxWrench::CollectInputs()
         mousePos = GetCameraManager().ConvertScreenToWorld(mousePos);
         if (distance(mousePos, gameObject->transform.position) < _range)
         {
-            const auto colliders = GetComponentManager().GetAllComponents<BoxCollider>();
+            const auto colliders = GetComponentManager().GetAllComponents<RectangleCollider>();
 
             if (!colliders.empty())
             {

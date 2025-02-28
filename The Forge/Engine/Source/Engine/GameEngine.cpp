@@ -12,6 +12,7 @@
 #include "System.h"
 #include "Time.h"
 #include "../../../Netcode/Source/GamerServices.h"
+#include "Collisions/CollisionManager.h"
 #include "Components/ComponentManager.h"
 #include "Components/SpriteRenderer.h"
 #include "Editor/EditorManager.h"
@@ -93,6 +94,7 @@ void Engine::GameEngine::StartGameplayLoop()
 			
 			if (!GetEngineManager().IsEditorEnabled())
 			{
+				GetCollisionManager().Update();
 				NetCode::GetGamerService().Update();
 				NetCode::GetNetworkManager().Update();
 				_chat->Update(deltaTime);

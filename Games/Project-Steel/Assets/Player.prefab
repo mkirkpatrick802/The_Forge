@@ -14,14 +14,14 @@
             "Component ID": 1181213486
         },
         {
+            "Component ID": 1793857451
+        },
+        {
             "Component ID": 3276240104,
             "Fragment Shader": "Assets\\Engine Assets\\Shaders\\Sprite.frag",
             "Sorting Layer": -2,
             "Sprite": "Assets\\Sprites\\Beam.png",
             "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"
-        },
-        {
-            "Component ID": 1793857451
         },
         {
             "Component ID": 2737607539,
@@ -35,6 +35,9 @@
         },
         {
             "Component ID": 2343148940
+        },
+        {
+            "Component ID": 2717025849
         }
     ],
     "Game Object Name": "Player",

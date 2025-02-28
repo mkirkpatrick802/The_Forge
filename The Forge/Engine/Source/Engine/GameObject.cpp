@@ -75,8 +75,8 @@ void Engine::GameObject::Deserialize(const nlohmann::json& data)
     for (const auto& component_data : data[JsonKeywords::COMPONENT_ARRAY])
     {
         const auto& id = component_data[JsonKeywords::COMPONENT_ID];
-        const auto component = GetComponentFactories().CreateComponentFromID(id, this);
-        component->Deserialize(component_data);
+        if (const auto component = GetComponentFactories().CreateComponentFromID(id, this); component != nullptr)
+            component->Deserialize(component_data);
     }
 }
 
