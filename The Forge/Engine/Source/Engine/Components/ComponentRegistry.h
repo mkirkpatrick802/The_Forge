@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <cstdint>
 #include <memory>
+#include <ranges>
 #include <string>
 #include <typeindex>
 #include <unordered_map>
@@ -12,7 +13,6 @@ namespace Engine
     class ComponentRegistry
     {
     public:
-        
         static ComponentRegistry& GetInstance();
         
         template <typename T>
@@ -29,13 +29,11 @@ namespace Engine
         std::type_index GetComponentTypeFromID(const uint32_t id) const;
 
         std::vector<std::pair<std::string, uint32_t>> GetListOfComponents() const;
-
+        
     private:
-
         std::string FormatComponentName(const std::string& name) const;
         
     private:
-        
         std::unordered_map<uint32_t, std::type_index> _componentTypes;
         std::unordered_map<std::type_index, uint32_t> _componentIDs;
         std::unordered_map<std::type_index, std::string> _componentNames;

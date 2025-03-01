@@ -9,6 +9,8 @@ namespace Engine
     class BasePool
     {
     public:
+        BasePool() = default;
+        virtual ~BasePool() = default;
         virtual void Update(float deltaTime) {}
     };
     
@@ -19,7 +21,7 @@ namespace Engine
         
     public:
         ComponentPool();
-        ~ComponentPool() = default;
+        ~ComponentPool() override = default;
         
         void Update(float deltaTime) override;
 
@@ -35,7 +37,7 @@ namespace Engine
     };
 
     template<typename T>
-    ComponentPool<T>::ComponentPool()
+    ComponentPool<T>::ComponentPool(): BasePool()
     {
         for (bool& i : isActive)
         {

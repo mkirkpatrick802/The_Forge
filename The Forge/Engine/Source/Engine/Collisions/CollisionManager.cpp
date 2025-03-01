@@ -3,7 +3,9 @@
 #include <iostream>
 #include <memory>
 
+#include "Engine/Components/CircleCollider.h"
 #include "Engine/Components/ComponentManager.h"
+#include "Engine/Components/RectangleCollider.h"
 
 Engine::CollisionManager& Engine::CollisionManager::GetInstance()
 {
@@ -18,7 +20,18 @@ Engine::CollisionManager::CollisionManager(): _quadTree(0, glm::vec2(0, 0), glm:
 
 void Engine::CollisionManager::Update()
 {
-    const auto colliders = GetComponentManager().GetAllComponents<Collider>();
+    std::vector<Collider*> colliders;
+    
+    const auto circleColliders = GetComponentManager().GetAllComponents<CircleCollider>();
+    const auto rectangleColliders = GetComponentManager().GetAllComponents<RectangleCollider>();
+
+    // Reserve space to avoid multiple reallocations
+    colliders.reserve(circleColliders.size() + rectangleColliders.size());
+
+    // Insert both vectors into the colliders vector
+    colliders.insert(colliders.end(), circleColliders.begin(), circleColliders.end());
+    colliders.insert(colliders.end(), rectangleColliders.begin(), rectangleColliders.end());
+    
     _quadTree.Clear();
 
     for (const auto collider : colliders)

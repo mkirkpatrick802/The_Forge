@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include "ComponentPool.h"
+#include "ComponentRegistry.h"
 
 namespace Engine
 {
@@ -55,28 +56,27 @@ namespace Engine
         
         return nullptr;
     }
-
-    // TODO: not working right (should return all children components as well)
+    
     template <typename T>
     std::vector<T*> ComponentManager::GetAllComponents()
     {
         std::vector<T*> results;
-
-        // Iterate over all pools in _componentPools
+        
         for (auto& [type, basePool] : _componentPools)
         {
-            // Check if the pool type is derived from T
-            if (std::is_base_of_v<T, decltype(*basePool)>)
+            if (type == typeid(T))
             {
-                // Cast the base pool to the correct type and get active components
-                auto* pool = static_cast<ComponentPool<T>*>(basePool.get());
-                auto activeComponents = pool->GetActive();
-                results.insert(results.end(), activeComponents.begin(), activeComponents.end());
+                if (auto* pool = dynamic_cast<ComponentPool<T>*>(basePool.get()))
+                {
+                    auto activeComponents = pool->GetActive();
+                    results.insert(results.end(), activeComponents.begin(), activeComponents.end());
+                }
             }
         }
 
         return results;
     }
+
 
     template <typename T>
     void ComponentManager::DeleteComponent(Component* component)
