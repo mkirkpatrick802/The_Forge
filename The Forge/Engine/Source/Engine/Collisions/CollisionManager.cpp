@@ -13,9 +13,14 @@ Engine::CollisionManager& Engine::CollisionManager::GetInstance()
     return *instance;
 }
 
-Engine::CollisionManager::CollisionManager(): _quadTree(0, glm::vec2(0, 0), glm::vec2(5000, 5000))
+Engine::CollisionManager::CollisionManager(): _quadTree(0, glm::vec2(-500, 500), glm::vec2(1000, 1000))
 {
     
+}
+
+void Engine::CollisionManager::DebugRender()
+{
+    _quadTree.DebugRender();
 }
 
 void Engine::CollisionManager::Update()
@@ -36,8 +41,6 @@ void Engine::CollisionManager::Update()
 
     for (const auto collider : colliders)
         _quadTree.Insert(collider);
-
-    CheckCollisions(colliders);
 }
 
 void Engine::CollisionManager::CheckCollisions(const std::vector<Collider*>& colliders)
@@ -57,4 +60,21 @@ void Engine::CollisionManager::CheckCollisions(const std::vector<Collider*>& col
             }
         }
     }
+}
+
+bool Engine::CollisionManager::CheckCollisions(const glm::vec2 point, std::vector<Collider*>& returnObjects)
+{
+    bool collision = false;
+    std::vector<Collider*> possibleCollisions;
+    _quadTree.Retrieve(possibleCollisions, point);
+    
+    // Check for collisions with nearby objects
+    for (auto* other : possibleCollisions)
+        if (other->CheckCollision(point))
+        {
+            returnObjects.emplace_back(other);
+            collision = true;
+        }
+
+    return collision;
 }

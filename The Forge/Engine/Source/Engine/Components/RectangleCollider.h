@@ -8,8 +8,6 @@ namespace Engine
     {
     public:
         RectangleCollider();
-        bool CheckCollision(const Collider* collider) const override;
-        bool CheckCollision(glm::vec2 pos) const override;
 
     private:
         glm::vec2 _size;

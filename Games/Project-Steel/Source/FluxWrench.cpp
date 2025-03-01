@@ -8,6 +8,7 @@
 #include "Engine/InputManager.h"
 #include "Engine/JsonKeywords.h"
 #include "Engine/System.h"
+#include "Engine/Collisions/CollisionManager.h"
 #include "Engine/Components/RectangleCollider.h"
 #include "Engine/Rendering/CameraManager.h"
 #include "Engine/Components/LineRenderer.h"
@@ -45,18 +46,11 @@ void FluxWrench::CollectInputs()
         mousePos = GetCameraManager().ConvertScreenToWorld(mousePos);
         if (distance(mousePos, gameObject->transform.position) < _range)
         {
-            const auto colliders = GetComponentManager().GetAllComponents<RectangleCollider>();
-
-            if (!colliders.empty())
+            if (std::vector<Collider*> hitColliders; GetCollisionManager().CheckCollisions(mousePos, hitColliders))
             {
-                for (const auto collider : colliders)
-                {
-                    if (collider->CheckCollision(mousePos))
-                    {
-                        EnableWrench(collider->gameObject, mousePos, isRightClick ? WS_Mining : WS_Repairing);
-                        return;  // Stop after the first valid click
-                    }
-                }
+                
+                EnableWrench(hitColliders[0]->gameObject, mousePos, isRightClick ? WS_Mining : WS_Repairing);
+                return;  // Stop after the first valid click
             }
         }
     }

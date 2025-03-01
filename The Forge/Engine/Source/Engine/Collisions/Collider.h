@@ -4,6 +4,9 @@
 
 namespace Engine
 {
+    class RectangleCollider;
+    class CircleCollider;
+
     enum class EColliderType : uint8_t
     {
         ECT_None = 0,
@@ -16,8 +19,14 @@ namespace Engine
     public:
         void OnActivation() override;
         ~Collider() override = default;
-        virtual bool CheckCollision(const Collider* collider) const;
-        virtual bool CheckCollision(glm::vec2 pos) const;
+        
+        bool CheckCollision(const Collider* collider) const;
+        bool CheckCollision(glm::vec2 pos) const;
+
+    private:
+        bool CheckCircleCollision(const CircleCollider* circle, const CircleCollider* other) const;
+        bool CheckCircleRectangleCollision(const CircleCollider* circle, const RectangleCollider* rectangle) const;
+        bool CheckRectangleCollision(const RectangleCollider* rectangle, const RectangleCollider* other) const;
         
     protected:
         EColliderType type = EColliderType::ECT_None;

@@ -13,6 +13,9 @@ namespace Engine
     {
     public:
         QuadTree(int depth, glm::vec2 position, glm::vec2 size);
+
+        void DebugRender();
+        
         void Clear();
         void Insert(Collider* collider);
         void Retrieve(std::vector<Collider*>& returnObjects, const Collider* collider);

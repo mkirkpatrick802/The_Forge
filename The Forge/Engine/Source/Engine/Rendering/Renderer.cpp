@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 
 #include "BufferRegistry.h"
+#include "CameraHelper.h"
 #include "CameraManager.h"
 #include "Framebuffer.h"
 #include "PixelGrid.h"
@@ -9,6 +10,7 @@
 #include "UIManager.h"
 #include "Engine/EngineManager.h"
 #include "Engine/EventSystem.h"
+#include "Engine/Collisions/CollisionManager.h"
 #include "Engine/Components/SpriteRenderer.h"
 #include "Engine/Components/TextRenderer.h"
 
@@ -62,11 +64,32 @@ void Engine::Renderer::CreateRenderer()
 	glEnableVertexAttribArray(1);
 
 	glBindVertexArray(0);
+	
+	_quadShader.Compile("Assets/Engine Assets/Shaders/ScreenQuad.vert", "Assets/Engine Assets/Shaders/ScreenQuad.frag");
 
-	std::string vertex = "Assets/Engine Assets/Shaders/ScreenQuad.vert";
-	std::string fragment = "Assets/Engine Assets/Shaders/ScreenQuad.frag";
+	// Generate the VAO and VBO for line rendering
+	glGenVertexArrays(1, &_lineVAO);
+	glGenBuffers(1, &_lineVBO);
 
-	_quadShader.Compile(vertex.c_str(), fragment.c_str());
+	// Bind the VAO
+	glBindVertexArray(_lineVAO);
+
+	// Bind the VBO
+	glBindBuffer(GL_ARRAY_BUFFER, _lineVBO);
+
+	// Set up the vertex data (we'll update this data every time we draw a line)
+	// Currently, there's no need to load data into the VBO yet
+
+	// Specify the layout of the vertex data
+	// Position attribute (x, y)
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+
+	// Unbind the VAO and VBO after setting up the layout
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	
+	_lineShader.Compile("Assets/Engine Assets/Shaders/Line.vert", "Assets/Engine Assets/Shaders/Line.frag");
 }
 
 void Engine::Renderer::AddComponentToRenderList(IRenderable* renderable)
@@ -135,6 +158,43 @@ void Engine::Renderer::Render()
 				}
 			}
 
+		if (!GetEngineManager().IsEditorEnabled())
+			GetCollisionManager().DebugRender();
+		
+		// Render all the lines stored in the _debugLines vector
+		for (const auto& line : _debugLines)
+		{
+			GLfloat vertices[] = {
+				line.start.x, line.start.y, // Start point
+				line.end.x, line.end.y		// End point
+			};
+
+			// Bind the VAO and VBO for the line
+			glBindVertexArray(_lineVAO);
+			glBindBuffer(GL_ARRAY_BUFFER, _lineVBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+			// Set up the shader program
+			_lineShader.Use();
+			_lineShader.SetVector4f("inColor", glm::vec4(line.color, 1));
+			_lineShader.SetMatrix4("projection", GetProjectionMatrix());
+			_lineShader.SetMatrix4("view", GetViewMatrix());
+
+			// Specify the layout of the vertex data (position)
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
+			glEnableVertexAttribArray(0);
+
+			// Draw the line using GL_LINES
+			glDrawArrays(GL_LINES, 0, 2);
+
+			// Unbind VAO and VBO
+			glBindVertexArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+		}
+
+		// Clear the lines after rendering, if you want to render them only once per frame
+		_debugLines.clear();
+
 		sceneFBO->Unbind();
 	}
 
@@ -162,6 +222,18 @@ void Engine::Renderer::Render()
 	sceneFBO->CheckResize();
 
 	SDL_GL_SwapWindow(GetAppWindow());
+}
+
+void Engine::Renderer::RenderLine(const glm::vec2 start, const glm::vec2 end, const glm::vec3 color)
+{
+	const glm::vec2 screenStart = GetCameraManager().ConvertWorldToScreen(glm::vec2(start.x, -start.y));
+	const glm::vec2 screenEnd = GetCameraManager().ConvertWorldToScreen(glm::vec2(end.x, -end.y));
+	_debugLines.push_back({screenStart, screenEnd, color});
+}
+
+void Engine::Renderer::ClearLines()
+{
+	_debugLines.clear();
 }
 
 Engine::Renderer::~Renderer()

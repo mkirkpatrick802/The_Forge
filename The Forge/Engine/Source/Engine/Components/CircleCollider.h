@@ -8,11 +8,12 @@ namespace Engine
     {
     public:
         CircleCollider();
-        bool CheckCollision(const Collider* collider) const override;
-        bool CheckCollision(glm::vec2 pos) const override;
 
     private:
         float _radius;
+
+    public:
+        float GetRadius() const { return _radius; };
     };
 
     REGISTER_COMPONENT(CircleCollider)

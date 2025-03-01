@@ -27,8 +27,8 @@
             "Is Replicated": false,
             "Rotation": 0.0,
             "Server Only": true,
-            "X position": 300.0,
-            "Y position": 300.0
+            "X position": -300.0,
+            "Y position": -300.0
         },
         {
             "Components": [

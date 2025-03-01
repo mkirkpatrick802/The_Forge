@@ -15,7 +15,6 @@ tags:
 
 ## Not Started
 
-- [ ] Sphere Collider
 - [ ] Projectile Component
 - [ ] Can't return to editor after in-game
 - [ ] Clean up build includes
@@ -27,7 +26,6 @@ tags:
 
 ## Started
 
-- [ ] Box Collider
 
 
 ## Doing
@@ -36,6 +34,8 @@ tags:
 
 ## Done
 
+- [ ] Sphere Collider
+- [ ] Box Collider
 - [ ] Clean up render pipeline for components
 - [ ] Asteroid Spawner
 - [ ] Resource UI

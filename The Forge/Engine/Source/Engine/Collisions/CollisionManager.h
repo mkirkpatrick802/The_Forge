@@ -8,9 +8,11 @@ namespace Engine
     public:
         static CollisionManager& GetInstance();
         CollisionManager();
-        
+        void DebugRender();
         void Update();
 
+        bool CheckCollisions(glm::vec2 point, std::vector<Collider*>& returnObjects);
+        
     private:
         void CheckCollisions(const std::vector<Collider*>& colliders);
         
