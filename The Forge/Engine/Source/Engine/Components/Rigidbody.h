@@ -19,10 +19,12 @@ namespace Engine
         
         float _mass;
         float _inverseMass;
+        bool _static;
 
     public:
         glm::vec2 GetVelocity() const { return _velocity; }
         float GetInverseMass() const { return _inverseMass; }
+        bool IsStatic() const { return _static; }
     };
 
     REGISTER_COMPONENT(Rigidbody)

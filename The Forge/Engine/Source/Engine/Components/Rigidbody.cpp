@@ -1,8 +1,7 @@
 ﻿#include "Rigidbody.h"
 
-Engine::Rigidbody::Rigidbody(): _velocity(), _acceleration(), _mass(1), _inverseMass(0)
+Engine::Rigidbody::Rigidbody(): _velocity(), _acceleration(), _mass(1), _inverseMass(0), _static(false)
 {
-    
 }
 
 void Engine::Rigidbody::OnActivation()

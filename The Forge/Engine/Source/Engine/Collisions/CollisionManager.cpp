@@ -6,6 +6,7 @@
 #include "Engine/Components/CircleCollider.h"
 #include "Engine/Components/ComponentManager.h"
 #include "Engine/Components/RectangleCollider.h"
+#include "Engine/Components/Rigidbody.h"
 
 Engine::CollisionManager& Engine::CollisionManager::GetInstance()
 {
@@ -41,6 +42,8 @@ void Engine::CollisionManager::Update()
 
     for (const auto collider : colliders)
         _quadTree.Insert(collider);
+
+    CheckCollisions(colliders);
 }
 
 void Engine::CollisionManager::CheckCollisions(const std::vector<Collider*>& colliders)
@@ -56,11 +59,47 @@ void Engine::CollisionManager::CheckCollisions(const std::vector<Collider*>& col
             if (collider != other && collider->CheckCollision(other))
             {
                 // Handle collision (e.g., resolve, respond, etc.)
-                std::cout << "Collision detected!" << '\n';
+                glm::vec2 normal = glm::normalize(collider->gameObject->transform.position - other->gameObject->transform.position);
+                const auto a = collider->gameObject->GetComponent<Rigidbody>();
+                const auto b = other->gameObject->GetComponent<Rigidbody>();
+                if (a && b)
+                {
+                    float pen = 10; // temp
+                    ResolveCollision(a, b, normal, pen);
+                }
+                //std::cout << "Collision detected!" << '\n';
             }
         }
     }
 }
+
+void Engine::CollisionManager::ResolveCollision(Rigidbody* a, Rigidbody* b, const glm::vec2 normal, float penetration) const
+{
+    const glm::vec2 relativeVelocity = a->GetVelocity() - b->GetVelocity();
+    const float velocityAlongNormal = glm::dot(relativeVelocity, normal);
+
+    // Compute restitution (bounciness)
+    const float e = 0; // Assuming inelastic collision
+
+    // Impulse calculation
+    float j = -(1 + e) * velocityAlongNormal;
+    j /= a->GetInverseMass() + b->GetInverseMass();
+
+    // Apply impulse
+    const glm::vec2 impulse = j * normal;
+    if (!a->IsStatic()) a->ApplyImpulse(-impulse);
+    if (!b->IsStatic()) b->ApplyImpulse(impulse);
+
+    // **Positional Correction** to prevent objects from sticking inside each other
+    if (const float slop = 0.01f; penetration > slop)
+    {
+        const float percent = 0.8f;
+        glm::vec2 correction = (penetration * percent / (a->GetInverseMass() + b->GetInverseMass())) * normal;
+        if (!a->IsStatic()) a->gameObject->transform.position = glm::vec2(a->gameObject->transform.position - correction * a->GetInverseMass());
+        if (!b->IsStatic()) b->gameObject->transform.position = (b->gameObject->transform.position + correction * b->GetInverseMass());
+    }
+}
+
 
 bool Engine::CollisionManager::CheckCollisions(const glm::vec2 point, std::vector<Collider*>& returnObjects)
 {
