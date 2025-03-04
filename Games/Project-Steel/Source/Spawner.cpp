@@ -3,6 +3,8 @@
 #include "imgui.h"
 #include "Engine/Level.h"
 #include "Engine/LevelManager.h"
+#include "Engine/Collisions/CollisionManager.h"
+#include "Engine/Components/CircleCollider.h"
 
 Spawner::Spawner(): _spawnTime(0), _timeElapsed(0), _radius(0), _initialAmount(0), _gen(_rd()), _dist(0.0f, 1.0f)
 {

@@ -2,13 +2,14 @@
 
 #include "Engine/Components/CircleCollider.h"
 #include "Engine/Components/RectangleCollider.h"
+#include <glm/glm.hpp>
 
 void Engine::Collider::OnActivation()
 {
     Component::OnActivation();
 }
 
-bool Engine::Collider::CheckCollision(const Collider* collider) const
+bool Engine::Collider::CheckCollision(const Collider* collider, float& penetration) const
 {
     if (!collider) return false;
     
@@ -19,13 +20,14 @@ bool Engine::Collider::CheckCollision(const Collider* collider) const
         if (collider->type == EColliderType::ECT_Circle)
         {
             auto* other = dynamic_cast<const CircleCollider*>(collider);
-            return CheckCircleCollision(circle, other);
+            return CheckCircleCollision(circle, other, penetration) && penetration > COLLIDER_SLOP;
+
         }
         
         if (collider->type == EColliderType::ECT_Rectangle)
         {
             const auto* other = dynamic_cast<const RectangleCollider*>(collider);
-            return CheckCircleRectangleCollision(circle, other);
+            return CheckCircleRectangleCollision(circle, other, penetration) && penetration > COLLIDER_SLOP;
         }
     }
     else if (type == EColliderType::ECT_Rectangle)
@@ -35,32 +37,40 @@ bool Engine::Collider::CheckCollision(const Collider* collider) const
         if (collider->type == EColliderType::ECT_Circle)
         {
             const auto* circle = dynamic_cast<const CircleCollider*>(collider);
-            return CheckCircleRectangleCollision(circle, rectangle);
+            return CheckCircleRectangleCollision(circle, rectangle, penetration) && penetration > COLLIDER_SLOP;
         }
 
         if (collider->type == EColliderType::ECT_Rectangle)
         {
             auto* other = dynamic_cast<const RectangleCollider*>(collider);
-            return CheckRectangleCollision(rectangle, other);
+            return CheckRectangleCollision(rectangle, other, penetration) && penetration > COLLIDER_SLOP;
         }
     }
 
     return false;
 }
 
-bool Engine::Collider::CheckCircleCollision(const CircleCollider* circle, const CircleCollider* other) const
+bool Engine::Collider::CheckCircleCollision(const CircleCollider* circle, const CircleCollider* other,
+    float& penetration) const
 {
     const auto& otherPos = other->gameObject->transform.position;
 
-    float dx = circle->gameObject->transform.position.x - otherPos.x;
-    float dy = circle->gameObject->transform.position.y - otherPos.y;
+    glm::vec2 distance = circle->gameObject->transform.position - otherPos;
+    float distanceSquared = dot(distance, distance);
     float radiusSum = circle->GetRadius() + other->GetRadius();
+    float radiusSumSquared = radiusSum * radiusSum;
 
-    return (dx * dx + dy * dy) <= (radiusSum * radiusSum);
+    if (distanceSquared <= radiusSumSquared)
+    {
+        penetration = radiusSum - std::sqrt(distanceSquared);
+        return true;
+    }
+    
+    return false;
 }
 
 bool Engine::Collider::CheckCircleRectangleCollision(const CircleCollider* circle,
-    const RectangleCollider* rectangle) const
+    const RectangleCollider* rectangle, float& penetration) const
 {
     const auto& pos = gameObject->transform.position;
     const auto& otherPos = rectangle->gameObject->transform.position;
@@ -75,7 +85,8 @@ bool Engine::Collider::CheckCircleRectangleCollision(const CircleCollider* circl
     return (dx * dx + dy * dy) <= (circle->GetRadius() * circle->GetRadius());
 }
 
-bool Engine::Collider::CheckRectangleCollision(const RectangleCollider* rectangle, const RectangleCollider* other) const
+bool Engine::Collider::CheckRectangleCollision(const RectangleCollider* rectangle, const RectangleCollider* other,
+    float& penetration) const
 {
     const auto& otherPos = other->gameObject->transform.position;
     const auto& otherSize = other->GetSize();

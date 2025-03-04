@@ -9,19 +9,17 @@ tags:
 
 - [ ] Scene Grid
 - [ ] Camera Zoom
-- [ ] [[Player Controller]]
 - [ ] Loading Screen
 
 
 ## Not Started
 
 - [ ] Projectile Component
-- [ ] Can't return to editor after in-game
 - [ ] Clean up build includes
 - [ ] Streamline JSON Serialization
 - [ ] Per Component Dirty State
-- [ ] Remove Components from Game Object
 - [ ] Asteroids Not Replicating
+- [ ] Draggable Prefabs into Scene
 
 
 ## Started
@@ -34,6 +32,9 @@ tags:
 
 ## Done
 
+- [ ] Remove Components from Game Object
+- [ ] Can't return to editor after in-game
+- [ ] [[Player Controller]]
 - [ ] Sphere Collider
 - [ ] Box Collider
 - [ ] Clean up render pipeline for components

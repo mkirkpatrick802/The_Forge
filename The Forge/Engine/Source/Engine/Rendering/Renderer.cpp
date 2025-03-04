@@ -115,7 +115,8 @@ void Engine::Renderer::AddComponentToRenderList(IRenderable* renderable)
 void Engine::Renderer::RemoveComponentFromRenderList(IRenderable* renderable)
 {
 	if (renderable == nullptr) return;
-
+	if (GetConsoleProcessList(nullptr, 0) == 0) return; // Windows function to check if application is closing
+	
 	std::erase_if(_renderList,
 				  [renderable](const std::pair<int16_t, IRenderable*>& sprite) {
 						  return sprite.second == renderable;

@@ -12,7 +12,7 @@ std::unique_ptr<Engine::GameObject> Editor::DetailsEditor::_selectedPrefab = nul
 
 Editor::DetailsEditor::~DetailsEditor()
 {
-    
+    ClearSelectedGameObject();
 }
 
 void Editor::DetailsEditor::Render()

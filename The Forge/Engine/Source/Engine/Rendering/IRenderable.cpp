@@ -4,6 +4,7 @@
 #include "ImGuiHelper.h"
 #include "Renderer.h"
 #include "RenderingUtils.h"
+#include "Editor/Console.h"
 #include "Engine/GameEngine.h"
 #include "Engine/JsonKeywords.h"
 

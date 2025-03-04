@@ -1,6 +1,13 @@
 {
     "Components": [
         {
+            "Component ID": 3137815528,
+            "Density": 1.0,
+            "Mass": 10.0,
+            "Static": false,
+            "Use Area As Mass": false
+        },
+        {
             "Component ID": 2525770811,
             "Fragment Shader": "Assets\\Engine Assets\\Shaders\\Sprite.frag",
             "Is Screen Space": false,
@@ -12,9 +19,6 @@
         },
         {
             "Component ID": 1181213486
-        },
-        {
-            "Component ID": 1793857451
         },
         {
             "Component ID": 3276240104,
@@ -34,10 +38,15 @@
             "Component ID": 903547868
         },
         {
-            "Component ID": 2343148940
+            "Component ID": 2343148940,
+            "Move Speed": 600.0
         },
         {
-            "Component ID": 2717025849
+            "Component ID": 2717025849,
+            "radius": 16.0
+        },
+        {
+            "Component ID": 1793857451
         }
     ],
     "Game Object Name": "Player",

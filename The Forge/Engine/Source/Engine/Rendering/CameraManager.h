@@ -10,12 +10,16 @@ namespace Engine
     public:
         static CameraManager& GetInstance();
         CameraManager();
+        ~CameraManager();
         
         Camera* GetActiveCamera() const { return _currentCamera; }
         void SetActiveCamera(Camera* camera) {  _currentCamera = camera; }
 
         glm::vec2 ConvertWorldToScreen(glm::vec2 worldPos);
         glm::vec2 ConvertScreenToWorld(glm::vec2 screenPos);
+
+    private:
+        void ResetActiveCamera(const void* p);
         
     private:
         Camera* _currentCamera = nullptr;

@@ -13,6 +13,8 @@ namespace Engine
         ECT_Rectangle,
         ECT_Circle
     };
+
+    constexpr float COLLIDER_SLOP = 0.01f;
     
     class Collider : public Component
     {
@@ -20,13 +22,13 @@ namespace Engine
         void OnActivation() override;
         ~Collider() override = default;
         
-        bool CheckCollision(const Collider* collider) const;
+        bool CheckCollision(const Collider* collider, float& penetration) const;
         bool CheckCollision(glm::vec2 pos) const;
 
     private:
-        bool CheckCircleCollision(const CircleCollider* circle, const CircleCollider* other) const;
-        bool CheckCircleRectangleCollision(const CircleCollider* circle, const RectangleCollider* rectangle) const;
-        bool CheckRectangleCollision(const RectangleCollider* rectangle, const RectangleCollider* other) const;
+        bool CheckCircleCollision(const CircleCollider* circle, const CircleCollider* other, float& penetration) const;
+        bool CheckCircleRectangleCollision(const CircleCollider* circle, const RectangleCollider* rectangle, float& penetration) const;
+        bool CheckRectangleCollision(const RectangleCollider* rectangle, const RectangleCollider* other, float& penetration) const;
         
     protected:
         EColliderType type = EColliderType::ECT_None;

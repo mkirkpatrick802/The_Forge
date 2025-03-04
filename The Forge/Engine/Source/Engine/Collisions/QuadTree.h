@@ -23,7 +23,8 @@ namespace Engine
 
     private:
         void Split();
-        int GetIndex(const Collider* collider) const;
+        std::vector<int> GetIndices(const Collider* collider) const;
+        std::vector<int> GetIndices(glm::vec2 min, glm::vec2 max) const;
         int GetIndex(glm::vec2 point) const;
 
     private:

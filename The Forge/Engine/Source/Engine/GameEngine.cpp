@@ -3,6 +3,7 @@
 #include <fstream>
 
 #include "EngineManager.h"
+#include "EventSystem.h"
 #include "GameObject.h"
 #include "InputManager.h"
 #include "JsonKeywords.h"
@@ -28,11 +29,15 @@ Engine::GameEngine::GameEngine()
 	_renderer = std::make_unique<Renderer>();
 	_inputManager = std::make_unique<InputManager>();
 	_chat = std::make_unique<Chat>();
+
+	EventSystem::GetInstance()->RegisterEvent("Editor Enabled", this, &GameEngine::SceneStartup);
 }
 
 Engine::GameEngine::~GameEngine()
 {
 	_levelManager->CleanUp();
+
+	EventSystem::GetInstance()->DeregisterEvent("Editor Enabled", this);
 }
 
 void Engine::GameEngine::ToggleLoadingScreen(bool enabled)
@@ -62,13 +67,20 @@ void Engine::GameEngine::ToggleLoadingScreen(bool enabled)
 	_loadingScreen.reset();
 }
 
-void Engine::GameEngine::SceneStartup()
+void Engine::GameEngine::SceneStartup(const void* p)
 {
-	if (const auto defaultData = GetEngineManager().GetConfigData(Engine::DEFAULTS_FILE, JsonKeywords::Config::DEFAULT_LEVEL); defaultData.is_string())
+	if (const auto defaultData = GetEngineManager().GetConfigData(DEFAULTS_FILE, JsonKeywords::Config::DEFAULT_LEVEL); defaultData.is_string())
 	{
 		const std::string filename = defaultData;
 		const std::string filepath = LEVEL_PATH + filename + ".json";
-		_levelManager = std::make_unique<LevelManager>(filepath);
+		if (_levelManager)
+		{
+			_levelManager->LoadLevel(filepath);
+		}
+		else
+		{
+			_levelManager = std::make_unique<LevelManager>(filepath);
+		}
 	}
 	else
 	{

@@ -20,7 +20,7 @@ namespace Engine
 		void StartGameplayLoop();
 
 	private:
-		void SceneStartup();
+		void SceneStartup(const void* p = nullptr);
 		void ToggleLoadingScreen(bool enabled);
 		
 	private:

@@ -9,15 +9,26 @@ namespace Engine
         Rigidbody();
         void OnActivation() override;
 
+        void Start() override;
         void Update(float deltaTime) override;
         void ApplyForce(glm::vec2 force);
         void ApplyImpulse(glm::vec2 impulse);
+
+        void DrawDetails() override;
+
+        nlohmann::json Serialize() override;
+        void Deserialize(const nlohmann::json& json) override;
+        
+        void Write(NetCode::OutputByteStream& stream) const override;
+        void Read(NetCode::InputByteStream& stream) override;
         
     private:
         glm::vec2 _velocity;
         glm::vec2 _acceleration;
-        
+
+        bool _useAreaAsMass;
         float _mass;
+        float _density;
         float _inverseMass;
         bool _static;
 

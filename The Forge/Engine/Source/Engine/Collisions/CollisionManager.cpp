@@ -1,11 +1,11 @@
 #include "CollisionManager.h"
-
 #include <memory>
 
 #include "Engine/Components/CircleCollider.h"
 #include "Engine/Components/ComponentManager.h"
 #include "Engine/Components/RectangleCollider.h"
 #include "Engine/Components/Rigidbody.h"
+#include <glm/glm.hpp>
 
 Engine::CollisionManager& Engine::CollisionManager::GetInstance()
 {
@@ -55,49 +55,52 @@ void Engine::CollisionManager::CheckCollisions(const std::vector<Collider*>& col
         // Check for collisions with nearby objects
         for (const auto* other : possibleCollisions)
         {
-            if (collider != other && collider->CheckCollision(other))
+            if (float pen; collider != other && collider->CheckCollision(other, pen))
             {
                 // Handle collision (e.g., resolve, respond, etc.)
-                glm::vec2 normal = glm::normalize(collider->gameObject->transform.position - other->gameObject->transform.position);
+                const glm::vec2 normal = normalize(other->gameObject->transform.position - collider->gameObject->transform.position);
                 const auto a = collider->gameObject->GetComponent<Rigidbody>();
                 const auto b = other->gameObject->GetComponent<Rigidbody>();
                 if (a && b)
                 {
-                    float pen = 10; // temp
                     ResolveCollision(a, b, normal, pen);
                 }
-                //std::cout << "Collision detected!" << '\n';
             }
         }
     }
 }
 
-void Engine::CollisionManager::ResolveCollision(Rigidbody* a, Rigidbody* b, const glm::vec2 normal, float penetration) const
+void Engine::CollisionManager::ResolveCollision(Rigidbody* a, Rigidbody* b, const glm::vec2 normal, const float penetration) const
 {
-    const glm::vec2 relativeVelocity = a->GetVelocity() - b->GetVelocity();
-    const float velocityAlongNormal = glm::dot(relativeVelocity, normal);
+    const glm::vec2 relativeVelocity = b->GetVelocity() - a->GetVelocity();
+    const float velocityAlongNormal = dot(relativeVelocity, normal);
+
+    // If objects are already separating, do nothing
+    if (velocityAlongNormal > 0) return;
 
     // Compute restitution (bounciness)
-    const float e = 0; // Assuming inelastic collision
+    const float e = 0.0f; // Assuming inelastic collision
 
-    // Impulse calculation
+    // Compute impulse scalar
     float j = -(1 + e) * velocityAlongNormal;
-    j /= a->GetInverseMass() + b->GetInverseMass();
+    float invMassSum = a->GetInverseMass() + b->GetInverseMass();
+    if (invMassSum == 0.0f) return; // Avoid division by zero
+
+    j /= invMassSum;
 
     // Apply impulse
     const glm::vec2 impulse = j * normal;
     if (!a->IsStatic()) a->ApplyImpulse(-impulse);
     if (!b->IsStatic()) b->ApplyImpulse(impulse);
 
-    // **Positional Correction** to prevent objects from sticking inside each other
-    if (const float slop = 0.01f; penetration > slop)
-    {
-        const float percent = 0.8f;
-        glm::vec2 correction = (penetration * percent / (a->GetInverseMass() + b->GetInverseMass())) * normal;
-        if (!a->IsStatic()) a->gameObject->transform.position = glm::vec2(a->gameObject->transform.position - correction * a->GetInverseMass());
-        if (!b->IsStatic()) b->gameObject->transform.position = (b->gameObject->transform.position + correction * b->GetInverseMass());
-    }
+    // **Positional Correction (to separate overlapping objects)**
+    constexpr float percent = 0.6f;  // Penetration correction percentage (tweakable)
+    const glm::vec2 correction = (penetration / invMassSum) * percent * normal;
+        
+    if (!a->IsStatic()) a->gameObject->transform.position = (a->gameObject->transform.position - a->GetInverseMass() * correction);
+    if (!b->IsStatic()) b->gameObject->transform.position = (b->gameObject->transform.position + b->GetInverseMass() * correction);
 }
+
 
 
 bool Engine::CollisionManager::CheckCollisions(const glm::vec2 point, std::vector<Collider*>& returnObjects)
@@ -109,6 +112,24 @@ bool Engine::CollisionManager::CheckCollisions(const glm::vec2 point, std::vecto
     // Check for collisions with nearby objects
     for (auto* other : possibleCollisions)
         if (other->CheckCollision(point))
+        {
+            returnObjects.emplace_back(other);
+            collision = true;
+        }
+
+    return collision;
+}
+
+bool Engine::CollisionManager::CheckCollision(const Collider* collider, std::vector<Collider*>& returnObjects)
+{
+    bool collision = false;
+    std::vector<Collider*> possibleCollisions;
+    _quadTree.Retrieve(possibleCollisions, collider);
+    
+    // Check for collisions with nearby objects
+    float pen;
+    for (auto* other : possibleCollisions)
+        if (other->CheckCollision(collider, pen))
         {
             returnObjects.emplace_back(other);
             collision = true;

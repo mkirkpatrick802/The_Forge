@@ -17,7 +17,8 @@
             "Component ID": 3309965179
         },
         {
-            "Component ID": 2717025849
+            "Component ID": 2717025849,
+            "radius": 16.0
         }
     ],
     "Game Object Name": "Asteroid",

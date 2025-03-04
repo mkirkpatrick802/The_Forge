@@ -1,6 +1,7 @@
 ﻿#include "CameraManager.h"
 #include "Editor/EditorCamera.h"
 #include "Engine/EngineManager.h"
+#include "Engine/EventSystem.h"
 #include "Engine/System.h"
 
 Engine::CameraManager& Engine::CameraManager::GetInstance()
@@ -11,7 +12,12 @@ Engine::CameraManager& Engine::CameraManager::GetInstance()
 
 Engine::CameraManager::CameraManager()
 {
-    
+    EventSystem::GetInstance()->RegisterEvent("Editor Enabled", this, &CameraManager::ResetActiveCamera);
+}
+
+Engine::CameraManager::~CameraManager()
+{
+    EventSystem::GetInstance()->DeregisterEvent("Editor Enabled", this);
 }
 
 glm::vec2 Engine::CameraManager::ConvertWorldToScreen(glm::vec2 worldPos)
@@ -26,4 +32,9 @@ glm::vec2 Engine::CameraManager::ConvertScreenToWorld(glm::vec2 screenPos)
     
     auto worldLocation = glm::vec2(screenPos.x - GetAppWindowSize().x / 2, (screenPos.y - GetAppWindowSize().y / 2) * -1);
     return worldLocation + GetActiveCamera()->gameObject->transform.position;
+}
+
+void Engine::CameraManager::ResetActiveCamera(const void* p)
+{
+    _currentCamera = nullptr;
 }
