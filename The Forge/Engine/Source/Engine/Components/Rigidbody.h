@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "ComponentUtils.h"
 
 namespace Engine

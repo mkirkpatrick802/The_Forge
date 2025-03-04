@@ -2,7 +2,6 @@
 #include <json.hpp>
 
 #include "ByteStream.h"
-#include "Engine/Rendering/ShaderUniformData.h"
 
 using json = nlohmann::json;
 
@@ -13,6 +12,7 @@ namespace Engine
     {
         friend class NetCode::InputByteStream;
         friend class NetCode::OutputByteStream;
+        
     public:
         virtual ~Component() = default;
 

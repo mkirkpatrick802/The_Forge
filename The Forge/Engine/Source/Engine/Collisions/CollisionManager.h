@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "QuadTree.h"
 
 namespace Engine
@@ -7,6 +7,8 @@ namespace Engine
 
     class CollisionManager
     {
+        friend class GameEngine;
+        
     public:
         static CollisionManager& GetInstance();
         CollisionManager();
@@ -18,6 +20,7 @@ namespace Engine
     private:
         void ResolveCollision(Rigidbody* a, Rigidbody* b, glm::vec2 normal, float penetration) const;
         void CheckCollisions(const std::vector<Collider*>& colliders);
+        void ResolveCollision(Rigidbody* a, Rigidbody* b, const glm::vec2& normal ) const;
         
     private:
         QuadTree _quadTree;

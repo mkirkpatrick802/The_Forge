@@ -1,6 +1,5 @@
-﻿#include "CollisionManager.h"
+#include "CollisionManager.h"
 
-#include <iostream>
 #include <memory>
 
 #include "Engine/Components/CircleCollider.h"

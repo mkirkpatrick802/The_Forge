@@ -1,4 +1,4 @@
-﻿#include "Rigidbody.h"
+#include "Rigidbody.h"
 
 Engine::Rigidbody::Rigidbody(): _velocity(), _acceleration(), _mass(1), _inverseMass(0), _static(false)
 {
