@@ -31,6 +31,7 @@ tags:
 ## Doing
 
 - [ ] Level Bounds (Camera Bounds, Killbox)
+- [ ] Collision Channels
 
 
 ## Done
