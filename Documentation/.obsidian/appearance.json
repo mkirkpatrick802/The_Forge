@@ -1,6 +1,8 @@
 {
   "baseFontSize": 16,
   "enabledCssSnippets": [
-    "presentations"
+    "presentations",
+    "code-snippets",
+    "general"
   ]
 }

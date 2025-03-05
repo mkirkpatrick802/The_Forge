@@ -64,6 +64,7 @@ namespace Engine
     public:
         glm::vec2 GetLevelSize() const { return _size; }
         glm::vec2 GetLevelBottomLeft() const { return _size * -.5f; }
+        glm::vec2 GetLevelTopLeft() const { return {_size.x * -.5f, _size.y * .5f}; }
     };
 
     inline void Destroy(GameObject* go)

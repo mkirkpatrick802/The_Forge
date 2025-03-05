@@ -10,12 +10,12 @@ public:
     void OnActivation() override;
     void Render(const Engine::ShaderUniformData& data) override;
 
+    void DrawDetails() override;
     void Deserialize(const json& data) override;
     nlohmann::json Serialize() override;
 
     void Write(NetCode::OutputByteStream& stream) const override;
     void Read(NetCode::InputByteStream& stream) override;
-    void DrawDetails() override;
     
 private:
     void InitTiles();
@@ -26,7 +26,8 @@ public:
 
 private:
     std::mt19937 _gen;
-    
+
+    const int _tileSize = 256;
     std::vector<std::pair<int, std::unique_ptr<Engine::Texture>>> _sprites;
     std::vector<std::pair<glm::vec2, const Engine::Texture*>> _tiles; // pos, texture
 

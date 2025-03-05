@@ -6,12 +6,13 @@
 namespace Engine
 {
     constexpr int MAX_QUADTREE_OBJECTS = 4;
-    constexpr int MAX_QUADTREE_DEPTH = 5;
+    constexpr int MAX_QUADTREE_DEPTH = 10;
     constexpr int QUADTREE_CHILDREN_COUNT = 4;
     
     class QuadTree
     {
     public:
+        QuadTree();
         QuadTree(int depth, glm::vec2 position, glm::vec2 size);
 
         void DebugRender();

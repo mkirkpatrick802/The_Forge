@@ -6,6 +6,8 @@
 #include "CommandUtils.h"
 #include "Components/Component.h"
 #include "EventSystem.h"
+#include "GameEngine.h"
+#include "InputManager.h"
 #include "System.h"
 #include "Editor/EditorManager.h"
 
@@ -68,7 +70,13 @@ void Engine::EngineManager::ToggleEditor(const std::string& args)
 	}
 }
 
-void Engine::EngineManager::UpdateConfigFile(const std::string& file, const std::string& jsonKeyword, const std::string& data)
+void Engine::EngineManager::CollectDebugInputs()
+{
+	if (GetInputManager().GetKey(SDL_SCANCODE_LSHIFT) && GetInputManager().GetKeyDown(SDL_SCANCODE_F1))
+		ToggleEditor("1");
+}
+
+void Engine::EngineManager::UpdateConfigFile(const std::string& file, const std::string& jsonKeyword, const std::string& data) const
 {
 	const std::string path = CONFIG_PATH + file;
 	

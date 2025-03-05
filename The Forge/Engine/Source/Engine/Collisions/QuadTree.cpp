@@ -1,31 +1,31 @@
 ﻿#include "QuadTree.h"
 
-#include <iostream>
-
 #include "Engine/GameEngine.h"
 #include "Engine/Components/CircleCollider.h"
 #include "Engine/Components/RectangleCollider.h"
 #include "Engine/Rendering/Renderer.h"
 #include <glm/glm.hpp>
-#include <glm/ext/scalar_constants.hpp>
+
+#include "Engine/Rendering/DebugRenderer.h"
+
+Engine::QuadTree::QuadTree(): _depth(0), _position(), _size(), _hasChildren(false)
+{
+    
+}
 
 Engine::QuadTree::QuadTree(const int depth, const glm::vec2 position, const glm::vec2 size):
-_depth(depth), _position(position), _size(size), _hasChildren(false) { }
+_depth(depth), _position(position), _size(size), _hasChildren(false)
+{
+    
+}
 
 void Engine::QuadTree::DebugRender()
 {
     // Define the color for the QuadTree boundaries
     glm::vec3 color(1.0f, 0.0f, 0.0f); // Red for boundaries
 
-    // Render the boundary of this QuadTree node
-    glm::vec2 topLeft = _position;
-    glm::vec2 bottomRight = _position + glm::vec2(_size.x, -_size.y);
-
-    // Draw the lines of the QuadTree (rectangle)
-    GetRenderer().RenderLine(topLeft, glm::vec2(bottomRight.x, topLeft.y), color); // Top side
-    GetRenderer().RenderLine(glm::vec2(bottomRight.x, topLeft.y), bottomRight, color); // Right side
-    GetRenderer().RenderLine(bottomRight, glm::vec2(topLeft.x, bottomRight.y), color); // Bottom side
-    GetRenderer().RenderLine(glm::vec2(topLeft.x, bottomRight.y), topLeft, color); // Left side
+    // Render the boundary of this QuadTree node using DebugRenderer
+    GetDebugRenderer().DrawRectangle(_position + glm::vec2(_size.x * 0.5f, _size.y * -.5f), _size, color);
 
     // Define colors for colliders
     glm::vec3 circleColor(0.0f, 1.0f, 0.0f);   // Green for circles
@@ -34,42 +34,28 @@ void Engine::QuadTree::DebugRender()
     for (const auto collider : _objects)
     {
         if (!collider->gameObject) continue;
+
         if (collider->GetType() == EColliderType::ECT_Circle)
         {
-            auto circle = dynamic_cast<CircleCollider*>(collider);
+            const auto circle = dynamic_cast<CircleCollider*>(collider);
             glm::vec2 center = circle->gameObject->GetWorldPosition();
-            float radius = circle->GetRadius();
+            const float radius = circle->GetRadius();
 
-            // Draw circle by approximating it with line segments
-            int segments = 16;  // Number of line segments to approximate the circle
-            for (int i = 0; i < segments; ++i)
-            {
-                float angle1 = (i * 2 * glm::pi<float>()) / (float)segments;
-                float angle2 = ((i + 1) * 2 * glm::pi<float>()) / (float)segments;
-
-                glm::vec2 point1 = center + glm::vec2(cos(angle1) * radius, sin(angle1) * radius);
-                glm::vec2 point2 = center + glm::vec2(cos(angle2) * radius, sin(angle2) * radius);
-
-                GetRenderer().RenderLine(point1, point2, circleColor); // Draw each segment
-            }
+            // Draw circle using DebugRenderer
+            GetDebugRenderer().DrawCircle(center, radius, circleColor);
         }
 
         if (collider->GetType() == EColliderType::ECT_Rectangle)
         {
-            auto rect = dynamic_cast<RectangleCollider*>(collider);
-            glm::vec2 halfSize = rect->GetSize() * 0.5f;
-            glm::vec2 rectTopLeft = rect->gameObject->GetWorldPosition() - glm::vec2(halfSize.x, -halfSize.y); 
-            glm::vec2 rectBottomRight = rect->gameObject->GetWorldPosition() + glm::vec2(halfSize.x, -halfSize.y); 
+            const auto rect = dynamic_cast<RectangleCollider*>(collider);
+            glm::vec2 size = rect->GetSize();
+            glm::vec2 center = rect->gameObject->GetWorldPosition();
 
-            // Draw rectangle collider
-            GetRenderer().RenderLine(rectTopLeft, glm::vec2(rectBottomRight.x, rectTopLeft.y), rectColor); // Top
-            GetRenderer().RenderLine(glm::vec2(rectBottomRight.x, rectTopLeft.y), rectBottomRight, rectColor); // Right
-            GetRenderer().RenderLine(rectBottomRight, glm::vec2(rectTopLeft.x, rectBottomRight.y), rectColor); // Bottom
-            GetRenderer().RenderLine(glm::vec2(rectTopLeft.x, rectBottomRight.y), rectTopLeft, rectColor); // Left
+            // Draw rectangle using DebugRenderer
+            GetDebugRenderer().DrawRectangle(center, size, rectColor);
         }
     }
 
-    
     // If the QuadTree has children, recursively render them
     if (_hasChildren)
     {
@@ -81,13 +67,13 @@ void Engine::QuadTree::DebugRender()
     }
 }
 
+
 void Engine::QuadTree::Insert(Collider* collider)
 {
     // Ensure the collider is within the bounds of the QuadTree before proceeding
     const glm::vec2 colliderPos = collider->gameObject->GetWorldPosition();
     
     // Check if the colliders position is inside the QuadTree's bounds
-    // TODO: this should account for the size of the object
     const auto [min, max] = GetColliderMinMax(collider);
     const bool isInBounds = max.x >= _position.x && min.x <= (_position.x + _size.x) &&
                             min.y <= _position.y && max.y >= (_position.y - _size.y);

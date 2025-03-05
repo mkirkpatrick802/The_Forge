@@ -21,15 +21,16 @@ tags:
 - [ ] Asteroids Not Replicating
 - [ ] Draggable Prefabs into Scene
 - [ ] Children Game Objects
-- [ ] Level Bounds
 
 
 ## Started
 
+- [ ] Ship Parts
 
 
 ## Doing
 
+- [ ] Level Bounds (Camera Bounds, Killbox)
 
 
 ## Done

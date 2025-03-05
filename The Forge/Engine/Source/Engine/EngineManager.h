@@ -21,20 +21,19 @@ namespace Engine
 	{
 
 	public:
-
 		static EngineManager& GetInstance();
 		EngineManager();
 		~EngineManager();
 		
 	public:
-
-		void UpdateConfigFile(const std::string& file, const std::string& jsonKeyword, const std::string& data);
+		void UpdateConfigFile(const std::string& file, const std::string& jsonKeyword, const std::string& data) const;
 		nlohmann::json GetConfigData(const std::string& file, const std::string& jsonKeyword);
 		bool IsEditorEnabled() const {return _editorEnabled; }
 		
 		void ToggleEditor(const std::string& args);
 
 		Editor::EditorManager& GetEditorManager() const { return *_editor;}
+		void CollectDebugInputs();
 		
 	private:
 		

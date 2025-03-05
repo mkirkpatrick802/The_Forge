@@ -35,10 +35,14 @@ void SpaceGrid::InitTiles()
     }
     
     std::discrete_distribution<size_t> dist(weights.begin(), weights.end());
+
+    const glm::vec2 levelSize = Engine::LevelManager::GetCurrentLevel()->GetLevelSize();
+    _gridSize.x = glm::round(levelSize.x / static_cast<float>(_tileSize)) + 1;
+    _gridSize.y = glm::round(levelSize.y / static_cast<float>(_tileSize)) + 1;
     
-    for (int x = 0; x < (int)_gridSize.x; x++)
+    for (int x = 0; x < static_cast<int>(_gridSize.x); x++)
     {
-        for (int y = 0; y < (int)_gridSize.y; y++)
+        for (int y = 0; y < static_cast<int>(_gridSize.y); y++)
         {
             // Select a random index based on weights
             const size_t randomIndex = dist(_gen);
@@ -87,13 +91,64 @@ void SpaceGrid::RenderTile(const Engine::Texture* sprite, const glm::vec2 pos)
     glBindVertexArray(0);
 }
 
+void SpaceGrid::DrawDetails()
+{
+    DrawRenderableSettings();
+    ImGui::Spacing();
+    
+    if (ImGui::CollapsingHeader("Sprite Settings", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        int i = 0;
+        for (auto& sprite : _sprites)
+        {
+            ImGui::PushID(i); // Prevents ID conflicts
+            
+            ImGui::Separator();
+            ImGui::Text("Sprite %d", i);
+
+            // Drag & Drop File Button
+            if (std::string path; Engine::ImGuiHelper::DragDropFileButton("Load", path, "FILE_PATH"))
+            {
+                sprite.second.reset();
+                sprite.second = CreateTexture(path, Engine::Texture::TextureType::PIXEL);
+            }
+
+            // Show file path if texture is valid
+            if (sprite.second)
+            {
+                Engine::ImGuiHelper::DisplayFilePath("Path", sprite.second->GetFilePath());
+
+                // Show texture preview (optional)
+                //ImGui::Image((void*)(intptr_t)sprite.second->GetID(), ImVec2(50, 50));
+            }
+
+            ImGui::SameLine();
+            
+            // Weight Input
+            ImGui::PushItemWidth(50);
+            ImGui::InputInt("Spawn Weight", &sprite.first, 0);
+            ImGui::PopItemWidth();
+
+            ImGui::PopID();
+            i++;
+        }
+    }
+
+    // Button to add new sprite entry
+    ImGui::Spacing();
+    if (ImGui::Button("Add New Sprite"))
+    {
+        _sprites.emplace_back(1, nullptr);
+    }
+}
+
 void SpaceGrid::Deserialize(const json& data)
 {
     IRenderable::Deserialize(data);
     if (data.contains("grid size x") && data.contains("grid size y"))
     {
-        _gridSize.x = (float)data["grid size x"];
-        _gridSize.y = (float)data["grid size y"];
+        _gridSize.x = static_cast<float>(data["grid size x"]);
+        _gridSize.y = static_cast<float>(data["grid size y"]);
     }
 
     // Deserialize _sprites
@@ -184,59 +239,5 @@ void SpaceGrid::Read(NetCode::InputByteStream& stream)
         std::pair tile(pos, texture.get());
         _tiles.emplace_back(tile);
         _overflow.push_back(std::move(texture));
-    }
-}
-
-void SpaceGrid::DrawDetails()
-{
-    DrawRenderableSettings();
-    ImGui::Spacing();
-    
-    Engine::ImGuiHelper::InputVector2("Grid Size", _gridSize);
-    ImGui::Spacing();
-    
-    if (ImGui::CollapsingHeader("Sprite Settings", ImGuiTreeNodeFlags_DefaultOpen))
-    {
-        int i = 0;
-        for (auto& sprite : _sprites)
-        {
-            ImGui::PushID(i); // Prevents ID conflicts
-            
-            ImGui::Separator();
-            ImGui::Text("Sprite %d", i);
-
-            // Drag & Drop File Button
-            if (std::string path; Engine::ImGuiHelper::DragDropFileButton("Load", path, "FILE_PATH"))
-            {
-                sprite.second.reset();
-                sprite.second = CreateTexture(path, Engine::Texture::TextureType::PIXEL);
-            }
-
-            // Show file path if texture is valid
-            if (sprite.second)
-            {
-                Engine::ImGuiHelper::DisplayFilePath("Path", sprite.second->GetFilePath());
-
-                // Show texture preview (optional)
-                //ImGui::Image((void*)(intptr_t)sprite.second->GetID(), ImVec2(50, 50));
-            }
-
-            ImGui::SameLine();
-            
-            // Weight Input
-            ImGui::PushItemWidth(50);
-            ImGui::InputInt("Spawn Weight", &sprite.first, 0);
-            ImGui::PopItemWidth();
-
-            ImGui::PopID();
-            i++;
-        }
-    }
-
-    // Button to add new sprite entry
-    ImGui::Spacing();
-    if (ImGui::Button("Add New Sprite"))
-    {
-        _sprites.emplace_back(1, nullptr);
     }
 }

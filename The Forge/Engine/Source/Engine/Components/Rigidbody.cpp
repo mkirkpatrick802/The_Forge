@@ -57,11 +57,14 @@ void Engine::Rigidbody::Update(const float deltaTime)
 void Engine::Rigidbody::DrawDetails()
 {
     ImGui::Checkbox("Is Static", &_static);
-    ImGui::InputFloat("Density", &_density);
     ImGui::Checkbox("Use Area & Density As Mass", &_useAreaAsMass);
     if (!_useAreaAsMass)
     {
         ImGui::InputFloat("Mass", &_mass);
+    }
+    else
+    {
+        ImGui::InputFloat("Density", &_density);
     }
 }
 

@@ -8,7 +8,11 @@ namespace Engine
     {
     public:
         RectangleCollider();
-
+        
+        void DrawDetails() override;
+        nlohmann::json Serialize() override;
+        void Deserialize(const nlohmann::json& json) override;
+        
     private:
         glm::vec2 _size;
 

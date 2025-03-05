@@ -3,8 +3,8 @@
 #include "imgui.h"
 #include "Engine/Level.h"
 #include "Engine/LevelManager.h"
-#include "Engine/Collisions/CollisionManager.h"
 #include "Engine/Components/CircleCollider.h"
+#include "Engine/Rendering/DebugRenderer.h"
 
 Spawner::Spawner(): _spawnTime(0), _timeElapsed(0), _radius(0), _initialAmount(0), _gen(_rd()), _dist(0.0f, 1.0f)
 {
@@ -26,6 +26,8 @@ void Spawner::Update(const float deltaTime)
         SpawnObject();  // Call SpawnObject to spawn an object
         _timeElapsed = 0.0f;  // Reset the elapsed time after spawning
     }
+
+    Engine::GetDebugRenderer().DrawCircle(gameObject->GetWorldPosition(), _radius, glm::vec3(1.0f, .5f, 1.0f), 32);
 }
 
 void Spawner::SpawnObject()
@@ -77,8 +79,7 @@ void Spawner::DrawDetails()
     {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_PATH"))
         {
-            const char* prefab = nullptr;
-            prefab = static_cast<const char*>(payload->Data); // Retrieve the file path
+            const auto prefab = static_cast<const char*>(payload->Data); // Retrieve the file path
             _prefabToSpawn = std::string(prefab);
         }
         ImGui::EndDragDropTarget();

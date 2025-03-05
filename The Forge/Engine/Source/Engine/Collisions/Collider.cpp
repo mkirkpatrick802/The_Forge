@@ -72,18 +72,36 @@ bool Engine::Collider::CheckCircleCollision(const CircleCollider* circle, const 
 bool Engine::Collider::CheckCircleRectangleCollision(const CircleCollider* circle,
     const RectangleCollider* rectangle, float& penetration) const
 {
-    const auto& pos = gameObject->GetWorldPosition();
-    const auto& otherPos = rectangle->gameObject->GetWorldPosition();
-    const auto& size = rectangle->GetSize();
+    const auto& pos = circle->gameObject->GetWorldPosition();  // Circle center
+    const auto& otherPos = rectangle->gameObject->GetWorldPosition(); // Rectangle center
+    const auto& halfSize = rectangle->GetSize() * 0.5f; // Half-size
 
-    float closestX = std::clamp(pos.x, otherPos.x, otherPos.x + size.x);
-    float closestY = std::clamp(pos.y, otherPos.y, otherPos.y + size.y);
+    // Compute rectangle bounds
+    const float rectMinX = otherPos.x - halfSize.x;
+    const float rectMaxX = otherPos.x + halfSize.x;
+    const float rectMinY = otherPos.y - halfSize.y;
+    const float rectMaxY = otherPos.y + halfSize.y;
 
-    float dx = pos.x - closestX;
-    float dy = pos.y - closestY;
+    // Find the closest point to the circle within the rectangle
+    const float closestX = std::clamp(pos.x, rectMinX, rectMaxX);
+    const float closestY = std::clamp(pos.y, rectMinY, rectMaxY);
 
-    return (dx * dx + dy * dy) <= (circle->GetRadius() * circle->GetRadius());
+    // Vector from closest point to circle center
+    const float dx = pos.x - closestX;
+    const float dy = pos.y - closestY;
+    const float distanceSquared = dx * dx + dy * dy;
+
+    // Check collision and compute penetration depth
+    if (const float radius = circle->GetRadius(); distanceSquared <= radius * radius)
+    {
+        const float distance = sqrt(distanceSquared);
+        penetration = radius - distance; // Amount of overlap
+        return true;
+    }
+
+    return false;
 }
+
 
 bool Engine::Collider::CheckRectangleCollision(const RectangleCollider* rectangle, const RectangleCollider* other,
     float& penetration) const
@@ -115,13 +133,20 @@ bool Engine::Collider::CheckCollision(const glm::vec2 pos) const
     if (type == EColliderType::ECT_Rectangle)
     {
         const auto* rectangle = dynamic_cast<const RectangleCollider*>(this);
-        const auto& rectPos = gameObject->GetWorldPosition();
-        const auto& size = rectangle->GetSize();
+        const auto& rectPos = gameObject->GetWorldPosition(); // Center of rectangle
+        const auto& halfSize = rectangle->GetSize() * 0.5f;   // Half-size
+
+        // Compute rectangle bounds
+        const float rectMinX = rectPos.x - halfSize.x;
+        const float rectMaxX = rectPos.x + halfSize.x;
+        const float rectMinY = rectPos.y - halfSize.y;
+        const float rectMaxY = rectPos.y + halfSize.y;
 
         // Check if the position is within the bounds of the rectangle
-        return (pos.x >= rectPos.x && pos.x <= rectPos.x + size.x &&
-                pos.y >= rectPos.y && pos.y <= rectPos.y + size.y);
+        return (pos.x >= rectMinX && pos.x <= rectMaxX &&
+                pos.y >= rectMinY && pos.y <= rectMaxY);
     }
+
 
     return false;
 }

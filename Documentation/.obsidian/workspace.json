@@ -11,23 +11,14 @@
             "id": "e6e8220d80849b8a",
             "type": "leaf",
             "state": {
-              "type": "kanban",
+              "type": "markdown",
               "state": {
-                "file": "Forge TODO.md",
-                "kanbanViewState": {
-                  "kanban-plugin": "board",
-                  "list-collapse": [
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false
-                  ]
-                }
+                "file": "README.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-trello",
-              "title": "Forge TODO"
+              "icon": "lucide-file",
+              "title": "README"
             }
           }
         ]
@@ -181,14 +172,21 @@
   },
   "active": "e6e8220d80849b8a",
   "lastOpenFiles": [
+    "Forge TODO.md",
+    "README.md",
+    "Netcode/Partial Byte Stream Packets.md",
+    "Engine/Forge Architecture.md",
+    "Presentations/2-25-25 Presentation.md",
+    "Presentations/Images/editor_2-25-25.png",
+    "Engine/Components/Player Controller.md",
+    "Engine/Components/Component Functions.md",
+    "Engine/Components/Systems/Component Registry.md",
     "Engine/Components/Systems/Component Pools.md",
     "Engine/Components/Systems/Component Manager.md",
     "Engine/Components/Systems/Component Factories.md",
-    "Forge TODO.md",
+    "Netcode",
     "Engine/Rendering/Renderable Interface.md",
     "Engine/Rendering/Camera Stuff.md",
-    "Presentations/2-25-25 Presentation.md",
-    "Presentations/Images/editor_2-25-25.png",
     "Presentations/Videos.md",
     "Presentations/Videos",
     "path/to/your/image.png.md",
@@ -197,11 +195,7 @@
     "path",
     "Presentations/Images",
     "Presentations",
-    "Engine/Components/Player Controller.md",
-    "Engine/Components/Systems/Component Registry.md",
     "Editor",
-    "Engine/Components/Systems",
-    "Engine/Forge Architecture.md",
-    "Engine/Components/Component Functions.md"
+    "Engine/Components/Systems"
   ]
 }

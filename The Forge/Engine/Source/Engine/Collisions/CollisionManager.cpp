@@ -9,20 +9,19 @@
 #include "Engine/Components/Rigidbody.h"
 #include <glm/glm.hpp>
 
+#include "Engine/Level.h"
+#include "Engine/LevelManager.h"
+
 Engine::CollisionManager& Engine::CollisionManager::GetInstance()
 {
     static auto instance = std::make_unique<CollisionManager>();
     return *instance;
 }
 
-Engine::CollisionManager::CollisionManager(): _quadTree(0, glm::vec2(-500, 500), glm::vec2(1000, 1000))
+Engine::CollisionManager::CollisionManager()
 {
-    
-}
-
-void Engine::CollisionManager::DebugRender()
-{
-    _quadTree.DebugRender();
+    if (const auto level = LevelManager::GetCurrentLevel())
+        _quadTree = QuadTree(0, level->GetLevelTopLeft(), level->GetLevelSize());
 }
 
 void Engine::CollisionManager::Update()
@@ -45,6 +44,8 @@ void Engine::CollisionManager::Update()
         _quadTree.Insert(collider);
 
     CheckCollisions(colliders);
+
+    _quadTree.DebugRender();
 }
 
 void Engine::CollisionManager::CheckCollisions(const std::vector<Collider*>& colliders)
@@ -81,7 +82,7 @@ void Engine::CollisionManager::ResolveCollision(Rigidbody* a, Rigidbody* b, cons
     if (velocityAlongNormal > 0) return;
 
     // Compute restitution (bounciness)
-    const float e = 0.0f; // Assuming inelastic collision
+    const float e = 0.1f;
 
     // Compute impulse scalar
     float j = -(1 + e) * velocityAlongNormal;

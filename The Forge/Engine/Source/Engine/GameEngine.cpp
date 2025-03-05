@@ -116,6 +116,10 @@ void Engine::GameEngine::StartGameplayLoop()
 			{
 				GetEditorManager().Update();
 			}
+
+#if DEBUG
+			GetEngineManager().CollectDebugInputs();			
+#endif
 			
 			_renderer->Render();
 			_inputManager->EndProcessInputs();
