@@ -1,11 +1,17 @@
 {
     "Components": [
         {
-            "Component ID": 3137815528,
-            "Density": 1.0,
-            "Mass": 10.0,
-            "Static": false,
-            "Use Area As Mass": false
+            "Component ID": 1457500923,
+            "Rotation": 0.0,
+            "X position": 0.0,
+            "Y position": 0.0
+        },
+        {
+            "Component ID": 2737607539,
+            "Screen Position X": 5.0,
+            "Screen Position Y": 20.0,
+            "Size": 20,
+            "Text": "Resources: 0"
         },
         {
             "Component ID": 2525770811,
@@ -18,6 +24,13 @@
             "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"
         },
         {
+            "Component ID": 3137815528,
+            "Density": 1.0,
+            "Mass": 10.0,
+            "Static": false,
+            "Use Area As Mass": false
+        },
+        {
             "Component ID": 1181213486
         },
         {
@@ -28,18 +41,11 @@
             "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"
         },
         {
-            "Component ID": 2737607539,
-            "Screen Position X": 5.0,
-            "Screen Position Y": 20.0,
-            "Size": 20,
-            "Text": "Resources: 0"
-        },
-        {
             "Component ID": 903547868
         },
         {
             "Component ID": 2343148940,
-            "Move Speed": 600.0
+            "Move Speed": 500.0
         },
         {
             "Component ID": 2717025849,
@@ -51,8 +57,5 @@
     ],
     "Game Object Name": "Player",
     "Is Replicated": true,
-    "Rotation": 0.0,
-    "Server Only": false,
-    "X position": 0.0,
-    "Y position": 0.0
+    "Server Only": false
 }

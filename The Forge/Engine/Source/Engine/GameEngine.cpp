@@ -75,7 +75,7 @@ void Engine::GameEngine::SceneStartup(const void* p)
 		const std::string filepath = LEVEL_PATH + filename + ".json";
 		if (_levelManager)
 		{
-			_levelManager->LoadLevel(filepath);
+			LevelManager::LoadLevel(filepath);
 		}
 		else
 		{

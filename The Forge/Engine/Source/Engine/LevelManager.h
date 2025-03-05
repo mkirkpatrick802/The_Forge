@@ -32,7 +32,7 @@ namespace Engine
 
     private:
         
-        void CleanUp();
+        void CleanUp() const;
         
     private:
         

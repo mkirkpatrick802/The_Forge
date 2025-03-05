@@ -41,7 +41,7 @@ void Engine::LevelManager::StartCurrentLevel() const
     _currentLevel->Start();
 }
 
-void Engine::LevelManager::CleanUp()
+void Engine::LevelManager::CleanUp() const
 {
     delete _currentLevel;
     _currentLevel = nullptr;
@@ -138,8 +138,9 @@ bool Engine::LevelManager::LoadLevel(const std::string& filepath)
     level.close();
     
     //Create Level Object
-    _currentLevel = new Level(data);
+    _currentLevel = new Level();
     _currentLevel->_path = filepath;
+    _currentLevel->Load(data);
     
     return true;
 }
@@ -147,7 +148,8 @@ bool Engine::LevelManager::LoadLevel(const std::string& filepath)
 bool Engine::LevelManager::LoadLevel(NetCode::InputByteStream& stream)
 {
     delete _currentLevel;
-    _currentLevel = new Level(stream);
+    _currentLevel = new Level();
+    _currentLevel->Load(stream);
 
     return true;
 }

@@ -39,6 +39,6 @@ glm::mat4 Engine::Camera::GetProjectionMatrix()
 
 glm::mat4 Engine::Camera::GetViewMatrix()
 {
-    _view = glm::translate(glm::mat4(1.0f), glm::vec3(-gameObject->transform.position.x, gameObject->transform.position.y, 0.0f));
+    _view = glm::translate(glm::mat4(1.0f), glm::vec3(-gameObject->GetWorldPosition().x, gameObject->GetWorldPosition().y, 0.0f));
     return _view;
 }

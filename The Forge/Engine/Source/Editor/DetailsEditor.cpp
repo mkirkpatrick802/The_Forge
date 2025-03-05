@@ -23,22 +23,6 @@ void Editor::DetailsEditor::Render()
     
     ImGui::TextUnformatted(_selectedGameObject->GetName().c_str());
     ImGui::Spacing();
-    ImGui::PushItemWidth(50);
-    ImGui::Text("Position:");
-    ImGui::SameLine();
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 10); // Small padding
-    ImGui::InputFloat("##X", &_selectedGameObject->transform.position.x, 0, 0);
-    ImGui::SameLine();
-    ImGui::InputFloat("##Y", &_selectedGameObject->transform.position.y, 0, 0);
-    ImGui::PopItemWidth();
-
-    ImGui::Spacing();
-    ImGui::PushItemWidth(50);
-    ImGui::Text("Rotation:");
-    ImGui::SameLine();
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 10); // Small padding
-    ImGui::InputFloat("##Angle", &_selectedGameObject->transform.rotation);
-    ImGui::PopItemWidth();
 
     ImGui::Checkbox("Is Replicated", &_selectedGameObject->isReplicated);
     ImGui::SameLine();

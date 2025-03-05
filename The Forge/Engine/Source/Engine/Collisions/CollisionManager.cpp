@@ -1,4 +1,6 @@
 #include "CollisionManager.h"
+
+#include <iostream>
 #include <memory>
 
 #include "Engine/Components/CircleCollider.h"
@@ -58,7 +60,7 @@ void Engine::CollisionManager::CheckCollisions(const std::vector<Collider*>& col
             if (float pen; collider != other && collider->CheckCollision(other, pen))
             {
                 // Handle collision (e.g., resolve, respond, etc.)
-                const glm::vec2 normal = normalize(other->gameObject->transform.position - collider->gameObject->transform.position);
+                const glm::vec2 normal = glm::normalize(other->gameObject->GetWorldPosition() - collider->gameObject->GetWorldPosition());
                 const auto a = collider->gameObject->GetComponent<Rigidbody>();
                 const auto b = other->gameObject->GetComponent<Rigidbody>();
                 if (a && b)
@@ -94,11 +96,11 @@ void Engine::CollisionManager::ResolveCollision(Rigidbody* a, Rigidbody* b, cons
     if (!b->IsStatic()) b->ApplyImpulse(impulse);
 
     // **Positional Correction (to separate overlapping objects)**
-    constexpr float percent = 0.6f;  // Penetration correction percentage (tweakable)
+    constexpr float percent = 0.6f;  // Penetration correction percentage
     const glm::vec2 correction = (penetration / invMassSum) * percent * normal;
         
-    if (!a->IsStatic()) a->gameObject->transform.position = (a->gameObject->transform.position - a->GetInverseMass() * correction);
-    if (!b->IsStatic()) b->gameObject->transform.position = (b->gameObject->transform.position + b->GetInverseMass() * correction);
+    if (!a->IsStatic()) a->gameObject->SetPosition(a->gameObject->GetWorldPosition() - a->GetInverseMass() * correction);
+    if (!b->IsStatic()) b->gameObject->SetPosition(b->gameObject->GetWorldPosition() + b->GetInverseMass() * correction);
 }
 
 

@@ -50,7 +50,7 @@ void Engine::Rigidbody::ApplyImpulse(glm::vec2 impulse)
 void Engine::Rigidbody::Update(const float deltaTime)
 {
     _velocity += _acceleration * deltaTime;
-    gameObject->transform.position += _velocity * deltaTime;
+    gameObject->SetPosition(gameObject->GetWorldPosition() + _velocity * deltaTime);
     _acceleration = glm::vec2(0.0f); // Reset acceleration after integration
 }
 

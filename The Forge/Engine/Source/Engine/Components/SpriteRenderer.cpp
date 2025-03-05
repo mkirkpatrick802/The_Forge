@@ -28,7 +28,7 @@ void Engine::SpriteRenderer::CollectUniforms(ShaderUniformData& data)
 {
     if (!_texture || IsHidden()) return;
 
-    const float rotation = gameObject->transform.rotation;
+    const float rotation = gameObject->GetWorldRotation();
     glm::vec2 position;
 
     // Determine position based on space type
@@ -38,8 +38,8 @@ void Engine::SpriteRenderer::CollectUniforms(ShaderUniformData& data)
     }
     else
     {
-        position = glm::vec2(gameObject->transform.position.x - _size.x / 2, 
-                             (gameObject->transform.position.y * -1) - _size.y / 2);
+        position = glm::vec2(gameObject->GetWorldPosition().x - _size.x / 2, 
+                             (gameObject->GetWorldPosition().y * -1) - _size.y / 2);
         position = GetCameraManager().ConvertWorldToScreen(position);
     }
 

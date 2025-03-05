@@ -4,6 +4,8 @@
 
 #include "imgui.h"
 #include "Engine/GameEngine.h"
+#include "Engine/Level.h"
+#include "Engine/LevelManager.h"
 #include "Engine/Rendering/CameraHelper.h"
 #include "Engine/Rendering/CameraManager.h"
 #include "Engine/Rendering/ImGuiHelper.h"
@@ -18,6 +20,8 @@ SpaceGrid::SpaceGrid() : _gen(std::random_device{}()), _gridSize(2,2)
 void SpaceGrid::OnActivation()
 {
     InitRenderable(gameObject);
+    if (const auto level = Engine::LevelManager::GetCurrentLevel())
+        gameObject->SetPosition(level->GetLevelBottomLeft());
 }
 
 void SpaceGrid::InitTiles()
@@ -42,7 +46,7 @@ void SpaceGrid::InitTiles()
             if (!sprite) continue;
             
             glm::vec2 pos(x * (int)sprite->GetSize().x, y * (int)sprite->GetSize().y);
-            _tiles.emplace_back(pos + gameObject->transform.position, sprite);
+            _tiles.emplace_back(pos + gameObject->GetWorldPosition(), sprite);
         }
     }
 }

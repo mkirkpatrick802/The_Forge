@@ -20,18 +20,18 @@ Engine::CameraManager::~CameraManager()
     EventSystem::GetInstance()->DeregisterEvent("Editor Enabled", this);
 }
 
-glm::vec2 Engine::CameraManager::ConvertWorldToScreen(glm::vec2 worldPos)
+glm::vec2 Engine::CameraManager::ConvertWorldToScreen(const glm::vec2 worldPos) const
 {
     const auto screenLocation = glm::vec2(worldPos.x + GetAppWindowSize().x / 2, (worldPos.y + GetAppWindowSize().y / 2));
     return screenLocation;
 }
 
-glm::vec2 Engine::CameraManager::ConvertScreenToWorld(glm::vec2 screenPos)
+glm::vec2 Engine::CameraManager::ConvertScreenToWorld(const glm::vec2 screenPos) const
 {
     if (!GetActiveCamera()) return glm::vec2(0.0f);
     
     auto worldLocation = glm::vec2(screenPos.x - GetAppWindowSize().x / 2, (screenPos.y - GetAppWindowSize().y / 2) * -1);
-    return worldLocation + GetActiveCamera()->gameObject->transform.position;
+    return worldLocation + GetActiveCamera()->gameObject->GetWorldPosition();
 }
 
 void Engine::CameraManager::ResetActiveCamera(const void* p)

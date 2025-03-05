@@ -16,7 +16,7 @@ void Spawner::Start()
         SpawnObject();
 }
 
-void Spawner::Update(float deltaTime)
+void Spawner::Update(const float deltaTime)
 {
     // Increment the elapsed time by the delta time
     _timeElapsed += deltaTime;
@@ -35,11 +35,11 @@ void Spawner::SpawnObject()
     const float distance = _dist(_gen) * _radius;     // Random distance within the radius
 
     // Calculate random x and y coordinates
-    const glm::vec2 spawnPos = glm::vec2(distance * std::cos(angle), distance * std::sin(angle)) + gameObject->transform.position;
+    const glm::vec2 spawnPos = glm::vec2(distance * std::cos(angle), distance * std::sin(angle)) + gameObject->GetWorldPosition();
 
     const auto go = Engine::LevelManager::GetCurrentLevel()->SpawnNewGameObject(_prefabToSpawn);
-    go->transform.rotation = angle * (180.f / static_cast<float>(std::numbers::pi));
-    go->transform.position = spawnPos;
+    go->SetRotation(angle * (180.f / static_cast<float>(std::numbers::pi)));
+    go->SetPosition(spawnPos);
 }
 
 nlohmann::json Spawner::Serialize()

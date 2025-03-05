@@ -54,11 +54,11 @@ void Engine::ImGuiHelper::DisplayFilePath(const std::string& label, const std::s
     }
 }
 
-void Engine::ImGuiHelper::InputVector2(const std::string& label, glm::vec2& input)
+void Engine::ImGuiHelper::InputVector2(const std::string& label, glm::vec2& input, const float width)
 {
     ImGui::TextUnformatted(label.c_str());
     ImGui::SameLine();
-    ImGui::PushItemWidth(50);
+    ImGui::PushItemWidth(width);
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 10); // Small padding
     std::string xlabel = "##X" + label;
     std::string ylabel = "##Y" + label;

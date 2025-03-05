@@ -27,6 +27,8 @@ namespace Engine
         std::vector<int> GetIndices(glm::vec2 min, glm::vec2 max) const;
         int GetIndex(glm::vec2 point) const;
 
+        std::pair<glm::vec2, glm::vec2> GetColliderMinMax(const Collider* collider) const;
+
     private:
         int _depth;                                                         // Depth level of this node
         glm::vec2 _position;                                                // Top-left position of this node

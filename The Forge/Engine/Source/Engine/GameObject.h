@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "json.hpp"
-#include "Transform.h"
 #include "ByteStream.h"
 #include "NetworkManager.h"
 
@@ -38,7 +37,6 @@ namespace Engine
         void Read(NetCode::InputByteStream& stream);
         
     public:
-        Transform transform;
         bool isReplicated = true;
         bool isServerOnly = false;
         bool isDirty = false;
@@ -54,8 +52,15 @@ namespace Engine
         nlohmann::json _defaultData;
 
     public:
-        std::string GetName() const { return _name; }
         void SetName(const std::string& name) { _name = name; }
+        std::string GetName() const { return _name; }
+
+        void SetPosition(const glm::vec2& position) const;
+        glm::vec2 GetWorldPosition() const;
+        glm::vec2 GetLocalPosition() const;
+
+        void SetRotation(float rotation) const;
+        float GetWorldRotation() const;
         
     };
 }

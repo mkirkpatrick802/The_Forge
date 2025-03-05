@@ -55,13 +55,12 @@ void Astronaut::CollectInput(float deltaTime) const
     if (GetInputManager().GetButton(SDL_BUTTON(SDL_BUTTON_LEFT), mousePos) || GetInputManager().GetButton(SDL_BUTTON(SDL_BUTTON_RIGHT)) || length(movementInput) == 0.0f)
     {
         mousePos = GetCameraManager().ConvertScreenToWorld(mousePos);
-        targetDirection = normalize(mousePos - gameObject->transform.position);
+        targetDirection = glm::normalize(mousePos - gameObject->GetWorldPosition());
     }
 
     // Apply rotation if valid
-    if (length(targetDirection) > 0.0f) {
-        gameObject->transform.rotation = (glm::atan(targetDirection.x, targetDirection.y) * 180.0f / glm::pi<float>());
-    }
+    if (length(targetDirection) > 0.0f)
+        gameObject->SetRotation(glm::atan(targetDirection.x, targetDirection.y) * 180.0f / glm::pi<float>());
     
     gameObject->isDirty = true;
 }

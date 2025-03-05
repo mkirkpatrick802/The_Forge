@@ -1,5 +1,7 @@
 ﻿#include "QuadTree.h"
 
+#include <iostream>
+
 #include "Engine/GameEngine.h"
 #include "Engine/Components/CircleCollider.h"
 #include "Engine/Components/RectangleCollider.h"
@@ -35,15 +37,15 @@ void Engine::QuadTree::DebugRender()
         if (collider->GetType() == EColliderType::ECT_Circle)
         {
             auto circle = dynamic_cast<CircleCollider*>(collider);
-            glm::vec2 center = circle->gameObject->transform.position;
+            glm::vec2 center = circle->gameObject->GetWorldPosition();
             float radius = circle->GetRadius();
 
             // Draw circle by approximating it with line segments
             int segments = 16;  // Number of line segments to approximate the circle
             for (int i = 0; i < segments; ++i)
             {
-                float angle1 = (i * 2 * glm::pi<float>()) / segments;
-                float angle2 = ((i + 1) * 2 * glm::pi<float>()) / segments;
+                float angle1 = (i * 2 * glm::pi<float>()) / (float)segments;
+                float angle2 = ((i + 1) * 2 * glm::pi<float>()) / (float)segments;
 
                 glm::vec2 point1 = center + glm::vec2(cos(angle1) * radius, sin(angle1) * radius);
                 glm::vec2 point2 = center + glm::vec2(cos(angle2) * radius, sin(angle2) * radius);
@@ -56,8 +58,8 @@ void Engine::QuadTree::DebugRender()
         {
             auto rect = dynamic_cast<RectangleCollider*>(collider);
             glm::vec2 halfSize = rect->GetSize() * 0.5f;
-            glm::vec2 rectTopLeft = rect->gameObject->transform.position - glm::vec2(halfSize.x, -halfSize.y); 
-            glm::vec2 rectBottomRight = rect->gameObject->transform.position + glm::vec2(halfSize.x, -halfSize.y); 
+            glm::vec2 rectTopLeft = rect->gameObject->GetWorldPosition() - glm::vec2(halfSize.x, -halfSize.y); 
+            glm::vec2 rectBottomRight = rect->gameObject->GetWorldPosition() + glm::vec2(halfSize.x, -halfSize.y); 
 
             // Draw rectangle collider
             GetRenderer().RenderLine(rectTopLeft, glm::vec2(rectBottomRight.x, rectTopLeft.y), rectColor); // Top
@@ -82,24 +84,17 @@ void Engine::QuadTree::DebugRender()
 void Engine::QuadTree::Insert(Collider* collider)
 {
     // Ensure the collider is within the bounds of the QuadTree before proceeding
-    glm::vec2 colliderPos = collider->gameObject->transform.position;
+    const glm::vec2 colliderPos = collider->gameObject->GetWorldPosition();
     
     // Check if the colliders position is inside the QuadTree's bounds
-    bool isInBounds = colliderPos.x >= _position.x && colliderPos.x <= (_position.x + _size.x) &&
-                      colliderPos.y <= _position.y && colliderPos.y >= (_position.y - _size.y);
+    // TODO: this should account for the size of the object
+    const auto [min, max] = GetColliderMinMax(collider);
+    const bool isInBounds = max.x >= _position.x && min.x <= (_position.x + _size.x) &&
+                            min.y <= _position.y && max.y >= (_position.y - _size.y);
+
+
     
     if (!isInBounds) return;
-    
-    if (_hasChildren)
-    {
-        for (const auto index : GetIndices(collider))
-        {
-            _children[index]->Insert(collider);
-        }
-
-        if (!GetIndices(collider).empty())
-            return;
-    }
 
     _objects.push_back(collider);
 
@@ -112,7 +107,6 @@ void Engine::QuadTree::Insert(Collider* collider)
         while (it != _objects.end())
         {
             auto indices = GetIndices(*it);
-        
             if (indices.empty()) 
             {
                 ++it;
@@ -134,9 +128,12 @@ void Engine::QuadTree::Insert(Collider* collider)
 
 void Engine::QuadTree::Retrieve(std::vector<Collider*>& returnObjects, const Collider* collider)
 {
+    const auto indices = GetIndices(collider);
     if (_hasChildren)
-        for (const auto index : GetIndices(collider))
+    {
+        for (const auto index : indices)
             _children[index]->Retrieve(returnObjects, collider);
+    }
 
     returnObjects.insert(returnObjects.end(), _objects.begin(), _objects.end());
 }
@@ -168,28 +165,8 @@ void Engine::QuadTree::Split()
 
 std::vector<int> Engine::QuadTree::GetIndices(const Collider* collider) const
 {
-    std::vector<int> indices;
-
-    if (collider->GetType() == EColliderType::ECT_Rectangle)
-    {
-        const auto* rect = dynamic_cast<const RectangleCollider*>(collider);
-        const glm::vec2 halfSize = rect->GetSize() * 0.5f;
-        const glm::vec2 rectMin = rect->gameObject->transform.position - halfSize;
-        const glm::vec2 rectMax = rect->gameObject->transform.position + halfSize;
-
-        return GetIndices(rectMin, rectMax);
-    }
-    
-    if (collider->GetType() == EColliderType::ECT_Circle)
-    {
-        const auto* circle = dynamic_cast<const CircleCollider*>(collider);
-        const glm::vec2 center = circle->gameObject->transform.position;
-        const float radius = circle->GetRadius();
-
-        return GetIndices(center - glm::vec2(radius), center + glm::vec2(radius));
-    }
-
-    return indices;
+    const auto [min, max] = GetColliderMinMax(collider);
+    return GetIndices(min, max);
 }
 
 std::vector<int> Engine::QuadTree::GetIndices(const glm::vec2 min, const glm::vec2 max) const
@@ -197,8 +174,8 @@ std::vector<int> Engine::QuadTree::GetIndices(const glm::vec2 min, const glm::ve
     std::vector<int> indices;
 
     // Quadrant boundaries
-    const float midX = _position.x + _size.x * 0.5f;
-    const float midY = _position.y - _size.y * 0.5f;
+    const float midX = _position.x + _size.x * .5f;
+    const float midY = _position.y - _size.y * .5f;
 
     const bool left = min.x < midX;
     const bool right = max.x > midX;
@@ -223,6 +200,30 @@ int Engine::QuadTree::GetIndex(const glm::vec2 point) const
         return left ? 0 : 1;
 
     return left ? 2 : 3;
+}
+
+std::pair<glm::vec2, glm::vec2> Engine::QuadTree::GetColliderMinMax(const Collider* collider) const
+{
+    if (collider->GetType() == EColliderType::ECT_Rectangle)
+    {
+        const auto* rect = dynamic_cast<const RectangleCollider*>(collider);
+        const glm::vec2 halfSize = rect->GetSize() * 0.5f;
+        const glm::vec2 rectMin = rect->gameObject->GetWorldPosition() - halfSize;
+        const glm::vec2 rectMax = rect->gameObject->GetWorldPosition() + halfSize;
+
+        return {rectMin, rectMax};
+    }
+    
+    if (collider->GetType() == EColliderType::ECT_Circle)
+    {
+        const auto* circle = dynamic_cast<const CircleCollider*>(collider);
+        const glm::vec2 center = circle->gameObject->GetWorldPosition();
+        const float radius = circle->GetRadius();
+
+        return {center - glm::vec2(radius), center + glm::vec2(radius)};
+    }
+    
+    return std::make_pair(glm::vec2(), glm::vec2());
 }
 
 void Engine::QuadTree::Clear()

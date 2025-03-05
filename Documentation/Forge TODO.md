@@ -20,6 +20,8 @@ tags:
 - [ ] Per Component Dirty State
 - [ ] Asteroids Not Replicating
 - [ ] Draggable Prefabs into Scene
+- [ ] Children Game Objects
+- [ ] Level Bounds
 
 
 ## Started
@@ -32,6 +34,7 @@ tags:
 
 ## Done
 
+- [ ] Transform Component
 - [ ] Remove Components from Game Object
 - [ ] Can't return to editor after in-game
 - [ ] [[Player Controller]]

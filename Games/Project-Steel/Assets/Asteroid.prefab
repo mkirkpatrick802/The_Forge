@@ -1,6 +1,15 @@
 {
     "Components": [
         {
+            "Component ID": 1457500923,
+            "Rotation": 0.0,
+            "X position": 0.0,
+            "Y position": 0.0
+        },
+        {
+            "Component ID": 3309965179
+        },
+        {
             "Component ID": 2525770811,
             "Fragment Shader": "Assets\\Shaders\\Destructible.frag",
             "Is Screen Space": false,
@@ -11,10 +20,11 @@
             "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"
         },
         {
-            "Component ID": 3137815528
-        },
-        {
-            "Component ID": 3309965179
+            "Component ID": 3137815528,
+            "Density": 1.0,
+            "Mass": 10.0,
+            "Static": false,
+            "Use Area As Mass": true
         },
         {
             "Component ID": 2717025849,
@@ -23,8 +33,5 @@
     ],
     "Game Object Name": "Asteroid",
     "Is Replicated": true,
-    "Rotation": 0.0,
-    "Server Only": false,
-    "X position": 0.0,
-    "Y position": 0.0
+    "Server Only": false
 }

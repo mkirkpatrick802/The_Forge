@@ -8,12 +8,21 @@
 #include "JsonKeywords.h"
 #include "LinkingContext.h"
 #include "System.h"
+#include "Components/Transform.h"
 
-Engine::Level::Level(nlohmann::json data)
+Engine::Level::Level()
 {
-    CommandRegistry::RegisterCommand("/save", [this](const std::string& args){ SaveLevel(args); });
-    
+    CommandRegistry::RegisterCommand("/save", [this](const std::string& args){ SaveLevel(args); });   
+}
+
+void Engine::Level::Load(nlohmann::json data)
+{
     _name = data[JsonKeywords::LEVEL_NAME];
+    if (data.contains("Size X") && data.contains("Size Y"))
+    {
+        _size.x = data["Size X"];
+        _size.y = data["Size Y"];
+    }
 
     //Load Game Objects From Json Data
     if (!data.contains(JsonKeywords::GAMEOBJECT_ARRAY)) return;
@@ -27,7 +36,7 @@ Engine::Level::Level(nlohmann::json data)
     _gameMode = std::make_unique<GameModeBase>();
 }
 
-Engine::Level::Level(NetCode::InputByteStream& stream)
+void Engine::Level::Load(NetCode::InputByteStream& stream)
 {
     Read(stream);
 }
@@ -61,6 +70,10 @@ Engine::GameObject* Engine::Level::SpawnNewGameObject(const std::string& filepat
         json j;
         file >> j; // Parse JSON from the file stream
         go->Deserialize(j);
+    }
+    else
+    {
+        go->AddComponent<Transform>();
     }
     
     // Move the unique_ptr into the vector
@@ -99,6 +112,8 @@ void Engine::Level::SaveLevel(const std::string& args)
     
     // Update level data
     data[JsonKeywords::LEVEL_NAME] = _name;
+    data["Size X"] = _size.x;
+    data["Size Y"] = _size.y;
 
     // Update game objects
     data[JsonKeywords::GAMEOBJECT_ARRAY] = json::array();

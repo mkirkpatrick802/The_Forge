@@ -44,11 +44,10 @@ void FluxWrench::CollectInputs()
     if (isRightClick || isLeftClick)
     {
         mousePos = GetCameraManager().ConvertScreenToWorld(mousePos);
-        if (distance(mousePos, gameObject->transform.position) < _range)
+        if (distance(mousePos, gameObject->GetWorldPosition()) < _range)
         {
             if (std::vector<Collider*> hitColliders; GetCollisionManager().CheckCollisions(mousePos, hitColliders))
             {
-                
                 EnableWrench(hitColliders[0]->gameObject, mousePos, isRightClick ? WS_Mining : WS_Repairing);
                 return;  // Stop after the first valid click
             }
@@ -97,7 +96,7 @@ void FluxWrench::UpdateWrenchVisuals() const
     if (const auto line = gameObject->GetComponent<LineRenderer>())
     {
         line->SetHidden(_currentState == WS_Off);
-        line->SetStartAndEnd(gameObject->transform.position, _endpoint);
+        line->SetStartAndEnd(gameObject->GetWorldPosition(), _endpoint);
     }
 }
 

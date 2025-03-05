@@ -1,13 +1,12 @@
 ﻿#include "GameObject.h"
 
-#include <algorithm>
-
 #include "Components/Component.h"
 #include "JsonKeywords.h"
 #include "Level.h"
 #include "LinkingContext.h"
 #include "Components/ComponentFactories.h"
 #include "Components/ComponentRegistry.h"
+#include "Components/Transform.h"
 
 Engine::GameObject::GameObject()
 {
@@ -51,6 +50,42 @@ void Engine::GameObject::RemoveComponent(Component* component)
     GetComponentFactories().DeleteComponent(component);
 }
 
+void Engine::GameObject::SetPosition(const glm::vec2& position) const
+{
+    if (const auto transform = GetComponent<Transform>())
+        transform->SetPosition(position);
+}
+
+glm::vec2 Engine::GameObject::GetWorldPosition() const
+{
+    if (const auto transform = GetComponent<Transform>())
+        return transform->GetWorldPosition();
+
+    return glm::vec2(0.0f);
+}
+
+glm::vec2 Engine::GameObject::GetLocalPosition() const
+{
+    if (const auto transform = GetComponent<Transform>())
+        return transform->GetLocalPosition();
+
+    return glm::vec2(0.0f); 
+}
+
+void Engine::GameObject::SetRotation(const float rotation) const
+{
+    if (const auto transform = GetComponent<Transform>())
+        transform->SetRotation(rotation);
+}
+
+float Engine::GameObject::GetWorldRotation() const
+{
+    if (const auto transform = GetComponent<Transform>())
+        return transform->GetWorldRotation();
+
+    return 0.0f;
+}
+
 void Engine::GameObject::Deserialize(const nlohmann::json& data)
 {
     _name = data[JsonKeywords::GAMEOBJECT_NAME];
@@ -60,15 +95,6 @@ void Engine::GameObject::Deserialize(const nlohmann::json& data)
 
     if (data.contains("Server Only"))
         isServerOnly = data["Server Only"];
-
-    if (data.contains(JsonKeywords::GAMEOBJECT_POSITION_X) && data.contains(JsonKeywords::GAMEOBJECT_POSITION_Y))
-    {
-        transform.position.x = data[JsonKeywords::GAMEOBJECT_POSITION_X];
-        transform.position.y = data[JsonKeywords::GAMEOBJECT_POSITION_Y];
-    }
-
-    if (data.contains(JsonKeywords::GAMEOBJECT_ROTATION))
-        transform.rotation = data[JsonKeywords::GAMEOBJECT_ROTATION];
 
     if (!data.contains(JsonKeywords::COMPONENT_ARRAY)) return;
 
@@ -86,9 +112,6 @@ nlohmann::json Engine::GameObject::Serialize()
     data[JsonKeywords::GAMEOBJECT_NAME] = _name;
     data[JsonKeywords::GAMEOBJECT_ISREPLICATED] = isReplicated;
     data["Server Only"] = isServerOnly;
-    data[JsonKeywords::GAMEOBJECT_POSITION_X] = transform.position.x;
-    data[JsonKeywords::GAMEOBJECT_POSITION_Y] = transform.position.y;
-    data[JsonKeywords::GAMEOBJECT_ROTATION] = transform.rotation;
     
     data[JsonKeywords::COMPONENT_ARRAY] = json::array();
     for (const auto& component : GetAllComponents())
@@ -104,8 +127,6 @@ nlohmann::json Engine::GameObject::Serialize()
 void Engine::GameObject::Write(NetCode::OutputByteStream& stream) const
 {
     stream.Write(_name);
-    stream.Write(transform.position);
-    stream.Write(transform.rotation);
 
     std::vector<Component*> replicatedComponents;
     for (const auto& component : GetAllComponents())
@@ -127,8 +148,6 @@ void Engine::GameObject::Write(NetCode::OutputByteStream& stream) const
 void Engine::GameObject::Read(NetCode::InputByteStream& stream)
 {
     stream.Read(_name);
-    stream.Read(transform.position);
-    stream.Read(transform.rotation);
 
     uint32_t componentCount;
     stream.Read(componentCount);

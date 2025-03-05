@@ -146,11 +146,15 @@ void Editor::LevelEditor::LevelSettings()
     // TODO: Make game mode objects
     ImGui::PushItemWidth(100);
     std::vector gamemodes = {"Main Menu", "Game"};
-    int selectedGameMode = 0;
-    if (ImGui::Combo(" ", &selectedGameMode, gamemodes.data(), static_cast<int>(gamemodes.size())))
+    static int selectedGameMode = 0;
+    if (ImGui::Combo("##GameMode", &selectedGameMode, gamemodes.data(), static_cast<int>(gamemodes.size())))
     {
         
     }
+    ImGui::PopItemWidth();
+
+    ImGui::Spacing();
+    Engine::ImGuiHelper::InputVector2("Level Size: ", currentLevel->_size, 100);
     
     // Game Objects
     ImGui::Separator();

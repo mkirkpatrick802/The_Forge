@@ -15,8 +15,8 @@ namespace Engine
         Camera* GetActiveCamera() const { return _currentCamera; }
         void SetActiveCamera(Camera* camera) {  _currentCamera = camera; }
 
-        glm::vec2 ConvertWorldToScreen(glm::vec2 worldPos);
-        glm::vec2 ConvertScreenToWorld(glm::vec2 screenPos);
+        glm::vec2 ConvertWorldToScreen(glm::vec2 worldPos) const;
+        glm::vec2 ConvertScreenToWorld(glm::vec2 screenPos) const;
 
     private:
         void ResetActiveCamera(const void* p);

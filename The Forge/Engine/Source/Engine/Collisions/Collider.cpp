@@ -53,9 +53,9 @@ bool Engine::Collider::CheckCollision(const Collider* collider, float& penetrati
 bool Engine::Collider::CheckCircleCollision(const CircleCollider* circle, const CircleCollider* other,
     float& penetration) const
 {
-    const auto& otherPos = other->gameObject->transform.position;
+    const auto& otherPos = other->gameObject->GetWorldPosition();
 
-    glm::vec2 distance = circle->gameObject->transform.position - otherPos;
+    glm::vec2 distance = circle->gameObject->GetWorldPosition() - otherPos;
     float distanceSquared = dot(distance, distance);
     float radiusSum = circle->GetRadius() + other->GetRadius();
     float radiusSumSquared = radiusSum * radiusSum;
@@ -72,8 +72,8 @@ bool Engine::Collider::CheckCircleCollision(const CircleCollider* circle, const 
 bool Engine::Collider::CheckCircleRectangleCollision(const CircleCollider* circle,
     const RectangleCollider* rectangle, float& penetration) const
 {
-    const auto& pos = gameObject->transform.position;
-    const auto& otherPos = rectangle->gameObject->transform.position;
+    const auto& pos = gameObject->GetWorldPosition();
+    const auto& otherPos = rectangle->gameObject->GetWorldPosition();
     const auto& size = rectangle->GetSize();
 
     float closestX = std::clamp(pos.x, otherPos.x, otherPos.x + size.x);
@@ -88,9 +88,9 @@ bool Engine::Collider::CheckCircleRectangleCollision(const CircleCollider* circl
 bool Engine::Collider::CheckRectangleCollision(const RectangleCollider* rectangle, const RectangleCollider* other,
     float& penetration) const
 {
-    const auto& otherPos = other->gameObject->transform.position;
+    const auto& otherPos = other->gameObject->GetWorldPosition();
     const auto& otherSize = other->GetSize();
-    const auto& pos = gameObject->transform.position;
+    const auto& pos = gameObject->GetWorldPosition();
     const auto& size = rectangle->GetSize();
 
     // AABB (Axis-Aligned Bounding Box) collision check
@@ -105,8 +105,8 @@ bool Engine::Collider::CheckCollision(const glm::vec2 pos) const
     if (type == EColliderType::ECT_Circle)
     {
         const auto* circle = dynamic_cast<const CircleCollider*>(this);
-        float dx = gameObject->transform.position.x - pos.x;
-        float dy = gameObject->transform.position.y - pos.y;
+        float dx = gameObject->GetWorldPosition().x - pos.x;
+        float dy = gameObject->GetWorldPosition().y - pos.y;
         float distanceSquared = dx * dx + dy * dy;
 
         return distanceSquared <= (circle->GetRadius() * circle->GetRadius());
@@ -115,7 +115,7 @@ bool Engine::Collider::CheckCollision(const glm::vec2 pos) const
     if (type == EColliderType::ECT_Rectangle)
     {
         const auto* rectangle = dynamic_cast<const RectangleCollider*>(this);
-        const auto& rectPos = gameObject->transform.position;
+        const auto& rectPos = gameObject->GetWorldPosition();
         const auto& size = rectangle->GetSize();
 
         // Check if the position is within the bounds of the rectangle
