@@ -13,11 +13,13 @@ Engine::CircleCollider::CircleCollider(): _radius(32)
 void Engine::CircleCollider::DrawDetails()
 {
     ImGui::InputFloat("Radius", &_radius);
+
+    Collider::DrawDetails();
 }
 
 nlohmann::json Engine::CircleCollider::Serialize()
 {
-    nlohmann::json data = Component::Serialize();
+    nlohmann::json data = Collider::Serialize();
     data["radius"] = _radius;
     return data;
 }

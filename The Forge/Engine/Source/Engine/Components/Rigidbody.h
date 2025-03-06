@@ -32,10 +32,14 @@ namespace Engine
         float _inverseMass;
         bool _static;
 
+        float _friction;
+
     public:
         glm::vec2 GetVelocity() const { return _velocity; }
         float GetInverseMass() const { return _inverseMass; }
         bool IsStatic() const { return _static; }
+        void ClearVelocity() { _velocity = glm::vec2(0.0f, 0.0f); }
+        void SetVelocity(const glm::vec2 velocity) { _velocity = velocity; }
     };
 
     REGISTER_COMPONENT(Rigidbody)

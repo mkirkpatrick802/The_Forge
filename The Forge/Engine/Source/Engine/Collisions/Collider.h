@@ -1,6 +1,13 @@
 ﻿#pragma once
-#include "../Components/Component.h"
-#include "Engine/Components/ComponentUtils.h"
+#include "CollisionProfile.h"
+#include "Engine/Components/Component.h"
+#include "Engine/DelegateSystem.h"
+
+class Engine::GameObject;
+
+DECLARE_DELEGATE_ONE_PARAM(OnOverlapBeginDelegate, Engine::GameObject*, overlappedObject)
+DECLARE_DELEGATE_ONE_PARAM(OnOverlapDelegate, Engine::GameObject*, overlappingObject)
+DECLARE_DELEGATE_ONE_PARAM(OnOverlapEndDelegate, Engine::GameObject*, overlappedObject)
 
 namespace Engine
 {
@@ -21,6 +28,10 @@ namespace Engine
     public:
         void OnActivation() override;
         ~Collider() override = default;
+
+        void DrawDetails() override;
+        nlohmann::json Serialize() override;
+        void Deserialize(const json& data) override;
         
         bool CheckCollision(const Collider* collider, float& penetration) const;
         bool CheckCollision(glm::vec2 pos) const;
@@ -29,12 +40,18 @@ namespace Engine
         bool CheckCircleCollision(const CircleCollider* circle, const CircleCollider* other, float& penetration) const;
         bool CheckCircleRectangleCollision(const CircleCollider* circle, const RectangleCollider* rectangle, float& penetration) const;
         bool CheckRectangleCollision(const RectangleCollider* rectangle, const RectangleCollider* other, float& penetration) const;
+
+    public:
+        OnOverlapBeginDelegate OnOverlapBegin;
+        OnOverlapDelegate OnOverlap;
+        OnOverlapEndDelegate OnOverlapEnd;
         
     protected:
         EColliderType type = EColliderType::ECT_None;
+        CollisionProfile profile;
 
     public:
         EColliderType GetType() const { return type;}
-        
+        CollisionProfile GetCollisionProfile() const { return profile;}
     };
 }

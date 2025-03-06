@@ -111,6 +111,7 @@ void Engine::GameEngine::StartGameplayLoop()
 				NetCode::GetNetworkManager().Update();
 				_chat->Update(deltaTime);
 				GetComponentManager().UpdateComponents(deltaTime);
+				//std::cout << 1 / deltaTime << '\n';
 			}
 			else
 			{

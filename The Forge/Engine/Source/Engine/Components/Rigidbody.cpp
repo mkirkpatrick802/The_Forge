@@ -9,7 +9,7 @@
 
 Engine::Rigidbody::Rigidbody(): _velocity(), _acceleration(), _useAreaAsMass(true), _mass(10), _density(1),
                                 _inverseMass(0),
-                                _static(false)
+                                _static(false), _friction(0)
 {
 }
 
@@ -42,7 +42,7 @@ void Engine::Rigidbody::ApplyForce(const glm::vec2 force)
     _acceleration += force * _inverseMass;
 }
 
-void Engine::Rigidbody::ApplyImpulse(glm::vec2 impulse)
+void Engine::Rigidbody::ApplyImpulse(const glm::vec2 impulse)
 {
     _velocity += impulse * _inverseMass;
 }
@@ -51,6 +51,7 @@ void Engine::Rigidbody::Update(const float deltaTime)
 {
     _velocity += _acceleration * deltaTime;
     gameObject->SetPosition(gameObject->GetWorldPosition() + _velocity * deltaTime);
+    _velocity -= _velocity * _friction;
     _acceleration = glm::vec2(0.0f); // Reset acceleration after integration
 }
 

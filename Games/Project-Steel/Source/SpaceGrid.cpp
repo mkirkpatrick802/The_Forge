@@ -3,6 +3,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "imgui.h"
+#include "Engine/EngineManager.h"
 #include "Engine/GameEngine.h"
 #include "Engine/Level.h"
 #include "Engine/LevelManager.h"
@@ -61,8 +62,30 @@ void SpaceGrid::Render(const Engine::ShaderUniformData& data)
 
     for (const auto [fst, snd] : _tiles)
     {
-        RenderTile(snd, fst);
+        if (const auto camera = Engine::GetCameraManager().GetActiveCamera())
+        {
+            const float buffer = 250.0f;
+            auto [left, top, right, bottom] = camera->GetBounds();
+            glm::vec2 cameraTopRight = Engine::GetCameraManager().ConvertScreenToWorld(glm::vec2(right, top));
+            glm::vec2 cameraBottomLeft = Engine::GetCameraManager().ConvertScreenToWorld(glm::vec2(left, bottom));
+
+            // Add buffer to the bounds
+            cameraTopRight += glm::vec2(buffer, buffer);
+            cameraBottomLeft -= glm::vec2(buffer, buffer);
+
+            // Check if the tile is within the buffered camera's visible area
+            if (fst.x >= cameraBottomLeft.x && fst.x < cameraTopRight.x &&
+                fst.y >= cameraBottomLeft.y && fst.y < cameraTopRight.y)
+            {
+                RenderTile(snd, fst);
+            }
+        }
+        else if (Engine::GetEngineManager().IsEditorEnabled())
+        {
+            RenderTile(snd, fst);
+        }
     }
+
 }
 
 void SpaceGrid::RenderTile(const Engine::Texture* sprite, const glm::vec2 pos)

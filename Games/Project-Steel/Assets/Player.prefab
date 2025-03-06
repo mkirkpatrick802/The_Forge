@@ -45,11 +45,37 @@
         },
         {
             "Component ID": 2343148940,
-            "Move Speed": 500.0
+            "Fly Speed": 600.0,
+            "Walk Speed": 100.0
         },
         {
             "Component ID": 2717025849,
-            "radius": 16.0
+            "collisionProfile": {
+                "responses": [
+                    [
+                        "Default",
+                        "Block"
+                    ],
+                    [
+                        "PhysicsBody",
+                        "Block"
+                    ],
+                    [
+                        "Player",
+                        "Ignore"
+                    ],
+                    [
+                        "Projectile",
+                        "Overlap"
+                    ],
+                    [
+                        "Walkable",
+                        "Overlap"
+                    ]
+                ],
+                "type": "Player"
+            },
+            "radius": 10.0
         },
         {
             "Component ID": 1793857451

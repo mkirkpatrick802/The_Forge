@@ -10,6 +10,8 @@ Engine::RectangleCollider::RectangleCollider(): _size()
 void Engine::RectangleCollider::DrawDetails()
 {
     ImGuiHelper::InputVector2("Size", _size, 100);
+
+    Collider::DrawDetails();
 }
 
 nlohmann::json Engine::RectangleCollider::Serialize()

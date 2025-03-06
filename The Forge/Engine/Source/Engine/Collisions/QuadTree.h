@@ -5,8 +5,8 @@
 
 namespace Engine
 {
-    constexpr int MAX_QUADTREE_OBJECTS = 4;
-    constexpr int MAX_QUADTREE_DEPTH = 10;
+    constexpr int MAX_QUADTREE_OBJECTS = 10;
+    constexpr int MAX_QUADTREE_DEPTH = 8;
     constexpr int QUADTREE_CHILDREN_COUNT = 4;
     
     class QuadTree

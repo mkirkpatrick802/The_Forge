@@ -61,12 +61,38 @@ void Engine::CollisionManager::CheckCollisions(const std::vector<Collider*>& col
             if (float pen; collider != other && collider->CheckCollision(other, pen))
             {
                 // Handle collision (e.g., resolve, respond, etc.)
-                const glm::vec2 normal = glm::normalize(other->gameObject->GetWorldPosition() - collider->gameObject->GetWorldPosition());
-                const auto a = collider->gameObject->GetComponent<Rigidbody>();
-                const auto b = other->gameObject->GetComponent<Rigidbody>();
-                if (a && b)
+                // Determine the collision response between the two objects
+                if (const ECollisionResponse response = CollisionProfile::ResolveCollision(other->GetCollisionProfile(), collider->GetCollisionProfile()); response == ECollisionResponse::ECR_Overlap)
                 {
-                    ResolveCollision(a, b, normal, pen);
+                    // Overlap begin logic
+                    if (!_activeOverlaps[collider].contains(other))
+                    {
+                        _activeOverlaps[collider].insert(other);
+                        collider->OnOverlapBegin.Broadcast(other->gameObject);
+                    }
+
+                    // Overlap event (while it's still overlapping)
+                    collider->OnOverlap.Broadcast(other->gameObject);
+                }
+                else
+                {
+                    // Non-overlap handling (e.g., resolve collision response like block or ignore)
+                    const glm::vec2 normal = glm::normalize(other->gameObject->GetWorldPosition() - collider->gameObject->GetWorldPosition());
+                    const auto a = collider->gameObject->GetComponent<Rigidbody>();
+                    const auto b = other->gameObject->GetComponent<Rigidbody>();
+                    if (a && b)
+                    {
+                        ResolveCollision(a, b, normal, pen);
+                    }
+                }
+            }
+            else
+            {
+                // Check if we need to trigger an "Overlap End" event
+                if (_activeOverlaps[collider].contains(other))
+                {
+                    _activeOverlaps[collider].erase(other);
+                    collider->OnOverlapEnd.Broadcast(other->gameObject);
                 }
             }
         }

@@ -1,4 +1,6 @@
 #pragma once
+#include <unordered_set>
+
 #include "QuadTree.h"
 
 namespace Engine
@@ -23,7 +25,9 @@ namespace Engine
         
     private:
         QuadTree _quadTree;
-        
+
+        // TODO: use game objects instead of colliders
+        std::unordered_map<const Collider*, std::unordered_set<const Collider*>> _activeOverlaps;
     };
 
     inline CollisionManager& GetCollisionManager()

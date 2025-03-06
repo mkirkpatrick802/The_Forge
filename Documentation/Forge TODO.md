@@ -21,6 +21,7 @@ tags:
 - [ ] Asteroids Not Replicating
 - [ ] Draggable Prefabs into Scene
 - [ ] Children Game Objects
+- [ ] Sorting layer is buggy
 
 
 ## Started
@@ -31,11 +32,11 @@ tags:
 ## Doing
 
 - [ ] Level Bounds (Camera Bounds, Killbox)
-- [ ] Collision Channels
 
 
 ## Done
 
+- [ ] Collision Channels
 - [ ] Transform Component
 - [ ] Remove Components from Game Object
 - [ ] Can't return to editor after in-game
