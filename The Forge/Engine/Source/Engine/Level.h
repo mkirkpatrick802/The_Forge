@@ -33,6 +33,7 @@ namespace Engine
         
     public:
         GameObject* SpawnNewGameObject(const std::string& filepath = "");
+        GameObject* SpawnNewGameObjectFromJson(const nlohmann::json& data);
         bool RemoveGameObject(GameObject* go, bool replicate = true);
 
         void SaveLevel(const std::string& args = "");

@@ -7,6 +7,7 @@
 #include "Engine/Rendering/ImGuiHelper.h"
 #include "Engine/EngineManager.h"
 #include "Engine/GameObject.h"
+#include "Engine/GameObject.h"
 #include "Engine/JsonKeywords.h"
 #include "Engine/Level.h"
 #include "Engine/LevelManager.h"
@@ -163,79 +164,142 @@ void Editor::LevelEditor::LevelSettings()
     {
         currentLevel->SpawnNewGameObject();
     }
-    
+
+    Hierarchy();
+}
+
+void Editor::LevelEditor::Hierarchy()
+{
+    const auto currentLevel = Engine::LevelManager::GetCurrentLevel();
+    if (currentLevel == nullptr) return;
+
     ImGui::Text("Hierarchy");
     ImGui::PushItemWidth(50);
     ImGui::Separator();
-    
-    auto levelObjects = currentLevel->GetAllGameObjects();
+
+    const auto levelObjects = currentLevel->GetAllGameObjects();
     for (int i = 0; i < levelObjects.size(); ++i)
     {
-        // Highlight the selected item
-        bool isSelected = (_selectedGameObject == i);
-        ImGui::PushID(i);
-        if (ImGui::Selectable(levelObjects[i]->GetName().c_str(), isSelected))
+        // Only render root-level objects (objects with no parent)
+        if (levelObjects[i]->GetParent() == nullptr)
         {
-            _selectedGameObject = i; // Update the selected item
-            DetailsEditor::SetSelectedGameObject(levelObjects[i]);
+            RenderGameObjectHierarchy(i);  // Recursively render the hierarchy for the root objects
         }
-
-        if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-        {
-            // Open the context menu
-            ImGui::OpenPopup("Context Menu");
-        }
-
-        if (ImGui::BeginPopup("Context Menu"))
-        {
-            if (ImGui::MenuItem("Create Prefab"))
-            {
-                CreatePrefab(levelObjects[_selectedGameObject]);
-            }
-            
-            if (ImGui::MenuItem("Rename"))
-            {
-                _showRenameTextBox = true;
-            }
-            
-            if (ImGui::MenuItem("Delete"))
-            {
-                _gameObjectToDelete = levelObjects[i];
-            }
-            
-            ImGui::EndPopup();
-        }
-        
-        ImGui::PopID();
     }
 
-    // Conditionally show a text box for renaming
-    if (_showRenameTextBox && _selectedGameObject > -1)
+    ImGui::PopItemWidth();
+
+    // Handle drag-and-drop outside any valid hierarchy item (empty space area)
+    ImGui::Dummy(ImGui::GetWindowSize());
+    if (ImGui::BeginDragDropTarget())
     {
-        ImGui::OpenPopup("Rename Game Object");
-        if (ImGui::BeginPopupModal("Rename Game Object", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GAME_OBJECT"))
         {
-            ImGui::Text("Enter a new name:");
-            ImGui::InputText("New Name", _newGameObjectName, sizeof(_newGameObjectName));
+            int droppedObject = *(int*)payload->Data;
 
-            if (ImGui::Button("OK"))
+            // If the drop is happening in the empty space, we remove the child from its parent
+            if (levelObjects[droppedObject] && levelObjects[droppedObject]->GetParent())
             {
-                levelObjects[_selectedGameObject]->SetName(_newGameObjectName);
-                _newGameObjectName[0] = '\0';
-                _showRenameTextBox = false; // Close the modal after input
+                // Remove the dropped object from its current parent
+                levelObjects[droppedObject]->GetParent()->RemoveChild(levelObjects[droppedObject]);
             }
-
-            if (ImGui::Button("Cancel"))
-            {
-                _newGameObjectName[0] = '\0';
-                _showRenameTextBox = false; // Close the modal without saving
-            }
-
-            ImGui::EndPopup();
         }
+        ImGui::EndDragDropTarget();
+    }
+    
+    DeleteGameObjects(currentLevel);
+}
+
+void Editor::LevelEditor::RenderGameObjectHierarchy(const int index)
+{
+    const auto currentLevel = Engine::LevelManager::GetCurrentLevel();
+    if (currentLevel == nullptr) return;
+
+    const auto levelObjects = currentLevel->GetAllGameObjects();
+    if (index < 0 || index >= (int)levelObjects.size()) return;
+    
+    Engine::GameObject* parentObject = levelObjects[index];
+
+    ImGui::PushID(index);
+    const bool open = ImGui::TreeNodeEx(parentObject->GetName().c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+    
+    // Handle right-click context menu
+    if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+    {
+        ImGui::OpenPopup("Context Menu");
     }
 
-    DeleteGameObjects(currentLevel);
+    if (ImGui::BeginPopup("Context Menu"))
+    {
+        if (ImGui::MenuItem("Create Prefab"))
+        {
+            CreatePrefab(levelObjects[index]);
+        }
+
+        if (ImGui::MenuItem("Rename"))
+        {
+            _showRenameTextBox = true;
+        }
+
+        if (ImGui::MenuItem("Delete"))
+        {
+            _gameObjectToDelete = levelObjects[index];
+        }
+
+        ImGui::EndPopup();
+    }
+
+    ImGui::PopID();
+
+    if (ImGui::IsItemClicked())
+    {
+        _selectedGameObject = index;  // Set the selected object
+        DetailsEditor::SetSelectedGameObject(parentObject);  // Update the editor with the selected game object
+    }
+
+    // Handle drag source (dragging the object itself)
+    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+    {
+        // Set the drag payload (pass the index of the object)
+        ImGui::SetDragDropPayload("GAME_OBJECT", &index, sizeof(index));
+        ImGui::EndDragDropSource();  // End the drag source
+    }
+
+    // Handle drop target (where the object is being dragged onto)
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GAME_OBJECT"))
+        {
+            // Get the dropped object index from the payload
+            const int droppedIndex = *(int*)payload->Data;
+
+            // Ensure we're not re-parenting the object to itself
+            if (droppedIndex != index) 
+            {
+                Engine::GameObject* droppedObject = levelObjects[droppedIndex];
+                if(droppedObject->GetParent())
+                    droppedObject->GetParent()->RemoveChild(droppedObject);
+                
+                parentObject->AddChild(droppedObject);  // Add the dropped object as a child
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
+
+    if(open)
+    {
+        // Render the children of this game object recursively
+        for (const auto children = parentObject->GetChildren(); const Engine::GameObject* child : children)
+        {
+            for (int i = 0; i < levelObjects.size(); i++)
+            {
+                if (levelObjects[i] == child)
+                    RenderGameObjectHierarchy(i);  // Recursively render each child
+            }
+        }
+
+        ImGui::TreePop();  // End the current tree node
+    }
 }
 
 void Editor::LevelEditor::DeleteGameObjects(Engine::Level* currentLevel)

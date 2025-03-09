@@ -8,7 +8,7 @@
 #include "Components/ComponentRegistry.h"
 #include "Components/Transform.h"
 
-Engine::GameObject::GameObject()
+Engine::GameObject::GameObject(): _parent(nullptr)
 {
     _defaultData = {
         {JsonKeywords::GAMEOBJECT_NAME, "New Game Object"}
@@ -17,7 +17,7 @@ Engine::GameObject::GameObject()
     _name = "New Game Object";
 }
 
-Engine::GameObject::GameObject(const nlohmann::json& data)
+Engine::GameObject::GameObject(const nlohmann::json& data): _parent(nullptr)
 {
     Deserialize(data);
 }
@@ -48,6 +48,27 @@ void Engine::GameObject::RemoveComponent(Component* component)
         _components.erase(it);
 
     GetComponentFactories().DeleteComponent(component);
+}
+
+void Engine::GameObject::AddChild(GameObject* child)
+{
+    child->_parent = this; // Set the parent of the child
+    _children.push_back(child); // Add the child to the list
+    child->UpdateWorldTransform(); // Update the child’s world transform
+}
+
+void Engine::GameObject::RemoveChild(GameObject* child)
+{
+    if (const auto it = std::ranges::find(_children, child); it != _children.end())
+    {
+        _children.erase(it);
+        child->_parent = nullptr; // Remove the parent reference
+    }
+}
+
+void Engine::GameObject::UpdateWorldTransform()
+{
+    
 }
 
 void Engine::GameObject::SetPosition(const glm::vec2& position) const
@@ -104,6 +125,16 @@ void Engine::GameObject::Deserialize(const nlohmann::json& data)
         if (const auto component = GetComponentFactories().CreateComponentFromID(id, this); component != nullptr)
             component->Deserialize(component_data);
     }
+
+    if(data.contains("Children"))
+    {
+        for (const auto& child_data : data["Children"])
+        {
+            GameObject* child = LevelManager::GetCurrentLevel()->SpawnNewGameObjectFromJson(child_data);
+            child->_parent = this;
+            _children.push_back(child);
+        }
+    }
 }
 
 nlohmann::json Engine::GameObject::Serialize()
@@ -119,6 +150,13 @@ nlohmann::json Engine::GameObject::Serialize()
         nlohmann::json componentData = component->Serialize();
         componentData[JsonKeywords::COMPONENT_ID] = GetComponentRegistry().GetComponentID(typeid(*component));
         data[JsonKeywords::COMPONENT_ARRAY].push_back(componentData);
+    }
+    
+    data["Children"] = json::array();
+    for (const auto& child : _children)
+    {
+        nlohmann::json childData = child->Serialize();
+        data["Children"].push_back(childData);
     }
 
     return data;

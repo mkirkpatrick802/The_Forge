@@ -84,6 +84,20 @@ Engine::GameObject* Engine::Level::SpawnNewGameObject(const std::string& filepat
     return rawPtr;
 }
 
+Engine::GameObject* Engine::Level::SpawnNewGameObjectFromJson(const nlohmann::json& data)
+{
+    auto go = std::make_unique<GameObject>();
+    go->isDirty = true;
+    go->Deserialize(data);
+
+    // Move the unique_ptr into the vector
+    auto* rawPtr = go.get();
+    _gameObjects.push_back(std::move(go));
+
+    // Return the raw pointer which now safely points to the object in the vector
+    return rawPtr;
+}
+
 
 bool Engine::Level::RemoveGameObject(GameObject* go, bool replicate)
 {
@@ -118,7 +132,8 @@ void Engine::Level::SaveLevel(const std::string& args)
     // Update game objects
     data[JsonKeywords::GAMEOBJECT_ARRAY] = json::array();
     for (const auto& go : _gameObjects)
-        data[JsonKeywords::GAMEOBJECT_ARRAY].push_back(go->Serialize());
+        if(!go->GetParent())
+            data[JsonKeywords::GAMEOBJECT_ARRAY].push_back(go->Serialize());
 
     // Write new data
     if (std::ofstream outputFile(_path); outputFile.is_open())

@@ -24,7 +24,9 @@ namespace Editor
         
         std::vector<const char*> ConvertLevelDataToNameList(const std::vector<nlohmann::json>& levelData);
         void LevelSettings();
-
+        void Hierarchy();
+        void RenderGameObjectHierarchy(int index);
+        
         void DeleteGameObjects(Engine::Level* currentLevel);
         void CreatePrefab(Engine::GameObject* go) const;
     private:

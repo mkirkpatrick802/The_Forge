@@ -7,10 +7,10 @@
 
 Engine::PixelGrid::PixelGrid()
 {
-    std::string vertex = "Assets/Engine Assets/Shaders/PixelGrid.vert";
+    /*std::string vertex = "Assets/Engine Assets/Shaders/PixelGrid.vert";
     std::string fragment = "Assets/Engine Assets/Shaders/PixelGrid.frag";
 
-    _shader.Compile(vertex.c_str(), fragment.c_str());
+    _shader.Compile(vertex.c_str(), fragment.c_str());*/
 
     glGenVertexArrays(1, &_vao);
     glGenBuffers(1, &_vbo);

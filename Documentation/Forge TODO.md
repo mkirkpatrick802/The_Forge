@@ -8,7 +8,6 @@ tags:
 ## Postponed
 
 - [ ] Scene Grid
-- [ ] Camera Zoom
 - [ ] Loading Screen
 
 
@@ -20,18 +19,19 @@ tags:
 - [ ] Per Component Dirty State
 - [ ] Asteroids Not Replicating
 - [ ] Draggable Prefabs into Scene
-- [ ] Children Game Objects
 - [ ] Sorting layer is buggy
 
 
 ## Started
 
 - [ ] Ship Parts
+- [ ] Level Bounds (Camera Bounds, Killbox)
 
 
 ## Doing
 
-- [ ] Level Bounds (Camera Bounds, Killbox)
+- [ ] Camera Zoom
+- [ ] Children Game Objects
 
 
 ## Done

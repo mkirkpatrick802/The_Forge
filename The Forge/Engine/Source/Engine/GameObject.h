@@ -18,7 +18,8 @@ namespace Engine
         GameObject();
         GameObject(const nlohmann::json& data);
         ~GameObject();
-        
+
+        // Component Logic
         template <class T>
         T* GetComponent() const;
         
@@ -28,7 +29,13 @@ namespace Engine
         T* AddComponent();
 
         void RemoveComponent(Component* component);
-
+        
+        // Parent-Children
+        void AddChild(GameObject* child);
+        void RemoveChild(GameObject* child);
+        void UpdateWorldTransform();
+        
+        // Serialization
         void Deserialize(const nlohmann::json& data);
         nlohmann::json Serialize();
     
@@ -44,6 +51,8 @@ namespace Engine
         std::string filepath;
         
     private:
+        GameObject* _parent;
+        std::vector<GameObject*> _children;
         std::string _name;
         std::unordered_map<std::type_index, Component*> _components;
 
@@ -61,6 +70,9 @@ namespace Engine
 
         void SetRotation(float rotation) const;
         float GetWorldRotation() const;
+
+        std::vector<GameObject*> GetChildren() const { return _children; }
+        GameObject* GetParent() const { return _parent; }
         
     };
 }
