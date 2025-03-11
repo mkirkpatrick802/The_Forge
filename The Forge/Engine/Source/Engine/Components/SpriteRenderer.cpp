@@ -27,6 +27,11 @@ void Engine::SpriteRenderer::OnActivation()
 void Engine::SpriteRenderer::CollectUniforms(ShaderUniformData& data)
 {
     if (!_texture || IsHidden()) return;
+    if (!shader.IsValid())
+    {
+        std::cout << "Shader is invalid!!" << '\n';
+        return;
+    }
 
     const float rotation = gameObject->GetWorldRotation();
     glm::vec2 position;
@@ -102,10 +107,15 @@ void Engine::SpriteRenderer::Render(const ShaderUniformData& data)
 void Engine::SpriteRenderer::Deserialize(const json& data)
 {
     IRenderable::Deserialize(data);
+
+    if(data.contains(JsonKeywords::SPRITE_RENDERER_SPRITE))
+    {
+        const std::string filepath = data[JsonKeywords::SPRITE_RENDERER_SPRITE];
+        _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
+    }
     
-    const std::string filepath = data[JsonKeywords::SPRITE_RENDERER_SPRITE];
-    _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
-    _size = _texture->GetSize();
+    if(_texture)
+        _size = _texture->GetSize();
 
     if (data.contains("Is Screen Space"))
         _isScreenSpace = data["Is Screen Space"];

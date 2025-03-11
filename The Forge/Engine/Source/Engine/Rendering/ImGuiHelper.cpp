@@ -54,16 +54,19 @@ void Engine::ImGuiHelper::DisplayFilePath(const std::string& label, const std::s
     }
 }
 
-void Engine::ImGuiHelper::InputVector2(const std::string& label, glm::vec2& input, const float width)
+bool Engine::ImGuiHelper::InputVector2(const std::string& label, glm::vec2& input, const float width)
 {
+    bool inputted = false;
     ImGui::TextUnformatted(label.c_str());
     ImGui::SameLine();
     ImGui::PushItemWidth(width);
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 10); // Small padding
     std::string xlabel = "##X" + label;
     std::string ylabel = "##Y" + label;
-    ImGui::InputFloat(xlabel.c_str(), &input.x, 0, 0);
+    if(ImGui::InputFloat(xlabel.c_str(), &input.x, 0, 0)) inputted = true;
     ImGui::SameLine();
-    ImGui::InputFloat(ylabel.c_str(), &input.y, 0, 0);
+    if(ImGui::InputFloat(ylabel.c_str(), &input.y, 0, 0)) inputted = true;
     ImGui::PopItemWidth();
+
+    return inputted;
 }

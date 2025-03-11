@@ -41,7 +41,7 @@ namespace Editor
         std::shared_ptr<Engine::Texture> _emptyFolderIcon;
         std::shared_ptr<Engine::Texture> _folderIcon;
         std::shared_ptr<Engine::Texture> _fileIcon;
-        std::shared_ptr<Engine::Texture> _spriteIcon;
+        
 
     };
 }

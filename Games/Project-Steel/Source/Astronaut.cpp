@@ -9,13 +9,15 @@
 #include <glm/ext/scalar_constants.hpp>
 
 #include "imgui_internal.h"
+#include "Engine/Level.h"
+#include "Engine/LevelManager.h"
 #include "Engine/Collisions/Collider.h"
 #include "Engine/Components/Rigidbody.h"
 #include "Engine/Rendering/CameraManager.h"
 
 using namespace Engine;
 
-Astronaut::Astronaut(): _rb(nullptr), _state(EAstronautState::EAS_Walking)
+Astronaut::Astronaut(): _rb(nullptr), _state(EAstronautMoveState::EAMS_Walking)
 {
     
 }
@@ -61,9 +63,20 @@ void Astronaut::CollectInput(const float deltaTime)
 
     // Apply rotation if valid
     if (length(targetDirection) > 0.0f)
+    {
         gameObject->SetRotation(glm::atan(targetDirection.x, targetDirection.y) * 180.0f / glm::pi<float>());
-    
-    gameObject->isDirty = true;
+        gameObject->isDirty = true;
+    }
+
+    if (GetInputManager().GetKeyDown(SDL_SCANCODE_B))
+        ToggleBuildMode();
+
+    if(_buildMode)
+    {
+        glm::vec2 pos;
+        GetInputManager().GetMousePos(pos);
+        _placementPreview->SetPosition(GetCameraManager().ConvertScreenToWorld(pos));
+    }
 }
 
 void Astronaut::Move(const glm::vec2 movement, const float deltaTime)
@@ -72,15 +85,15 @@ void Astronaut::Move(const glm::vec2 movement, const float deltaTime)
     
     switch (_state)
     {
-    case EAstronautState::EAS_Flying:
-        const glm::vec2 accelerationVector = glm::normalize(movement) * _flySpeed;
+    case EAstronautMoveState::EAMS_Flying:
+        const glm::vec2 accelerationVector = normalize(movement) * _flySpeed;
         _rb->ApplyForce(accelerationVector);
         break;
-    case EAstronautState::EAS_Walking:
+    case EAstronautMoveState::EAMS_Walking:
         const glm::vec2 currentPos = gameObject->GetWorldPosition();
     
         // Calculate the movement vector
-        const glm::vec2 movementDirection = glm::normalize(movement); // Normalize movement to avoid faster diagonal movement
+        const glm::vec2 movementDirection = normalize(movement); // Normalize movement to avoid faster diagonal movement
         _walkVelocity = movementDirection * _walkSpeed; // Speed in the movement direction
     
         // Update the new position based on velocity and deltaTime
@@ -90,20 +103,22 @@ void Astronaut::Move(const glm::vec2 movement, const float deltaTime)
         gameObject->SetPosition(newPos);
         break;
     }
+
+    gameObject->isDirty = true;
 }
 
 void Astronaut::OnColliderBeginOverlap(const Engine::GameObject* overlappedObject)
 {
     if (overlappedObject->GetComponent<Collider>()->GetCollisionProfile().type == ECollisionObjectType::ECOT_Walkable)
     {
-        _state = EAstronautState::EAS_Walking;
+        _state = EAstronautMoveState::EAMS_Walking;
         _rb->ClearVelocity();
     }
 }
 
 void Astronaut::OnColliderEndOverlap(const Engine::GameObject* overlappedObject)
 {
-    _state = EAstronautState::EAS_Flying;
+    _state = EAstronautMoveState::EAMS_Flying;
     _rb->SetVelocity(_walkVelocity * .75f);
     _walkVelocity = glm::vec2(0.0f);
 }
@@ -130,4 +145,19 @@ void Astronaut::Deserialize(const json& data)
 
     if (data.contains("Walk Speed"))
         _walkSpeed = data["Walk Speed"];
+}
+
+void Astronaut::ToggleBuildMode()
+{
+    _buildMode = !_buildMode;
+    if (_buildMode)
+    {
+        
+        _placementPreview = LevelManager::GetCurrentLevel()->SpawnNewGameObject("Assets/Prefabs/Large Hallway Tile.prefab");
+    }
+    else
+    {
+        Destroy(_placementPreview);
+        _placementPreview = nullptr;
+    }
 }

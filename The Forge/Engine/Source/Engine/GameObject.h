@@ -13,6 +13,7 @@ namespace Engine
     {
         friend class Level;
         friend class NetCode::NetworkManager;
+        friend class Transform;
         
     public:
         GameObject();
@@ -33,13 +34,14 @@ namespace Engine
         // Parent-Children
         void AddChild(GameObject* child);
         void RemoveChild(GameObject* child);
-        void UpdateWorldTransform();
         
         // Serialization
         void Deserialize(const nlohmann::json& data);
         nlohmann::json Serialize();
     
     private:
+        void UpdateWorldTransform() const;
+        
         void Write(NetCode::OutputByteStream& stream) const;
         void Read(NetCode::InputByteStream& stream);
         

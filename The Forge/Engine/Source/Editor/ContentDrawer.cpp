@@ -18,7 +18,6 @@ void Editor::ContentDrawer::LoadTextures()
     _emptyFolderIcon = CreateTexture("Assets/Engine Assets/Sprites/Editor/EmptyFolderIcon.png", Engine::Texture::TextureType::PIXEL);
     _folderIcon = CreateTexture("Assets/Engine Assets/Sprites/Editor/FolderIcon.png", Engine::Texture::TextureType::PIXEL);
     _fileIcon = CreateTexture("Assets/Engine Assets/Sprites/Editor/FileIcon.png", Engine::Texture::TextureType::PIXEL);
-    _spriteIcon = CreateTexture("Assets/Engine Assets/Sprites/Editor/SpriteIcon.png", Engine::Texture::TextureType::PIXEL);
 }
 
 Editor::ContentDrawer::~ContentDrawer() = default;
@@ -84,23 +83,30 @@ void Editor::ContentDrawer::DrawDirectoryContents()
     int columns = max(1, int(ImGui::GetContentRegionAvail().x / (_thumbnailSize + 16)));
     ImGui::Columns(columns, nullptr, false);
 
-    for (auto& child : selectedNode.children)
+    for (auto& [name, fullPath, isDirectory, children] : selectedNode.children)
     {
-        auto icon = child.isDirectory ? _folderIcon : _fileIcon;
-        if (child.name.ends_with(".png") || child.name.ends_with(".jpg"))
-            icon = _spriteIcon;
+        auto icon = isDirectory ? _folderIcon : _fileIcon;
+        if (name.ends_with(".png") || name.ends_with(".jpg"))
+        {
+            static std::unordered_map<std::string, std::shared_ptr<Engine::Texture>> iconCache;
+
+            if (!iconCache.contains(fullPath))
+                iconCache[fullPath] = CreateTexture(fullPath, Engine::Texture::TextureType::PIXEL);
+
+            icon = iconCache[fullPath];
+        }
 
         // Create a selectable button-like image to enable drag
-        ImGui::PushID(child.name.c_str()); // Ensure unique ID for each item
+        ImGui::PushID(name.c_str()); // Ensure unique ID for each item
         if (ImGui::ImageButton((void*)(intptr_t)icon->GetID(), ImVec2(_thumbnailSize, _thumbnailSize)))
         {
-            if (child.isDirectory)
-                _currentDirectory = child.fullPath;
+            if (isDirectory)
+                _currentDirectory = fullPath;
 
             // Edit prefab
-            if (child.name.ends_with(".prefab"))
+            if (name.ends_with(".prefab"))
             {
-                std::ifstream prefab(child.fullPath);
+                std::ifstream prefab(fullPath);
                 auto go = std::make_unique<Engine::GameObject>();
                 
                 nlohmann::json data;
@@ -108,7 +114,7 @@ void Editor::ContentDrawer::DrawDirectoryContents()
                 prefab.close();
                 
                 go->Deserialize(data);
-                go->filepath = child.fullPath;
+                go->filepath = fullPath;
                 DetailsEditor::SetSelectedPrefab(std::move(go));
             }
         }
@@ -116,8 +122,8 @@ void Editor::ContentDrawer::DrawDirectoryContents()
         // Begin drag operation from the image button
         if (ImGui::IsItemActive() && ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
-            ImGui::SetDragDropPayload("FILE_PATH", child.fullPath.c_str(), child.fullPath.size() + 1); // Use full path for proper loading
-            ImGui::Text("Dragging: %s", child.name.c_str()); // Optional: Display drag info
+            ImGui::SetDragDropPayload("FILE_PATH", fullPath.c_str(), fullPath.size() + 1); // Use full path for proper loading
+            ImGui::Text("Dragging: %s", name.c_str()); // Optional: Display drag info
             ImGui::EndDragDropSource();
         }
         
@@ -126,7 +132,7 @@ void Editor::ContentDrawer::DrawDirectoryContents()
 
         // Enable text wrapping
         ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + availableWidth);
-        ImGui::TextUnformatted(child.name.c_str());
+        ImGui::TextUnformatted(name.c_str());
         ImGui::PopTextWrapPos();
 
         ImGui::PopID(); // Restore ID stack

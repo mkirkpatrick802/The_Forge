@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <iostream>
+
 #include "Components/ComponentManager.h"
 
 namespace Engine
@@ -6,6 +8,7 @@ namespace Engine
     template <typename T>
     T* GameObject::GetComponent() const
     {
+        if (_components.empty()) return nullptr;
         for (const auto& component : _components | std::views::values) {
             if (T* casted = dynamic_cast<T*>(component)) {
                 return casted;  // Found a matching derived class

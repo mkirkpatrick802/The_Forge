@@ -39,9 +39,11 @@ void Spawner::SpawnObject()
     // Calculate random x and y coordinates
     const glm::vec2 spawnPos = glm::vec2(distance * std::cos(angle), distance * std::sin(angle)) + gameObject->GetWorldPosition();
 
-    const auto go = Engine::LevelManager::GetCurrentLevel()->SpawnNewGameObject(_prefabToSpawn);
-    go->SetRotation(angle * (180.f / static_cast<float>(std::numbers::pi)));
-    go->SetPosition(spawnPos);
+    if(const auto go = Engine::LevelManager::GetCurrentLevel()->SpawnNewGameObject(_prefabToSpawn))
+    {
+        go->SetRotation(angle * (180.f / static_cast<float>(std::numbers::pi)));
+        go->SetPosition(spawnPos);
+    }
 }
 
 nlohmann::json Spawner::Serialize()

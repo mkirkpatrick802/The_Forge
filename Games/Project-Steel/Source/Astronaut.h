@@ -6,10 +6,10 @@ namespace Engine
     class Rigidbody;
 }
 
-enum class EAstronautState : uint8_t
+enum class EAstronautMoveState : uint8_t
 {
-    EAS_Flying = 0,
-    EAS_Walking,
+    EAMS_Flying = 0,
+    EAMS_Walking,
 };
 
 class Astronaut : public Engine::PlayerController
@@ -24,6 +24,7 @@ public:
     void Deserialize(const json& data) override;
 
 private:
+    void ToggleBuildMode();
     void CollectInput(float deltaTime);
     void Move(glm::vec2 movement, float deltaTime);
     
@@ -32,7 +33,10 @@ private:
 
 private:
     Engine::Rigidbody* _rb;
-    EAstronautState _state;
+    EAstronautMoveState _state;
+    
+    bool _buildMode = false;
+    Engine::GameObject* _placementPreview = nullptr;
 
     // Movement
     float _flySpeed = 600.0f;

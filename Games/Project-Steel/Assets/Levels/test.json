@@ -61,41 +61,12 @@
                 {
                     "Component ID": 447040143,
                     "Initial Amount": 15,
-                    "Prefab": "Assets\\Asteroid.prefab",
+                    "Prefab": "Assets\\Prefabs\\Asteroid.prefab",
                     "Radius": 500.0,
                     "Spawn Time": 30.0
                 }
             ],
             "Game Object Name": "Astroid Spawner",
-            "Is Replicated": true,
-            "Server Only": false
-        },
-        {
-            "Children": [
-                {
-                    "Children": [],
-                    "Components": [
-                        {
-                            "Component ID": 1457500923,
-                            "Rotation": 0.0,
-                            "X position": 0.0,
-                            "Y position": 0.0
-                        }
-                    ],
-                    "Game Object Name": "New Game Object",
-                    "Is Replicated": true,
-                    "Server Only": false
-                }
-            ],
-            "Components": [
-                {
-                    "Component ID": 1457500923,
-                    "Rotation": 0.0,
-                    "X position": 0.0,
-                    "Y position": 0.0
-                }
-            ],
-            "Game Object Name": "New Game Object",
             "Is Replicated": true,
             "Server Only": false
         }

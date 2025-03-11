@@ -1,0 +1,64 @@
+{
+    "Children": [],
+    "Components": [
+        {
+            "Component ID": 1457500923,
+            "Rotation": 0.0,
+            "X position": 0.0,
+            "Y position": 0.0
+        },
+        {
+            "Component ID": 3137815528,
+            "Density": 1.0,
+            "Mass": 10.0,
+            "Static": false,
+            "Use Area As Mass": true
+        },
+        {
+            "Component ID": 2525770811,
+            "Fragment Shader": "Assets\\Engine Assets\\Shaders\\Sprite.frag",
+            "Is Screen Space": false,
+            "Screen Space X": 0.0,
+            "Screen Space Y": 0.0,
+            "Sorting Layer": -1,
+            "Sprite": "Assets\\Sprites\\LargeHallway.png",
+            "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"
+        },
+        {
+            "Component ID": 3505471502,
+            "Size X": 32.0,
+            "Size Y": 32.0,
+            "collisionProfile": {
+                "responses": [
+                    [
+                        "Default",
+                        "Block"
+                    ],
+                    [
+                        "PhysicsBody",
+                        "Overlap"
+                    ],
+                    [
+                        "Player",
+                        "Overlap"
+                    ],
+                    [
+                        "Projectile",
+                        "Overlap"
+                    ],
+                    [
+                        "Walkable",
+                        "Overlap"
+                    ]
+                ],
+                "type": "Walkable"
+            }
+        },
+        {
+            "Component ID": 2164870167
+        }
+    ],
+    "Game Object Name": "Large Hallway Tile",
+    "Is Replicated": true,
+    "Server Only": false
+}

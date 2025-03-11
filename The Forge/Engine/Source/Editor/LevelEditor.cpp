@@ -206,6 +206,32 @@ void Editor::LevelEditor::Hierarchy()
         }
         ImGui::EndDragDropTarget();
     }
+
+    // Conditionally show a text box for renaming
+    if (_showRenameTextBox && _selectedGameObject > -1)
+    {
+        ImGui::OpenPopup("Rename Game Object");
+        if (ImGui::BeginPopupModal("Rename Game Object", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::Text("Enter a new name:");
+            ImGui::InputText("New Name", _newGameObjectName, sizeof(_newGameObjectName));
+
+            if (ImGui::Button("OK"))
+            {
+                levelObjects[_selectedGameObject]->SetName(_newGameObjectName);
+                _newGameObjectName[0] = '\0';
+                _showRenameTextBox = false; // Close the modal after input
+            }
+
+            if (ImGui::Button("Cancel"))
+            {
+                _newGameObjectName[0] = '\0';
+                _showRenameTextBox = false; // Close the modal without saving
+            }
+
+            ImGui::EndPopup();
+        }
+    }
     
     DeleteGameObjects(currentLevel);
 }
@@ -220,8 +246,12 @@ void Editor::LevelEditor::RenderGameObjectHierarchy(const int index)
     
     Engine::GameObject* parentObject = levelObjects[index];
 
+    int flags = ImGuiTreeNodeFlags_DefaultOpen;
+    if(index == _selectedGameObject)
+        flags |= ImGuiTreeNodeFlags_Selected;
+    
     ImGui::PushID(index);
-    const bool open = ImGui::TreeNodeEx(parentObject->GetName().c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+    const bool open = ImGui::TreeNodeEx(parentObject->GetName().c_str(), flags);
     
     // Handle right-click context menu
     if (ImGui::IsItemClicked(ImGuiMouseButton_Right))

@@ -31,11 +31,12 @@ public:
     void    SetVector4f(const char* name, float x, float y, float z, float w, bool useShader = false);
     void    SetVector4f(const char* name, const glm::vec4& value, bool useShader = false);
     void    SetMatrix4(const char* name, const glm::mat4& matrix, bool useShader = false);
+    bool    IsValid() const;
 
 private:
 
     // checks if compilation or linking failed and if so, print the error logs
-    void    CheckCompileErrors(GLuint object, const std::string& type) const;
+    bool    CheckCompileErrors(GLuint object, const std::string& type) const;
 
 public:
 

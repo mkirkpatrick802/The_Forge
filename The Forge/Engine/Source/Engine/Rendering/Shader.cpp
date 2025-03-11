@@ -150,7 +150,12 @@ void Shader::SetMatrix4(const char* name, const glm::mat4& matrix, bool useShade
     glUniformMatrix4fv(glGetUniformLocation(ID, name), 1, false, glm::value_ptr(matrix));
 }
 
-void Shader::CheckCompileErrors(const GLuint object, const std::string& type) const
+bool Shader::IsValid() const
+{
+    return CheckCompileErrors(ID, "PROGRAM");
+}
+
+bool Shader::CheckCompileErrors(const GLuint object, const std::string& type) const
 {
     int success;
     char infoLog[1024];
@@ -174,4 +179,6 @@ void Shader::CheckCompileErrors(const GLuint object, const std::string& type) co
                 << infoLog << "\n-- --------------------------------------------------- --\n";
         }
     }
+
+    return success;
 }

@@ -21,7 +21,7 @@ void Engine::GameModeBase::Start()
 
 Engine::GameObject* Engine::GameModeBase::SpawnPlayer(const uint64_t playerID) const
 {
-    const auto go = LevelManager::GetCurrentLevel()->SpawnNewGameObject("Assets/Player.prefab");
+    const auto go = LevelManager::GetCurrentLevel()->SpawnNewGameObject("Assets/Prefabs/Player.prefab");
     if (_playerStarts.empty())
     {
         go->SetPosition(glm::vec2(0));

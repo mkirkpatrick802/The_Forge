@@ -66,15 +66,23 @@ void Engine::GameObject::RemoveChild(GameObject* child)
     }
 }
 
-void Engine::GameObject::UpdateWorldTransform()
+void Engine::GameObject::UpdateWorldTransform() const
 {
-    
+    if(const auto transform = GetComponent<Transform>())
+    {
+        transform->UpdateWorldTransform(_parent ? _parent->GetComponent<Transform>() : nullptr);
+    }
+
+    for (const auto child : _children)
+        child->UpdateWorldTransform();
 }
 
 void Engine::GameObject::SetPosition(const glm::vec2& position) const
 {
     if (const auto transform = GetComponent<Transform>())
-        transform->SetPosition(position);
+        transform->SetLocalPosition(position);
+
+    UpdateWorldTransform();
 }
 
 glm::vec2 Engine::GameObject::GetWorldPosition() const
@@ -96,7 +104,9 @@ glm::vec2 Engine::GameObject::GetLocalPosition() const
 void Engine::GameObject::SetRotation(const float rotation) const
 {
     if (const auto transform = GetComponent<Transform>())
-        transform->SetRotation(rotation);
+        transform->SetLocalRotation(rotation);
+
+    UpdateWorldTransform();
 }
 
 float Engine::GameObject::GetWorldRotation() const
@@ -135,6 +145,8 @@ void Engine::GameObject::Deserialize(const nlohmann::json& data)
             _children.push_back(child);
         }
     }
+
+    UpdateWorldTransform();
 }
 
 nlohmann::json Engine::GameObject::Serialize()
