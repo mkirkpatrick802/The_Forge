@@ -16,6 +16,8 @@
 
 #define DEBUG_LOG(Format, ...) Engine::System::GetInstance().LogToConsole(Format, ##__VA_ARGS__);
 
+inline bool APPLICATION_CLOSING = false;
+
 struct SDL_Window;
 namespace Engine
 {

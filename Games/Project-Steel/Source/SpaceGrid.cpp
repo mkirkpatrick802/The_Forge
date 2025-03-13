@@ -18,6 +18,11 @@ SpaceGrid::SpaceGrid() : _gen(std::random_device{}()), _gridSize(2,2)
     
 }
 
+SpaceGrid::~SpaceGrid()
+{
+    Engine::GetRenderer().RemoveComponentFromRenderList(this);
+}
+
 void SpaceGrid::OnActivation()
 {
     InitRenderable(gameObject);
@@ -64,7 +69,7 @@ void SpaceGrid::Render(const Engine::ShaderUniformData& data)
     {
         if (const auto camera = Engine::GetCameraManager().GetActiveCamera())
         {
-            const float buffer = 250.0f;
+            const float buffer = 400.0f;
             auto [left, top, right, bottom] = camera->GetBounds();
             glm::vec2 cameraTopRight = Engine::GetCameraManager().ConvertScreenToWorld(glm::vec2(right, top));
             glm::vec2 cameraBottomLeft = Engine::GetCameraManager().ConvertScreenToWorld(glm::vec2(left, bottom));

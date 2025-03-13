@@ -34,7 +34,6 @@ namespace Engine
         void DeleteComponent(Component* component);
 
     private:
-        
         std::unordered_map<std::type_index, std::unique_ptr<BasePool>> _componentPools;
         
     };

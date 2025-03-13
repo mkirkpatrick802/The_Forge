@@ -8,8 +8,18 @@ namespace Engine
     class TextRenderer : public Component, public IRenderable
     {
     public:
-        TextRenderer() = default;
+        TextRenderer();
+
+        // Prevent copying
+        TextRenderer(const TextRenderer&) = delete;
+        TextRenderer& operator=(const TextRenderer&) = delete;
+
+        // Allow moving
+        TextRenderer(TextRenderer&&) noexcept = default;
+        TextRenderer& operator=(TextRenderer&&) noexcept = default;
+        
         ~TextRenderer() override;
+
         void OnActivation() override;
         void Render(const ShaderUniformData& data) override;
         

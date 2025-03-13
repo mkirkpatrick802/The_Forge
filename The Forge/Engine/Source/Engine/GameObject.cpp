@@ -19,13 +19,17 @@ Engine::GameObject::GameObject(): _parent(nullptr)
 
 Engine::GameObject::GameObject(const nlohmann::json& data): _parent(nullptr)
 {
+    _components.reserve(1);
     Deserialize(data);
 }
 
 Engine::GameObject::~GameObject()
 {
     for (const auto val : _components | std::views::values)
-        GetComponentFactories().DeleteComponent(val);
+    {
+        if (val)
+            GetComponentFactories().DeleteComponent(val);
+    }
 
     _components.clear();
 }
@@ -33,6 +37,7 @@ Engine::GameObject::~GameObject()
 std::vector<Engine::Component*> Engine::GameObject::GetAllComponents() const
 {
     std::vector<Component*> componentList;
+    if (_components.empty()) return componentList;
     for (const auto& val : _components | std::views::values) 
         componentList.push_back(val);
     
@@ -50,11 +55,21 @@ void Engine::GameObject::RemoveComponent(Component* component)
     GetComponentFactories().DeleteComponent(component);
 }
 
-void Engine::GameObject::AddChild(GameObject* child)
+void Engine::GameObject::AddChild(GameObject* child, const bool keepWorldPosition)
 {
-    child->_parent = this; // Set the parent of the child
-    _children.push_back(child); // Add the child to the list
-    child->UpdateWorldTransform(); // Update the child’s world transform
+    child->_parent = this;
+    _children.push_back(child);
+    
+    if(keepWorldPosition)
+    {
+        const glm::vec2 pos = child->GetWorldPosition();
+        child->UpdateWorldTransform();
+        child->SetPosition(pos - GetWorldPosition());
+    }
+    else
+    {
+        child->UpdateWorldTransform();
+    }
 }
 
 void Engine::GameObject::RemoveChild(GameObject* child)
@@ -131,9 +146,14 @@ void Engine::GameObject::Deserialize(const nlohmann::json& data)
 
     for (const auto& component_data : data[JsonKeywords::COMPONENT_ARRAY])
     {
-        const auto& id = component_data[JsonKeywords::COMPONENT_ID];
+        const uint32_t id = component_data[JsonKeywords::COMPONENT_ID];
         if (const auto component = GetComponentFactories().CreateComponentFromID(id, this); component != nullptr)
             component->Deserialize(component_data);
+        else
+        {
+            std::cout << "ERROR: Could not create component from ID" << id << '\n';
+            std::cout << "Name: " << GetComponentRegistry().GetComponentTypeFromID(id).name() << '\n';
+        }
     }
 
     if(data.contains("Children"))

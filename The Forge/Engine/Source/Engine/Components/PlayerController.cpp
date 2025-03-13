@@ -3,11 +3,16 @@
 #include "NetworkManager.h"
 #include "Engine/Rendering/CameraManager.h"
 
-void Engine::PlayerController::Update(float deltaTime)
+void Engine::PlayerController::Start()
 {
     if (!GetCameraManager().GetActiveCamera())
         if (const auto camera = gameObject->GetComponent<Camera>(); camera && IsLocalPlayer())
             GetCameraManager().SetActiveCamera(camera);
+}
+
+void Engine::PlayerController::Update(float deltaTime)
+{
+    
 }
 
 void Engine::PlayerController::Write(NetCode::OutputByteStream& stream) const

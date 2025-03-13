@@ -9,6 +9,7 @@ tags:
 
 - [ ] Scene Grid
 - [ ] Loading Screen
+- [ ] Level Bounds (Camera Bounds, Killbox)
 
 
 ## Not Started
@@ -20,22 +21,27 @@ tags:
 - [ ] Asteroids Not Replicating
 - [ ] Draggable Prefabs into Scene
 - [ ] Sorting layer is buggy
+- [ ] Can't delete assets from content drawer
+- [ ] Sprites disappear after more are spawned
+- [ ] UI anchor points
+- [ ] Can't move assets in content drawer
+- [ ] Ship piece ignore other pieces of same ship
 
 
 ## Started
 
-- [ ] Ship Parts
-- [ ] Level Bounds (Camera Bounds, Killbox)
 
 
 ## Doing
 
-- [ ] Camera Zoom
-- [ ] Children Game Objects
+- [ ] Ship Parts
 
 
 ## Done
 
+- [ ] Dynamically scaling component pools
+- [ ] Children Game Objects
+- [ ] Camera Zoom
 - [ ] Collision Channels
 - [ ] Transform Component
 - [ ] Remove Components from Game Object

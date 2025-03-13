@@ -17,7 +17,7 @@ namespace Engine
         void Update();
 
         bool CheckCollisions(glm::vec2 point, std::vector<Collider*>& returnObjects);
-        bool CheckCollision(const Collider* collider, std::vector<Collider*>& returnObjects);
+        bool CheckCollisions(const Collider* collider, std::vector<Collider*>& returnObjects);
         
     private:
         void ResolveCollision(Rigidbody* a, Rigidbody* b, glm::vec2 normal, float penetration) const;

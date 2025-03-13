@@ -81,7 +81,7 @@ void Engine::Renderer::AddComponentToRenderList(IRenderable* renderable)
 				return;
 			}
 
-			RemoveComponentFromRenderList(renderable);
+			RemoveComponentFromRenderList(val.second);
 		}
 	
 	_renderList.emplace_back(pair);
@@ -92,7 +92,8 @@ void Engine::Renderer::AddComponentToRenderList(IRenderable* renderable)
 void Engine::Renderer::RemoveComponentFromRenderList(IRenderable* renderable)
 {
 	if (renderable == nullptr) return;
-	if (GetConsoleProcessList(nullptr, 0) == 0) return; // Windows function to check if application is closing
+	if (APPLICATION_CLOSING) return;
+	if (_renderList.empty()) return;
 	
 	std::erase_if(_renderList,
 				  [renderable](const std::pair<int16_t, IRenderable*>& sprite) {
@@ -127,7 +128,7 @@ void Engine::Renderer::Render()
 		if (!_renderList.empty())
 			for (const auto& val : _renderList | std::views::values)
 			{
-				if (auto go = val->GetGameObject())
+				if (const auto go = val->GetGameObject())
 				{
 					auto data = ShaderUniformSystem::CollectUniforms(go);
 					val->Render(data);
@@ -167,9 +168,6 @@ void Engine::Renderer::Render()
 
 Engine::Renderer::~Renderer()
 {
-	_renderList.clear();
-	_renderList.shrink_to_fit();
-	
 	UIManager::CleanUp();
 	BufferRegistry::GetRegistry()->CleanUp();
 	

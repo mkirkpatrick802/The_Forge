@@ -8,7 +8,8 @@ namespace Engine
         friend class GameModeBase;
         
     public:
-        
+
+        void Start() override;
         void Update(float deltaTime) override;
 
         void Read(NetCode::InputByteStream& stream) override;

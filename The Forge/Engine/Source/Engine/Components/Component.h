@@ -14,6 +14,8 @@ namespace Engine
         friend class NetCode::OutputByteStream;
         
     public:
+
+        Component() = default;
         virtual ~Component() = default;
 
         virtual void Deserialize(const json& data) {}

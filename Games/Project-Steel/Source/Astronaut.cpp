@@ -13,8 +13,10 @@
 #include "Engine/Level.h"
 #include "Engine/LevelManager.h"
 #include "Engine/Collisions/Collider.h"
+#include "Engine/Collisions/CollisionManager.h"
 #include "Engine/Components/Rigidbody.h"
 #include "Engine/Rendering/CameraManager.h"
+#include "Engine/Components/Transform.h"
 
 using namespace Engine;
 
@@ -33,6 +35,8 @@ void Astronaut::Start()
         collider->OnOverlapBegin.Bind(this, &Astronaut::OnColliderBeginOverlap);
         collider->OnOverlapEnd.Bind(this, &Astronaut::OnColliderEndOverlap);
     }
+
+    GetCameraManager().GetActiveCamera()->SetZoomBounds({.7, 2});
 }
 
 void Astronaut::Update(const float deltaTime)
@@ -45,6 +49,11 @@ void Astronaut::Update(const float deltaTime)
 void Astronaut::CollectInput(const float deltaTime)
 {
     if (!IsLocalPlayer()) return;
+
+    if (const int32_t delta = GetInputManager().GetMouseWheelDelta(); delta != 0)
+        (delta > 0) ? GetCameraManager().GetActiveCamera()->ZoomIn(_zoomSpeed) 
+                    : GetCameraManager().GetActiveCamera()->ZoomOut(_zoomSpeed);
+
     
     // Get movement input
     const glm::vec2 movementInput = {
@@ -74,12 +83,7 @@ void Astronaut::CollectInput(const float deltaTime)
 
     if(_buildMode)
     {
-        glm::vec2 pos;
-        GetInputManager().GetMousePos(pos);
-        
-        if (_placementPreview)
-            _placementPreview->SetPosition(GetCameraManager().ConvertScreenToWorld(pos));
-
+        FindPositionForShipPiece();
         if (GetInputManager().GetButtonDown(SDL_BUTTON(SDL_BUTTON_LEFT)))
             PlaceShipPiece();
     }
@@ -129,16 +133,67 @@ void Astronaut::ToggleBuildMode()
     }
 }
 
+void Astronaut::FindPositionForShipPiece() const
+{
+    glm::vec2 pos;
+    GetInputManager().GetMousePos(pos);
+    pos = GetCameraManager().ConvertScreenToWorld(pos);
+    
+    if (_placementPreview)
+    {
+        const auto previewPiece = _placementPreview->GetComponent<ShipPiece>();
+        std::vector<Collider*> others;
+        GetCollisionManager().CheckCollisions(pos, others);
+        if(!others.empty())
+        {
+            for (const Collider* collider : others)
+            {
+                if(collider->gameObject == _placementPreview) continue;
+                if(const auto piece = collider->gameObject->GetComponent<ShipPiece>())
+                {
+                    const glm::vec2 snapLocation = piece->GetNearestSnapLocation(pos, previewPiece);
+                    previewPiece->SetAttachedToShip(piece);
+                    _placementPreview->SetPosition(snapLocation);
+                    return;
+                }
+            }
+        }
+
+        
+        others.clear();
+        _placementPreview->SetPosition(pos);
+        GetCollisionManager().CheckCollisions(_placementPreview->GetComponent<Collider>(), others);
+        if(!others.empty())
+        {
+            for (const Collider* collider : others)
+            {
+                if(collider->gameObject == _placementPreview) continue;
+                if(const auto piece = collider->gameObject->GetComponent<ShipPiece>())
+                {
+                    const glm::vec2 snapLocation = piece->GetNearestSnapLocation(pos, previewPiece);
+                    previewPiece->SetAttachedToShip(piece);
+                    _placementPreview->SetPosition(snapLocation);
+                    return;
+                }
+            }
+        }
+        
+        previewPiece->SetAttachedToShip(nullptr);
+    }
+}
+
 void Astronaut::PlaceShipPiece()
 {
     if (const auto piece = _placementPreview->GetComponent<ShipPiece>())
-        piece->Place();
+        if(!piece->Place())
+        {
+            return;
+        }
     
     _placementPreview = nullptr;
-
-    glm::vec2 pos;
-    GetInputManager().GetMousePos(pos);
-    _placementPreview = LevelManager::GetCurrentLevel()->SpawnNewGameObject("Assets/Prefabs/Large Hallway Tile.prefab", GetCameraManager().ConvertScreenToWorld(pos));
+    
+    _placementPreview = LevelManager::GetCurrentLevel()->SpawnNewGameObject("Assets/Prefabs/Large Hallway Tile.prefab");
+    FindPositionForShipPiece();
 }
 
 void Astronaut::OnColliderBeginOverlap(const Engine::GameObject* overlappedObject)
@@ -152,9 +207,16 @@ void Astronaut::OnColliderBeginOverlap(const Engine::GameObject* overlappedObjec
 
 void Astronaut::OnColliderEndOverlap(const Engine::GameObject* overlappedObject)
 {
-    _state = EAstronautMoveState::EAMS_Flying;
-    _rb->SetVelocity(_walkVelocity * .75f);
-    _walkVelocity = glm::vec2(0.0f);
+    if(std::vector<Collider*> others; !GetCollisionManager().CheckCollisions(gameObject->GetComponent<Collider>(), others))
+    {
+        for (const auto other : others)
+            if(other->GetCollisionProfile().type != ECollisionObjectType::ECOT_Walkable)
+                return;
+        
+        _state = EAstronautMoveState::EAMS_Flying;
+        _rb->SetVelocity(_walkVelocity * .75f);
+        _walkVelocity = glm::vec2(0.0f);
+    }
 }
 
 void Astronaut::DrawDetails()

@@ -31,6 +31,7 @@ namespace Engine
 
 		// Mouse Position in Screen Space
 		void GetMousePos(glm::vec2& mousePos) const;
+		int32_t GetMouseWheelDelta() const;
 
 	private:
 
@@ -42,6 +43,7 @@ namespace Engine
         // Mouse Inputs
         uint32_t _buttonsLastFrame;
         uint32_t _buttonsThisFrame;
+		int32_t _mouseWheelDelta;
 
 	};
 }
