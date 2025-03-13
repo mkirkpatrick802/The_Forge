@@ -9,6 +9,7 @@
 #include <glm/ext/scalar_constants.hpp>
 
 #include "imgui_internal.h"
+#include "ShipPiece.h"
 #include "Engine/Level.h"
 #include "Engine/LevelManager.h"
 #include "Engine/Collisions/Collider.h"
@@ -58,7 +59,7 @@ void Astronaut::CollectInput(const float deltaTime)
     if (glm::vec2 mousePos; GetInputManager().GetButton(SDL_BUTTON(SDL_BUTTON_LEFT), mousePos) || GetInputManager().GetButton(SDL_BUTTON(SDL_BUTTON_RIGHT)) || length(movementInput) == 0.0f)
     {
         mousePos = GetCameraManager().ConvertScreenToWorld(mousePos);
-        targetDirection = glm::normalize(mousePos - gameObject->GetWorldPosition());
+        targetDirection = normalize(mousePos - gameObject->GetWorldPosition());
     }
 
     // Apply rotation if valid
@@ -68,14 +69,19 @@ void Astronaut::CollectInput(const float deltaTime)
         gameObject->isDirty = true;
     }
 
-    if (GetInputManager().GetKeyDown(SDL_SCANCODE_B))
+    if (GetInputManager().GetKeyDown(SDL_SCANCODE_B) || (GetInputManager().GetButtonDown(SDL_BUTTON(SDL_BUTTON_RIGHT)) && _buildMode))
         ToggleBuildMode();
 
     if(_buildMode)
     {
         glm::vec2 pos;
         GetInputManager().GetMousePos(pos);
-        _placementPreview->SetPosition(GetCameraManager().ConvertScreenToWorld(pos));
+        
+        if (_placementPreview)
+            _placementPreview->SetPosition(GetCameraManager().ConvertScreenToWorld(pos));
+
+        if (GetInputManager().GetButtonDown(SDL_BUTTON(SDL_BUTTON_LEFT)))
+            PlaceShipPiece();
     }
 }
 
@@ -105,6 +111,34 @@ void Astronaut::Move(const glm::vec2 movement, const float deltaTime)
     }
 
     gameObject->isDirty = true;
+}
+
+void Astronaut::ToggleBuildMode()
+{
+    _buildMode = !_buildMode;
+    if (_buildMode)
+    {
+        glm::vec2 pos;
+        GetInputManager().GetMousePos(pos);
+        _placementPreview = LevelManager::GetCurrentLevel()->SpawnNewGameObject("Assets/Prefabs/Large Hallway Tile.prefab", GetCameraManager().ConvertScreenToWorld(pos));
+    }
+    else
+    {
+        Destroy(_placementPreview);
+        _placementPreview = nullptr;
+    }
+}
+
+void Astronaut::PlaceShipPiece()
+{
+    if (const auto piece = _placementPreview->GetComponent<ShipPiece>())
+        piece->Place();
+    
+    _placementPreview = nullptr;
+
+    glm::vec2 pos;
+    GetInputManager().GetMousePos(pos);
+    _placementPreview = LevelManager::GetCurrentLevel()->SpawnNewGameObject("Assets/Prefabs/Large Hallway Tile.prefab", GetCameraManager().ConvertScreenToWorld(pos));
 }
 
 void Astronaut::OnColliderBeginOverlap(const Engine::GameObject* overlappedObject)
@@ -145,19 +179,4 @@ void Astronaut::Deserialize(const json& data)
 
     if (data.contains("Walk Speed"))
         _walkSpeed = data["Walk Speed"];
-}
-
-void Astronaut::ToggleBuildMode()
-{
-    _buildMode = !_buildMode;
-    if (_buildMode)
-    {
-        
-        _placementPreview = LevelManager::GetCurrentLevel()->SpawnNewGameObject("Assets/Prefabs/Large Hallway Tile.prefab");
-    }
-    else
-    {
-        Destroy(_placementPreview);
-        _placementPreview = nullptr;
-    }
 }

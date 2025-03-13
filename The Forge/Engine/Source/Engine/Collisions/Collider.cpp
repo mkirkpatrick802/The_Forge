@@ -65,6 +65,7 @@ void Engine::Collider::Deserialize(const json& data)
 
 bool Engine::Collider::CheckCollision(const Collider* collider, float& penetration) const
 {
+    if (!isEnabled) return false;
     if (!collider) return false;
 
     // Determine the collision response between the two objects
@@ -179,6 +180,8 @@ bool Engine::Collider::CheckRectangleCollision(const RectangleCollider* rectangl
 
 bool Engine::Collider::CheckCollision(const glm::vec2 pos) const
 {
+    if (!isEnabled) return false;
+    
     if (type == EColliderType::ECT_Circle)
     {
         const auto* circle = dynamic_cast<const CircleCollider*>(this);

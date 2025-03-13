@@ -2,6 +2,7 @@
 
 #include <SDL_mouse.h>
 
+#include "Astronaut.h"
 #include "Destructible.h"
 #include "ResourceManager.h"
 #include "Engine/GameEngine.h"
@@ -20,6 +21,7 @@ void FluxWrench::Start()
 {
     _resourceManager = gameObject->GetComponent<ResourceManager>();
     _playerController = gameObject->GetComponent<PlayerController>();
+    _astronaut = gameObject->GetComponent<Astronaut>();
 }
 
 void FluxWrench::Update(float deltaTime)
@@ -43,6 +45,8 @@ void FluxWrench::CollectInputs()
 
     if (isRightClick || isLeftClick)
     {
+        if (_astronaut->InBuildModeState()) return;
+        
         mousePos = GetCameraManager().ConvertScreenToWorld(mousePos);
         if (distance(mousePos, gameObject->GetWorldPosition()) < _range)
         {

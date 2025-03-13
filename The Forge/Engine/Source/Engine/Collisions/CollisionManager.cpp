@@ -52,12 +52,16 @@ void Engine::CollisionManager::CheckCollisions(const std::vector<Collider*>& col
 {
     for (const auto* collider : colliders)
     {
+        if (!collider->GetEnabled()) continue;
+        
         std::vector<Collider*> possibleCollisions;
         _quadTree.Retrieve(possibleCollisions, collider);
 
         // Check for collisions with nearby objects
         for (const auto* other : possibleCollisions)
         {
+            if (!other->GetEnabled()) continue;
+            
             if (float pen; collider != other && collider->CheckCollision(other, pen))
             {
                 // Handle collision (e.g., resolve, respond, etc.)

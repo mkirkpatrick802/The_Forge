@@ -15,6 +15,7 @@ namespace Editor
 
         static void CleanUp();
 
+        void Update();
         void UpdatePosition(glm::vec2 delta);
         
         glm::mat4 GetProjectionMatrix();

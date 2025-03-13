@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "Engine/Components/ComponentUtils.h"
 
+class Astronaut;
+
 namespace Engine
 {
     class PlayerController;
@@ -34,6 +36,7 @@ private:
 private:
     WrenchState _currentState = WS_Off;
     ResourceManager* _resourceManager = nullptr;
+    Astronaut* _astronaut = nullptr;
     Engine::PlayerController* _playerController = nullptr;
     float _damage = 1.f;
     float _range = 200.f;

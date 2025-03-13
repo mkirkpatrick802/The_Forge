@@ -24,9 +24,11 @@ public:
     void Deserialize(const json& data) override;
 
 private:
-    void ToggleBuildMode();
     void CollectInput(float deltaTime);
     void Move(glm::vec2 movement, float deltaTime);
+
+    void ToggleBuildMode();
+    void PlaceShipPiece();
     
     void OnColliderBeginOverlap(const Engine::GameObject* overlappedObject);
     void OnColliderEndOverlap(const Engine::GameObject* overlappedObject);
@@ -42,6 +44,10 @@ private:
     float _flySpeed = 600.0f;
     float _walkSpeed = 600.0f;
     glm::vec2 _walkVelocity = glm::vec2(0.0f);
+
+public:
+    bool InBuildModeState() const { return _buildMode; }
+    
 };
 
 REGISTER_COMPONENT(Astronaut)

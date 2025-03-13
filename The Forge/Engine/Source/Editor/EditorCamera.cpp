@@ -4,6 +4,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "Engine/EventSystem.h"
+#include "Engine/GameEngine.h"
 #include "Engine/Rendering/BufferRegistry.h"
 
 std::shared_ptr<Editor::EditorCamera> Editor::EditorCamera::_instance = nullptr;
@@ -22,6 +23,11 @@ Editor::EditorCamera::EditorCamera(): _position(0, 0), _projection(), _view()
 void Editor::EditorCamera::CleanUp()
 {
     _instance.reset();
+}
+
+void Editor::EditorCamera::Update()
+{
+    
 }
 
 void Editor::EditorCamera::UpdatePosition(const glm::vec2 delta)

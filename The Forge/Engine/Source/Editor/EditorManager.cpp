@@ -9,6 +9,7 @@
 #include "EditorCamera.h"
 #include "EditorShortcuts.h"
 #include "MenuBar.h"
+#include "Engine/EngineManager.h"
 #include "Engine/Rendering/UIManager.h"
 
 Editor::EditorManager::EditorManager()
@@ -51,4 +52,5 @@ Editor::EditorManager::~EditorManager()
 void Editor::EditorManager::Update()
 {
     EditorShortcuts::GetInstance().Update();
+    EditorCamera::GetInstance()->Update();
 }

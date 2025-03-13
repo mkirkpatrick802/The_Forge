@@ -4,13 +4,13 @@
             "Children": [],
             "Components": [
                 {
-                    "Component ID": 658613692
-                },
-                {
                     "Component ID": 1457500923,
                     "Rotation": 0.0,
                     "X position": 0.0,
                     "Y position": 0.0
+                },
+                {
+                    "Component ID": 658613692
                 }
             ],
             "Game Object Name": "Player Start",

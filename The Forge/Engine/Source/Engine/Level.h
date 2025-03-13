@@ -32,7 +32,7 @@ namespace Engine
         friend class Editor::LevelEditor;
         
     public:
-        GameObject* SpawnNewGameObject(const std::string& filepath = "");
+        GameObject* SpawnNewGameObject(const std::string& filepath = "", glm::vec2 position = glm::vec2(0.0f, 0.0f));
         GameObject* SpawnNewGameObjectFromJson(const nlohmann::json& data);
         bool RemoveGameObject(GameObject* go, bool replicate = true);
 

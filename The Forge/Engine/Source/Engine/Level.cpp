@@ -53,7 +53,7 @@ void Engine::Level::Start() const
     _gameMode->Start();
 }
 
-Engine::GameObject* Engine::Level::SpawnNewGameObject(const std::string& filepath)
+Engine::GameObject* Engine::Level::SpawnNewGameObject(const std::string& filepath, const glm::vec2 position)
 {
     // Create Game Object
     auto go = std::make_unique<GameObject>();
@@ -75,6 +75,8 @@ Engine::GameObject* Engine::Level::SpawnNewGameObject(const std::string& filepat
     {
         go->AddComponent<Transform>();
     }
+
+    go->SetPosition(position);
     
     // Move the unique_ptr into the vector
     auto* rawPtr = go.get();

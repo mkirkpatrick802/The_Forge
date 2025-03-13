@@ -50,8 +50,13 @@ namespace Engine
         EColliderType type = EColliderType::ECT_None;
         CollisionProfile profile;
 
+    private:
+        bool isEnabled = true;
+
     public:
         EColliderType GetType() const { return type;}
         CollisionProfile GetCollisionProfile() const { return profile;}
+        void SetEnabled(const bool enabled) { isEnabled = enabled; }
+        bool GetEnabled() const { return isEnabled; }
     };
 }
