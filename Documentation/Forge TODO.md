@@ -10,7 +10,7 @@ tags:
 - [ ] Scene Grid
 - [ ] Loading Screen
 - [ ] Level Bounds (Camera Bounds, Killbox)
-- [ ] Remove Premake Executables
+
 
 ## Not Started
 
@@ -26,6 +26,8 @@ tags:
 - [ ] UI anchor points
 - [ ] Can't move assets in content drawer
 - [ ] Ship piece ignore other pieces of same ship
+- [ ] Remove Premake Executables
+- [ ] Setup Github Workflows
 
 
 ## Started

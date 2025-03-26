@@ -1,6 +1,12 @@
 @echo off
+setlocal
+
+set PREMAKE_URL=https://github.com/premake/premake-core/releases/download/v5.0.0-beta5/premake-5.0.0-beta5-windows.zip
+set PREMAKE_DIR=%CD%\..\Premake\Windows
+
+PowerShell -ExecutionPolicy Bypass -File %CD%\Utils\Setup-Premake.ps1 "%PREMAKE_URL%" "%PREMAKE_DIR%"
 
 pushd ..
-Vendors\Binaries\Premake\Windows\premake5.exe --file=Build.lua vs2022
+%PREMAKE_DIR%\premake5.exe --file=Build.lua vs2022
 popd
 pause
