@@ -9,6 +9,7 @@ tags:
 
 - [ ] Scene Grid
 - [ ] Loading Screen
+- [ ] Remove Premake Executables
 
 
 ## Not Started
