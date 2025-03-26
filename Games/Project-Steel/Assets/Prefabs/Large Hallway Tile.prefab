@@ -2,6 +2,9 @@
     "Children": [],
     "Components": [
         {
+            "Component ID": 3309965179
+        },
+        {
             "Component ID": 1457500923,
             "Rotation": 0.0,
             "X position": 0.0,
@@ -9,7 +12,7 @@
         },
         {
             "Component ID": 2525770811,
-            "Fragment Shader": "Assets\\Engine Assets\\Shaders\\Sprite.frag",
+            "Fragment Shader": "Assets\\Shaders\\Destructible.frag",
             "Is Screen Space": false,
             "Screen Space X": 0.0,
             "Screen Space Y": 0.0,
@@ -36,7 +39,7 @@
                     ],
                     [
                         "PhysicsBody",
-                        "Overlap"
+                        "Block"
                     ],
                     [
                         "Player",
@@ -44,11 +47,11 @@
                     ],
                     [
                         "Projectile",
-                        "Overlap"
+                        "Block"
                     ],
                     [
                         "Walkable",
-                        "Overlap"
+                        "Block"
                     ]
                 ],
                 "type": "Walkable"

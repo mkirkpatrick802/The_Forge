@@ -8,6 +8,13 @@ namespace Engine
     {
     public:
         LineRenderer();
+
+        // Move constructor
+        LineRenderer(LineRenderer&& other) noexcept;
+        
+        // Move assignment operator
+        LineRenderer& operator=(LineRenderer&& other) noexcept;
+        
         ~LineRenderer() override;
         void OnActivation() override;
         void Render(const ShaderUniformData& data) override;

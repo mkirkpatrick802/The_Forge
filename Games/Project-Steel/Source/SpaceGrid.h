@@ -1,12 +1,13 @@
 ﻿#pragma once
 #include <random>
-
 #include "Engine/Components/SpriteRenderer.h"
 
 class SpaceGrid : public Engine::Component, public Engine::IRenderable
 {
 public:
     SpaceGrid();
+    ~SpaceGrid() override;
+    
     void OnActivation() override;
     void Render(const Engine::ShaderUniformData& data) override;
 

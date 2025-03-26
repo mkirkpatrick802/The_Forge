@@ -20,22 +20,31 @@ void Engine::Camera::OnActivation()
 
 glm::mat4 Engine::Camera::GetProjectionMatrix()
 {
-    // FBO size is your window size
+    // Get window size from the scene FBO
     auto sceneFBO = BufferRegistry::GetRegistry()->GetBuffer(BufferRegistry::BufferType::SCENE);
     glm::vec2 windowSize = sceneFBO->GetSize();
 
-    // Set your camera bounds
-    _bounds.left = 0; 
-    _bounds.right = windowSize.x;
-    _bounds.bottom = windowSize.y;
-    _bounds.top = 0;
+    // Compute half-size for correct centering
+    float halfWidth = (windowSize.x * 0.5f) / _zoom;
+    float halfHeight = (windowSize.y * 0.5f) / _zoom;
 
-    // Create the orthographic projection matrix with camera bounds
+    // Maintain the camera centered while zooming
+    float centerX = windowSize.x * 0.5f;
+    float centerY = windowSize.y * 0.5f;
+
+    // Update bounds
+    _bounds.left = centerX - halfWidth;
+    _bounds.right = centerX + halfWidth;
+    _bounds.bottom = centerY + halfHeight;
+    _bounds.top = centerY - halfHeight;
+
+    // Apply orthographic projection
     _projection = glm::ortho(_bounds.left, _bounds.right, _bounds.bottom, _bounds.top, -1.0f, 1.0f);
 
-    // Return the projection matrix
     return _projection;
 }
+
+
 
 glm::mat4 Engine::Camera::GetViewMatrix()
 {

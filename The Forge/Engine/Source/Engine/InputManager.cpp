@@ -20,20 +20,32 @@ Engine::InputManager::InputManager()
     const uint32_t currentState = SDL_GetMouseState(&X, &Y);
     _buttonsLastFrame = currentState;
     _buttonsThisFrame = currentState;
+
+    _mouseWheelDelta = 0;
 }
 
 bool Engine::InputManager::StartProcessInputs()
 {
     SDL_Event event;
+    _mouseWheelDelta = 0;
     while (SDL_PollEvent(&event))
     {
     	ImGui_ImplSDL2_ProcessEvent(&event);
 
         if (event.type == SDL_QUIT)
+        {
+            APPLICATION_CLOSING = true;
             return false;
+        }
 
         if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(GetAppWindow()))
+        {
+            APPLICATION_CLOSING = true;
             return false;
+        }
+
+        if(event.type == SDL_MOUSEWHEEL)
+            _mouseWheelDelta = event.wheel.y;
     }
 
     //Current Inputs Pressed
@@ -118,6 +130,11 @@ void Engine::InputManager::GetMousePos(glm::vec2& mousePos) const
     int X, Y;
     SDL_GetMouseState(&X, &Y);
     mousePos = glm::vec2((float)X, (float)Y);
+}
+
+int32_t Engine::InputManager::GetMouseWheelDelta() const
+{
+    return _mouseWheelDelta;
 }
 
 Engine::InputManager::~InputManager()

@@ -1,5 +1,6 @@
 #include "Rigidbody.h"
 
+#include <glm/glm.hpp>
 #include <glm/ext/scalar_constants.hpp>
 
 #include "CircleCollider.h"
@@ -22,12 +23,12 @@ void Engine::Rigidbody::Start()
 {
     if (const auto collider = gameObject->GetComponent<Collider>(); collider && _useAreaAsMass)
     {
-        if (collider->GetType() == EColliderType::ECT_Circle)
+        if (collider->GetColliderType() == EColliderType::ECT_Circle)
         {
             const auto circle = dynamic_cast<CircleCollider*>(collider);
             _mass = (glm::pi<float>() * (circle->GetRadius() * circle->GetRadius())) * _density;
         }
-        else if (collider->GetType() == EColliderType::ECT_Rectangle)
+        else if (collider->GetColliderType() == EColliderType::ECT_Rectangle)
         {
             const auto rectangle = dynamic_cast<RectangleCollider*>(collider);
             _mass = (rectangle->GetSize().x * rectangle->GetSize().y) * _density;
@@ -50,9 +51,12 @@ void Engine::Rigidbody::ApplyImpulse(const glm::vec2 impulse)
 void Engine::Rigidbody::Update(const float deltaTime)
 {
     _velocity += _acceleration * deltaTime;
-    gameObject->SetPosition(gameObject->GetWorldPosition() + _velocity * deltaTime);
-    _velocity -= _velocity * _friction;
-    _acceleration = glm::vec2(0.0f); // Reset acceleration after integration
+    if(length(_velocity) > std::numeric_limits<float>::epsilon())
+    {
+        gameObject->SetPosition(gameObject->GetWorldPosition() + _velocity * deltaTime);
+        _velocity -= _velocity * _friction;
+        _acceleration = glm::vec2(0.0f); // Reset acceleration after integration
+    }
 }
 
 void Engine::Rigidbody::DrawDetails()

@@ -111,7 +111,7 @@ bool Engine::Collider::CheckCollision(const Collider* collider, float& penetrati
 }
 
 bool Engine::Collider::CheckCircleCollision(const CircleCollider* circle, const CircleCollider* other,
-    float& penetration) const
+                                            float& penetration) const
 {
     const auto& otherPos = other->gameObject->GetWorldPosition();
 
@@ -171,11 +171,20 @@ bool Engine::Collider::CheckRectangleCollision(const RectangleCollider* rectangl
     const auto& pos = gameObject->GetWorldPosition();
     const auto& size = rectangle->GetSize();
 
-    // AABB (Axis-Aligned Bounding Box) collision check
-    return (pos.x < otherPos.x + otherSize.x &&
-            pos.x + size.x > otherPos.x &&
-            pos.y < otherPos.y + otherSize.y &&
-            pos.y + size.y > otherPos.y);
+    // Compute overlap on X and Y axes
+    float overlapX = std::min(pos.x + size.x, otherPos.x + otherSize.x) - std::max(pos.x, otherPos.x);
+    float overlapY = std::min(pos.y + size.y, otherPos.y + otherSize.y) - std::max(pos.y, otherPos.y);
+
+    // AABB collision check
+    if (overlapX > 0 && overlapY > 0)
+    {
+        // Penetration is the smallest overlap (to resolve the collision in the most efficient axis)
+        penetration = std::min(overlapX, overlapY);
+        return true;
+    }
+
+    penetration = 0.0f;
+    return false;
 }
 
 bool Engine::Collider::CheckCollision(const glm::vec2 pos) const
@@ -211,5 +220,18 @@ bool Engine::Collider::CheckCollision(const glm::vec2 pos) const
 
 
     return false;
+}
+
+void Engine::Collider::SetCollisionResponseByObject(const ECollisionObjectType object, const ECollisionResponse response)
+{
+    profile.SetResponse(object, response);
+}
+
+void Engine::Collider::SetCollisionResponseToAllObjects(const ECollisionResponse response)
+{
+    for (const auto key : profile.responseMap | std::views::keys)
+    {
+        profile.SetResponse(key, response);
+    }
 }
 

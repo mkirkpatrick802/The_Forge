@@ -153,7 +153,7 @@ bool Engine::CollisionManager::CheckCollisions(const glm::vec2 point, std::vecto
     return collision;
 }
 
-bool Engine::CollisionManager::CheckCollision(const Collider* collider, std::vector<Collider*>& returnObjects)
+bool Engine::CollisionManager::CheckCollisions(const Collider* collider, std::vector<Collider*>& returnObjects)
 {
     bool collision = false;
     std::vector<Collider*> possibleCollisions;
@@ -162,11 +162,14 @@ bool Engine::CollisionManager::CheckCollision(const Collider* collider, std::vec
     // Check for collisions with nearby objects
     float pen;
     for (auto* other : possibleCollisions)
+    {
+        if (other == collider) continue;
         if (other->CheckCollision(collider, pen))
         {
             returnObjects.emplace_back(other);
             collision = true;
         }
+    }
 
     return collision;
 }

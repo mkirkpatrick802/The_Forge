@@ -1,0 +1,17 @@
+{
+    "Children": [],
+    "Components": [
+        {
+            "Component ID": 2683247030
+        },
+        {
+            "Component ID": 1457500923,
+            "Rotation": 0.0,
+            "X position": 0.0,
+            "Y position": 0.0
+        }
+    ],
+    "Game Object Name": "Ship Manager",
+    "Is Replicated": true,
+    "Server Only": false
+}

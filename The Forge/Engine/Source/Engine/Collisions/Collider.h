@@ -28,14 +28,18 @@ namespace Engine
     public:
         void OnActivation() override;
         ~Collider() override = default;
+        
+        bool CheckCollision(const Collider* collider, float& penetration) const;
+        bool CheckCollision(const Collider* collider, glm::vec2 point, float& penetration) const;
+        bool CheckCollision(glm::vec2 pos) const;
 
+        void SetCollisionResponseByObject(ECollisionObjectType object, ECollisionResponse response);
+        void SetCollisionResponseToAllObjects(ECollisionResponse response);
+        
         void DrawDetails() override;
         nlohmann::json Serialize() override;
         void Deserialize(const json& data) override;
         
-        bool CheckCollision(const Collider* collider, float& penetration) const;
-        bool CheckCollision(glm::vec2 pos) const;
-
     private:
         bool CheckCircleCollision(const CircleCollider* circle, const CircleCollider* other, float& penetration) const;
         bool CheckCircleRectangleCollision(const CircleCollider* circle, const RectangleCollider* rectangle, float& penetration) const;
@@ -54,7 +58,7 @@ namespace Engine
         bool isEnabled = true;
 
     public:
-        EColliderType GetType() const { return type;}
+        EColliderType GetColliderType() const { return type;}
         CollisionProfile GetCollisionProfile() const { return profile;}
         void SetEnabled(const bool enabled) { isEnabled = enabled; }
         bool GetEnabled() const { return isEnabled; }

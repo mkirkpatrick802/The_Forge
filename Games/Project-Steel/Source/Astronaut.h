@@ -26,6 +26,7 @@ public:
 private:
     void CollectInput(float deltaTime);
     void Move(glm::vec2 movement, float deltaTime);
+    void FindPositionForShipPiece() const;
 
     void ToggleBuildMode();
     void PlaceShipPiece();
@@ -40,6 +41,8 @@ private:
     bool _buildMode = false;
     Engine::GameObject* _placementPreview = nullptr;
 
+    float _zoomSpeed = .2f;
+    
     // Movement
     float _flySpeed = 600.0f;
     float _walkSpeed = 600.0f;

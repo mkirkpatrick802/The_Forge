@@ -35,7 +35,7 @@ void Engine::QuadTree::DebugRender()
     {
         if (!collider->gameObject) continue;
 
-        if (collider->GetType() == EColliderType::ECT_Circle)
+        if (collider->GetColliderType() == EColliderType::ECT_Circle)
         {
             const auto circle = dynamic_cast<CircleCollider*>(collider);
             glm::vec2 center = circle->gameObject->GetWorldPosition();
@@ -45,7 +45,7 @@ void Engine::QuadTree::DebugRender()
             GetDebugRenderer().DrawCircle(center, radius, circleColor);
         }
 
-        if (collider->GetType() == EColliderType::ECT_Rectangle)
+        if (collider->GetColliderType() == EColliderType::ECT_Rectangle)
         {
             const auto rect = dynamic_cast<RectangleCollider*>(collider);
             glm::vec2 size = rect->GetSize();
@@ -190,7 +190,7 @@ int Engine::QuadTree::GetIndex(const glm::vec2 point) const
 
 std::pair<glm::vec2, glm::vec2> Engine::QuadTree::GetColliderMinMax(const Collider* collider) const
 {
-    if (collider->GetType() == EColliderType::ECT_Rectangle)
+    if (collider->GetColliderType() == EColliderType::ECT_Rectangle)
     {
         const auto* rect = dynamic_cast<const RectangleCollider*>(collider);
         const glm::vec2 halfSize = rect->GetSize() * 0.5f;
@@ -200,7 +200,7 @@ std::pair<glm::vec2, glm::vec2> Engine::QuadTree::GetColliderMinMax(const Collid
         return {rectMin, rectMax};
     }
     
-    if (collider->GetType() == EColliderType::ECT_Circle)
+    if (collider->GetColliderType() == EColliderType::ECT_Circle)
     {
         const auto* circle = dynamic_cast<const CircleCollider*>(collider);
         const glm::vec2 center = circle->gameObject->GetWorldPosition();

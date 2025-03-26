@@ -5,6 +5,11 @@
 #include "Engine/JsonKeywords.h"
 #include "Engine/Rendering/Renderer.h"
 
+Engine::TextRenderer::TextRenderer()
+{
+    
+}
+
 Engine::TextRenderer::~TextRenderer()
 {
     GetRenderer().RemoveComponentFromRenderList(this);
@@ -94,6 +99,6 @@ void Engine::TextRenderer::Read(NetCode::InputByteStream& stream)
     stream.Read(_text);
     stream.Read(_fontSize);
 
-    if (!_font)
+    if(!_font)
         _font = std::make_unique<Font>("Assets/Engine Assets/Fonts/Consolas.ttf", _fontSize);
 }

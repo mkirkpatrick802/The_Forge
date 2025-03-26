@@ -7,6 +7,10 @@ class Spawner : public Engine::Component
 {
 public:
     Spawner();
+
+    Spawner(const Spawner&) = delete;
+    Spawner& operator=(const Spawner&) = delete;
+    
     void Start() override;
     void Update(float deltaTime) override;
 

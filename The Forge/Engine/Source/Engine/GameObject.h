@@ -32,7 +32,7 @@ namespace Engine
         void RemoveComponent(Component* component);
         
         // Parent-Children
-        void AddChild(GameObject* child);
+        void AddChild(GameObject* child, bool keepWorldPosition = false);
         void RemoveChild(GameObject* child);
         
         // Serialization

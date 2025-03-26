@@ -5,6 +5,7 @@
 
 #include "Engine/EventSystem.h"
 #include "Engine/GameEngine.h"
+#include "Engine/InputManager.h"
 #include "Engine/Rendering/BufferRegistry.h"
 
 std::shared_ptr<Editor::EditorCamera> Editor::EditorCamera::_instance = nullptr;
@@ -27,7 +28,10 @@ void Editor::EditorCamera::CleanUp()
 
 void Editor::EditorCamera::Update()
 {
-    
+    if(const int32_t delta = Engine::GetInputManager().GetMouseWheelDelta(); delta > 0)
+        ZoomIn(_zoomSpeed);
+    else if(delta < 0)
+        ZoomOut(_zoomSpeed);
 }
 
 void Editor::EditorCamera::UpdatePosition(const glm::vec2 delta)
@@ -38,9 +42,13 @@ void Editor::EditorCamera::UpdatePosition(const glm::vec2 delta)
 glm::mat4 Editor::EditorCamera::GetProjectionMatrix()
 {
     const auto sceneFBO = Engine::BufferRegistry::GetRegistry()->GetBuffer(Engine::BufferRegistry::BufferType::SCENE);
-    float x_offset = 0;
-    float y_offset = 0;
-    _projection = glm::ortho(x_offset, sceneFBO->GetSize().x, sceneFBO->GetSize().y, y_offset, -1.0f, 1.0f);
+    float width = sceneFBO->GetSize().x / _zoom;  // Apply zoom to width
+    float height = sceneFBO->GetSize().y / _zoom; // Apply zoom to height
+
+    float x_offset = -width / 2.0f;  // Centering logic
+    float y_offset = -height / 2.0f;
+    
+    _projection = glm::ortho(x_offset, width + x_offset, height + y_offset, y_offset, -1.0f, 1.0f);
     return _projection;
 }
 
