@@ -1,23 +1,36 @@
-name: C/C++ CI
+name: Build Game Engine on Windows
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make
-    - name: make check
-      run: make check
-    - name: make distcheck
-      run: make distcheck
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Enviroment
+        run: |
+          set PREMAKE_URL=https://github.com/premake/premake-core/releases/download/v5.0.0-beta5/premake-5.0.0-beta5-windows.zip
+          set PREMAKE_DIR=%CD%\..\Premake\Windows
+
+      - name: Install Premake
+        run: |
+          PowerShell -ExecutionPolicy Bypass -File .\Scripts\Utils\Setup-Premake.ps1 "%PREMAKE_URL%" "%PREMAKE_DIR%"
+
+      - name: Build Launcher
+        run: |
+          # TODO: Finish Launcher
+
+      - name: Upload build artifacts (optional)
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-artifacts
+          path: ./path/to/build/artifacts  # Specify the path to your build output
