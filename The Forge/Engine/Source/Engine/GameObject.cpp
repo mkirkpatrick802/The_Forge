@@ -199,9 +199,14 @@ void Engine::GameObject::Write(NetCode::OutputByteStream& stream) const
     stream.Write(_name);
 
     // Write Parent
-    const uint32_t parentNID = NetCode::GetLinkingContext().GetNetworkID(_parent);
-    stream.Write(parentNID);
-    _parent->Write(stream);
+    const bool hasParent = _parent != nullptr;
+    stream.Write(hasParent);
+    if (_parent)
+    {
+        const uint32_t parentNID = NetCode::GetLinkingContext().GetNetworkID(_parent);
+        stream.Write(parentNID);
+        _parent->Write(stream);
+    }
 
     // Write Children
     uint32_t childCount = _children.size();
@@ -235,15 +240,20 @@ void Engine::GameObject::Read(NetCode::InputByteStream& stream)
     stream.Read(_name);
 
     // Read Parent
-    uint32_t parentNID;
-    stream.Read(parentNID);
-    if (const auto go = NetCode::GetLinkingContext().GetGameObject(parentNID); go == nullptr)
+    bool hasParent;
+    stream.Read(hasParent);
+    if (hasParent)
     {
-        _parent = LevelManager::GetCurrentLevel()->SpawnNewGameObjectFromInputStream(stream, parentNID);
-    }
-    else
-    {
-        go->Read(stream);
+        uint32_t parentNID;
+        stream.Read(parentNID);
+        if (const auto go = NetCode::GetLinkingContext().GetGameObject(parentNID); go == nullptr)
+        {
+            _parent = LevelManager::GetCurrentLevel()->SpawnNewGameObjectFromInputStream(stream, parentNID);
+        }
+        else
+        {
+            go->Read(stream);
+        }
     }
 
     // Read Children
