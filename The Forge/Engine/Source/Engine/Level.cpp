@@ -100,6 +100,17 @@ Engine::GameObject* Engine::Level::SpawnNewGameObjectFromJson(const nlohmann::js
     return rawPtr;
 }
 
+Engine::GameObject* Engine::Level::SpawnNewGameObjectFromInputStream(NetCode::InputByteStream& stream, const uint32_t NID)
+{
+    auto newGo = std::make_unique<GameObject>();
+    NetCode::GetLinkingContext().AddGameObject(newGo.get(), NID);
+    newGo->Read(stream);
+    
+    auto* rawPtr = newGo.get();
+    _gameObjects.push_back(std::move(newGo));
+    return rawPtr;
+}
+
 
 bool Engine::Level::RemoveGameObject(GameObject* go, bool replicate)
 {
@@ -159,7 +170,8 @@ void Engine::Level::Write(NetCode::OutputByteStream& stream, bool isCompleteStat
             ++replicatedCount;
         }
     }
-
+    
+    if (replicatedCount <= 0) return;
     stream.Write(replicatedCount);
 
     // Write the data for each replicated object
@@ -202,14 +214,10 @@ void Engine::Level::Read(NetCode::InputByteStream& stream)
     {
         uint32_t networkID;
         stream.Read(networkID);
-        const auto go = NetCode::GetLinkingContext().GetGameObject(networkID);
-        if (go == nullptr)
+        if (const auto go = NetCode::GetLinkingContext().GetGameObject(networkID); go == nullptr)
         {
-            auto newGo = std::make_unique<GameObject>();
-            NetCode::GetLinkingContext().AddGameObject(newGo.get(), networkID);
-            newGo->Read(stream);
+            const auto newGo = SpawnNewGameObjectFromInputStream(stream, networkID);
             DEBUG_LOG("Creating game object: %s", newGo->GetName().c_str())
-            _gameObjects.push_back(std::move(newGo));
         }
         else
         {

@@ -198,10 +198,25 @@ void Engine::GameObject::Write(NetCode::OutputByteStream& stream) const
 {
     stream.Write(_name);
 
+    // Write Parent
+    const uint32_t parentNID = NetCode::GetLinkingContext().GetNetworkID(_parent);
+    stream.Write(parentNID);
+    _parent->Write(stream);
+
+    // Write Children
+    uint32_t childCount = _children.size();
+    stream.Write(childCount);
+    for (const auto child : _children)
+    {
+        const uint32_t childNID = NetCode::GetLinkingContext().GetNetworkID(child);
+        stream.Write(childNID);
+        _parent->Write(stream);
+    }
+
+    // Write Components
     std::vector<Component*> replicatedComponents;
     for (const auto& component : GetAllComponents())
     {
-        //if (component->isReplicated == false) continue;
         replicatedComponents.push_back(component);
     }
     
@@ -219,6 +234,37 @@ void Engine::GameObject::Read(NetCode::InputByteStream& stream)
 {
     stream.Read(_name);
 
+    // Read Parent
+    uint32_t parentNID;
+    stream.Read(parentNID);
+    if (const auto go = NetCode::GetLinkingContext().GetGameObject(parentNID); go == nullptr)
+    {
+        _parent = LevelManager::GetCurrentLevel()->SpawnNewGameObjectFromInputStream(stream, parentNID);
+    }
+    else
+    {
+        go->Read(stream);
+    }
+
+    // Read Children
+    uint32_t childCount;
+    stream.Read(childCount);
+    for (int i = 0; i < childCount; i++)
+    {
+        uint32_t childNID;
+        stream.Read(childNID);
+        if (const auto go = NetCode::GetLinkingContext().GetGameObject(parentNID); go == nullptr)
+        {
+            auto child = LevelManager::GetCurrentLevel()->SpawnNewGameObjectFromInputStream(stream, parentNID);
+            _children.push_back(child);
+        }
+        else
+        {
+            go->Read(stream);
+        }
+    }
+
+    // Read Components
     uint32_t componentCount;
     stream.Read(componentCount);
     for (uint32_t i = 0; i < componentCount; i++)

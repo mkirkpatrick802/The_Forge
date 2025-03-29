@@ -34,6 +34,7 @@ namespace Engine
     public:
         GameObject* SpawnNewGameObject(const std::string& filepath = "", glm::vec2 position = glm::vec2(0.0f, 0.0f));
         GameObject* SpawnNewGameObjectFromJson(const nlohmann::json& data);
+        GameObject* SpawnNewGameObjectFromInputStream(NetCode::InputByteStream& stream, uint32_t NID);
         bool RemoveGameObject(GameObject* go, bool replicate = true);
 
         void SaveLevel(const std::string& args = "");
