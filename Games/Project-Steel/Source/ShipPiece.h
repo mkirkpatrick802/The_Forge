@@ -29,7 +29,7 @@ private:
     ShipPiece* _attachedToShip = nullptr;
 
 public:
-    void SetAttachedToShip(ShipPiece* piece) { _attachedToShip = piece; };
+    void SetAttachedToShip(ShipPiece* piece) { _attachedToShip = piece; }
     
 };
 

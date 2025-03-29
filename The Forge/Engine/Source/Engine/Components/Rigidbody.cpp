@@ -105,6 +105,11 @@ void Engine::Rigidbody::Write(NetCode::OutputByteStream& stream) const
 
     stream.Write(_velocity);
     stream.Write(_acceleration);
+    stream.Write(_useAreaAsMass);
+    stream.Write(_density);
+    stream.Write(_mass);
+    stream.Write(_static);
+    stream.Write(_friction);
 }
 
 void Engine::Rigidbody::Read(NetCode::InputByteStream& stream)
@@ -113,4 +118,9 @@ void Engine::Rigidbody::Read(NetCode::InputByteStream& stream)
 
     stream.Read(_velocity);
     stream.Read(_acceleration);
+    stream.Read(_useAreaAsMass);
+    stream.Read(_density);
+    stream.Read(_mass);
+    stream.Read(_static);
+    stream.Read(_friction);
 }
