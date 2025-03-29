@@ -263,9 +263,9 @@ void Engine::GameObject::Read(NetCode::InputByteStream& stream)
     {
         uint32_t childNID;
         stream.Read(childNID);
-        if (const auto go = NetCode::GetLinkingContext().GetGameObject(parentNID); go == nullptr)
+        if (const auto go = NetCode::GetLinkingContext().GetGameObject(childNID); go == nullptr)
         {
-            auto child = LevelManager::GetCurrentLevel()->SpawnNewGameObjectFromInputStream(stream, parentNID);
+            auto child = LevelManager::GetCurrentLevel()->SpawnNewGameObjectFromInputStream(stream, childNID);
             _children.push_back(child);
         }
         else
