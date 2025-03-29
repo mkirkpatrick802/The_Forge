@@ -215,6 +215,10 @@ void Engine::GameObject::Write(NetCode::OutputByteStream& stream) const
     {
         const uint32_t childNID = NetCode::GetLinkingContext().GetNetworkID(child);
         stream.Write(childNID);
+<<<<<<< HEAD
+        child->Write(stream);
+=======
+>>>>>>> bda4fe09f827eacb3113ecf66c64b7f807bd22d8
     }
 
     // Write Components
