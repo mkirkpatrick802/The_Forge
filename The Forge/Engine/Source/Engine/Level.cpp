@@ -109,7 +109,8 @@ bool Engine::Level::RemoveGameObject(GameObject* go, bool replicate)
         {
             if (replicate)
                 _destroyedObjects.push_back(go); // Move ownership to _destroyedObjects
-            
+
+            go->GetParent()->RemoveChild(go);
             it = _gameObjects.erase(it); // Erase and update iterator
         }
         else

@@ -14,6 +14,7 @@ public:
     bool Place() const;
 
 private:
+    void CreateShip() const;
     std::vector<glm::vec2> GetGridPoints(glm::vec2 position, glm::vec2 size) const;
     void OnOverlapBegin(Engine::GameObject* go);
     void OnOverlapEnd(Engine::GameObject* go);

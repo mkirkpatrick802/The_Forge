@@ -14,9 +14,13 @@ std::string SHIP_MANAGER_PREFAB = "Assets/Prefabs/Ship Manager.prefab";
 void ShipPiece::Start()
 {
     gameObject->isReplicated = false;
+
     _collider = gameObject->GetComponent<Collider>();
-    _collider->SetCollisionResponseToAllObjects(ECollisionResponse::ECR_Overlap);
-    _collider->SetCollisionResponseByObject(ECollisionObjectType::ECOT_Player, ECollisionResponse::ECR_Ignore);
+    if (gameObject->GetParent() == nullptr)
+    {
+        _collider->SetCollisionResponseToAllObjects(ECollisionResponse::ECR_Overlap);
+        _collider->SetCollisionResponseByObject(ECollisionObjectType::ECOT_Player, ECollisionResponse::ECR_Ignore);
+    }
 
     _collider->OnOverlapBegin.Bind(this, &ShipPiece::OnOverlapBegin);
     _collider->OnOverlapEnd.Bind(this, &ShipPiece::OnOverlapEnd);
@@ -109,14 +113,18 @@ bool ShipPiece::Place() const
         manager->AddChild(gameObject, true);
     }
     
+    CreateShip();
+    return true;
+}
+
+void ShipPiece::CreateShip() const
+{
     if (gameObject->GetParent() == nullptr)
     {
         const auto manager = LevelManager::GetCurrentLevel()->SpawnNewGameObject(SHIP_MANAGER_PREFAB, gameObject->GetWorldPosition());
         manager->AddChild(gameObject);
         gameObject->SetPosition(glm::vec2(0.0f, 0.0f));
     }
-
-    return true;
 }
 
 void ShipPiece::OnOverlapBegin(Engine::GameObject* go)

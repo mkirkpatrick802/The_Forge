@@ -20,7 +20,7 @@
             "Is Screen Space": false,
             "Screen Space X": 0.0,
             "Screen Space Y": 0.0,
-            "Sorting Layer": 1,
+            "Sorting Layer": 5,
             "Sprite": "Assets/Sprites/Astronaut.png",
             "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"
         },

@@ -4,13 +4,13 @@
             "Children": [],
             "Components": [
                 {
+                    "Component ID": 658613692
+                },
+                {
                     "Component ID": 1457500923,
                     "Rotation": 0.0,
                     "X position": 0.0,
                     "Y position": 0.0
-                },
-                {
-                    "Component ID": 658613692
                 }
             ],
             "Game Object Name": "Player Start",
@@ -67,6 +67,91 @@
                 }
             ],
             "Game Object Name": "Astroid Spawner",
+            "Is Replicated": true,
+            "Server Only": false
+        },
+        {
+            "Children": [
+                {
+                    "Children": [],
+                    "Components": [
+                        {
+                            "Component ID": 1457500923,
+                            "Rotation": 0.0,
+                            "X position": 0.0,
+                            "Y position": 0.0
+                        },
+                        {
+                            "Component ID": 3309965179
+                        },
+                        {
+                            "Component ID": 2525770811,
+                            "Fragment Shader": "Assets\\Engine Assets\\Shaders\\Sprite.frag",
+                            "Is Screen Space": false,
+                            "Screen Space X": 0.0,
+                            "Screen Space Y": 0.0,
+                            "Sorting Layer": 1,
+                            "Sprite": "Assets\\Sprites\\StationCore.png",
+                            "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"
+                        },
+                        {
+                            "Component ID": 3137815528,
+                            "Density": 1.0,
+                            "Mass": 10.0,
+                            "Static": false,
+                            "Use Area As Mass": true
+                        },
+                        {
+                            "Component ID": 2164870167
+                        },
+                        {
+                            "Component ID": 3505471502,
+                            "Size X": 160.0,
+                            "Size Y": 160.0,
+                            "collisionProfile": {
+                                "responses": [
+                                    [
+                                        "Default",
+                                        "Block"
+                                    ],
+                                    [
+                                        "PhysicsBody",
+                                        "Block"
+                                    ],
+                                    [
+                                        "Player",
+                                        "Block"
+                                    ],
+                                    [
+                                        "Projectile",
+                                        "Block"
+                                    ],
+                                    [
+                                        "Walkable",
+                                        "Block"
+                                    ]
+                                ],
+                                "type": "Walkable"
+                            }
+                        }
+                    ],
+                    "Game Object Name": "Station",
+                    "Is Replicated": true,
+                    "Server Only": false
+                }
+            ],
+            "Components": [
+                {
+                    "Component ID": 2683247030
+                },
+                {
+                    "Component ID": 1457500923,
+                    "Rotation": 0.0,
+                    "X position": 0.0,
+                    "Y position": 0.0
+                }
+            ],
+            "Game Object Name": "New Game Object",
             "Is Replicated": true,
             "Server Only": false
         }
