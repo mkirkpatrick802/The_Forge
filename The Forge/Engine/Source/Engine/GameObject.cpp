@@ -205,7 +205,6 @@ void Engine::GameObject::Write(NetCode::OutputByteStream& stream) const
     {
         const uint32_t parentNID = NetCode::GetLinkingContext().GetNetworkID(_parent);
         stream.Write(parentNID);
-        _parent->Write(stream);
     }
 
     // Write Children
@@ -215,10 +214,7 @@ void Engine::GameObject::Write(NetCode::OutputByteStream& stream) const
     {
         const uint32_t childNID = NetCode::GetLinkingContext().GetNetworkID(child);
         stream.Write(childNID);
-<<<<<<< HEAD
         child->Write(stream);
-=======
->>>>>>> bda4fe09f827eacb3113ecf66c64b7f807bd22d8
     }
 
     // Write Components
@@ -250,7 +246,7 @@ void Engine::GameObject::Read(NetCode::InputByteStream& stream)
         }
         else
         {
-            _parent = LevelManager::GetCurrentLevel()->SpawnNewGameObjectFromInputStream(stream, parentNID);
+            //_parent = LevelManager::GetCurrentLevel()->SpawnNewGameObjectFromInputStream(stream, parentNID);
         }
     }
 
@@ -267,11 +263,13 @@ void Engine::GameObject::Read(NetCode::InputByteStream& stream)
             {
                 _children.push_back(go);
             }
+
+            go->Read(stream);
         }
         else
         {
-            //auto child = LevelManager::GetCurrentLevel()->SpawnNewGameObjectFromInputStream(stream, childNID);
-            //_children.push_back(child);
+            auto child = LevelManager::GetCurrentLevel()->SpawnNewGameObjectFromInputStream(stream, childNID);
+            _children.push_back(child);
         }
     }
 
