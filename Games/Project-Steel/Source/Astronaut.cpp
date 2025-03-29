@@ -36,14 +36,23 @@ void Astronaut::Start()
         collider->OnOverlapBegin.Bind(this, &Astronaut::OnColliderBeginOverlap);
         collider->OnOverlapEnd.Bind(this, &Astronaut::OnColliderEndOverlap);
     }
-
-    GetCameraManager().GetActiveCamera()->SetZoomBounds({.7, 2});
 }
 
 void Astronaut::Update(const float deltaTime)
 {
     PlayerController::Update(deltaTime);
 
+    static bool boundsSet = false;
+    if (!boundsSet)
+    {
+        const auto manager = GetCameraManager();
+        if (const auto camera = manager.GetActiveCamera())
+        {
+            camera->SetZoomBounds({.7, 2});
+            boundsSet = true;
+        }
+    }
+    
     CollectInput(deltaTime);
 }
 

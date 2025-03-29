@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "CollisionProfile.h"
 #include "Engine/Components/Component.h"
 #include "Engine/DelegateSystem.h"
+#include "Engine/Collisions/CollisionProfile.h"
 
 class Engine::GameObject;
 
@@ -30,7 +30,6 @@ namespace Engine
         ~Collider() override = default;
         
         bool CheckCollision(const Collider* collider, float& penetration) const;
-        bool CheckCollision(const Collider* collider, glm::vec2 point, float& penetration) const;
         bool CheckCollision(glm::vec2 pos) const;
 
         void SetCollisionResponseByObject(ECollisionObjectType object, ECollisionResponse response);
@@ -39,6 +38,9 @@ namespace Engine
         void DrawDetails() override;
         nlohmann::json Serialize() override;
         void Deserialize(const json& data) override;
+
+        void Write(NetCode::OutputByteStream& stream) const override;
+        void Read(NetCode::InputByteStream& stream) override;
         
     private:
         bool CheckCircleCollision(const CircleCollider* circle, const CircleCollider* other, float& penetration) const;

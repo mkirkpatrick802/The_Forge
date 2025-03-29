@@ -71,6 +71,37 @@ namespace Engine
         {
             responseMap[other] = response;
         }
+
+        void Write(NetCode::OutputByteStream& stream) const
+        {
+            stream.Write(type);
+
+            const uint8_t size = responseMap.size();
+            stream.Write(size);
+            for (const auto& [key, value] : responseMap)
+            {
+                stream.Write(key);
+                stream.Write(value);
+            }
+        }
+
+        void Read(NetCode::InputByteStream& stream)
+        {
+            stream.Read(type);
+
+            uint8_t size;
+            stream.Read(size);
+            for (uint8_t i = 0; i < size; i++)
+            {
+                ECollisionObjectType key;
+                stream.Read(key);
+
+                ECollisionResponse value;
+                stream.Read(value);
+
+                responseMap[key] = value;
+            }
+        }
     
         static ECollisionResponse ResolveCollision(const CollisionProfile& a, const CollisionProfile& b) 
         {
@@ -82,7 +113,7 @@ namespace Engine
         }
     };
     
-        NLOHMANN_JSON_SERIALIZE_ENUM(ECollisionObjectType,
+    NLOHMANN_JSON_SERIALIZE_ENUM(ECollisionObjectType,
     {
         {ECollisionObjectType::ECOT_Default, "Default"},
         {ECollisionObjectType::ECOT_PhysicsBody, "PhysicsBody"},

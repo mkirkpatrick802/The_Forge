@@ -31,3 +31,17 @@ void Engine::RectangleCollider::Deserialize(const nlohmann::json& json)
         _size.y = json["Size Y"];
     }
 }
+
+void Engine::RectangleCollider::Write(NetCode::OutputByteStream& stream) const
+{
+    Collider::Write(stream);
+
+    stream.Write(_size);
+}
+
+void Engine::RectangleCollider::Read(NetCode::InputByteStream& stream)
+{
+    Collider::Read(stream);
+
+    stream.Read(_size);
+}

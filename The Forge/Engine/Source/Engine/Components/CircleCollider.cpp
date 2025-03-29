@@ -1,7 +1,6 @@
 ﻿#include "CircleCollider.h"
 
-#include <glm/glm.hpp>
-
+#include "Collider.h"
 #include "imgui.h"
 #include "RectangleCollider.h"
 
@@ -29,5 +28,19 @@ void Engine::CircleCollider::Deserialize(const json& data)
     Collider::Deserialize(data);
     if (data.contains("radius"))
         _radius = data["radius"];
+}
+
+void Engine::CircleCollider::Write(NetCode::OutputByteStream& stream) const
+{
+    Collider::Write(stream);
+
+    stream.Write(_radius);
+}
+
+void Engine::CircleCollider::Read(NetCode::InputByteStream& stream)
+{
+    Collider::Read(stream);
+
+    stream.Read(_radius);
 }
 

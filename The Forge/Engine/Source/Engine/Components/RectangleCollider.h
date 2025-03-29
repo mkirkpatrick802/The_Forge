@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "../Collisions/Collider.h"
+#include "Collider.h"
 #include "ComponentUtils.h"
 
 namespace Engine
@@ -12,6 +12,9 @@ namespace Engine
         void DrawDetails() override;
         nlohmann::json Serialize() override;
         void Deserialize(const nlohmann::json& json) override;
+
+        void Write(NetCode::OutputByteStream& stream) const override;
+        void Read(NetCode::InputByteStream& stream) override;
         
     private:
         glm::vec2 _size;

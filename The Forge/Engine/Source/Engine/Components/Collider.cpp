@@ -1,5 +1,4 @@
 ﻿#include "Collider.h"
-
 #include "Engine/Components/CircleCollider.h"
 #include "Engine/Components/RectangleCollider.h"
 #include <glm/glm.hpp>
@@ -9,58 +8,6 @@
 void Engine::Collider::OnActivation()
 {
     Component::OnActivation();
-}
-
-void Engine::Collider::DrawDetails()
-{
-    ImGui::Spacing();
-    ImGui::Text("Collision Profile Settings");
-    ImGui::PushItemWidth(150);
-    if (ImGui::BeginCombo("Collision Type", ToString(profile.type).c_str()))
-    {
-        for (int i = 0; i < static_cast<int>(ECollisionObjectType::ECOT_Max); i++)
-        {
-            const auto otype = static_cast<ECollisionObjectType>(i);
-            const bool isSelected = (profile.type == otype);
-
-            if (ImGui::Selectable(ToString(otype).c_str(), isSelected))
-                profile.type = otype;
-            
-            if (isSelected)
-                ImGui::SetItemDefaultFocus();
-        }
-        ImGui::EndCombo();
-    }
-
-    const char* collisionResponseNames[] = { "Ignore", "Overlap", "Block" };
-    for (auto& [fst, snd] : profile.responseMap)
-    {
-        const ECollisionObjectType otherType = fst;
-        ECollisionResponse& response = snd;
-
-        std::string label = "Response to " + ToString(otherType); // Create a unique label
-
-        int responseIndex = static_cast<int>(response);
-        if (ImGui::Combo(label.c_str(), &responseIndex, collisionResponseNames, IM_ARRAYSIZE(collisionResponseNames)))
-        {
-            response = static_cast<ECollisionResponse>(responseIndex); // Update response map
-        }
-    }
-    ImGui::PopItemWidth();
-}
-
-nlohmann::json Engine::Collider::Serialize()
-{
-    nlohmann::json data =  Component::Serialize();
-    data["collisionProfile"] = profile;
-    return data;
-}
-
-void Engine::Collider::Deserialize(const json& data)
-{
-    Component::Deserialize(data);
-    if (data.contains("collisionProfile"))
-        data.at("collisionProfile").get_to(profile);
 }
 
 bool Engine::Collider::CheckCollision(const Collider* collider, float& penetration) const
@@ -235,3 +182,72 @@ void Engine::Collider::SetCollisionResponseToAllObjects(const ECollisionResponse
     }
 }
 
+void Engine::Collider::DrawDetails()
+{
+    ImGui::Spacing();
+    ImGui::Text("Collision Profile Settings");
+    ImGui::PushItemWidth(150);
+    if (ImGui::BeginCombo("Collision Type", ToString(profile.type).c_str()))
+    {
+        for (int i = 0; i < static_cast<int>(ECollisionObjectType::ECOT_Max); i++)
+        {
+            const auto otype = static_cast<ECollisionObjectType>(i);
+            const bool isSelected = (profile.type == otype);
+
+            if (ImGui::Selectable(ToString(otype).c_str(), isSelected))
+                profile.type = otype;
+            
+            if (isSelected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+
+    const char* collisionResponseNames[] = { "Ignore", "Overlap", "Block" };
+    for (auto& [fst, snd] : profile.responseMap)
+    {
+        const ECollisionObjectType otherType = fst;
+        ECollisionResponse& response = snd;
+
+        std::string label = "Response to " + ToString(otherType); // Create a unique label
+
+        int responseIndex = static_cast<int>(response);
+        if (ImGui::Combo(label.c_str(), &responseIndex, collisionResponseNames, IM_ARRAYSIZE(collisionResponseNames)))
+        {
+            response = static_cast<ECollisionResponse>(responseIndex); // Update response map
+        }
+    }
+    ImGui::PopItemWidth();
+}
+
+nlohmann::json Engine::Collider::Serialize()
+{
+    nlohmann::json data =  Component::Serialize();
+    data["collisionProfile"] = profile;
+    return data;
+}
+
+void Engine::Collider::Deserialize(const json& data)
+{
+    Component::Deserialize(data);
+    if (data.contains("collisionProfile"))
+        data.at("collisionProfile").get_to(profile);
+}
+
+void Engine::Collider::Write(NetCode::OutputByteStream& stream) const
+{
+    Component::Write(stream);
+
+    stream.Write(type);
+    profile.Write(stream);
+    stream.Write(isEnabled);
+}
+
+void Engine::Collider::Read(NetCode::InputByteStream& stream)
+{
+    Component::Read(stream);
+
+    stream.Read(type);
+    profile.Read(stream);
+    stream.Read(isEnabled);
+}
