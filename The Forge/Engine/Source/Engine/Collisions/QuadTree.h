@@ -1,10 +1,11 @@
 ﻿#pragma once
+#include <memory>
+#include <vector>
 #include <glm/vec2.hpp>
-
-#include "Collider.h"
 
 namespace Engine
 {
+    class Collider;
     constexpr int MAX_QUADTREE_OBJECTS = 10;
     constexpr int MAX_QUADTREE_DEPTH = 8;
     constexpr int QUADTREE_CHILDREN_COUNT = 4;

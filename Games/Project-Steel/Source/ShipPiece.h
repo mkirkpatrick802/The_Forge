@@ -1,6 +1,10 @@
 ﻿#pragma once
-#include "Engine/Collisions/Collider.h"
 #include "Engine/Components/ComponentUtils.h"
+
+namespace Engine
+{
+    class Collider;
+}
 
 class ShipPiece final : public Engine::Component
 {

@@ -6,7 +6,6 @@
 #include "CircleCollider.h"
 #include "imgui.h"
 #include "RectangleCollider.h"
-#include "Engine/Collisions/Collider.h"
 
 Engine::Rigidbody::Rigidbody(): _velocity(), _acceleration(), _useAreaAsMass(true), _mass(10), _density(1),
                                 _inverseMass(0),

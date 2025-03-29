@@ -1,6 +1,5 @@
 ﻿#include "Astronaut.h"
 
-#include <iostream>
 #include <SDL_mouse.h>
 
 #include "Engine/GameEngine.h"
@@ -12,12 +11,10 @@
 #include "ShipPiece.h"
 #include "Engine/Level.h"
 #include "Engine/LevelManager.h"
-#include "Engine/System.h"
-#include "Engine/Collisions/Collider.h"
 #include "Engine/Collisions/CollisionManager.h"
+#include "Engine/Components/Collider.h"
 #include "Engine/Components/Rigidbody.h"
 #include "Engine/Rendering/CameraManager.h"
-#include "Engine/Components/Transform.h"
 
 using namespace Engine;
 
