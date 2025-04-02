@@ -12,7 +12,19 @@
 
 Engine::Level::Level()
 {
-    CommandRegistry::RegisterCommand("/save", [this](const std::string& args){ SaveLevel(args); });   
+    CommandRegistry::RegisterCommand("/save", [this](const std::string& args){ SaveLevel(args); });
+    CommandRegistry::RegisterCommand("/gocount", [this](const std::string& args)
+    {
+        DEBUG_LOG("%d Game Objects", _gameObjects.size())
+    });
+}
+
+Engine::Level::~Level()
+{
+    CommandRegistry::UnregisterCommand("/save");
+    CommandRegistry::UnregisterCommand("/gocount");
+
+    _gameObjects.clear();
 }
 
 void Engine::Level::Load(nlohmann::json data)
@@ -39,13 +51,6 @@ void Engine::Level::Load(nlohmann::json data)
 void Engine::Level::Load(NetCode::InputByteStream& stream)
 {
     Read(stream);
-}
-
-Engine::Level::~Level()
-{
-    CommandRegistry::UnregisterCommand("/save");
-
-    _gameObjects.clear();
 }
 
 void Engine::Level::Start() const
