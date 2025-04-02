@@ -53,7 +53,12 @@ void Engine::Rigidbody::Update(const float deltaTime)
     _velocity += _acceleration * deltaTime;
     if(length(_velocity) > std::numeric_limits<float>::epsilon())
     {
-        gameObject->SetPosition(gameObject->GetWorldPosition() + _velocity * deltaTime);
+        const auto pos = gameObject->GetWorldPosition() + _velocity * deltaTime;
+        gameObject->SetPosition(pos);
+        if (!NetCode::GetNetworkManager().GetIsOwner())
+        {
+            DEBUG_LOG("RB New Pos: %f, %f", pos.x, pos.y);
+        }
         _velocity -= _velocity * _friction;
         _acceleration = glm::vec2(0.0f); // Reset acceleration after integration
     }
