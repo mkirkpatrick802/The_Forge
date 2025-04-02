@@ -200,11 +200,6 @@ void Engine::GameObject::Write(NetCode::OutputByteStream& stream)
 
     // Write Parent
     const uint32_t parentNID = NetCode::GetLinkingContext().GetNetworkID(_parent);
-    if (parentNID != NULL_ID)
-    {
-        
-    }
-    
     stream.Write(parentNID);
 
     // Write Children
