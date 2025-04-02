@@ -10,6 +10,9 @@ NetCode::LinkingContext& NetCode::LinkingContext::GetInstance()
 
 uint32_t NetCode::LinkingContext::GetNetworkID(Engine::GameObject* go, const bool shouldCreateIfNotFound)
 {
+    if (go == nullptr)
+        return NULL_ID;
+    
     if (const auto it = _networkIDMap.find(go); it != _networkIDMap.end())
         return it->second;
     

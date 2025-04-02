@@ -4,6 +4,7 @@
 
 #include "json.hpp"
 #include "ByteStream.h"
+#include "LinkingContext.h"
 #include "NetworkManager.h"
 #include "Utilities/Array.h"
 
@@ -65,7 +66,7 @@ namespace Engine
         // TODO: Can be moved to a utils file
         nlohmann::json _defaultData;
 
-        uint32_t _parentNID = 0;
+        uint32_t _parentNID = NULL_ID;
         Array<uint32_t> _childrenNIDs;
 
     public:

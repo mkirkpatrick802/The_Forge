@@ -200,8 +200,12 @@ void Engine::GameObject::Write(NetCode::OutputByteStream& stream)
 
     // Write Parent
     const uint32_t parentNID = NetCode::GetLinkingContext().GetNetworkID(_parent);
-    _parentNID = parentNID;
-    stream.Write(_parentNID);
+    if (parentNID != NULL_ID)
+    {
+        
+    }
+    
+    stream.Write(parentNID);
 
     // Write Children
     uint32_t childCount = static_cast<uint32_t>(_children.size());
@@ -268,7 +272,8 @@ void Engine::GameObject::Read(NetCode::InputByteStream& stream)
 
 void Engine::GameObject::LinkFamily()
 {
-    _parent = NetCode::GetLinkingContext().GetGameObject(_parentNID);
+    if (_parentNID != NULL_ID)
+        _parent = NetCode::GetLinkingContext().GetGameObject(_parentNID);
 
     if (_childrenNIDs.empty()) return;
     for (const auto NID : _childrenNIDs)
