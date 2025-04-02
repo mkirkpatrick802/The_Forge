@@ -22,6 +22,8 @@ void FluxWrench::Start()
     _resourceManager = gameObject->GetComponent<ResourceManager>();
     _playerController = gameObject->GetComponent<PlayerController>();
     _astronaut = gameObject->GetComponent<Astronaut>();
+
+    UpdateWrenchVisuals();
 }
 
 void FluxWrench::Update(float deltaTime)

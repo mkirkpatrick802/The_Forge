@@ -268,4 +268,6 @@ void SpaceGrid::Read(NetCode::InputByteStream& stream)
         _tiles.emplace_back(tile);
         _overflow.push_back(std::move(texture));
     }
+
+    Engine::GetRenderer().AddComponentToRenderList(this);
 }

@@ -4,30 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "4c864261f7d3a78f",
+        "id": "da1b26da3ca216b8",
         "type": "tabs",
         "children": [
           {
-            "id": "e6e8220d80849b8a",
+            "id": "4cec8dbce4b546df",
             "type": "leaf",
             "state": {
-              "type": "kanban",
-              "state": {
-                "file": "Forge TODO.md",
-                "kanbanViewState": {
-                  "kanban-plugin": "board",
-                  "list-collapse": [
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false
-                  ]
-                }
-              },
-              "icon": "lucide-trello",
-              "title": "Forge TODO"
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "New tab"
             }
           }
         ]
@@ -176,13 +163,16 @@
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
       "obsidian-kanban:Create new board": false,
-      "slides-extended:Show slide preview": false
+      "slides-extended:Show slide preview": false,
+      "obsidian-excalidraw-plugin:New drawing": false
     }
   },
-  "active": "e6e8220d80849b8a",
+  "active": "2acc76d74c964e67",
   "lastOpenFiles": [
-    "Engine/Components/Component Functions.md",
     "Forge TODO.md",
+    "Excalidraw/Drawing 2025-04-02 13.55.58.excalidraw.md",
+    "Excalidraw",
+    "Engine/Components/Component Functions.md",
     "README.md",
     "Netcode/Partial Byte Stream Packets.md",
     "Engine/Forge Architecture.md",

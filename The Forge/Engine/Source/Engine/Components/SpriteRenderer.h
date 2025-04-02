@@ -13,7 +13,7 @@ namespace Engine
 
     public:
         SpriteRenderer();
-
+        
         void OnActivation() override;
         void CollectUniforms(ShaderUniformData& data) override;
         

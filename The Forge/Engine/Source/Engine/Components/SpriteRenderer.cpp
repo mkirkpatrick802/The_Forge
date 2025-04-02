@@ -164,6 +164,8 @@ void Engine::SpriteRenderer::Read(NetCode::InputByteStream& stream)
         _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
         _size = _texture->GetSize();
     }
+
+    GetRenderer().AddComponentToRenderList(this);
 }
 
 void Engine::SpriteRenderer::DrawDetails()

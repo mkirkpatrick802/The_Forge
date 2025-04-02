@@ -114,13 +114,24 @@ bool Engine::Collider::CheckRectangleCollision(const RectangleCollider* rectangl
     float& penetration) const
 {
     const auto& otherPos = other->gameObject->GetWorldPosition();
-    const auto& otherSize = other->GetSize();
+    const auto& otherHalfSize = other->GetSize() * .5f;
     const auto& pos = gameObject->GetWorldPosition();
-    const auto& size = rectangle->GetSize();
+    const auto& halfSize = rectangle->GetSize() * .5f;
 
-    // Compute overlap on X and Y axes
-    float overlapX = std::min(pos.x + size.x, otherPos.x + otherSize.x) - std::max(pos.x, otherPos.x);
-    float overlapY = std::min(pos.y + size.y, otherPos.y + otherSize.y) - std::max(pos.y, otherPos.y);
+    // Compute min/max bounds for each object
+    float minA_X = pos.x - halfSize.x;
+    float maxA_X = pos.x + halfSize.x;
+    float minB_X = otherPos.x - otherHalfSize.x;
+    float maxB_X = otherPos.x + otherHalfSize.x;
+
+    float minA_Y = pos.y - halfSize.y;
+    float maxA_Y = pos.y + halfSize.y;
+    float minB_Y = otherPos.y - otherHalfSize.y;
+    float maxB_Y = otherPos.y + otherHalfSize.y;
+
+    // Compute overlap
+    float overlapX = std::max(0.0f, std::min(maxA_X, maxB_X) - std::max(minA_X, minB_X));
+    float overlapY = std::max(0.0f, std::min(maxA_Y, maxB_Y) - std::max(minA_Y, minB_Y));
 
     // AABB collision check
     if (overlapX > 0 && overlapY > 0)

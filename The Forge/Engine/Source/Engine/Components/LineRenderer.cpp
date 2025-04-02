@@ -13,18 +13,9 @@
 
 Engine::LineRenderer::LineRenderer(): _size(), _start(), _end() { }
 
-Engine::LineRenderer::~LineRenderer()
-{
-    IRenderable::~IRenderable();
-
-    _texture.reset();
-    GetRenderer().RemoveComponentFromRenderList(this);
-}
-
 void Engine::LineRenderer::OnActivation()
 {
     InitRenderable(gameObject);
-    GetRenderer().AddComponentToRenderList(this);
 }
 
 void Engine::LineRenderer::Render(const ShaderUniformData& data)
@@ -32,7 +23,7 @@ void Engine::LineRenderer::Render(const ShaderUniformData& data)
     if (!_texture || IsHidden()) return;
     glm::vec2 direction = _end - _start;
     float length = glm::length(direction);
-    glm::vec2 step = glm::normalize(direction) * _size.x;
+    glm::vec2 step = normalize(direction) * _size.x;
 
     int fullSprites = static_cast<int>(length / _size.x);
     float remainder = fmod(length, _size.x); // Remaining space

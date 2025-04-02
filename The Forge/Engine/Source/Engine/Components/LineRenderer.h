@@ -15,7 +15,6 @@ namespace Engine
         // Move assignment operator
         LineRenderer& operator=(LineRenderer&& other) noexcept;
         
-        ~LineRenderer() override;
         void OnActivation() override;
         void Render(const ShaderUniformData& data) override;
 

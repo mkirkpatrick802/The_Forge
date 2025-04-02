@@ -36,8 +36,9 @@ glm::vec2 ShipPiece::GetNearestSnapLocation(glm::vec2 mouse, const ShipPiece* ot
     glm::vec2 position = gameObject->GetWorldPosition();
     float rotation = gameObject->GetWorldRotation(); // You might need this if you're rotating grid points
     glm::vec2 size = ((RectangleCollider*)_collider)->GetSize();
-
-    const std::vector<glm::vec2> gridPoints = GetGridPoints(position, size);
+    glm::vec2 otherSize = other->gameObject->GetComponent<RectangleCollider>()->GetSize();
+    
+    const std::vector<glm::vec2> gridPoints = GetGridPoints(position, size, otherSize);
     
     // Find the closest snap point to the other piece (mouse position)
     glm::vec2 closestSnapPoint = gridPoints[0];
@@ -69,7 +70,7 @@ glm::vec2 ShipPiece::GetNearestSnapLocation(glm::vec2 mouse, const ShipPiece* ot
     return closestSnapPoint + position;
 }
 
-std::vector<glm::vec2> ShipPiece::GetGridPoints(const glm::vec2 position, const glm::vec2 size) const
+std::vector<glm::vec2> ShipPiece::GetGridPoints(const glm::vec2 position, const glm::vec2 size, glm::vec2 otherSize) const
 {
     std::vector<glm::vec2> gridPoints;
     
@@ -78,18 +79,23 @@ std::vector<glm::vec2> ShipPiece::GetGridPoints(const glm::vec2 position, const 
     glm::vec2 min = position - halfSize;
     glm::vec2 max = position + halfSize;
 
-    // Generate grid points as offsets within the bounds of the ship piece
-    for (float x = min.x; x <= max.x; x += 16.0f)
+    glm::vec2 otherHalfSize = otherSize * 0.5f;
+
+    gridPoints.emplace_back(position.x + halfSize.x, position.y);
+    gridPoints.emplace_back(position.x - halfSize.x, position.y);
+    gridPoints.emplace_back(position.x, position.y + halfSize.y);
+    gridPoints.emplace_back(position.x, position.y - halfSize.y);
+    // Generate grid points as offsets outside the bounds of the ship piece
+    /*for (float x = min.x; x <= max.x; x += 16.0f)
     {
         for (float y = min.y; y <= max.y; y += 16.0f)
         {
             glm::vec2 offset(x - position.x, y - position.y);
             if (offset.x == 0 && offset.y == 0) continue;
-            if (offset.x != 0 && offset.y != 0) continue;
-                
+            
             gridPoints.emplace_back(offset);
         }
-    }
+    }*/
 
     return gridPoints;
 }
