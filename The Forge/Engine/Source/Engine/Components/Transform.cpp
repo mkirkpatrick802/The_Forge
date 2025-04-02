@@ -71,11 +71,15 @@ void Engine::Transform::Deserialize(const json& data)
 void Engine::Transform::Write(NetCode::OutputByteStream& stream) const
 {
     stream.Write(_position);
+    stream.Write(_localPosition);
     stream.Write(_rotation);
+    stream.Write(_localRotation);
 }
 
 void Engine::Transform::Read(NetCode::InputByteStream& stream)
 {
     stream.Read(_position);
+    stream.Read(_localPosition);
     stream.Read(_rotation);
+    stream.Read(_localRotation);
 }
