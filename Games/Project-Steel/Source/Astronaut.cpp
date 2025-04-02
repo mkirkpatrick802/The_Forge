@@ -226,6 +226,22 @@ void Astronaut::OnColliderEndOverlap(const Engine::GameObject* overlappedObject)
     }
 }
 
+void Astronaut::Write(NetCode::OutputByteStream& stream) const
+{
+    PlayerController::Write(stream);
+
+    stream.Write(_flySpeed);
+    stream.Write(_walkSpeed);
+}
+
+void Astronaut::Read(NetCode::InputByteStream& stream)
+{
+    PlayerController::Read(stream);
+
+    stream.Read(_flySpeed);
+    stream.Read(_walkSpeed);
+}
+
 void Astronaut::DrawDetails()
 {
     ImGui::InputFloat("Fly Speed", &_flySpeed);

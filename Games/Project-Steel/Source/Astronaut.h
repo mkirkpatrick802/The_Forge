@@ -34,6 +34,9 @@ private:
     void OnColliderBeginOverlap(const Engine::GameObject* overlappedObject);
     void OnColliderEndOverlap(const Engine::GameObject* overlappedObject);
 
+    void Write(NetCode::OutputByteStream& stream) const override;
+    void Read(NetCode::InputByteStream& stream) override;
+
 private:
     Engine::Rigidbody* _rb;
     EAstronautMoveState _state;
