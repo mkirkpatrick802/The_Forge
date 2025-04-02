@@ -170,23 +170,24 @@ void Engine::Level::Write(NetCode::OutputByteStream& stream, bool isCompleteStat
             ++replicatedCount;
         }
     }
-    
-    if (replicatedCount <= 0) return;
-    stream.Write(replicatedCount);
 
     // Write the data for each replicated object
-    for (auto& element : _gameObjects)
+    stream.Write(replicatedCount);
+    if (replicatedCount > 0)
     {
-        if ((!element->isServerOnly && isCompleteState) || (element->isReplicated && element->isDirty))
+        for (auto& element : _gameObjects)
         {
-            const uint32_t networkID = NetCode::GetLinkingContext().GetNetworkID(element.get());
-            stream.Write(networkID);
-            element->Write(stream);
-
-            // If it's not a complete state, mark the object as clean
-            if (!isCompleteState)
+            if ((!element->isServerOnly && isCompleteState) || (element->isReplicated && element->isDirty))
             {
-                element->isDirty = false;
+                const uint32_t networkID = NetCode::GetLinkingContext().GetNetworkID(element.get());
+                stream.Write(networkID);
+                element->Write(stream);
+
+                // If it's not a complete state, mark the object as clean
+                if (!isCompleteState)
+                {
+                    element->isDirty = false;
+                }
             }
         }
     }
