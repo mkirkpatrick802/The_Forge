@@ -209,7 +209,6 @@ void Engine::Level::Read(NetCode::InputByteStream& stream)
 {
     uint32_t elementCount;
     stream.Read(elementCount);
-    
     for (int i = 0; i < (int)elementCount; i++)
     {
         uint32_t networkID;
@@ -232,6 +231,11 @@ void Engine::Level::Read(NetCode::InputByteStream& stream)
         uint32_t networkID;
         stream.Read(networkID);
         RemoveGameObject(NetCode::GetLinkingContext().GetGameObject(networkID), false);
+    }
+
+    for (const auto& go : _gameObjects)
+    {
+        go->LinkFamily();
     }
 }
 

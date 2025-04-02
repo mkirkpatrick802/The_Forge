@@ -194,18 +194,14 @@ nlohmann::json Engine::GameObject::Serialize()
     return data;
 }
 
-void Engine::GameObject::Write(NetCode::OutputByteStream& stream) const
+void Engine::GameObject::Write(NetCode::OutputByteStream& stream)
 {
     stream.Write(_name);
 
     // Write Parent
-    const bool hasParent = _parent != nullptr;
-    stream.Write(hasParent);
-    if (_parent)
-    {
-        const uint32_t parentNID = NetCode::GetLinkingContext().GetNetworkID(_parent);
-        stream.Write(parentNID);
-    }
+    const uint32_t parentNID = NetCode::GetLinkingContext().GetNetworkID(_parent);
+    _parentNID = parentNID;
+    stream.Write(_parentNID);
 
     // Write Children
     uint32_t childCount = static_cast<uint32_t>(_children.size());
@@ -214,7 +210,6 @@ void Engine::GameObject::Write(NetCode::OutputByteStream& stream) const
     {
         const uint32_t childNID = NetCode::GetLinkingContext().GetNetworkID(child);
         stream.Write(childNID);
-        child->Write(stream);
     }
 
     // Write Components
@@ -233,44 +228,19 @@ void Engine::GameObject::Read(NetCode::InputByteStream& stream)
     stream.Read(_name);
 
     // Read Parent
-    bool hasParent;
-    stream.Read(hasParent);
-    if (hasParent)
-    {
-        uint32_t parentNID;
-        stream.Read(parentNID);
-        if (const auto go = NetCode::GetLinkingContext().GetGameObject(parentNID))
-        {
-            _parent = go;
-            _parent->Read(stream);
-        }
-        else
-        {
-            //_parent = LevelManager::GetCurrentLevel()->SpawnNewGameObjectFromInputStream(stream, parentNID);
-        }
-    }
+    uint32_t parentNID;
+    stream.Read(parentNID);
+    _parentNID = parentNID;
 
     // Read Children
     uint32_t childCount;
+    _childrenNIDs.clear();
     stream.Read(childCount);
     for (uint32_t i = 0; i < childCount; i++)
     {
         uint32_t childNID;
         stream.Read(childNID);
-        if (const auto go = NetCode::GetLinkingContext().GetGameObject(childNID))
-        {
-            if (std::ranges::find(_children, go) == _children.end()) 
-            {
-                _children.push_back(go);
-            }
-
-            go->Read(stream);
-        }
-        else
-        {
-            auto child = LevelManager::GetCurrentLevel()->SpawnNewGameObjectFromInputStream(stream, childNID);
-            _children.push_back(child);
-        }
+        _childrenNIDs.add_unique(childNID);
     }
 
     // Read Components
@@ -294,4 +264,14 @@ void Engine::GameObject::Read(NetCode::InputByteStream& stream)
             it->second->Read(stream);
         }
     }
+}
+
+void Engine::GameObject::LinkFamily()
+{
+    _parent = NetCode::GetLinkingContext().GetGameObject(_parentNID);
+
+    if (_childrenNIDs.empty()) return;
+    for (const auto NID : _childrenNIDs)
+        if (auto go = NetCode::GetLinkingContext().GetGameObject(NID))
+            _children.add_unique(go);
 }
