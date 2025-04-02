@@ -107,6 +107,7 @@ void Astronaut::Move(const glm::vec2 movement, const float deltaTime)
         _rb->ApplyForce(accelerationVector);
         break;
     case EAstronautMoveState::EAMS_Walking:
+        _rb->ClearVelocity();
         const glm::vec2 currentPos = gameObject->GetWorldPosition();
     
         // Calculate the movement vector

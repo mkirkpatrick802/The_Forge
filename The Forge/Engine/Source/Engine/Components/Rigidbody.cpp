@@ -6,6 +6,7 @@
 #include "CircleCollider.h"
 #include "imgui.h"
 #include "RectangleCollider.h"
+#include "Engine/System.h"
 
 Engine::Rigidbody::Rigidbody(): _velocity(), _acceleration(), _useAreaAsMass(true), _mass(10), _density(1),
                                 _inverseMass(0),
@@ -108,6 +109,7 @@ void Engine::Rigidbody::Write(NetCode::OutputByteStream& stream) const
     stream.Write(_useAreaAsMass);
     stream.Write(_density);
     stream.Write(_mass);
+    stream.Write(_inverseMass);
     stream.Write(_static);
     stream.Write(_friction);
 }
@@ -121,6 +123,7 @@ void Engine::Rigidbody::Read(NetCode::InputByteStream& stream)
     stream.Read(_useAreaAsMass);
     stream.Read(_density);
     stream.Read(_mass);
+    stream.Read(_inverseMass);
     stream.Read(_static);
     stream.Read(_friction);
 }
