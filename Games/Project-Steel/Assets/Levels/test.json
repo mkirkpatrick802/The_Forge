@@ -68,7 +68,7 @@
             ],
             "Game Object Name": "Astroid Spawner",
             "Is Replicated": true,
-            "Server Only": false
+            "Server Only": true
         },
         {
             "Children": [

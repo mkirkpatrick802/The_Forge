@@ -111,7 +111,6 @@ Engine::GameObject* Engine::Level::SpawnNewGameObjectFromInputStream(NetCode::In
     return rawPtr;
 }
 
-
 bool Engine::Level::RemoveGameObject(GameObject* go, bool replicate)
 {
     for (auto it = _gameObjects.begin(); it != _gameObjects.end(); )
@@ -121,7 +120,11 @@ bool Engine::Level::RemoveGameObject(GameObject* go, bool replicate)
             if (replicate)
                 _destroyedObjects.push_back(go); // Move ownership to _destroyedObjects
 
-            go->GetParent()->RemoveChild(go);
+            if(auto parent = go->GetParent())
+            {
+                parent->RemoveChild(go);
+            }
+            
             it = _gameObjects.erase(it); // Erase and update iterator
         }
         else
@@ -197,11 +200,8 @@ void Engine::Level::Write(NetCode::OutputByteStream& stream, bool isCompleteStat
     for (auto& element : _destroyedObjects)
     {
         const uint32_t networkID = NetCode::GetLinkingContext().GetNetworkID(element, false);
-        if (networkID != NULL_ID)
-        {
-            stream.Write(networkID);
-            NetCode::GetLinkingContext().RemoveGameObject(element);
-        }
+        stream.Write(networkID);
+        NetCode::GetLinkingContext().RemoveGameObject(element);
     }
     _destroyedObjects.clear();
 }
