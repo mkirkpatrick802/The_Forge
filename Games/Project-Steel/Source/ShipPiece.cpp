@@ -1,11 +1,10 @@
 ﻿#include "ShipPiece.h"
 
-#include <glm/detail/func_geometric.inl>
-
 #include "Engine/Level.h"
 #include "Engine/LevelManager.h"
 #include "Engine/Collisions/CollisionManager.h"
 #include "Engine/Components/RectangleCollider.h"
+#include "Engine/Rendering/DebugRenderer.h"
 
 using namespace Engine;
 
@@ -46,7 +45,7 @@ glm::vec2 ShipPiece::GetNearestSnapLocation(glm::vec2 mouse, const ShipPiece* ot
 
     for (const auto& gridPoint : gridPoints)
     {
-        const float distance = glm::distance(gridPoint + position, mouse);
+        const float distance = glm::distance(gridPoint, mouse);
         if (distance < minDistance)
         {
             minDistance = distance;
@@ -54,49 +53,35 @@ glm::vec2 ShipPiece::GetNearestSnapLocation(glm::vec2 mouse, const ShipPiece* ot
         }
     }
 
-    // Return the position of the closest snap point as an offset
-    const glm::vec2 otherHalfSize = ((RectangleCollider*)other->gameObject->GetComponent<Collider>())->GetSize() * 0.5f;
-
-    // Check which axis is 0 and adjust by adding or subtracting the otherHalfSize
-    if (closestSnapPoint.x == 0.0f)
-    {
-        closestSnapPoint.y += (closestSnapPoint.y < 0 ? -otherHalfSize.y : otherHalfSize.y);
-    }
-    else if (closestSnapPoint.y == 0.0f)
-    {
-        closestSnapPoint.x += (closestSnapPoint.x < 0 ? -otherHalfSize.x : otherHalfSize.x);
-    }
-
-    return closestSnapPoint + position;
+    return closestSnapPoint;
 }
 
 std::vector<glm::vec2> ShipPiece::GetGridPoints(const glm::vec2 position, const glm::vec2 size, glm::vec2 otherSize) const
 {
     std::vector<glm::vec2> gridPoints;
-    
-    // Calculate the bounds of the ship piece
     glm::vec2 halfSize = size * 0.5f;
-    glm::vec2 min = position - halfSize;
-    glm::vec2 max = position + halfSize;
+    glm::vec2 min = position - halfSize - 16.f;
+    glm::vec2 max = position + halfSize + 16.f;
 
-    glm::vec2 otherHalfSize = otherSize * 0.5f;
-
-    gridPoints.emplace_back(position.x + halfSize.x, position.y);
-    gridPoints.emplace_back(position.x - halfSize.x, position.y);
-    gridPoints.emplace_back(position.x, position.y + halfSize.y);
-    gridPoints.emplace_back(position.x, position.y - halfSize.y);
-    // Generate grid points as offsets outside the bounds of the ship piece
-    /*for (float x = min.x; x <= max.x; x += 16.0f)
+    for (float x = min.x; x <= max.x; x += 16.f)
     {
-        for (float y = min.y; y <= max.y; y += 16.0f)
+        for (float y = min.y; y <= max.y; y += 16.f)
         {
-            glm::vec2 offset(x - position.x, y - position.y);
-            if (offset.x == 0 && offset.y == 0) continue;
-            
-            gridPoints.emplace_back(offset);
-        }
-    }*/
+            bool isBorderX = (x == min.x || x == max.x);
+            bool isBorderY = (y == min.y || y == max.y);
 
+            // Exclude corners
+            if ((isBorderX || isBorderY) && !(isBorderX && isBorderY))
+            {
+                glm::vec2 offset = glm::vec2(x, y);
+                gridPoints.emplace_back(offset);
+            }
+        }
+    }
+
+    /*for (auto point : gridPoints)
+        GetDebugRenderer().DrawRectangle(point, glm::vec2(8), glm::vec3(.5,1,.5));*/
+    
     return gridPoints;
 }
 
