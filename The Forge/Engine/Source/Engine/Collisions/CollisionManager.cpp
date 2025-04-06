@@ -48,6 +48,36 @@ void Engine::CollisionManager::Update()
     _quadTree.DebugRender();
 }
 
+bool Engine::CollisionManager::CheckCollisions(glm::vec2 point, std::vector<Collider*>& returnObjects,
+    ECollisionObjectType objectMask, const std::vector<Collider*>& ignoreColliders)
+{
+    bool collision = false;
+    std::vector<Collider*> possibleCollisions;
+    _quadTree.Retrieve(possibleCollisions, point);
+
+    for (auto* other : possibleCollisions)
+    {
+        // Skip if this collider is in the ignore list
+        if (std::ranges::find(ignoreColliders, other) != ignoreColliders.end())
+        {
+            continue;
+        }
+
+        if (other->CheckCollision(point))
+        {
+            const ECollisionObjectType type = other->GetCollisionProfile().type;
+            if ((type & objectMask) != ECollisionObjectType::ECOT_None)
+            {
+                returnObjects.emplace_back(other);
+                collision = true;
+            }
+        }
+    }
+
+    return collision;
+}
+
+
 void Engine::CollisionManager::CheckCollisions(const std::vector<Collider*>& colliders)
 {
     for (const auto* collider : colliders)
@@ -134,24 +164,6 @@ void Engine::CollisionManager::ResolveCollision(Rigidbody* a, Rigidbody* b, cons
     if (!b->IsStatic()) b->gameObject->SetPosition(b->gameObject->GetWorldPosition() + b->GetInverseMass() * correction);
 }
 
-
-
-bool Engine::CollisionManager::CheckCollisions(const glm::vec2 point, std::vector<Collider*>& returnObjects)
-{
-    bool collision = false;
-    std::vector<Collider*> possibleCollisions;
-    _quadTree.Retrieve(possibleCollisions, point);
-    
-    // Check for collisions with nearby objects
-    for (auto* other : possibleCollisions)
-        if (other->CheckCollision(point))
-        {
-            returnObjects.emplace_back(other);
-            collision = true;
-        }
-
-    return collision;
-}
 
 bool Engine::CollisionManager::CheckCollisions(const Collider* collider, std::vector<Collider*>& returnObjects)
 {

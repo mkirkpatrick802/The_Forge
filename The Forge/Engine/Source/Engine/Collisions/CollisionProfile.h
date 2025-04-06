@@ -4,23 +4,26 @@
 #include <unordered_map>
 
 #include "json.hpp"
+#include "ByteStream.h"
 
 namespace Engine
 {
-    enum class ECollisionObjectType : uint8_t
+    enum class ECollisionObjectType : uint32_t
     {
-        ECOT_Default = 0,
-        ECOT_PhysicsBody,
-        ECOT_Player,
-        ECOT_Projectile,
-        ECOT_Walkable,
-        ECOT_Max
+        ECOT_None = 0,
+        ECOT_Default = 1 << 0,
+        ECOT_PhysicsBody = 1 << 1,
+        ECOT_Player = 1 << 2,
+        ECOT_Projectile = 1 << 3,
+        ECOT_Walkable = 1 << 4,
+        ECOT_Max = 0xFFFFFFFF
     };
     
     // Convert CollisionObjectType to string for UI/debugging
     inline std::string ToString(ECollisionObjectType type)
     {
         switch (type) {
+        case ECollisionObjectType::ECOT_None: return "None";
             case ECollisionObjectType::ECOT_Default: return "Default";
             case ECollisionObjectType::ECOT_PhysicsBody: return "Physics Body";
             case ECollisionObjectType::ECOT_Player: return "Player";
@@ -29,6 +32,18 @@ namespace Engine
         }
     
         return "Unknown";
+    }
+
+    inline ECollisionObjectType operator|(ECollisionObjectType a, ECollisionObjectType b)
+    {
+        return static_cast<ECollisionObjectType>(
+            static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
+    }
+
+    inline ECollisionObjectType operator&(ECollisionObjectType a, ECollisionObjectType b)
+    {
+        return static_cast<ECollisionObjectType>(
+            static_cast<uint32_t>(a) & static_cast<uint32_t>(b));
     }
     
     enum class ECollisionResponse : uint8_t

@@ -38,6 +38,7 @@ glm::vec2 ShipPiece::GetNearestSnapLocation(glm::vec2 mouse, const ShipPiece* ot
     glm::vec2 otherSize = other->gameObject->GetComponent<RectangleCollider>()->GetSize();
     
     const std::vector<glm::vec2> gridPoints = GetGridPoints(position, size, otherSize);
+    if (gridPoints.empty()) return glm::vec2(0.0f);
     
     // Find the closest snap point to the other piece (mouse position)
     glm::vec2 closestSnapPoint = gridPoints[0];
@@ -73,14 +74,16 @@ std::vector<glm::vec2> ShipPiece::GetGridPoints(const glm::vec2 position, const 
             // Exclude corners
             if ((isBorderX || isBorderY) && !(isBorderX && isBorderY))
             {
-                glm::vec2 offset = glm::vec2(x, y);
-                gridPoints.emplace_back(offset);
+                auto point = glm::vec2(x, y);
+                std::vector<Collider*> collidingObjects;
+                if (GetCollisionManager().CheckCollisions(point, collidingObjects, ECollisionObjectType::ECOT_Default | ECollisionObjectType::ECOT_Walkable))
+                    gridPoints.emplace_back(point);
             }
         }
     }
 
-    /*for (auto point : gridPoints)
-        GetDebugRenderer().DrawRectangle(point, glm::vec2(8), glm::vec3(.5,1,.5));*/
+    for (auto point : gridPoints)
+        GetDebugRenderer().DrawRectangle(point, glm::vec2(8), glm::vec3(.5,1,.5));
     
     return gridPoints;
 }

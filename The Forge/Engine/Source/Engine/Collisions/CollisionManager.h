@@ -2,10 +2,12 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "CollisionProfile.h"
 #include "QuadTree.h"
 
 namespace Engine
 {
+    enum class ECollisionObjectType : uint32_t;
     class Rigidbody;
 
     class CollisionManager
@@ -16,8 +18,8 @@ namespace Engine
         static CollisionManager& GetInstance();
         CollisionManager();
         void Update();
-
-        bool CheckCollisions(glm::vec2 point, std::vector<Collider*>& returnObjects);
+        
+        bool CheckCollisions(glm::vec2 point, std::vector<Collider*>& returnObjects, ECollisionObjectType objectMask = ECollisionObjectType::ECOT_None, const std::vector<Collider*>& ignoreColliders = std::vector<Collider*>());
         bool CheckCollisions(const Collider* collider, std::vector<Collider*>& returnObjects);
         
     private:
