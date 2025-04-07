@@ -30,6 +30,9 @@ void NetCode::LinkingContext::AddGameObject(Engine::GameObject* go, const uint32
 {
     _networkIDMap[go] = networkID;
     _goMap[networkID] = go;
+    
+    if (networkID > _nextNetworkID)
+        _nextNetworkID = networkID + 1;
 }
 
 void NetCode::LinkingContext::RemoveGameObject(const Engine::GameObject* go)
