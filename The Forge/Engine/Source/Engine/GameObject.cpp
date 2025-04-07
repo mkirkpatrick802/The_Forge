@@ -70,6 +70,8 @@ void Engine::GameObject::AddChild(GameObject* child, const bool keepWorldPositio
     {
         child->UpdateWorldTransform();
     }
+
+    isDirty = true;
 }
 
 void Engine::GameObject::RemoveChild(GameObject* child)
@@ -79,6 +81,8 @@ void Engine::GameObject::RemoveChild(GameObject* child)
         _children.erase(it);
         child->_parent = nullptr; // Remove the parent reference
     }
+
+    isDirty = true;
 }
 
 void Engine::GameObject::UpdateWorldTransform() const

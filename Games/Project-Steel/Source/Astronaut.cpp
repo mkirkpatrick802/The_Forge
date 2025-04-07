@@ -199,7 +199,6 @@ void Astronaut::PlaceShipPiece()
         }
     
     _placementPreview = nullptr;
-    
     _placementPreview = LevelManager::GetCurrentLevel()->SpawnNewGameObject("Assets/Prefabs/Large Hallway Tile.prefab");
     FindPositionForShipPiece();
 }

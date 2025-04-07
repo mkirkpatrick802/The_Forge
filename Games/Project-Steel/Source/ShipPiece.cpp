@@ -93,7 +93,7 @@ std::vector<glm::vec2> ShipPiece::GetGridPoints(glm::vec2 position, glm::vec2 si
     return gridPoints;
 }
 
-bool ShipPiece::Place() const
+bool ShipPiece::Place()
 {
     std::vector<Collider*> others; 
     if (GetCollisionManager().CheckCollisions(_collider, others)) return false;
@@ -113,6 +113,7 @@ bool ShipPiece::Place() const
     }
     
     CreateShip();
+    isDirty = true;
     return true;
 }
 

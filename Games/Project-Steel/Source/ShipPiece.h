@@ -15,7 +15,7 @@ public:
     void Update(float deltaTime) override;
 
     glm::vec2 GetNearestSnapLocation(glm::vec2 mouse, const ShipPiece* other) const;
-    bool Place() const;
+    bool Place();
 
 private:
     void CreateShip() const;
