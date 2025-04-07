@@ -2,6 +2,7 @@
 
 #include "Engine/Level.h"
 #include "Engine/LevelManager.h"
+#include "Engine/System.h"
 #include "Engine/Collisions/CollisionManager.h"
 #include "Engine/Components/RectangleCollider.h"
 #include "Engine/Rendering/DebugRenderer.h"
@@ -37,7 +38,7 @@ glm::vec2 ShipPiece::GetNearestSnapLocation(glm::vec2 mouse, const ShipPiece* ot
     glm::vec2 size = ((RectangleCollider*)_collider)->GetSize();
     glm::vec2 otherSize = other->gameObject->GetComponent<RectangleCollider>()->GetSize();
     
-    const std::vector<glm::vec2> gridPoints = GetGridPoints(position, size, otherSize);
+    const std::vector<glm::vec2> gridPoints = GetGridPoints(position, size, other);
     if (gridPoints.empty()) return glm::vec2(0.0f);
     
     // Find the closest snap point to the other piece (mouse position)
@@ -57,7 +58,7 @@ glm::vec2 ShipPiece::GetNearestSnapLocation(glm::vec2 mouse, const ShipPiece* ot
     return closestSnapPoint;
 }
 
-std::vector<glm::vec2> ShipPiece::GetGridPoints(const glm::vec2 position, const glm::vec2 size, glm::vec2 otherSize) const
+std::vector<glm::vec2> ShipPiece::GetGridPoints(glm::vec2 position, glm::vec2 size, const ShipPiece* other) const
 {
     std::vector<glm::vec2> gridPoints;
     glm::vec2 halfSize = size * 0.5f;
@@ -76,7 +77,11 @@ std::vector<glm::vec2> ShipPiece::GetGridPoints(const glm::vec2 position, const 
             {
                 auto point = glm::vec2(x, y);
                 std::vector<Collider*> collidingObjects;
-                if (GetCollisionManager().CheckCollisions(point, collidingObjects, ECollisionObjectType::ECOT_Default | ECollisionObjectType::ECOT_Walkable))
+                std::vector<Collider*> ignoreColliders;
+                if (other)
+                    ignoreColliders.emplace_back(other->_collider);
+                
+                if (!GetCollisionManager().CheckCollisions(point, collidingObjects, ECollisionObjectType::ECOT_Default | ECollisionObjectType::ECOT_Walkable, ignoreColliders))
                     gridPoints.emplace_back(point);
             }
         }

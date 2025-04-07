@@ -32,70 +32,69 @@ Editor::LevelEditor::~LevelEditor()
 
 void Editor::LevelEditor::Render()
 {
-    ImGui::Begin("Level Editor");
-    if (ImGui::BeginTable("Level Editor", 2))
+    ImGui::Begin("Level Editor", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse);
+
+    ImGui::Columns(2, nullptr, false); // Two fixed columns
+
+    // -------- Left Side: Create New Level --------
+    ImGui::SetColumnWidth(0, 150); // Fixed width to prevent resize shifting
+    ImGui::Text("Create New Level:");
+
+    ImGui::PushItemWidth(100);
+    ImGui::InputText("##LevelName", _levelNameBuffer, IM_ARRAYSIZE(_levelNameBuffer));
+    ImGui::SameLine();
+    ImGui::Text("Name");
+
+    ImGui::Spacing();
+
+    if (levelData.empty() || filepaths.empty())
+        filepaths = Engine::LevelManager::GetAllLevels(levelData);
+
+    if (ImGui::Button("Create New Level", ImVec2(120, 0)))
     {
-        // Create New Level Side
-        ImGui::TableNextColumn();
-        ImGui::Text("Create New Level:");
+        Engine::LevelManager::CreateLevel(_levelNameBuffer);
 
-        // Level Name
-        ImGui::PushItemWidth(100);
-        ImGui::InputText("Name", _levelNameBuffer, IM_ARRAYSIZE(_levelNameBuffer));
-        
-        if (levelData.empty() || filepaths.empty())
-            filepaths = Engine::LevelManager::GetAllLevels(levelData);
-        
-        // Create Level
-        if (ImGui::Button("Create New Level"))
-        {
-            Engine::LevelManager::CreateLevel(_levelNameBuffer);
-            
-            levelData.clear();
-            filepaths = Engine::LevelManager::GetAllLevels(levelData);
-        }
-
-        // Load New Level Side
-        ImGui::TableNextColumn();
-
-        std::vector<const char*> levels;
-        if (!levelData.empty())
-            levels = ConvertLevelDataToNameList(levelData);
-
-        if (_defaultLevelIndex == -1)
-        {
-            for (int i = 0; i < levels.size(); i++)
-            {
-                if (levels[i] == _defaultLevelFilePath)
-                {
-                    _defaultLevelIndex = i;
-                    _selectedLevel = i;
-
-                    //TODO: Move this to Level Manager
-                    //Engine::LevelManager::LoadLevel(filepaths[i]);
-                }
-            }   
-        }
-        
-        ImGui::PushItemWidth(100);
-        if (ImGui::Combo("Current Level", &_selectedLevel, levels.data(), static_cast<int>(levels.size())))
-        {
-            DetailsEditor::ClearSelectedGameObject();
-            Engine::LevelManager::LoadLevel(filepaths[_selectedLevel]);
-            _selectedGameObject = -1;
-        }
-        
-        ImGui::Spacing();
-        
-        ImGui::PushItemWidth(100);
-        if (ImGui::Combo("Default Level", &_defaultLevelIndex, levels.data(), static_cast<int>(levels.size())))
-        {
-            const std::string newDefaultLevel(levels[_defaultLevelIndex]);
-            Engine::GetEngineManager().UpdateConfigFile(Engine::DEFAULTS_FILE, JsonKeywords::Config::DEFAULT_LEVEL, newDefaultLevel);
-        }
-        
-        ImGui::EndTable();
+        levelData.clear();
+        filepaths = Engine::LevelManager::GetAllLevels(levelData);
     }
+
+    ImGui::NextColumn();
+
+    // -------- Right Side: Load Existing Level --------
+    ImGui::SetColumnWidth(1, 200);
+    std::vector<const char*> levels;
+    if (!levelData.empty())
+        levels = ConvertLevelDataToNameList(levelData);
+
+    if (_defaultLevelIndex == -1)
+    {
+        for (int i = 0; i < levels.size(); i++)
+        {
+            if (levels[i] == _defaultLevelFilePath)
+            {
+                _defaultLevelIndex = i;
+                _selectedLevel = i;
+            }
+        }   
+    }
+
+    ImGui::PushItemWidth(100);
+    if (ImGui::Combo("Current", &_selectedLevel, levels.data(), static_cast<int>(levels.size())))
+    {
+        DetailsEditor::ClearSelectedGameObject();
+        Engine::LevelManager::LoadLevel(filepaths[_selectedLevel]);
+        _selectedGameObject = -1;
+    }
+
+    ImGui::Spacing();
+
+    if (ImGui::Combo("Default", &_defaultLevelIndex, levels.data(), static_cast<int>(levels.size())))
+    {
+        const std::string newDefaultLevel(levels[_defaultLevelIndex]);
+        Engine::GetEngineManager().UpdateConfigFile(Engine::DEFAULTS_FILE, JsonKeywords::Config::DEFAULT_LEVEL, newDefaultLevel);
+    }
+
+    ImGui::Columns(1);
 
     LevelSettings();
     

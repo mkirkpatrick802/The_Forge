@@ -29,14 +29,15 @@ void Editor::EditorCamera::CleanUp()
 void Editor::EditorCamera::Update()
 {
     if(const int32_t delta = Engine::GetInputManager().GetMouseWheelDelta(); delta > 0)
-        ZoomIn(_zoomSpeed);
-    else if(delta < 0)
         ZoomOut(_zoomSpeed);
+    else if(delta < 0)
+        ZoomIn(_zoomSpeed);
 }
 
 void Editor::EditorCamera::UpdatePosition(const glm::vec2 delta)
 {
-    _position += delta * _dragSpeed;
+    float scaledDragSpeed = _dragSpeed / _zoom;
+    _position += delta * scaledDragSpeed;
 }
 
 glm::mat4 Editor::EditorCamera::GetProjectionMatrix()

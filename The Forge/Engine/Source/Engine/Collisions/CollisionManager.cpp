@@ -66,7 +66,15 @@ bool Engine::CollisionManager::CheckCollisions(glm::vec2 point, std::vector<Coll
         if (other->CheckCollision(point))
         {
             const ECollisionObjectType type = other->GetCollisionProfile().type;
-            if ((type & objectMask) != ECollisionObjectType::ECOT_None)
+            if (objectMask != ECollisionObjectType::ECOT_None)
+            {
+                if ((type & objectMask) != ECollisionObjectType::ECOT_None)
+                {
+                    returnObjects.emplace_back(other);
+                    collision = true;
+                }
+            }
+            else
             {
                 returnObjects.emplace_back(other);
                 collision = true;
