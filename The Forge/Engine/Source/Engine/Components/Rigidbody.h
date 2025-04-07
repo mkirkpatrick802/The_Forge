@@ -21,6 +21,9 @@ namespace Engine
         
         void Write(NetCode::OutputByteStream& stream) const override;
         void Read(NetCode::InputByteStream& stream) override;
+
+    private:
+        void CalculateInverseMass();
         
     private:
         glm::vec2 _velocity;

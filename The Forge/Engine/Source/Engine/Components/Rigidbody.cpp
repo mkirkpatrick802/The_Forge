@@ -35,11 +35,13 @@ void Engine::Rigidbody::Start()
         }
     }
 
-    _inverseMass = (_mass > 0.0f) ? 1.0f / _mass : 0.0f;
+    CalculateInverseMass();
 }
 
 void Engine::Rigidbody::ApplyForce(const glm::vec2 force)
 {
+    if(_inverseMass == 0)
+        CalculateInverseMass();
     _acceleration += force * _inverseMass;
 }
 
@@ -59,6 +61,11 @@ void Engine::Rigidbody::Update(const float deltaTime)
         _velocity -= _velocity * _friction;
         _acceleration = glm::vec2(0.0f); // Reset acceleration after integration
     }
+}
+
+void Engine::Rigidbody::CalculateInverseMass()
+{
+    _inverseMass = (_mass > 0.0f) ? 1.0f / _mass : 0.0f;
 }
 
 void Engine::Rigidbody::DrawDetails()
@@ -111,7 +118,6 @@ void Engine::Rigidbody::Write(NetCode::OutputByteStream& stream) const
     stream.Write(_useAreaAsMass);
     stream.Write(_density);
     stream.Write(_mass);
-    stream.Write(_inverseMass);
     stream.Write(_static);
     stream.Write(_friction);
 }
@@ -125,7 +131,8 @@ void Engine::Rigidbody::Read(NetCode::InputByteStream& stream)
     stream.Read(_useAreaAsMass);
     stream.Read(_density);
     stream.Read(_mass);
-    stream.Read(_inverseMass);
     stream.Read(_static);
     stream.Read(_friction);
+
+    CalculateInverseMass();
 }
