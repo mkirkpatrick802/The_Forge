@@ -201,6 +201,7 @@ nlohmann::json Engine::GameObject::Serialize()
 void Engine::GameObject::Write(NetCode::OutputByteStream& stream)
 {
     stream.Write(_name);
+    stream.Write(isReplicated);
 
     // Write Parent
     const uint32_t parentNID = NetCode::GetLinkingContext().GetNetworkID(_parent);
@@ -229,6 +230,7 @@ void Engine::GameObject::Write(NetCode::OutputByteStream& stream)
 void Engine::GameObject::Read(NetCode::InputByteStream& stream)
 {
     stream.Read(_name);
+    stream.Read(isReplicated);
 
     // Read Parent
     uint32_t parentNID;
