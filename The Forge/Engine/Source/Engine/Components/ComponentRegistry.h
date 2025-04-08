@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <ranges>
 #include <string>
@@ -37,6 +38,7 @@ namespace Engine
         std::unordered_map<uint32_t, std::type_index> _componentTypes;
         std::unordered_map<std::type_index, uint32_t> _componentIDs;
         std::unordered_map<std::type_index, std::string> _componentNames;
+
     };
 
     template <typename T>
@@ -44,9 +46,10 @@ namespace Engine
     {
         const uint32_t id = HASH_COMPONENT(name);
         std::type_index type = typeid(T);
-        
+        std::string formattedName = FormatComponentName(name);
+
         _componentIDs[type] = id;
-        _componentNames[type] = FormatComponentName(name);
+        _componentNames[type] = formattedName;
         _componentTypes.insert({id, type});
     }
 

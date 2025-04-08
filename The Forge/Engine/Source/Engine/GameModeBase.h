@@ -5,6 +5,7 @@
 
 namespace Engine
 {
+    class Component;
     class GameObject;
     class PlayerStart;
     class GameModeBase

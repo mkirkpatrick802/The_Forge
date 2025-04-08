@@ -1,11 +1,9 @@
 ﻿#pragma once
 #include <memory>
-#include <string>
 #include <typeindex>
 #include <unordered_map>
 
 #include "ComponentPool.h"
-#include "ComponentRegistry.h"
 
 namespace Engine
 {
@@ -22,13 +20,16 @@ namespace Engine
         void UpdateComponents(float deltaTime);
         
         template <typename T>
-        void RegisterComponentPool(const std::string& name);
+        void RegisterComponentPool();
 
         template <typename T>
         ComponentPool<T>* GetPool();
 
         template <typename T>
         std::vector<T*> GetAllComponents();
+
+        template <typename T>
+        std::vector<Component*> GetAllDerivedComponents();
 
         template <typename T>
         void DeleteComponent(Component* component);
@@ -39,7 +40,7 @@ namespace Engine
     };
 
     template <typename T>
-    void ComponentManager::RegisterComponentPool(const std::string& name)
+    void ComponentManager::RegisterComponentPool()
     {
         // Create pools if it doesn't exist
         if (const auto type = std::type_index(typeid(T)); !_componentPools.contains(type))
@@ -70,6 +71,23 @@ namespace Engine
                     auto activeComponents = pool->GetActive();
                     results.insert(results.end(), activeComponents.begin(), activeComponents.end());
                 }
+            }
+        }
+
+        return results;
+    }
+
+    template <typename T>
+    std::vector<Component*> ComponentManager::GetAllDerivedComponents()
+    {
+        std::vector<Component*> results;
+
+        for (auto& basePool : _componentPools | std::views::values)
+        {
+            auto activeComponents = basePool->GetGenericActive();
+            if (dynamic_cast<T*>(activeComponents[0]))
+            {
+                results.insert(results.end(), activeComponents.begin(), activeComponents.end());
             }
         }
 

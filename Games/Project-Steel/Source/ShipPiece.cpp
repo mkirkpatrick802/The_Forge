@@ -95,14 +95,14 @@ std::vector<glm::vec2> ShipPiece::GetGridPoints(glm::vec2 position, glm::vec2 si
 
 bool ShipPiece::Place()
 {
-    std::vector<Collider*> others; 
+    std::vector<Collider*> others;
     if (GetCollisionManager().CheckCollisions(_collider, others)) return false;
     
     gameObject->isReplicated = true;
     _collider->SetCollisionResponseByObject(
     ECollisionObjectType::ECOT_Player,
         _collider->GetCollisionProfile().type == ECollisionObjectType::ECOT_Walkable 
-            ? ECollisionResponse::ECR_Overlap 
+            ? ECollisionResponse::ECR_Overlap
             : ECollisionResponse::ECR_Block
     );
 

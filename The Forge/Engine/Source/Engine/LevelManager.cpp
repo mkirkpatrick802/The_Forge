@@ -36,7 +36,9 @@ void Engine::LevelManager::StartCurrentLevel() const
     
     const auto cameras = GetComponentManager().GetPool<Camera>()->GetActive();
     if (!cameras.empty())
+    {
         GetCameraManager().SetActiveCamera(cameras[0]);
+    }
     
     _currentLevel->Start();
 }
