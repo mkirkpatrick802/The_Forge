@@ -208,9 +208,16 @@ void NetCode::NetworkManager::HandleConnectionReset(uint64_t playerID)
 {
     if (_playerNames.contains(playerID))
     {
-        for (const auto players = Engine::GetComponentManager().GetPool<Engine::PlayerController>()->GetActive(); const auto player : players)
-            if (player->GetControllingPlayerID() == playerID)
-                Engine::LevelManager::GetCurrentLevel()->RemoveGameObject(player->gameObject);
+        //const auto players = Engine::GetComponentManager().GetPool<Engine::PlayerController>()->GetActive();
+        const std::vector<Engine::Component*> components = Engine::GetComponentManager().GetAllDerivedComponents<Engine::PlayerController>();
+        for (const auto component : components)
+        {
+            if (const auto player = dynamic_cast<Engine::PlayerController*>(component))
+            {
+                if (player->GetControllingPlayerID() == playerID)
+                    Engine::LevelManager::GetCurrentLevel()->RemoveGameObject(player->gameObject);
+            }
+        }
         
         DEBUG_LOG("Player %llu disconnected", playerID)
         _playerNames.erase(playerID);

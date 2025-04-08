@@ -15,6 +15,7 @@ namespace Engine
         BasePool() = default;
         virtual ~BasePool() = default;
         virtual void Update(float deltaTime) {}
+        virtual std::vector<Component*> GetGenericActive() = 0;
     };
 
     template<typename T>
@@ -31,6 +32,7 @@ namespace Engine
         T* New(GameObject* go);
         void Delete(T* component);
 
+        std::vector<Component*> GetGenericActive() override;
         std::vector<T*> GetActive();
 
     private:
@@ -127,6 +129,19 @@ namespace Engine
                 isStarted[i] = false;
             }
         }
+    }
+
+    template <typename T>
+    std::vector<Component*> ComponentPool<T>::GetGenericActive()
+    {
+        std::vector<Component*> active;
+        for (size_t i = 0; i < components.size(); i++)
+        {
+            if (!isActive[i]) continue;
+            active.push_back(components[i].get());
+        }
+
+        return active;
     }
 
     template <typename T>

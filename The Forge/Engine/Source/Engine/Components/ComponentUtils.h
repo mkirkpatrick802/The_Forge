@@ -19,7 +19,7 @@ namespace Engine
     void RegisterComponentHelper(const std::string& name)
     {
         GetComponentRegistry().RegisterComponent<T>(name);
-        GetComponentManager().RegisterComponentPool<T>(name);
+        GetComponentManager().RegisterComponentPool<T>();
         GetComponentFactories().RegisterComponentFactories<T>(name);
     }
 }
