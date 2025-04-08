@@ -8,7 +8,6 @@ namespace Engine
 	class InputManager
 	{
 	public:
-
 		InputManager();
         ~InputManager();
 
@@ -34,10 +33,10 @@ namespace Engine
 		int32_t GetMouseWheelDelta() const;
 
 	private:
-
         // Keyboard Inputs
         uint8_t* _keysLastFrame;
         uint8_t* _keysThisFrame;
+		bool* _keysConsumedThisFrame;
         int _numKeys;
 
         // Mouse Inputs

@@ -26,7 +26,7 @@ namespace NetCode
         void LeaveLobby(uint64_t inLobbyID);
 
         // P2P networking
-        bool SendP2PReliable( const OutputByteStream& inOutputStream, uint64_t inToPlayer );
+        bool SendP2PReliable(const OutputByteStream& inOutputStream, uint64_t inToPlayer);
         bool IsP2PPacketAvailable( uint32_t& outPacketSize );
         uint32_t ReadP2PPacket( void* inToReceive, uint32_t inMaxLength, uint64_t& outFromPlayer );
     
@@ -38,6 +38,7 @@ namespace NetCode
     private:
         GamerServices();
         std::unique_ptr<Impl> _impl;
+        
     };
 
     inline GamerServices& GetGamerService()

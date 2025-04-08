@@ -236,11 +236,7 @@ bool GamerServices::SendP2PReliable(const OutputByteStream& inOutputStream, uint
         }
         else
         {
-            // TODO: TCP Sequence
-            // 1st sequence number
-            // 2nd byte offset
-            // 3rd packet length
-            packetBuffer[0] = (bytesSent == 0) ? 1 : ((bytesSent + chunkSize >= bytesWritten) ? 3 : 2); // 1 = first, 2 = middle, 3 = last
+            packetBuffer[0] = (bytesSent == 0) ? 1 : ((bytesSent + chunkSize >= bytesWritten) ? 3 : 2);
         }
         
         // Copy chunk data into buffer
