@@ -4,6 +4,10 @@
 
 #include "CameraHelper.h"
 #include "CameraManager.h"
+#include "Font.h"
+#include "Engine/CommandRegistry.h"
+#include "Engine/CommandUtils.h"
+#include "Engine/Time.h"
 
 Engine::DebugRenderer& Engine::DebugRenderer::GetInstance()
 {
@@ -36,6 +40,15 @@ Engine::DebugRenderer::DebugRenderer()
     glBindVertexArray(0);
 	
     _lineShader.Compile("Assets/Engine Assets/Shaders/Line.vert", "Assets/Engine Assets/Shaders/Line.frag");
+    _font = std::make_unique<Font>("Assets/Engine Assets/Fonts/Consolas.ttf", 15);
+
+    // Commands
+    CommandRegistry::RegisterCommand("/debug", [this](const std::string& args){ enabled = CommandUtils::ParseBoolean(args); });
+}
+
+Engine::DebugRenderer::~DebugRenderer()
+{
+    CommandRegistry::UnregisterCommand("/debug");
 }
 
 void Engine::DebugRenderer::DrawLine(const glm::vec2& start, const glm::vec2& end, const glm::vec3& color)
@@ -75,6 +88,13 @@ void Engine::DebugRenderer::DrawRectangle(const glm::vec2& center, const glm::ve
 
 void Engine::DebugRenderer::Render()
 {
+    if (!enabled) return;
+
+    std::stringstream fps;
+    fps << "FPS: ";
+    fps << 1 / Time::GetDeltaTime();
+    _font->RenderText(fps.str(), glm::vec2(5, 40), 1, glm::vec3(0, 1, 0));
+    
     // Render all the lines stored in the _debugLines vector
     for (const auto& line : _lines)
     {

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <memory>
 #include <vector>
 #include <glm/glm.hpp>
 
@@ -7,12 +8,15 @@
 
 namespace Engine
 {
+    class Font;
+
     class DebugRenderer
     {
         friend class Renderer;
     public:
         static DebugRenderer& GetInstance();
         DebugRenderer();
+        ~DebugRenderer();
         
         void DrawLine(const glm::vec2& start, const glm::vec2& end, const glm::vec3& color);
         void DrawCircle(const glm::vec2& center, float radius, const glm::vec3& color, int segments = 16);
@@ -30,10 +34,11 @@ namespace Engine
         };
 
         std::vector<DebugLine> _lines;
-
         
+        std::unique_ptr<Font> _font;
         GLuint _lineVAO, _lineVBO;
         Shader _lineShader;
+        bool enabled = false;
     };
 
     inline DebugRenderer& GetDebugRenderer()

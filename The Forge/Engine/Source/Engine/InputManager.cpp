@@ -11,11 +11,9 @@ Engine::InputManager::InputManager()
     const uint8_t* currentKeys = SDL_GetKeyboardState(&_numKeys);
     _keysLastFrame = new uint8_t[_numKeys];
     _keysThisFrame = new uint8_t[_numKeys];
-    _keysConsumedThisFrame = new bool[_numKeys];
 
     memcpy(_keysLastFrame, currentKeys, _numKeys);
     memcpy(_keysThisFrame, currentKeys, _numKeys);
-    std::memset(_keysConsumedThisFrame, false, _numKeys * sizeof(bool));
 
     // Mouse State Init
     int X, Y;
@@ -30,7 +28,10 @@ bool Engine::InputManager::StartProcessInputs()
 {
     SDL_Event event;
     _mouseWheelDelta = 0;
-    std::memset(_keysConsumedThisFrame, false, _numKeys * sizeof(bool)); // Reset consumed keys
+
+    const ImGuiIO& io = ImGui::GetIO();
+    bool wantKeyboard = io.WantCaptureKeyboard;
+    bool wantMouse = io.WantCaptureMouse;
     
     while (SDL_PollEvent(&event))
     {
@@ -53,8 +54,10 @@ bool Engine::InputManager::StartProcessInputs()
     }
 
     //Current Inputs Pressed
+    if (!wantKeyboard)
+        memcpy(_keysThisFrame, SDL_GetKeyboardState(nullptr), _numKeys);
+    
     int X, Y;
-    memcpy(_keysThisFrame, SDL_GetKeyboardState(nullptr), _numKeys);
     _buttonsThisFrame = SDL_GetMouseState(&X, &Y);
 
     return true;

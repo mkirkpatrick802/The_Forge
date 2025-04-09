@@ -36,12 +36,13 @@ namespace Engine
         // Keyboard Inputs
         uint8_t* _keysLastFrame;
         uint8_t* _keysThisFrame;
-		bool* _keysConsumedThisFrame;
+		bool* _keysConsumedThisFrame; // TODO
         int _numKeys;
 
         // Mouse Inputs
         uint32_t _buttonsLastFrame;
         uint32_t _buttonsThisFrame;
+		uint32_t _buttonsConsumedThisFrame; // TODO
 		int32_t _mouseWheelDelta;
 
 	};

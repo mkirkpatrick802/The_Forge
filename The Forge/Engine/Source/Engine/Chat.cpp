@@ -33,9 +33,11 @@ void Engine::Chat::Update(float deltaTime)
 
     if (GetInputManager().GetKeyDown(SDL_SCANCODE_SLASH))
         _window->EnableTerminal(true);
-			
-    if (GetInputManager().GetKeyDown(SDL_SCANCODE_ESCAPE))
+
+    // Use ImGui input because we ignore sdl inputs while the terminal is open
+    if (ImGui::IsKeyPressed(ImGuiKey_Escape))
         _window->EnableTerminal(false);
+
 }
 
 void Engine::Chat::CloseChatWindow(const void* p)

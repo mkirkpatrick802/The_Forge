@@ -57,9 +57,9 @@ void Astronaut::CollectInput(const float deltaTime)
 {
     if (!IsLocalPlayer()) return;
 
-    if (const int32_t delta = GetInputManager().GetMouseWheelDelta(); delta != 0)
+    /*if (const int32_t delta = GetInputManager().GetMouseWheelDelta(); delta != 0)
         (delta > 0) ? GetCameraManager().GetActiveCamera()->ZoomIn(_zoomSpeed) 
-                    : GetCameraManager().GetActiveCamera()->ZoomOut(_zoomSpeed);
+                    : GetCameraManager().GetActiveCamera()->ZoomOut(_zoomSpeed);*/
 
     
     // Get movement input

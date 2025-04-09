@@ -102,6 +102,7 @@ void Engine::GameEngine::StartGameplayLoop()
 		if (const float currentTicks = static_cast<float>(Time::GetTicks()); currentTicks - frameStart >= 16)
 		{
 			const float deltaTime = (currentTicks - frameStart) / 1000.f;
+			Time::SetDeltaTime(deltaTime);
 			frameStart = currentTicks;
 			
 			if (!GetEngineManager().IsEditorEnabled())
