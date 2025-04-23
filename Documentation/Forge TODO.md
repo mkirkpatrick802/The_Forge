@@ -18,15 +18,11 @@ tags:
 - [ ] Clean up build includes
 - [ ] Streamline JSON Serialization
 - [ ] Per Component Dirty State
-- [ ] Asteroids Not Replicating
 - [ ] Draggable Prefabs into Scene
-- [ ] Sorting layer is buggy
 - [ ] Can't delete assets from content drawer
-- [ ] Sprites disappear after more are spawned
 - [ ] UI anchor points
 - [ ] Can't move assets in content drawer
 - [ ] Ship piece ignore other pieces of same ship
-- [ ] Remove Premake Executables
 - [ ] Setup Github Workflows
 
 
@@ -42,6 +38,10 @@ tags:
 ## Done
 
 - [ ] Dynamically scaling component pools
+- [ ] Sorting layer is buggy
+- [ ] Remove Premake Executables
+- [ ] Sprites disappear after more are spawned
+- [ ] Asteroids Not Replicating
 - [ ] Children Game Objects
 - [ ] Camera Zoom
 - [ ] Collision Channels

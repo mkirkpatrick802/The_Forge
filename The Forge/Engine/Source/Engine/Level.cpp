@@ -23,7 +23,7 @@ Engine::Level::~Level()
 {
     CommandRegistry::UnregisterCommand("/save");
     CommandRegistry::UnregisterCommand("/gocount");
-
+    
     _gameObjects.clear();
 }
 
@@ -139,7 +139,6 @@ bool Engine::Level::RemoveGameObject(GameObject* go, bool replicate)
     }
 
     return true;
-
 }
 
 void Engine::Level::SaveLevel(const std::string& args)
