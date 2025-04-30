@@ -4,17 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "2f166d885a6ee57e",
+        "id": "0a217c1f309930e4",
         "type": "tabs",
         "children": [
           {
-            "id": "a819f6afead1666c",
+            "id": "d2bc030c0b579633",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Presentations/2-25-25 Presentation.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "2-25-25 Presentation"
             }
           }
         ]
@@ -167,19 +171,19 @@
       "obsidian-excalidraw-plugin:New drawing": false
     }
   },
-  "active": "a819f6afead1666c",
+  "active": "d2bc030c0b579633",
   "lastOpenFiles": [
+    "Presentations/Images/editor_2-25-25.png",
     "Architecture Overview.md",
-    "Reflection 4-22-25.md",
-    "Forge TODO.md",
     "README.md",
+    "Forge TODO.md",
+    "Reflection 4-22-25.md",
     "Excalidraw/Drawing 2025-04-02 13.55.58.excalidraw.md",
     "Excalidraw",
     "Engine/Components/Component Functions.md",
     "Netcode/Partial Byte Stream Packets.md",
     "Engine/Forge Architecture.md",
     "Presentations/2-25-25 Presentation.md",
-    "Presentations/Images/editor_2-25-25.png",
     "Engine/Components/Player Controller.md",
     "Engine/Components/Systems/Component Registry.md",
     "Engine/Components/Systems/Component Pools.md",
