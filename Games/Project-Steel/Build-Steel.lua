@@ -15,15 +15,15 @@ project "Project-Steel"
        "Netcode"
    }
 
-   local engine_vendor_path = "../../The Forge/Engine/Vendors/"
+   local engine_vendor_path = "../../TheForge/Engine/Vendors/"
 
    includedirs
    {
       "Source",
 
       -- Include Engine Files
-      "../../The Forge/Engine/Source",
-      "../../The Forge/Netcode/Source",
+      "../../TheForge/Engine/Source",
+      "../../TheForge/Netcode/Source",
       engine_vendor_path .. "glm",
       engine_vendor_path .. "imgui-1.90.5-docking",
       engine_vendor_path .. "SDL2-2.30.2/include",
@@ -36,7 +36,7 @@ project "Project-Steel"
    prebuildcommands 
    { 
        "{DELETE} Assets/Engine Assets",
-       "{COPY} \"../../The Forge/Engine/Assets\" \"Assets/Engine Assets\""
+       "{COPY} \"../../TheForge/Engine/Assets\" \"Assets/Engine Assets\""
    }
    
    postbuildcommands

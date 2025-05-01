@@ -1,0 +1,288 @@
+[INFO] Reflection script started at Thu 05/01/2025 11:51:40.94 
+Working directory: C:\Users\Michael\Documents\Projects\TheForge\Scripts\BuildTools 
+Found Python at ..\..\Tools\Python\python.exe 
+[INFO] Testing Python... 
+Python 3.12.2
+[INFO] Reflecting The Forge... 
+=== Reflection Generator Starting ===
+Target directory: ..\..\TheForge
+
+=== Parsing: ..\..\TheForge\Engine\Source\Editor\CommandTerminal.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Editor\CommandTerminal.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Editor\Console.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Editor\Console.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Editor\ContentDrawer.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Editor\ContentDrawer.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Editor\Details.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Editor\Details.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Editor\DetailsEditor.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Editor\DetailsEditor.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Editor\EditorCamera.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Editor\EditorCamera.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Editor\EditorManager.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Editor\EditorManager.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Editor\EditorShortcuts.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Editor\EditorShortcuts.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Editor\LevelEditor.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Editor\LevelEditor.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Editor\MenuBar.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Editor\MenuBar.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Editor\SceneDisplay.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Editor\SceneDisplay.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Chat.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Chat.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\ChatWindow.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\ChatWindow.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\CommandRegistry.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\CommandRegistry.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\CommandUtils.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\CommandUtils.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\ConsoleStreamBuffer.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\ConsoleStreamBuffer.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\DelegateSystem.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\DelegateSystem.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\EngineManager.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\EngineManager.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\EventData.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\EventData.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\EventSystem.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\EventSystem.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\GameEngine.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\GameEngine.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\GameModeBase.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\GameModeBase.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\GameObject.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\GameObject.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\InputManager.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\InputManager.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\JsonKeywords.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\JsonKeywords.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Level.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Level.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\LevelManager.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\LevelManager.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\MacroHelper.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\MacroHelper.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Serializable.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Serializable.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\System.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\System.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Time.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Time.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Collisions\CollisionManager.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Collisions\CollisionManager.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Collisions\CollisionProfile.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Collisions\CollisionProfile.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Collisions\QuadTree.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Collisions\QuadTree.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Components\Camera.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Components\Camera.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Components\CircleCollider.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Components\CircleCollider.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Components\Collider.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Components\Collider.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Components\Component.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Components\Component.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Components\ComponentFactories.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Components\ComponentFactories.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Components\ComponentHasher.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Components\ComponentHasher.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Components\ComponentManager.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Components\ComponentManager.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Components\ComponentPool.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Components\ComponentPool.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Components\ComponentRegistry.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Components\ComponentRegistry.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Components\ComponentUtils.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Components\ComponentUtils.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Components\LineRenderer.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Components\LineRenderer.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Components\PlayerController.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Components\PlayerController.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Components\PlayerStart.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Components\PlayerStart.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Components\RectangleCollider.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Components\RectangleCollider.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Components\Rigidbody.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Components\Rigidbody.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Components\SpriteRenderer.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Components\SpriteRenderer.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Components\TextRenderer.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Components\TextRenderer.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Components\Transform.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Components\Transform.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Rendering\BufferRegistry.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Rendering\BufferRegistry.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Rendering\CameraHelper.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Rendering\CameraHelper.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Rendering\CameraManager.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Rendering\CameraManager.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Rendering\DebugRenderer.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Rendering\DebugRenderer.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Rendering\Font.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Rendering\Font.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Rendering\Framebuffer.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Rendering\Framebuffer.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Rendering\ImGuiHelper.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Rendering\ImGuiHelper.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Rendering\IRenderable.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Rendering\IRenderable.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Rendering\IShaderUniformProvider.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Rendering\IShaderUniformProvider.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Rendering\PixelGrid.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Rendering\PixelGrid.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Rendering\Renderer.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Rendering\Renderer.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Rendering\RenderingUtils.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Rendering\RenderingUtils.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Rendering\Shader.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Rendering\Shader.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Rendering\ShaderUniformData.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Rendering\ShaderUniformData.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Rendering\ShaderUniformSystem.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Rendering\ShaderUniformSystem.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Rendering\Texture.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Rendering\Texture.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Rendering\TextureLoader.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Rendering\TextureLoader.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Rendering\UIManager.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Rendering\UIManager.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Rendering\UIWindow.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Rendering\UIWindow.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Utilities\Array.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Utilities\Array.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Utilities\ReflectionMacros.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Utilities\ReflectionMacros.h
+
+=== Parsing: ..\..\TheForge\Engine\Source\Engine\Utilities\ReflectionUtils.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Engine\Source\Engine\Utilities\ReflectionUtils.h
+
+=== Parsing: ..\..\TheForge\Netcode\Source\ByteStream.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Netcode\Source\ByteStream.h
+
+=== Parsing: ..\..\TheForge\Netcode\Source\GamerServices.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Netcode\Source\GamerServices.h
+
+=== Parsing: ..\..\TheForge\Netcode\Source\LinkingContext.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Netcode\Source\LinkingContext.h
+
+=== Parsing: ..\..\TheForge\Netcode\Source\NetworkManager.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Netcode\Source\NetworkManager.h
+
+=== Parsing: ..\..\TheForge\Netcode\Source\PacketHeader.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Netcode\Source\PacketHeader.h
+
+=== Parsing: ..\..\TheForge\Netcode\Source\PacketUtils.h ===
+[!] No REFLECT() class found in ..\..\TheForge\Netcode\Source\PacketUtils.h
+[INFO] Reflecting Games... 
+=== Reflection Generator Starting ===
+Target directory: ..\..\Games
+
+=== Parsing: ..\..\Games\Project-Steel\Source\Astronaut.h ===
+[OK] Found REFLECT() class: Astronaut
+[-] Skipped pointer member: Engine::Rigidbody* _rb
+  [+] Member: type=EAstronautMoveState, name=_state, replicate=False
+  [+] Member: type=bool, name=_buildMode, replicate=False
+[-] Skipped pointer member: Engine::GameObject* _placementPreview
+  [+] Member: type=float, name=_zoomSpeed, replicate=False
+  [+] Member: type=float, name=_flySpeed, replicate=False
+  [+] Member: type=float, name=_walkSpeed, replicate=False
+[OK] Generated reflection: ..\..\Games\Project-Steel\Source\Astronaut.reflected.cpp
+[=] Header already includes: #include "Astronaut.reflected.cpp"
+
+=== Parsing: ..\..\Games\Project-Steel\Source\Destructible.h ===
+[!] No REFLECT() class found in ..\..\Games\Project-Steel\Source\Destructible.h
+
+=== Parsing: ..\..\Games\Project-Steel\Source\FluxWrench.h ===
+[!] No REFLECT() class found in ..\..\Games\Project-Steel\Source\FluxWrench.h
+
+=== Parsing: ..\..\Games\Project-Steel\Source\ResourceCounter.h ===
+[!] No REFLECT() class found in ..\..\Games\Project-Steel\Source\ResourceCounter.h
+
+=== Parsing: ..\..\Games\Project-Steel\Source\ResourceManager.h ===
+[!] No REFLECT() class found in ..\..\Games\Project-Steel\Source\ResourceManager.h
+
+=== Parsing: ..\..\Games\Project-Steel\Source\ShipManager.h ===
+[!] No REFLECT() class found in ..\..\Games\Project-Steel\Source\ShipManager.h
+
+=== Parsing: ..\..\Games\Project-Steel\Source\ShipPiece.h ===
+[!] No REFLECT() class found in ..\..\Games\Project-Steel\Source\ShipPiece.h
+
+=== Parsing: ..\..\Games\Project-Steel\Source\SpaceGrid.h ===
+[!] No REFLECT() class found in ..\..\Games\Project-Steel\Source\SpaceGrid.h
+
+=== Parsing: ..\..\Games\Project-Steel\Source\Spawner.h ===
+[!] No REFLECT() class found in ..\..\Games\Project-Steel\Source\Spawner.h
+[SUCCESS] Reflection completed at Thu 05/01/2025 11:51:41.00. 

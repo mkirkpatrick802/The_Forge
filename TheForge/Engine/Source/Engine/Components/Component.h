@@ -2,6 +2,7 @@
 #include <json.hpp>
 
 #include "ByteStream.h"
+#include "..\Utilities/ReflectionMacros.h"
 
 using json = nlohmann::json;
 

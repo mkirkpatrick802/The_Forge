@@ -14,6 +14,8 @@ enum class EAstronautMoveState : uint8_t
 
 class Astronaut : public Engine::PlayerController
 {
+    REFLECT()
+    
 public:
     Astronaut();
     void Start() override;
@@ -57,3 +59,5 @@ public:
 };
 
 REGISTER_COMPONENT(Astronaut)
+
+#include "Astronaut.reflected.cpp"
