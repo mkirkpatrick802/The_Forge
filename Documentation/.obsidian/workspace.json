@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Presentations/2-25-25 Presentation.md",
+                "file": "Production/Future Goals.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2-25-25 Presentation"
+              "title": "Future Goals"
             }
           }
         ]
@@ -40,8 +40,7 @@
             "state": {
               "type": "file-explorer",
               "state": {
-                "sortOrder": "alphabetical",
-                "autoReveal": false
+                "sortOrder": "alphabetical"
               },
               "icon": "lucide-folder-closed",
               "title": "Files"
@@ -173,9 +172,12 @@
   },
   "active": "d2bc030c0b579633",
   "lastOpenFiles": [
+    "README.md",
+    "Production/Future Goals.md",
+    "Production",
+    "Presentations/2-25-25 Presentation.md",
     "Presentations/Images/editor_2-25-25.png",
     "Architecture Overview.md",
-    "README.md",
     "Forge TODO.md",
     "Reflection 4-22-25.md",
     "Excalidraw/Drawing 2025-04-02 13.55.58.excalidraw.md",
@@ -183,7 +185,6 @@
     "Engine/Components/Component Functions.md",
     "Netcode/Partial Byte Stream Packets.md",
     "Engine/Forge Architecture.md",
-    "Presentations/2-25-25 Presentation.md",
     "Engine/Components/Player Controller.md",
     "Engine/Components/Systems/Component Registry.md",
     "Engine/Components/Systems/Component Pools.md",
@@ -200,7 +201,6 @@
     "path",
     "Presentations/Images",
     "Presentations",
-    "Editor",
-    "Engine/Components/Systems"
+    "Editor"
   ]
 }
