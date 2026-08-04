@@ -1,5 +1,0 @@
----
-tags:
-  - Components
-  - Systems
----
