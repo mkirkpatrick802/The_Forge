@@ -9,6 +9,7 @@
 #include "EventData.h"
 #include "EventSystem.h"
 #include "../../../Netcode/Source/GamerServices.h"
+#include "LaunchOptions.h"
 
 const std::string ERROR_FILENAME = "ErrorFile";
 
@@ -22,7 +23,8 @@ Engine::System::System(): _errorFile(nullptr), _window(nullptr)
 {
 	_CrtMemCheckpoint(&_memoryCheckpoint);
 
-	NetCode::GamerServices::Init();
+	if (REQUIRE_GAMER_SERVICES)
+		NetCode::GamerServices::Init();
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
@@ -33,14 +35,30 @@ Engine::System::System(): _errorFile(nullptr), _window(nullptr)
 	if (std::remove(ERROR_FILENAME.c_str()) != 0)
 		LogToErrorFile("Failed to Destroy " + ERROR_FILENAME);
 
-	std::cout.rdbuf(&_consoleBuffer);
-	std::cerr.rdbuf(&_consoleBuffer);
+	if (GetLaunchOptions().headless)
+	{
+		// This is a WindowedApp, so it has no console of its own. Make one, otherwise
+		// a dedicated server's output has nowhere to go. std::cout is deliberately
+		// left alone here so it reaches that console instead of the in-engine one.
+		if (AllocConsole())
+		{
+			FILE* stream = nullptr;
+			freopen_s(&stream, "CONOUT$", "w", stdout);
+			freopen_s(&stream, "CONOUT$", "w", stderr);
+		}
+	}
+	else
+	{
+		std::cout.rdbuf(&_consoleBuffer);
+		std::cerr.rdbuf(&_consoleBuffer);
+	}
 }
 
 Engine::System::~System()
 {
-	NetCode::GamerServices::CleanUp();
-	
+	if (REQUIRE_GAMER_SERVICES)
+		NetCode::GamerServices::CleanUp();
+
 	_consoleBuffer.CleanUp();
 	
 	SDL_DestroyWindow(_window);
@@ -64,7 +82,7 @@ Engine::System::~System()
 	}
 }
 
-SDL_Window* Engine::System::CreateAppWindow()
+SDL_Window* Engine::System::CreateAppWindow(const glm::vec2& size)
 {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -77,9 +95,31 @@ SDL_Window* Engine::System::CreateAppWindow()
 
 	SDL_DisplayMode displayMode;
 	SDL_GetCurrentDisplayMode(0, &displayMode);
-	
-	const auto window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE | ImGuiWindowFlags_NoBringToFrontOnFocus | SDL_WINDOW_MOUSE_CAPTURE | SDL_WINDOW_MAXIMIZED);
-	_window = SDL_CreateWindow("The Forge", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, displayMode.w, displayMode.h, window_flags);
+
+	// A positive size requests a specific window size (used by the Launcher).
+	// Default-constructed size keeps the original behaviour: fill the display
+	// and open maximized.
+	const bool useRequestedSize = size.x > 0.0f && size.y > 0.0f;
+
+	auto window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE | ImGuiWindowFlags_NoBringToFrontOnFocus | SDL_WINDOW_MOUSE_CAPTURE);
+
+	// A headless build still creates a window -- just an invisible one. Rendering is
+	// woven through the engine (VAOs, shaders and textures are all built while a
+	// level loads), so the cheap way to run without a display is to keep a real GL
+	// context on a hidden window rather than guard every GL call site.
+	if (GetLaunchOptions().headless)
+	{
+		window_flags = (SDL_WindowFlags)(window_flags | SDL_WINDOW_HIDDEN);
+	}
+	else if (!useRequestedSize)
+	{
+		window_flags = (SDL_WindowFlags)(window_flags | SDL_WINDOW_MAXIMIZED);
+	}
+
+	const int windowWidth = useRequestedSize ? (int)size.x : displayMode.w;
+	const int windowHeight = useRequestedSize ? (int)size.y : displayMode.h;
+
+	_window = SDL_CreateWindow("The Forge", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowWidth, windowHeight, window_flags);
 	if (_window == nullptr)
 	{
 		LogToErrorFile("SDL window could not be made!");
@@ -125,17 +165,37 @@ void Engine::System::DisplayMessageBox(const std::string& caption, const std::st
 
 void Engine::System::LogToConsole(const char* format, ...) const
 {
-#ifndef _DEBUG
-	return;
-#endif
-	
 	constexpr size_t bufferSize = 1024;
 	char buffer[bufferSize];
 
 	va_list args;
 	va_start(args, format);
-	auto temp = std::vsnprintf(buffer, bufferSize, format, args);
+	std::vsnprintf(buffer, bufferSize, format, args);
 	va_end(args);
+
+	// A headless build has no in-engine console to receive the event, so logs go
+	// straight to stdout. Deliberately not gated on _DEBUG -- a dedicated server
+	// needs its log in Release too.
+	if (GetLaunchOptions().headless)
+	{
+		std::fputs(buffer, stdout);
+		std::fputc('\n', stdout);
+		std::fflush(stdout);
+
+		// Also mirrored to a file: a dedicated server's console is often not where
+		// anyone is looking, and this survives a crash.
+		if (FILE* logFile = nullptr; fopen_s(&logFile, "server.log", "a") == 0 && logFile)
+		{
+			std::fputs(buffer, logFile);
+			std::fputc('\n', logFile);
+			std::fclose(logFile);
+		}
+		return;
+	}
+
+#ifndef _DEBUG
+	return;
+#endif
 
 	ED_LogToConsole log;
 	log.message = buffer;

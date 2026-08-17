@@ -8,6 +8,7 @@
 #include <glm/ext/scalar_constants.hpp>
 
 #include "imgui_internal.h"
+#include "NetworkManager.h"
 #include "ShipPiece.h"
 #include "Engine/Level.h"
 #include "Engine/LevelManager.h"
@@ -50,10 +51,15 @@ void Astronaut::Update(const float deltaTime)
         }
     }
     
-    CollectInput(deltaTime);
+    CollectInput();
+
+    // Only the authority turns input into motion. On a remote client this pawn's
+    // transform arrives through world state replication instead.
+    if (NetCode::GetNetworkManager().HasWorldAuthority())
+        ApplyInput(deltaTime);
 }
 
-void Astronaut::CollectInput(const float deltaTime)
+void Astronaut::CollectInput()
 {
     if (!IsLocalPlayer()) return;
 
@@ -62,27 +68,23 @@ void Astronaut::CollectInput(const float deltaTime)
                     : GetCameraManager().GetActiveCamera()->ZoomOut(_zoomSpeed);*/
     
     // Get movement input
-    const glm::vec2 movementInput = {
+    _movementInput = {
         static_cast<float>(GetInputManager().GetKey(SDL_SCANCODE_D) - GetInputManager().GetKey(SDL_SCANCODE_A)),
         static_cast<float>(GetInputManager().GetKey(SDL_SCANCODE_W) - GetInputManager().GetKey(SDL_SCANCODE_S))
     };
 
-    Move(movementInput, deltaTime);
-    
     // Determine rotation direction (face movement or mouse)
-    glm::vec2 targetDirection = movementInput; // Default to movement input direction
-    if (glm::vec2 mousePos; GetInputManager().GetButton(SDL_BUTTON(SDL_BUTTON_LEFT), mousePos) || GetInputManager().GetButton(SDL_BUTTON(SDL_BUTTON_RIGHT)) || length(movementInput) == 0.0f)
+    glm::vec2 targetDirection = _movementInput; // Default to movement input direction
+    if (glm::vec2 mousePos; GetInputManager().GetButton(SDL_BUTTON(SDL_BUTTON_LEFT), mousePos) || GetInputManager().GetButton(SDL_BUTTON(SDL_BUTTON_RIGHT)) || length(_movementInput) == 0.0f)
     {
         mousePos = GetCameraManager().ConvertScreenToWorld(mousePos);
         targetDirection = normalize(mousePos - gameObject->GetWorldPosition());
     }
 
-    // Apply rotation if valid
+    // Aim is resolved here rather than sent as a raw mouse position, since the
+    // host has no camera or screen space for a remote client.
     if (length(targetDirection) > 0.0f)
-    {
-        gameObject->SetRotation(glm::atan(targetDirection.x, targetDirection.y) * 180.0f / glm::pi<float>());
-        gameObject->isDirty = true;
-    }
+        _aimRotation = glm::atan(targetDirection.x, targetDirection.y) * 180.0f / glm::pi<float>();
 
     if (GetInputManager().GetKeyDown(SDL_SCANCODE_B) || (GetInputManager().GetButtonDown(SDL_BUTTON(SDL_BUTTON_RIGHT)) && _buildMode))
         ToggleBuildMode();
@@ -93,6 +95,26 @@ void Astronaut::CollectInput(const float deltaTime)
         if (GetInputManager().GetButtonDown(SDL_BUTTON(SDL_BUTTON_LEFT)))
             PlaceShipPiece();
     }
+}
+
+void Astronaut::ApplyInput(const float deltaTime)
+{
+    Move(_movementInput, deltaTime);
+
+    gameObject->SetRotation(_aimRotation);
+    gameObject->isDirty = true;
+}
+
+void Astronaut::WriteInput(NetCode::OutputByteStream& stream) const
+{
+    stream.Write(_movementInput);
+    stream.Write(_aimRotation);
+}
+
+void Astronaut::ReadInput(NetCode::InputByteStream& stream)
+{
+    stream.Read(_movementInput);
+    stream.Read(_aimRotation);
 }
 
 void Astronaut::Move(const glm::vec2 movement, const float deltaTime)

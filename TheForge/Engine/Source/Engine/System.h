@@ -21,7 +21,15 @@ inline bool APPLICATION_CLOSING = false;
 struct SDL_Window;
 namespace Engine
 {
-	enum class LogType : uint8_t {MESSAGE_LOG = 1, WARNING_LOG, ERROR_LOG}; 
+	enum class LogType : uint8_t {MESSAGE_LOG = 1, WARNING_LOG, ERROR_LOG};
+
+	// Steam is initialized by the System constructor and hard-exits the process if
+	// no Steam client is running. Tools that use no netcode (the Launcher) opt out
+	// by setting this to false before the first System::GetInstance() call. Games
+	// leave it true. Do not set this false in anything that touches netcode --
+	// GamerServices stays uninitialized, so GetGamerService() would deref null.
+	inline bool REQUIRE_GAMER_SERVICES = true;
+
 	class System
 	{
 	public:
@@ -30,7 +38,8 @@ namespace Engine
 		System();
 		~System();
 		
-		SDL_Window* CreateAppWindow();
+		// A positive size requests that window size; the default fills the display.
+		SDL_Window* CreateAppWindow(const glm::vec2& size = glm::vec2(0.0f));
 
 		void LogToErrorFile(const std::string& message);
 		void DisplayMessageBox(const std::string& caption, const std::string& message) const;
@@ -53,9 +62,9 @@ namespace Engine
 		ConsoleStreamBuffer _consoleBuffer;
 	};
 
-	inline SDL_Window* CreateAppWindow()
+	inline SDL_Window* CreateAppWindow(const glm::vec2& size = glm::vec2(0.0f))
 	{
-		return System::GetInstance().CreateAppWindow();
+		return System::GetInstance().CreateAppWindow(size);
 	}
 	
 	inline SDL_Window* GetAppWindow()

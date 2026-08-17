@@ -1,12 +1,14 @@
 ﻿#include "GameEngine.h"
 
 #include <fstream>
+#include <SDL_timer.h>
 
 #include "EngineManager.h"
 #include "EventSystem.h"
 #include "GameObject.h"
 #include "InputManager.h"
 #include "JsonKeywords.h"
+#include "LaunchOptions.h"
 #include "LevelManager.h"
 #include "NetworkManager.h"
 #include "Rendering/Renderer.h"
@@ -90,14 +92,23 @@ void Engine::GameEngine::SceneStartup(const void* p)
 
 void Engine::GameEngine::StartGameplayLoop()
 {
-	if (!GetEngineManager().IsEditorEnabled())
+	const bool headless = GetLaunchOptions().headless;
+
+	if (!headless && !GetEngineManager().IsEditorEnabled())
 		ToggleLoadingScreen(true);
-	
+
 	SceneStartup();
-	
+
+	if (headless)
+		DEBUG_LOG("Scene loaded. Dedicated server running headless.")
+
 	float frameStart = static_cast<float>(Time::GetTicks());
-	_inputManager->ClearInputBuffers();
-	while (_inputManager->StartProcessInputs())
+	if (!headless)
+		_inputManager->ClearInputBuffers();
+
+	// Headless has no window to pump events for, so the loop runs until something
+	// asks the application to close rather than until the input manager says stop.
+	while (headless ? !APPLICATION_CLOSING : _inputManager->StartProcessInputs())
 	{
 		if (const float currentTicks = static_cast<float>(Time::GetTicks()); currentTicks - frameStart >= 16)
 		{
@@ -108,8 +119,16 @@ void Engine::GameEngine::StartGameplayLoop()
 			if (!GetEngineManager().IsEditorEnabled())
 			{
 				GetCollisionManager().Update();
-				NetCode::GetGamerService().Update();
-				NetCode::GetNetworkManager().Update();
+
+				// Both of these reach into Steam -- GamerServices directly, and the
+				// NetworkManager constructor via GetLocalPlayerID(). Neither is safe
+				// when Steam was opted out of, as a dedicated server does.
+				if (REQUIRE_GAMER_SERVICES)
+				{
+					NetCode::GetGamerService().Update();
+					NetCode::GetNetworkManager().Update();
+				}
+
 				_chat->Update(deltaTime);
 				GetComponentManager().UpdateComponents(deltaTime);
 				//std::cout << 1 / deltaTime << '\n';
@@ -123,8 +142,17 @@ void Engine::GameEngine::StartGameplayLoop()
 			GetEngineManager().CollectDebugInputs();			
 #endif
 			
-			_renderer->Render();
-			_inputManager->EndProcessInputs();
+			if (!headless)
+			{
+				_renderer->Render();
+				_inputManager->EndProcessInputs();
+			}
+		}
+		else if (headless)
+		{
+			// Nothing to draw and no events to pump, so yield instead of burning a
+			// core spinning on the frame-time check.
+			SDL_Delay(1);
 		}
 	}
 }

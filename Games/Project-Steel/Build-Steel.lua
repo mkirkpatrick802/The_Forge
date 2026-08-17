@@ -58,15 +58,13 @@ project "Project-Steel"
 
        local assetCopy = "{COPY} "
        assetCopy = assetCopy .. "%{cfg.targetdir}/../" .. module .. "/Assets"
-       assetCopy = assetCopy .. "%{cfg.targetdir}/Assets"
+       assetCopy = assetCopy .. " %{cfg.targetdir}/Assets"
 
        postbuildcommands { assetCopy }
 
-       local deleteCommand = "{DELETE} "
-       deleteCommand = deleteCommand .. "%{cfg.targetdir}/../" .. module .. "/*.dll"
-
-       postbuildcommands { deleteCommand }
-       
+       -- The module's DLLs are deliberately NOT deleted after copying. Every
+       -- consumer (this game, the Launcher) copies from the same module output
+       -- dir, so deleting them starves whichever project builds second.
    end
 
    targetdir ("../../Binaries/" .. OutputDir .. "/%{prj.name}")

@@ -53,7 +53,7 @@ namespace NetCode
     class InputByteStream
     {
     public:
-        InputByteStream(uint32_t size);
+        InputByteStream(uint32_t sizeInBytes);
         InputByteStream(const InputByteStream& other);
         InputByteStream(const uint8_t* data, uint32_t size);
         ~InputByteStream() = default;

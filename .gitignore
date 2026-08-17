@@ -2,6 +2,7 @@
 .vs/
 Binaries/
 .idea/
+.claude/
 
 # Files
 *.vcxproj
@@ -16,5 +17,7 @@ Makefile
 /The Forge.sln.DotSettings.user
 /Games/Project-Steel/Assets/Engine Assets
 /Games/Project-Steel/imgui.ini
+/Launcher/Assets/Engine Assets
+/Launcher/imgui.ini
 /Premake
 /Tools

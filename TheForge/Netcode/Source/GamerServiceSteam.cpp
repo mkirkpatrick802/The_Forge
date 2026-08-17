@@ -230,7 +230,10 @@ bool GamerServices::SendP2PReliable(const OutputByteStream& inOutputStream, uint
         
         // Create a new buffer with the packet ID at the start
         uint8_t packetBuffer[MAX_PACKET_SIZE_BYTES];
-        if (bytesWritten < maxChunkSize)
+        // Must be <=: at exactly maxChunkSize the whole stream still fits in one
+        // packet. Treating that as a split sequence would send a lone "first"
+        // chunk with no terminating "last", and the receiver would wait forever.
+        if (bytesWritten <= maxChunkSize)
         {
             packetBuffer[0] = 0; // 0 = standalone
         }

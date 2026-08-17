@@ -1,6 +1,7 @@
 #pragma once
-#include "../../The Forge/Engine/Source/Engine/Data.h"
-#include "../../The Forge/Engine/Source/Engine/UIWindow.h"
+#include <glm/vec2.hpp>
+
+#include "Engine/Rendering/UIWindow.h"
 
 struct LauncherSettings;
 
@@ -20,7 +21,7 @@ private:
 private:
 
 	unsigned int _iconTexture;
-	Vector2D _iconSize;
+	glm::vec2 _iconSize;
 
 	LauncherSettings* _settings = nullptr;
 };

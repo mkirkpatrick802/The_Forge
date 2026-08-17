@@ -7,18 +7,21 @@ project "Launcher"
 
    files { "Source/**.h", "Source/**.cpp" }
 
+   -- Engine now references NetCode (byte streams, LinkingContext, NetworkManager),
+   -- so the Launcher has to link it too even though it has no netcode of its own.
    local modules = {
-       "Engine"
+       "Engine",
+       "Netcode"
    }
 
-   local engine_vendor_path = "../The Forge/Engine/Vendors/"
+   local engine_vendor_path = "../TheForge/Engine/Vendors/"
 
    includedirs
    {
       "Source",
 
       -- Include Engine Files
-      "../The Forge/Engine/Source",
+      "../TheForge/Engine/Source",
       engine_vendor_path .. "glm",
       engine_vendor_path .. "imgui-1.90.5-docking",
       engine_vendor_path .. "SDL2-2.30.2/include",
@@ -26,10 +29,19 @@ project "Launcher"
       engine_vendor_path .. "stb",
    }
 
-   prebuildcommands 
-   { 
-       "{DELETE} Assets",
-       "{COPY} \"../The Forge/Engine/Assets\" \"Assets/\"" 
+   -- The engine loads its own assets from "Assets/Engine Assets/..." (e.g. the
+   -- ScreenQuad shader), so they must land in that subfolder rather than flat in
+   -- Assets/. Deleting only that subfolder also leaves the Launcher's own
+   -- committed assets alone.
+   prebuildcommands
+   {
+       "{DELETE} Assets/Engine Assets",
+       "{COPY} \"../TheForge/Engine/Assets\" \"Assets/Engine Assets\""
+   }
+
+   postbuildcommands
+   {
+       "{COPY} Assets %{cfg.targetdir}/Assets"
    }
 
    -- Generate the postbuild command to copy DLLs from each module
@@ -47,10 +59,8 @@ project "Launcher"
 
        postbuildcommands { assetCopy }
 
-       local deleteCommand = "{DELETE} "
-       deleteCommand = deleteCommand .. "%{cfg.targetdir}/../" .. module .. "/*.dll"
-
-       postbuildcommands { deleteCommand }
+       -- See Build-Steel.lua: the module's DLLs are deliberately not deleted after
+       -- copying, since both this and the game copy from the same module dir.
    end
 
    targetdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")

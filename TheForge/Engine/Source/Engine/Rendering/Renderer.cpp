@@ -11,6 +11,7 @@
 #include "UIManager.h"
 #include "Engine/EngineManager.h"
 #include "Engine/EventSystem.h"
+#include "Engine/LaunchOptions.h"
 #include "Engine/Collisions/CollisionManager.h"
 #include "Engine/Components/SpriteRenderer.h"
 #include "Engine/Components/TextRenderer.h"
@@ -113,6 +114,10 @@ void Engine::Renderer::SortRenderList()
 
 void Engine::Renderer::Render()
 {
+	// Nothing is on screen when headless, and SwapWindow would throttle the server
+	// loop to the display's refresh rate through vsync.
+	if (GetLaunchOptions().headless) return;
+
 	const auto sceneFBO = BufferRegistry::GetRegistry()->GetBuffer(BufferRegistry::BufferType::SCENE);
 	{
 		sceneFBO->Bind();
@@ -170,6 +175,6 @@ Engine::Renderer::~Renderer()
 {
 	UIManager::CleanUp();
 	BufferRegistry::GetRegistry()->CleanUp();
-	
+
 	SDL_GL_DeleteContext(_context);
 }

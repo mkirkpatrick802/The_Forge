@@ -1,7 +1,7 @@
 #include "LauncherWindow.h"
 #include <imgui_internal.h>
 #include "Launcher.h"
-#include "Engine/TextureLoader.h"
+#include "Engine/Rendering/TextureLoader.h"
 
 LauncherWindow::LauncherWindow() = default;
 
@@ -13,7 +13,10 @@ void LauncherWindow::Render()
 void LauncherWindow::DrawMenu()
 {
     if (_settings == nullptr)
-        Engine::System::DisplayMessageBox("Error!", "Launchers Settings not set on launcher window");
+    {
+        Engine::System::GetInstance().DisplayMessageBox("Error!", "Launchers Settings not set on launcher window");
+        return;
+    }
 
     ImGuiIO& io = ImGui::GetIO();
     

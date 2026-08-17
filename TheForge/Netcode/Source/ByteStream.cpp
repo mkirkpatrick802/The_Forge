@@ -79,9 +79,10 @@ void NetCode::OutputByteStream::ReallocBuffer(const uint32_t newSize)
  *      Input Byte Stream
  */
 
-NetCode::InputByteStream::InputByteStream(uint32_t size): _head(0), _capacity(0)
+// Takes a size in BYTES, matching the (data, size) constructor and ResetToCapacity.
+NetCode::InputByteStream::InputByteStream(uint32_t sizeInBytes): _head(0), _capacity(0)
 {
-    _buffer = std::make_shared<std::vector<uint8_t>>(size * 8, 0);
+    _buffer = std::make_shared<std::vector<uint8_t>>(sizeInBytes, 0);
 }
 
 NetCode::InputByteStream::InputByteStream(const InputByteStream& other) : _head(other._head), _capacity(other._capacity)

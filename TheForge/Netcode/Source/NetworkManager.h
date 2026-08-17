@@ -9,7 +9,8 @@
 
 namespace Engine
 {
-    class GameObject;   
+    class GameObject;
+    class PlayerController;
 }
 
 namespace NetCode
@@ -30,6 +31,7 @@ namespace NetCode
         PT_Hello = 0,
         PT_WorldState,
         PT_WorldStateUpdate,
+        PT_ClientInput,
         PT_Max
     };
     
@@ -66,7 +68,16 @@ namespace NetCode
 
         // Prep World State Update
         void SendWorldStateUpdate();
-        
+
+        // Client -> host input. Clients send their input to the authority, which
+        // simulates it and replicates the resulting state back out.
+        void SendClientInput();
+        void ApplyClientInput(InputByteStream& stream, uint64_t playerID);
+
+        // True when this machine simulates the world: the lobby owner, or any time
+        // we aren't in a multiplayer session at all (offline / solo).
+        bool HasWorldAuthority() const { return _isOwner || _playerCount <= 1; }
+
         void EnterLobby(uint64_t lobbyID);
         void UpdateLobbyPlayers();
         
@@ -74,6 +85,9 @@ namespace NetCode
         
         bool IsPlayerInGame(uint64_t playerID) const;
         void HandleConnectionReset(uint64_t playerID);
+
+    private:
+        Engine::PlayerController* FindPlayerController(uint64_t playerID) const;
 
     private:
         NetworkManagerState	_state;
@@ -87,7 +101,12 @@ namespace NetCode
         std::queue<ReceivedPacket, std::list<ReceivedPacket>> _packetQueue;
 
         uint64_t _lastUpdateSentTicks = 0;
-        uint64_t _targetStateUpdateDelay = 60; // Starting place (balance accordingly)
+        uint64_t _lastInputSentTicks = 0;
+        // Input is small and latency-sensitive, so it goes out more often than world state.
+        uint64_t _targetInputSendDelayMs = 16;
+        // Milliseconds between world state updates -- compared against Engine::Time::GetTicks(),
+        // which is SDL_GetTicks64(). 33ms is roughly 30Hz.
+        uint64_t _targetStateUpdateDelayMs = 33;
         std::unordered_map<uint64_t, std::vector<uint8_t>> _reassemblyBuffer;
 
     public:

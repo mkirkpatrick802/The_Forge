@@ -25,8 +25,15 @@ public:
     nlohmann::json Serialize() override;
     void Deserialize(const json& data) override;
 
+    void WriteInput(NetCode::OutputByteStream& stream) const override;
+    void ReadInput(NetCode::InputByteStream& stream) override;
+
 private:
-    void CollectInput(float deltaTime);
+    // Reads the local devices into _movementInput / _aimRotation. Local player only.
+    void CollectInput();
+    // Turns that input into motion. Runs on the authority only -- remote clients
+    // receive the resulting transform through world state replication instead.
+    void ApplyInput(float deltaTime);
     void Move(glm::vec2 movement, float deltaTime);
     void FindPositionForShipPiece() const;
 
@@ -53,11 +60,14 @@ private:
     float _walkSpeed = 600.0f;
     glm::vec2 _walkVelocity = glm::vec2(0.0f);
 
+    // Replicated input -- filled locally by CollectInput on the owning client, or
+    // by ReadInput on the host when it arrives over the network.
+    glm::vec2 _movementInput = glm::vec2(0.0f);
+    float _aimRotation = 0.0f;
+
 public:
     bool InBuildModeState() const { return _buildMode; }
     
 };
 
 REGISTER_COMPONENT(Astronaut)
-
-#include "Astronaut.reflected.cpp"

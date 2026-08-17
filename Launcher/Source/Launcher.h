@@ -1,10 +1,11 @@
 #pragma once
+#include <memory>
 #include <string>
 #include <vector>
+#include <glm/vec2.hpp>
 
 #include "LauncherWindow.h"
-#include "../../The Forge/Engine/Source/Engine/Data.h"
-#include "../../The Forge/Engine/Source/Engine/System.h"
+#include "Engine/System.h"
 
 struct LauncherSettings
 {
@@ -22,21 +23,21 @@ class Launcher
 public:
 	
 	template <typename TWindow>
-	static void Start(LauncherSettings& settings, const Vector2D& size);
+	static void Start(LauncherSettings& settings, const glm::vec2& size);
 
 private:
 
-	static void RunLauncher(LauncherWindow* window, LauncherSettings& settings);
+	static void RunLauncher(const std::shared_ptr<LauncherWindow>& window, LauncherSettings& settings);
 	static void FindProjects(LauncherSettings& settings);
 };
 
 template <typename TWindow>
-void Launcher::Start(LauncherSettings& settings, const Vector2D& size)
+void Launcher::Start(LauncherSettings& settings, const glm::vec2& size)
 {
 	static_assert(std::is_base_of_v<LauncherWindow, TWindow>, "TWindow must be a subclass of LauncherWindow");
-	Engine::System::CreateAppWindow(size);
+	Engine::CreateAppWindow(size);
 
-	auto window = DEBUG_NEW TWindow();
-	RunLauncher(window, settings);
-	delete window;
+	// UIManager owns UI windows through shared_ptr, so the window's lifetime is
+	// shared rather than deleted here.
+	RunLauncher(std::make_shared<TWindow>(), settings);
 }
