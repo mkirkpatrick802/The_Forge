@@ -8,6 +8,9 @@ using namespace Engine;
 
 Destructible::Destructible(): _health(0)
 {
+    // Carries state that changes while the game runs, so it belongs in a per-tick
+    // delta. Components without this appear only in the full object record.
+    isReplicated = true;
     
 }
 

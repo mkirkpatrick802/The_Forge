@@ -181,6 +181,7 @@ void NetCode::NetworkManager::SendWorldStateUpdate()
         // and deliberately skipping a slow peer did the same damage.
         if (_transport->SendTo(peer, stream, true))
             level->CommitDeltaFor(peer);
+
     }
 }
 
@@ -236,7 +237,8 @@ void NetCode::NetworkManager::OnboardNewPlayer(const PeerID peer)
         return;
     }
 
-    Engine::LevelManager::GetCurrentLevel()->GetGameMode().SpawnPlayer(peer);
+    Engine::Level* level = Engine::LevelManager::GetCurrentLevel();
+    Engine::GameObject* pawn = level->GetGameMode().SpawnPlayer(peer);
     _state = NMS_Playing;
 
     // A dedicated server is not a peer of its own, so it never takes this branch
@@ -247,15 +249,24 @@ void NetCode::NetworkManager::OnboardNewPlayer(const PeerID peer)
     hello.Write(PT_Hello);
     _transport->SendTo(peer, hello, true);
 
+    // The slot is opened *before* the snapshot is written, not after, because the
+    // snapshot is now filtered to what this peer can actually see -- and that needs its
+    // pawn registered as a viewpoint first. It opens knowing nothing; the write below
+    // marks what it actually sends.
+    level->AddReplicationPeer(peer, pawn);
+
     OutputByteStream worldState;
     worldState.Write(PT_WorldState);
-    Engine::LevelManager::GetCurrentLevel()->Write(worldState);
-    _transport->SendTo(peer, worldState, true);
+    level->WriteCompleteStateFor(peer, worldState);
 
-    // Opened only after the complete world has gone out, so the peer starts owed
-    // nothing. Doing it earlier would queue deltas describing state it is about to be
-    // sent anyway, on top of a message it has not finished receiving.
-    Engine::LevelManager::GetCurrentLevel()->AddReplicationPeer(peer);
+    if (!_transport->SendTo(peer, worldState, true))
+    {
+        // The peer now believes it is joining but has no world, and the objects the
+        // snapshot claimed are known to it are not. Rather than let it run on a false
+        // record, drop the slot -- it will time out and can reconnect cleanly.
+        DEBUG_LOG("Netcode: could not send the world to peer %llu; dropping it.", peer)
+        level->RemoveReplicationPeer(peer);
+    }
 }
 
 // TODO: Should not use the player controller class

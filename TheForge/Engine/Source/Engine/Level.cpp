@@ -48,6 +48,23 @@ void Engine::Level::Load(nlohmann::json data)
     _gameMode = std::make_unique<GameModeBase>();
 }
 
+namespace
+{
+    // An object with no Transform has no position to test, so it is exempt from
+    // relevance entirely rather than being treated as sitting at the origin --
+    // GameObject::GetWorldPosition cannot tell those two apart.
+    bool TryGetWorldPosition(const Engine::GameObject& object, glm::vec2& outPosition)
+    {
+        if (const auto transform = object.GetComponent<Engine::Transform>())
+        {
+            outPosition = transform->GetWorldPosition();
+            return true;
+        }
+
+        return false;
+    }
+}
+
 void Engine::Level::Load(NetCode::InputByteStream& stream)
 {
     Read(stream);
@@ -127,28 +144,48 @@ bool Engine::Level::RemoveGameObject(GameObject* go, bool replicate)
     {
         if (it->get() == go) // Compare raw pointers
         {
-            if (replicate)
+            // Resolved here, while the object is still alive. The erase below runs its
+            // destructor, and the old code kept the raw pointer in a list and read its
+            // network id at send time -- off freed memory.
+            if (const uint32_t networkID = NetCode::GetLinkingContext().GetNetworkID(go, false); networkID != NULL_ID)
             {
-                // Resolved here, while the object is still alive. The erase below runs
-                // its destructor, and the old code kept the raw pointer in a list and
-                // read its network id at send time -- off freed memory.
-                if (const uint32_t networkID = NetCode::GetLinkingContext().GetNetworkID(go, false); networkID != NULL_ID)
-                {
-                    // Queued for each peer separately. One shared list was drained by the
-                    // first send of the tick, so only whichever peer happened to go first
-                    // ever learned the object was gone.
+                // Queued for each peer separately. One shared list was drained by the
+                // first send of the tick, so only whichever peer happened to go first
+                // ever learned the object was gone.
+                if (replicate)
                     for (auto& replicationPeer : _replicationPeers)
                         if (replicationPeer.active)
                             replicationPeer.pendingDestroys.push_back(networkID);
 
-                    NetCode::GetLinkingContext().RemoveGameObject(go);
-                }
+                // Unregistered whether or not anyone is told about it. `replicate` says
+                // who to notify, not whether the object still exists -- and a linking
+                // context entry outliving its object hands the next lookup a pointer to
+                // freed memory that reads as perfectly live.
+                //
+                // This was latent until area-of-interest arrived: a client only ever saw
+                // a destruction when somebody disconnected, and those network ids are
+                // never reissued. Now objects leave and re-enter relevance constantly,
+                // and a re-entering one was deserialized straight into the corpse of its
+                // previous self.
+                NetCode::GetLinkingContext().RemoveGameObject(go);
             }
+
+            // Whoever was looking from this object is not any more. Read every tick by
+            // UpdateRelevance, so leaving it set is a dangling read.
+            for (auto& replicationPeer : _replicationPeers)
+                if (replicationPeer.pawn == go)
+                    replicationPeer.pawn = nullptr;
 
             if(auto parent = go->GetParent())
             {
                 parent->RemoveChild(go);
             }
+
+            // Children outlive their parent here -- only this object is being removed --
+            // so they must not be left holding a pointer to it.
+            for (const auto child : go->GetChildren())
+                if (child != nullptr)
+                    child->_parent = nullptr;
             
             it = _gameObjects.erase(it); // Erase and update iterator
         }
@@ -186,20 +223,48 @@ void Engine::Level::SaveLevel(const std::string& args)
     std::cout << "Level Saved Successfully!" << '\n';
 }
 
-void Engine::Level::Write(NetCode::OutputByteStream& stream)
+void Engine::Level::WriteCompleteStateFor(const NetCode::PeerID peer, NetCode::OutputByteStream& stream)
 {
+    const int slot = FindReplicationSlot(peer);
+    const uint32_t bit = slot >= 0 ? 1u << slot : 0u;
+
+    glm::vec2 viewpoint;
+    const bool hasViewpoint = slot >= 0
+        && _replicationPeers[slot].pawn != nullptr
+        && TryGetWorldPosition(*_replicationPeers[slot].pawn, viewpoint);
+
+    // Relevance applies to replicated objects only. An object with isReplicated = false
+    // never enters or leaves anybody's set -- it is sent once here and never mentioned
+    // again -- so filtering it by distance would mean it never arrives at all.
+    const auto included = [&](const GameObject& object)
+    {
+        if (object.isServerOnly) return false;
+        if (!hasViewpoint || !object.isReplicated) return true;
+        return IsRelevantTo(object, viewpoint, false);
+    };
+
     uint32_t replicatedCount = 0;
     for (const auto& element : _gameObjects)
-        if (!element->isServerOnly)
+        if (included(*element))
             ++replicatedCount;
 
     stream.Write(replicatedCount);
     for (auto& element : _gameObjects)
     {
-        if (element->isServerOnly) continue;
+        if (!included(*element)) continue;
+
+        // Marked known as it is written. The snapshot goes out on a channel with an
+        // empty window, so it does not face the refusal a delta does -- and
+        // NetworkManager drops the peer outright if the send fails anyway.
+        element->_knownToPeers |= bit;
 
         const uint32_t networkID = NetCode::GetLinkingContext().GetNetworkID(element.get());
         stream.Write(networkID);
+
+        // Every record carries a bit saying which of the two forms follows, so the
+        // reader is one code path and a complete state is just the case where they all
+        // happen to be full.
+        stream.Write(true);
         element->Write(stream);
     }
 
@@ -218,7 +283,7 @@ int Engine::Level::FindReplicationSlot(const NetCode::PeerID peer) const
     return -1;
 }
 
-void Engine::Level::AddReplicationPeer(const NetCode::PeerID peer)
+void Engine::Level::AddReplicationPeer(const NetCode::PeerID peer, GameObject* pawn)
 {
     if (FindReplicationSlot(peer) >= 0) return;
 
@@ -240,15 +305,20 @@ void Engine::Level::AddReplicationPeer(const NetCode::PeerID peer)
 
     _replicationPeers[slot].peer = peer;
     _replicationPeers[slot].active = true;
+    _replicationPeers[slot].pawn = pawn;
     _replicationPeers[slot].pendingDestroys.clear();
     _activePeerMask |= 1u << slot;
 
-    // Cleared rather than set. The peer is handed the complete world as it joins, so
-    // at the moment its slot opens it is owed nothing -- and a slot reused after a
-    // disconnect would otherwise inherit the previous occupant's backlog.
+    // Opens knowing nothing and owed nothing. WriteCompleteStateFor marks what it
+    // actually sends; everything else stays unknown until it becomes relevant. Cleared
+    // explicitly rather than assumed, because a slot reused after a disconnect would
+    // otherwise inherit the previous occupant's state.
     const uint32_t bit = 1u << slot;
     for (auto& element : _gameObjects)
+    {
         element->_dirtyPeers &= ~bit;
+        element->_knownToPeers &= ~bit;
+    }
 }
 
 void Engine::Level::RemoveReplicationPeer(const NetCode::PeerID peer)
@@ -258,12 +328,75 @@ void Engine::Level::RemoveReplicationPeer(const NetCode::PeerID peer)
 
     _replicationPeers[slot].active = false;
     _replicationPeers[slot].peer = NetCode::INVALID_PEER;
+    _replicationPeers[slot].pawn = nullptr;
     _replicationPeers[slot].pendingDestroys.clear();
     _activePeerMask &= ~(1u << slot);
+
+    // Cleared here as well as in AddReplicationPeer. Belt and braces: an object that
+    // outlives the peer must not claim the next occupant of this slot already knows it.
+    const uint32_t bit = 1u << slot;
+    for (auto& element : _gameObjects)
+        element->_knownToPeers &= ~bit;
+}
+
+bool Engine::Level::IsRelevantTo(const GameObject& object, const glm::vec2& viewpoint, const bool currentlyKnown)
+{
+    glm::vec2 position;
+    if (!TryGetWorldPosition(object, position))
+        return true;
+
+    const float radius = currentlyKnown ? RELEVANCE_LEAVE_RADIUS : RELEVANCE_ENTER_RADIUS;
+    const glm::vec2 offset = position - viewpoint;
+    const float distanceSquared = offset.x * offset.x + offset.y * offset.y;
+
+    // Squared throughout -- there is no reason to pay for a square root per object per
+    // peer per tick just to compare against a constant.
+    return distanceSquared <= radius * radius;
+}
+
+void Engine::Level::UpdateRelevance()
+{
+    for (int slot = 0; slot < static_cast<int>(NetCode::MAX_REPLICATION_PEERS); ++slot)
+    {
+        ReplicationPeer& replicationPeer = _replicationPeers[slot];
+        if (!replicationPeer.active) continue;
+
+        glm::vec2 viewpoint;
+        if (replicationPeer.pawn == nullptr || !TryGetWorldPosition(*replicationPeer.pawn, viewpoint))
+            continue; // no viewpoint yet, so nothing to filter against; send everything
+
+        const uint32_t bit = 1u << slot;
+
+        for (auto& element : _gameObjects)
+        {
+            if (element->isServerOnly || !element->isReplicated) continue;
+
+            const bool known = (element->_knownToPeers & bit) != 0;
+            if (IsRelevantTo(*element, viewpoint, known) == known) continue;
+
+            if (!known)
+            {
+                // Entering. Marking it dirty is all that is needed -- the form is chosen
+                // from _knownToPeers, which is still clear, so it goes out in full.
+                element->_dirtyPeers |= bit;
+                continue;
+            }
+
+            // Leaving. Deliberately not RemoveGameObject: the object still exists on the
+            // server and for every other peer, and only this one's copy is being dropped.
+            if (const uint32_t networkID = NetCode::GetLinkingContext().GetNetworkID(element.get(), false); networkID != NULL_ID)
+                replicationPeer.pendingDestroys.push_back(networkID);
+
+            element->_knownToPeers &= ~bit;
+            element->_dirtyPeers &= ~bit;
+        }
+    }
 }
 
 void Engine::Level::BuildDeltaBlobs()
 {
+    UpdateRelevance();
+
     _deltaBlobs.clear();
 
     for (auto& element : _gameObjects)
@@ -282,8 +415,15 @@ void Engine::Level::BuildDeltaBlobs()
         DeltaBlob& blob = _deltaBlobs.emplace_back();
         blob.object = element.get();
         blob.networkID = NetCode::GetLinkingContext().GetNetworkID(element.get());
-        blob.owedTo = owed;
-        element->Write(blob.payload);
+
+        // A peer that has never seen this object cannot read a delta of it -- there is
+        // no length prefix to skip past, so it would desynchronise the whole message.
+        // It gets the full record instead, which doubles as the spawn instruction.
+        blob.owedFull = owed & ~element->_knownToPeers;
+        blob.owedDelta = owed & element->_knownToPeers;
+
+        if (blob.owedFull != 0) element->Write(blob.fullPayload);
+        if (blob.owedDelta != 0) element->WriteDelta(blob.deltaPayload);
     }
 }
 
@@ -296,7 +436,7 @@ bool Engine::Level::HasPendingDelta(const NetCode::PeerID peer) const
 
     const uint32_t bit = 1u << slot;
     for (const auto& blob : _deltaBlobs)
-        if (blob.owedTo & bit)
+        if ((blob.owedFull | blob.owedDelta) & bit)
             return true;
 
     return false;
@@ -311,20 +451,23 @@ void Engine::Level::WriteDeltaFor(const NetCode::PeerID peer, NetCode::OutputByt
 
     uint32_t replicatedCount = 0;
     for (const auto& blob : _deltaBlobs)
-        if (blob.owedTo & bit)
+        if ((blob.owedFull | blob.owedDelta) & bit)
             ++replicatedCount;
 
     stream.Write(replicatedCount);
     for (const auto& blob : _deltaBlobs)
     {
-        if ((blob.owedTo & bit) == 0) continue;
+        const bool full = (blob.owedFull & bit) != 0;
+        if (!full && (blob.owedDelta & bit) == 0) continue;
 
         stream.Write(blob.networkID);
+        stream.Write(full);
 
         // Spliced bit-exactly out of the blob rather than re-serialized. The stream is
         // bit-granular and WriteBits copies at an arbitrary destination offset, so this
         // produces the identical bytes a direct Write would have, for a memcpy.
-        stream.WriteBits(blob.payload.GetBuffer(), blob.payload.GetBitLength());
+        const NetCode::OutputByteStream& payload = full ? blob.fullPayload : blob.deltaPayload;
+        stream.WriteBits(payload.GetBuffer(), payload.GetBitLength());
     }
 
     const std::vector<uint32_t>& destroys = _replicationPeers[slot].pendingDestroys;
@@ -343,8 +486,17 @@ void Engine::Level::CommitDeltaFor(const NetCode::PeerID peer)
     // Only the objects actually written are retired -- not every object with the bit
     // set -- so anything dirtied after the blobs were built still goes out next tick.
     for (const auto& blob : _deltaBlobs)
-        if (blob.owedTo & bit)
-            blob.object->_dirtyPeers &= ~bit;
+    {
+        if (((blob.owedFull | blob.owedDelta) & bit) == 0) continue;
+
+        blob.object->_dirtyPeers &= ~bit;
+
+        // Having received the full record, this peer can be sent deltas of it from now
+        // on. Set only on commit, for the same reason the dirty bit is cleared only on
+        // commit: a refused send means the peer never got the record.
+        if (blob.owedFull & bit)
+            blob.object->_knownToPeers |= bit;
+    }
 
     _replicationPeers[slot].pendingDestroys.clear();
 }
@@ -357,7 +509,27 @@ void Engine::Level::Read(NetCode::InputByteStream& stream)
     {
         uint32_t networkID;
         stream.Read(networkID);
-        if (const auto go = NetCode::GetLinkingContext().GetGameObject(networkID); go == nullptr)
+
+        bool full;
+        stream.Read(full);
+
+        const auto go = NetCode::GetLinkingContext().GetGameObject(networkID);
+
+        if (!full)
+        {
+            // A delta for an object we do not have cannot even be skipped -- nothing in
+            // the record says how long it is -- so the rest of the message goes with it.
+            if (go == nullptr)
+            {
+                DEBUG_LOG("Delta for unknown network id %u; the rest of this message is unreadable.", networkID)
+                return;
+            }
+
+            go->ReadDelta(stream);
+            continue;
+        }
+
+        if (go == nullptr)
         {
             const auto newGo = SpawnNewGameObjectFromInputStream(stream, networkID);
             DEBUG_LOG("Creating game object: %s", newGo->GetName().c_str())

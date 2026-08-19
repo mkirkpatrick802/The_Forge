@@ -1,4 +1,4 @@
-#include "Rigidbody.h"
+﻿#include "Rigidbody.h"
 
 #include <glm/glm.hpp>
 #include <glm/ext/scalar_constants.hpp>
@@ -12,6 +12,9 @@ Engine::Rigidbody::Rigidbody(): _velocity(), _acceleration(), _useAreaAsMass(tru
                                 _inverseMass(0),
                                 _static(false), _friction(0)
 {
+    // Velocity and acceleration change every tick, so this belongs in a delta -- but
+    // only the members marked REPLICATE() above actually go, not the whole component.
+    isReplicated = true;
 }
 
 void Engine::Rigidbody::OnActivation()

@@ -21,6 +21,8 @@ class Engine::GameObject;
 class FluxWrench : public Engine::Component
 {
 public:
+    FluxWrench();
+
     void Start() override;
     void Update(float deltaTime) override;
 

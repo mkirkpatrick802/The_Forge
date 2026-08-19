@@ -12,7 +12,24 @@
 #include "Engine/Rendering/Renderer.h"
 #include "Engine/Rendering/TextureLoader.h"
 
-Engine::LineRenderer::LineRenderer(): _size(), _start(), _end() { }
+Engine::LineRenderer::LineRenderer(): _size(), _start(), _end()
+{
+    // The endpoints move with whatever is drawing the line -- the flux wrench beam,
+    // for one -- so this has to be in the delta. See WriteDelta for what actually goes.
+    isReplicated = true;
+}
+
+void Engine::LineRenderer::WriteDelta(NetCode::OutputByteStream& stream) const
+{
+    stream.Write(_start);
+    stream.Write(_end);
+}
+
+void Engine::LineRenderer::ReadDelta(NetCode::InputByteStream& stream)
+{
+    stream.Read(_start);
+    stream.Read(_end);
+}
 
 void Engine::LineRenderer::OnActivation()
 {

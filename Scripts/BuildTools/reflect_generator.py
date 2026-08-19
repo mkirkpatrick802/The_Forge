@@ -57,6 +57,44 @@ def find_h_files(root_dir):
                 full_path = os.path.join(dirpath, filename)
                 yield full_path
 
+# The namespaces a class sits inside, outermost first.
+#
+# The generated definition has to be written inside them: a member function can only
+# be defined with its class in scope, and emitting a bare `Rigidbody::GetReflectionInfo`
+# for `Engine::Rigidbody` produces a wall of "undeclared identifier" that says nothing
+# about namespaces. Brace counting is approximate -- a brace inside a comment or string
+# before the class would throw it off -- but headers that reach here are ordinary
+# declarations, and a wrong answer fails loudly at compile time rather than silently.
+def find_enclosing_namespaces(content, class_pos):
+    ns_re = re.compile(r'\bnamespace\s+(\w+)\s*\{')
+
+    names = []
+    depths = []
+    depth = 0
+    i = 0
+
+    while i < class_pos:
+        match = ns_re.match(content, i)
+        if match:
+            names.append(match.group(1))
+            depths.append(depth)
+            depth += 1
+            i = match.end()
+            continue
+
+        char = content[i]
+        if char == '{':
+            depth += 1
+        elif char == '}':
+            depth -= 1
+            while depths and depth <= depths[-1]:
+                names.pop()
+                depths.pop()
+        i += 1
+
+    return names
+
+
 # Process each header to find REFLECT() classes and generate reflection
 def parse_class_and_generate(file_path):
     print(f"\n=== Parsing: {file_path} ===")
@@ -64,7 +102,11 @@ def parse_class_and_generate(file_path):
         content = f.read()
 
     # Match class with REFLECT() macro inside body
-    class_match = re.search(r'class\s+(\w+)(\s*:\s*[^{]+)?\s*{[^}]*?REFLECT\(\)', content, re.DOTALL)
+    # 'final' sits between the name and the base list, and without it here a
+    # `class Foo final : public Bar` was silently invisible to the generator --
+    # no REFLECT() found, no .reflected.cpp, and a link error naming
+    # GetReflectionInfo as the only symptom.
+    class_match = re.search(r'class\s+(\w+)(?:\s+final)?(\s*:\s*[^{]+)?\s*{[^}]*?REFLECT\(\)', content, re.DOTALL)
     if not class_match:
         print(f"[!] No REFLECT() class found in {file_path}")
         return
@@ -76,7 +118,9 @@ def parse_class_and_generate(file_path):
         return
 
     class_body = extract_class_body(content, class_start)
-    print(f"[OK] Found REFLECT() class: {class_name}")
+    namespaces = find_enclosing_namespaces(content, class_match.start())
+    qualified_name = '::'.join(namespaces + [class_name])
+    print(f"[OK] Found REFLECT() class: {qualified_name}")
 
     members = []
     pending_replicate = False
@@ -140,15 +184,44 @@ def parse_class_and_generate(file_path):
     reflected_path = file_path.replace('.h', '.reflected.cpp')
     with open(reflected_path, 'w') as f:
         f.write(f'#include "{os.path.basename(file_path)}"\n')
-        f.write('#include <cstddef>\n\n')
+        f.write('#include <cstddef>\n')
+        if any(m[2] for m in members):
+            f.write('#include <type_traits>\n')
+        f.write('\n')
+
+        for ns in namespaces:
+            f.write(f'namespace {ns} {{\n')
+        if namespaces:
+            f.write('\n')
         f.write(f'ReflectionInfo* {class_name}::GetReflectionInfo() {{\n')
+
+        # A REPLICATE()'d member is copied by the generic walker in Component.cpp using
+        # nothing but its offset and size, so it has to be trivially copyable. Asserting
+        # it turns a bad mark -- REPLICATE() on a std::string, say -- into a compile error
+        # naming the member, instead of silently putting a pointer on the wire.
+        #
+        # Inside the function body, not at namespace scope: reflected members are usually
+        # private, and only a member function may name them. offsetof and sizeof below
+        # are in the body for the same reason.
+        replicated = [m for m in members if m[2]]
+        for var_type, var_name, _ in replicated:
+            f.write(f'    static_assert(std::is_trivially_copyable_v<decltype({class_name}::{var_name})>,\n')
+            f.write(f'        \"REPLICATE() on {class_name}::{var_name}: only trivially copyable members can be replicated by reflection.\");\n')
+        if replicated:
+            f.write('\n')
+
         f.write('    static ReflectionInfo info = {\n')
-        f.write(f'        "{class_name}", {{\n')
+        f.write(f'        "{qualified_name}", {{\n')
         for var_type, var_name, replicate in members:
             # Field order must match MemberInfo in ReflectionUtils.h:
-            # {name, offset, type, replicate}
-            f.write(f'            MemberInfo{{"{var_name}", offsetof({class_name}, {var_name}), "{var_type}", {"true" if replicate else "false"}}},\n')
+            # {name, offset, size, type, replicate}
+            f.write(f'            MemberInfo{{"{var_name}", offsetof({class_name}, {var_name}), sizeof({class_name}::{var_name}), "{var_type}", {"true" if replicate else "false"}}},\n')
         f.write('        }\n    };\n    return &info;\n}\n')
+
+        if namespaces:
+            f.write('\n')
+        for ns in reversed(namespaces):
+            f.write(f'}} // namespace {ns}\n')
 
     print(f"[OK] Generated reflection: {reflected_path}")
 

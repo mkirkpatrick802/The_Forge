@@ -4,6 +4,7 @@
 #include "JsonKeywords.h"
 #include "Level.h"
 #include "LinkingContext.h"
+#include "System.h"
 #include "Components/ComponentFactories.h"
 #include "Components/ComponentRegistry.h"
 #include "Components/Transform.h"
@@ -268,6 +269,49 @@ void Engine::GameObject::Read(NetCode::InputByteStream& stream)
         {
             it->second->Read(stream);
         }
+    }
+}
+
+void Engine::GameObject::WriteDelta(NetCode::OutputByteStream& stream) const
+{
+    uint32_t componentCount = 0;
+    for (const auto& component : _components | std::views::values)
+        if (component->isReplicated)
+            ++componentCount;
+
+    stream.Write(componentCount);
+    for (const auto& component : _components | std::views::values)
+    {
+        if (!component->isReplicated) continue;
+
+        const uint32_t componentID = GetComponentRegistry().GetComponentID(typeid(*component));
+        stream.Write(componentID);
+        component->WriteDelta(stream);
+    }
+}
+
+void Engine::GameObject::ReadDelta(NetCode::InputByteStream& stream)
+{
+    uint32_t componentCount;
+    stream.Read(componentCount);
+    for (uint32_t i = 0; i < componentCount; i++)
+    {
+        uint32_t componentID;
+        stream.Read(componentID);
+        const auto type = GetComponentRegistry().GetComponentTypeFromID(componentID);
+
+        // Unlike the full form this never creates a missing component. A delta only
+        // reaches a peer that already has the object, and the sender only writes
+        // components it knows are replicated -- so a component missing here means the
+        // two ends disagree about the object, which creating one would paper over.
+        const auto it = _components.find(type);
+        if (it == _components.end())
+        {
+            DEBUG_LOG("Delta for %s named a component this object does not have; the rest of this message is unreadable.", _name.c_str())
+            return;
+        }
+
+        it->second->ReadDelta(stream);
     }
 }
 

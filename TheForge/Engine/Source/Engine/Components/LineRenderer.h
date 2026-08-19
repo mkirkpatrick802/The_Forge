@@ -25,6 +25,13 @@ namespace Engine
 
         virtual void Write(NetCode::OutputByteStream& stream) const override;
         virtual void Read(NetCode::InputByteStream& stream) override;
+
+        // Written by hand rather than driven by REPLICATE(), because this class
+        // multiply inherits and offsetof is not dependable on that layout. The two
+        // endpoints are all that moves; the shader and sprite paths the full Write
+        // carries are established once and must never ride a 30Hz delta.
+        void WriteDelta(NetCode::OutputByteStream& stream) const override;
+        void ReadDelta(NetCode::InputByteStream& stream) override;
         
         // Editor Properties 
         void DrawDetails() override;

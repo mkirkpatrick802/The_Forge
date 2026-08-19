@@ -17,6 +17,13 @@
 
 using namespace Engine;
 
+FluxWrench::FluxWrench()
+{
+    // Its Write is already only _currentState and _endpoint, both of which change, so
+    // it marks no REPLICATE() members and Component::WriteDelta falls back to Write.
+    isReplicated = true;
+}
+
 void FluxWrench::Start()
 {
     _resourceManager = gameObject->GetComponent<ResourceManager>();

@@ -44,8 +44,18 @@ namespace Engine
     private:
         void UpdateWorldTransform() const;
         
+        // The whole object: identity, hierarchy and every component in full. Enough to
+        // construct it from nothing, so it is what a peer that has never seen this
+        // object gets -- in the complete world state, or in a delta the first time.
         void Write(NetCode::OutputByteStream& stream);
         void Read(NetCode::InputByteStream& stream);
+
+        // The per-tick form: only components with isReplicated, and only their changing
+        // members. Name, parent and child links are omitted entirely -- they are
+        // established by the full form and a peer only ever gets a delta for an object
+        // it already has.
+        void WriteDelta(NetCode::OutputByteStream& stream) const;
+        void ReadDelta(NetCode::InputByteStream& stream);
 
         void LinkFamily();
         
@@ -73,6 +83,12 @@ namespace Engine
         // Bit N is set while the peer in the level's replication slot N is still
         // owed this object's state. Width is NetCode::MAX_REPLICATION_PEERS.
         uint32_t _dirtyPeers = 0;
+
+        // Bit N is set once the peer in slot N has been sent this object in full. It is
+        // what decides which of the two forms above that peer gets: a delta describes a
+        // change to something the receiver already has, so sending one for an object it
+        // has never seen is unreadable -- there is no length prefix to skip past.
+        uint32_t _knownToPeers = 0;
 
         GameObject* _parent;
         Array<GameObject*> _children;

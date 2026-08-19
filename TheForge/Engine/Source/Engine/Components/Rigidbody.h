@@ -1,10 +1,12 @@
-#pragma once
+﻿#pragma once
 #include "ComponentUtils.h"
 
 namespace Engine
 {
     class Rigidbody final : public Component
     {
+        REFLECT()
+
     public:
         Rigidbody();
         void OnActivation() override;
@@ -26,7 +28,11 @@ namespace Engine
         void CalculateInverseMass();
         
     private:
+        // Only these two change while the body is alive; everything below is set up
+        // once and already travels in the full object record.
+        REPLICATE()
         glm::vec2 _velocity;
+        REPLICATE()
         glm::vec2 _acceleration;
 
         bool _useAreaAsMass;

@@ -16,6 +16,13 @@
 
 SpaceGrid::SpaceGrid() : _gen(std::random_device{}()), _gridSize(2,2)
 {
+    // Tiles change as pieces are placed, so this belongs in a delta -- but nothing
+    // currently calls MarkDirty() for the grid, so it is inert until something does.
+    //
+    // When something does: its Write carries IRenderable's two shader paths and every
+    // tile, so it wants a WriteDelta override before it goes anywhere near a 30Hz
+    // update. Placement is rare enough that the dirty flag alone bounds it for now.
+    isReplicated = true;
     
 }
 

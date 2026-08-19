@@ -6,6 +6,9 @@
 
 Engine::Transform::Transform(): _position(), _localPosition(), _rotation(0), _localRotation(0)
 {
+    // Every member of this one changes, so its full Write is already minimal and it
+    // deliberately marks no REPLICATE() members -- Component::WriteDelta falls back.
+    isReplicated = true;
     
 }
 
