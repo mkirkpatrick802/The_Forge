@@ -1,6 +1,7 @@
 ﻿#include "PlayerController.h"
 
 #include "NetworkManager.h"
+#include "Engine/LaunchOptions.h"
 #include "Engine/Rendering/CameraManager.h"
 
 void Engine::PlayerController::Start()
@@ -31,5 +32,10 @@ void Engine::PlayerController::Read(NetCode::InputByteStream& stream)
 
 bool Engine::PlayerController::IsLocalPlayer() const
 {
+    // A dedicated server has no local player, so nothing it simulates is ever
+    // "local". Without this, an unassigned pawn (_controllingPlayer == 0) would
+    // match the server's own placeholder id and start collecting local input.
+    if (GetLaunchOptions().IsDedicatedServer()) return false;
+
     return _controllingPlayer == NetCode::GetNetworkManager().GetLocalUserID();
 }

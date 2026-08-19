@@ -29,8 +29,13 @@ namespace Engine
 
     protected:
         void Render(const ShaderUniformData& data) override;
+        void EnsureResourcesResident() override;
+        void InvalidateResources() override;
 
     private:
+        // The path is the durable state: it is what gets serialized and replicated,
+        // and it survives whether or not the texture has been uploaded yet.
+        std::string _spritePath;
         std::unique_ptr<Texture> _texture;
         glm::vec2 _size;
         bool _isScreenSpace;

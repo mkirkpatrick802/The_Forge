@@ -2,6 +2,7 @@
 #include "Engine/GameEngine.h"
 #include "Engine/LaunchOptions.h"
 #include "Engine/System.h"
+#include "NetworkManager.h"
 
 using namespace Engine;
 using namespace Editor;
@@ -12,14 +13,14 @@ int main(int argc, char** argv)
     ParseLaunchOptions(argc, argv);
     const LaunchOptions& options = GetLaunchOptions();
 
-    // The dedicated server model uses its own transport, so there is no Steam
-    // identity to establish and no reason to require a running Steam client.
-    if (options.UsesDedicatedServerModel())
-        REQUIRE_GAMER_SERVICES = false;
+    // The dedicated server model uses its own transport, and --no-steam covers
+    // editor/offline work -- neither has a reason to need a running Steam client.
+    REQUIRE_GAMER_SERVICES = options.RequiresSteam();
 
-    // Created even when headless -- it is hidden in that case, but the GL context
-    // it carries is what lets a level load its shaders and textures normally.
-    CreateAppWindow();
+    // No window, and therefore no GL context, when headless. Level loading creates
+    // no GPU resources, so a dedicated server needs neither.
+    if (!options.headless)
+        CreateAppWindow();
 
 #ifdef DEBUG
     // The editor is a single-player authoring tool -- never bring it up for a
@@ -29,5 +30,11 @@ int main(int argc, char** argv)
     GetEngineManager().ToggleEditor("0");
 #endif
 
+    // The transport is chosen and started by the NetworkManager -- Steam, UDP or
+    // none, depending on the role parsed above. It comes up in StartNetCode() once
+    // the level exists, so a connection can never be accepted with nothing to
+    // spawn into.
     GetGameEngine().StartGameplayLoop();
+
+    NetCode::GetNetworkManager().ShutdownNetCode();
 }

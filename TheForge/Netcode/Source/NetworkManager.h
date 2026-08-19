@@ -1,11 +1,10 @@
-﻿#pragma once
+#pragma once
 #include <cstdint>
-#include <list>
-#include <queue>
+#include <memory>
 #include <string>
 
 #include "ByteStream.h"
-#include "GamerServices.h"
+#include "INetTransport.h"
 
 namespace Engine
 {
@@ -35,20 +34,11 @@ namespace NetCode
         PT_Max
     };
     
-    class ReceivedPacket
-    {
-    public:
-        ReceivedPacket(const InputByteStream& inStream, const uint64_t inFromPlayer) : _stream(inStream), _playerID(inFromPlayer) {}
-
-        uint64_t GetFromPlayer() const { return _playerID; }
-        InputByteStream& GetByteStream() { return _stream; }
-
-    private:
-        InputByteStream	_stream;
-        uint64_t _playerID;
-
-    };
-    
+    // Game-side networking: what to send, when to send it, and what arriving
+    // messages mean. How any of it reaches the wire is INetTransport's problem.
+    //
+    // Everything below is transport-agnostic -- there is no Steam or UDP in here,
+    // and adding a third transport should not need this file to change.
     class NetworkManager
     {
     public:
@@ -56,15 +46,19 @@ namespace NetCode
         NetworkManager();
         ~NetworkManager();
 
+        // Joins or hosts a session. Called once the level exists, because onboarding
+        // a peer spawns into it -- a transport brought up any earlier could accept a
+        // connection with nothing to spawn into.
         void StartNetCode();
+
+        // Closes the session. Safe to call twice; the destructor calls it too.
+        void ShutdownNetCode();
 
         void Update();
 
-        // Process Incoming Packets
+        void ProcessConnectionEvents();
         void ProcessIncomingPackets();
-        void ReadIncomingPacketsIntoQueue();
-        void ProcessQueuedPackets();
-        void ProcessPacket(InputByteStream& stream, uint64_t playerID);
+        void ProcessPacket(InputByteStream& stream, PeerID peer);
 
         // Prep World State Update
         void SendWorldStateUpdate();
@@ -72,33 +66,25 @@ namespace NetCode
         // Client -> host input. Clients send their input to the authority, which
         // simulates it and replicates the resulting state back out.
         void SendClientInput();
-        void ApplyClientInput(InputByteStream& stream, uint64_t playerID);
+        void ApplyClientInput(InputByteStream& stream, PeerID peer);
 
-        // True when this machine simulates the world: the lobby owner, or any time
-        // we aren't in a multiplayer session at all (offline / solo).
-        bool HasWorldAuthority() const { return _isOwner || _playerCount <= 1; }
+        // True when this machine simulates the world. Offline counts: a game with
+        // nobody to talk to still has to run itself.
+        bool HasWorldAuthority() const { return _transport->IsAuthority(); }
 
-        void EnterLobby(uint64_t lobbyID);
-        void UpdateLobbyPlayers();
-        
-        void OnboardNewPlayer(uint64_t playerID);
-        
-        bool IsPlayerInGame(uint64_t playerID) const;
-        void HandleConnectionReset(uint64_t playerID);
+        // Spawns a pawn for a peer and brings it up to date. Authority only.
+        void OnboardNewPlayer(PeerID peer);
+        void HandlePeerDisconnected(PeerID peer);
+
+        INetTransport& GetTransport() const { return *_transport; }
 
     private:
-        Engine::PlayerController* FindPlayerController(uint64_t playerID) const;
+        Engine::PlayerController* FindPlayerController(PeerID peer) const;
 
     private:
-        NetworkManagerState	_state;
-        uint64_t _lobbyID;
-        uint64_t _ownerID;
-        uint64_t _localUserID;
-        
-        int _playerCount;
-        bool _isOwner;
-        std::map<uint64_t, std::string> _playerNames;
-        std::queue<ReceivedPacket, std::list<ReceivedPacket>> _packetQueue;
+        std::unique_ptr<INetTransport> _transport;
+        NetworkManagerState	_state = NMS_Unitialized;
+        bool _shutdown = false;
 
         uint64_t _lastUpdateSentTicks = 0;
         uint64_t _lastInputSentTicks = 0;
@@ -107,12 +93,10 @@ namespace NetCode
         // Milliseconds between world state updates -- compared against Engine::Time::GetTicks(),
         // which is SDL_GetTicks64(). 33ms is roughly 30Hz.
         uint64_t _targetStateUpdateDelayMs = 33;
-        std::unordered_map<uint64_t, std::vector<uint8_t>> _reassemblyBuffer;
 
     public:
-        bool GetIsOwner() const { return _isOwner; }
-        uint64_t GetLocalUserID() const { return _localUserID; }
-        int GetPlayerCount() const { return _playerCount; }
+        PeerID GetLocalUserID() const { return _transport->GetLocalPeerID(); }
+        bool GetIsOwner() const { return _transport->IsAuthority(); }
     };
 
     inline NetworkManager& GetNetworkManager()

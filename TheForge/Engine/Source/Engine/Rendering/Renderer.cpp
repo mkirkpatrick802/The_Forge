@@ -19,6 +19,11 @@
 Engine::Context Engine::Renderer::_context = nullptr;
 Engine::Renderer::Renderer()
 {
+	// The object is always constructed -- renderables register with it through
+	// GetRenderer() regardless -- but with no window there is no GL context to set
+	// up, and nothing will ever be drawn.
+	if (GetLaunchOptions().headless) return;
+
 	CreateRenderer();
 	UIManager::Init();
 }
@@ -135,6 +140,10 @@ void Engine::Renderer::Render()
 			{
 				if (const auto go = val->GetGameObject())
 				{
+					// GPU resources are created here, on first draw, rather than at
+					// load -- this is the only place that needs a GL context.
+					val->EnsureResourcesResident();
+
 					auto data = ShaderUniformSystem::CollectUniforms(go);
 					val->Render(data);
 				}
@@ -173,6 +182,8 @@ void Engine::Renderer::Render()
 
 Engine::Renderer::~Renderer()
 {
+	if (GetLaunchOptions().headless) return;
+
 	UIManager::CleanUp();
 	BufferRegistry::GetRegistry()->CleanUp();
 

@@ -51,6 +51,11 @@ void Engine::Level::Load(nlohmann::json data)
 void Engine::Level::Load(NetCode::InputByteStream& stream)
 {
     Read(stream);
+
+    // Deliberately no game mode. A level only ever arrives over the wire on a
+    // machine that is not the authority, and the game mode is the authority's --
+    // it decides spawns and rules, which a client must never do for itself. The
+    // JSON path builds one because that is how the authority's own level loads.
 }
 
 void Engine::Level::Start() const

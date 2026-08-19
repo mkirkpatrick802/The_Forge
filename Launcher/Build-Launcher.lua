@@ -44,23 +44,21 @@ project "Launcher"
        "{COPY} Assets %{cfg.targetdir}/Assets"
    }
 
-   -- Generate the postbuild command to copy DLLs from each module
+   -- See Build-Steel.lua for why these are "if exist"-guarded rather than {COPY},
+   -- and why the module's DLLs are not deleted after copying.
+   -- Backslashes, not %{cfg.targetdir} -- see Build-Steel.lua.
+   local binRoot = "..\\Binaries\\%{cfg.system}-%{cfg.architecture}\\%{cfg.buildcfg}"
+
    for _, module in ipairs(modules) do
 
-       local copyCommand = "{COPY} "
-       copyCommand = copyCommand .. "%{cfg.targetdir}/../" .. module .. "/*.dll"
-       copyCommand = copyCommand .. " %{cfg.targetdir}"
+       local moduleDir = binRoot .. "\\" .. module
+       local targetDir = binRoot .. "\\%{prj.name}"
 
-       postbuildcommands { copyCommand }
-
-       local assetCopy = "{COPY} "
-       assetCopy = assetCopy .. "%{cfg.targetdir}/../" .. module .. "/Assets"
-       assetCopy = assetCopy .. " %{cfg.targetdir}/Assets"
-
-       postbuildcommands { assetCopy }
-
-       -- See Build-Steel.lua: the module's DLLs are deliberately not deleted after
-       -- copying, since both this and the game copy from the same module dir.
+       postbuildcommands
+       {
+           'if exist "' .. moduleDir .. '\\*.dll" xcopy /Q /Y /I "' .. moduleDir .. '\\*.dll" "' .. targetDir .. '" > nul',
+           'if exist "' .. moduleDir .. '\\Assets" xcopy /Q /E /Y /I "' .. moduleDir .. '\\Assets" "' .. targetDir .. '\\Assets" > nul'
+       }
    end
 
    targetdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")

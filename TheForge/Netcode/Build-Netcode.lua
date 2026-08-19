@@ -1,4 +1,5 @@
-os.execute('del /S /Q "*.vcxproj" 2>nul')
+-- (Removed a recursive "del /S /Q *.vcxproj" that ran at include time against the
+--  current working directory. See the note at the top of Build.lua.)
 
 project "Netcode"
    kind "StaticLib"
@@ -25,7 +26,9 @@ project "Netcode"
        systemversion "latest"
        defines { }
        libdirs { "Vendors/SteamSDK/bin", "Vendors/SteamSDK/bin/win64"}
-       links   { "steam_api",  "steam_api64"}
+
+       -- ws2_32 is Winsock, used by the UDP transport under Source/Transport.
+       links   { "steam_api",  "steam_api64", "ws2_32"}
 
        postbuildcommands 
        {

@@ -3,6 +3,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "imgui.h"
+#include "Engine/AssetMetadata.h"
 #include "Engine/EngineManager.h"
 #include "Engine/GameEngine.h"
 #include "Engine/Level.h"
@@ -52,11 +53,11 @@ void SpaceGrid::InitTiles()
         {
             // Select a random index based on weights
             const size_t randomIndex = dist(_gen);
-            const Engine::Texture* sprite = _sprites[randomIndex].second.get();
-            if (!sprite) continue;
-            
-            glm::vec2 pos(x * (int)sprite->GetSize().x, y * (int)sprite->GetSize().y);
-            _tiles.emplace_back(pos + gameObject->GetWorldPosition(), sprite);
+            const SpriteAsset& sprite = _sprites[randomIndex].second;
+            if (sprite.path.empty() || sprite.size.x <= 0.0f || sprite.size.y <= 0.0f) continue;
+
+            glm::vec2 pos(x * (int)sprite.size.x, y * (int)sprite.size.y);
+            _tiles.emplace_back(pos + gameObject->GetWorldPosition(), sprite.path);
         }
     }
 }
@@ -82,19 +83,34 @@ void SpaceGrid::Render(const Engine::ShaderUniformData& data)
             if (fst.x >= cameraBottomLeft.x && fst.x < cameraTopRight.x &&
                 fst.y >= cameraBottomLeft.y && fst.y < cameraTopRight.y)
             {
-                RenderTile(snd, fst);
+                RenderTile(GetTileTexture(snd), fst);
             }
         }
         else if (Engine::GetEngineManager().IsEditorEnabled())
         {
-            RenderTile(snd, fst);
+            RenderTile(GetTileTexture(snd), fst);
         }
     }
 
 }
 
+const Engine::Texture* SpaceGrid::GetTileTexture(const std::string& path)
+{
+    if (path.empty()) return nullptr;
+
+    if (const auto it = _textureCache.find(path); it != _textureCache.end())
+        return it->second.get();
+
+    auto texture = CreateTexture(path, Engine::Texture::TextureType::PIXEL);
+    const Engine::Texture* raw = texture.get();
+    _textureCache.emplace(path, std::move(texture));
+    return raw;
+}
+
 void SpaceGrid::RenderTile(const Engine::Texture* sprite, const glm::vec2 pos)
 {
+    if (!sprite) return;
+
     shader.Use();
     auto model = glm::mat4(1.0f);
     auto screenPos = Engine::GetCameraManager().ConvertWorldToScreen(glm::vec2(pos.x - sprite->GetSize().x / 2.f, (pos.y * -1) - sprite->GetSize().y / 2.f));
@@ -137,18 +153,16 @@ void SpaceGrid::DrawDetails()
             // Drag & Drop File Button
             if (std::string path; Engine::ImGuiHelper::DragDropFileButton("Load", path, "FILE_PATH"))
             {
-                sprite.second.reset();
-                sprite.second = CreateTexture(path, Engine::Texture::TextureType::PIXEL);
+                // Importing here is what produces the sidecar a server later reads.
+                Engine::EnsureImageAssetImported(path);
+
+                sprite.second.path = path;
+                sprite.second.size = Engine::GetImageSize(path);
+                _textureCache.erase(path);
             }
 
-            // Show file path if texture is valid
-            if (sprite.second)
-            {
-                Engine::ImGuiHelper::DisplayFilePath("Path", sprite.second->GetFilePath());
-
-                // Show texture preview (optional)
-                //ImGui::Image((void*)(intptr_t)sprite.second->GetID(), ImVec2(50, 50));
-            }
+            if (!sprite.second.path.empty())
+                Engine::ImGuiHelper::DisplayFilePath("Path", sprite.second.path);
 
             ImGui::SameLine();
             
@@ -191,18 +205,16 @@ void SpaceGrid::Deserialize(const json& data)
         for (const auto& sprite_data : sprites_json)
         {
             int sprite_id = sprite_data["weight"];
-            
-            // Assuming Engine::Texture has a method to load texture from data
-            std::unique_ptr<Engine::Texture> texture = nullptr;
 
+            SpriteAsset sprite;
             if (sprite_data.contains("texture"))
             {
-                const std::string filepath = sprite_data["texture"];
-                texture = CreateTexture(filepath, Engine::Texture::TextureType::PIXEL);
+                sprite.path = sprite_data["texture"];
+                sprite.size = Engine::GetImageSize(sprite.path);
             }
 
             // Add the deserialized sprite to _sprites
-            _sprites.emplace_back(sprite_id, std::move(texture));
+            _sprites.emplace_back(sprite_id, std::move(sprite));
         }
     }
 
@@ -222,11 +234,8 @@ nlohmann::json SpaceGrid::Serialize()
         nlohmann::json sprite_data;
         sprite_data["weight"] = sprite.first;
 
-        // Serialize the texture data (adjust based on how Texture can be serialized)
-        if (sprite.second)
-        {
-            sprite_data["texture"] = sprite.second->GetFilePath(); // or whatever method gets the texture data
-        }
+        if (!sprite.second.path.empty())
+            sprite_data["texture"] = sprite.second.path;
 
         sprites_json.push_back(sprite_data);
     }
@@ -246,7 +255,7 @@ void SpaceGrid::Write(NetCode::OutputByteStream& stream) const
     for (const auto& [fst, snd] : _tiles)
     {
         stream.Write(fst);
-        stream.Write(snd->GetFilePath());
+        stream.Write(snd);
     }
 }
 
@@ -263,10 +272,7 @@ void SpaceGrid::Read(NetCode::InputByteStream& stream)
         std::string filepath;
         stream.Read(pos);
         stream.Read(filepath);
-        std::unique_ptr<Engine::Texture> texture = CreateTexture(filepath, Engine::Texture::TextureType::PIXEL);
-        std::pair tile(pos, texture.get());
-        _tiles.emplace_back(tile);
-        _overflow.push_back(std::move(texture));
+        _tiles.emplace_back(pos, filepath);
     }
 
     Engine::GetRenderer().AddComponentToRenderList(this);

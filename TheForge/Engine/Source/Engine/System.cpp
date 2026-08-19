@@ -102,19 +102,8 @@ SDL_Window* Engine::System::CreateAppWindow(const glm::vec2& size)
 	const bool useRequestedSize = size.x > 0.0f && size.y > 0.0f;
 
 	auto window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE | ImGuiWindowFlags_NoBringToFrontOnFocus | SDL_WINDOW_MOUSE_CAPTURE);
-
-	// A headless build still creates a window -- just an invisible one. Rendering is
-	// woven through the engine (VAOs, shaders and textures are all built while a
-	// level loads), so the cheap way to run without a display is to keep a real GL
-	// context on a hidden window rather than guard every GL call site.
-	if (GetLaunchOptions().headless)
-	{
-		window_flags = (SDL_WindowFlags)(window_flags | SDL_WINDOW_HIDDEN);
-	}
-	else if (!useRequestedSize)
-	{
+	if (!useRequestedSize)
 		window_flags = (SDL_WindowFlags)(window_flags | SDL_WINDOW_MAXIMIZED);
-	}
 
 	const int windowWidth = useRequestedSize ? (int)size.x : displayMode.w;
 	const int windowHeight = useRequestedSize ? (int)size.y : displayMode.h;
@@ -183,8 +172,11 @@ void Engine::System::LogToConsole(const char* format, ...) const
 		std::fflush(stdout);
 
 		// Also mirrored to a file: a dedicated server's console is often not where
-		// anyone is looking, and this survives a crash.
-		if (FILE* logFile = nullptr; fopen_s(&logFile, "server.log", "a") == 0 && logFile)
+		// anyone is looking, and this survives a crash. The name is per-role so a
+		// server and a client running from the same folder don't interleave.
+		const char* logName = GetLaunchOptions().IsDedicatedServer() ? "server.log" : "client.log";
+
+		if (FILE* logFile = nullptr; fopen_s(&logFile, logName, "a") == 0 && logFile)
 		{
 			std::fputs(buffer, logFile);
 			std::fputc('\n', logFile);

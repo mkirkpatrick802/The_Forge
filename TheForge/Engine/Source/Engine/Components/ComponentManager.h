@@ -85,6 +85,14 @@ namespace Engine
         for (auto& basePool : _componentPools | std::views::values)
         {
             auto activeComponents = basePool->GetGenericActive();
+
+            // A pool with nothing active has no element to type-test against, and
+            // indexing it would trip the debug CRT's bounds check. Every pool is
+            // registered at startup, so empty ones are the normal case -- this is
+            // reached the moment anything asks for a type no instance of which is
+            // currently alive.
+            if (activeComponents.empty()) continue;
+
             if (dynamic_cast<T*>(activeComponents[0]))
             {
                 results.insert(results.end(), activeComponents.begin(), activeComponents.end());

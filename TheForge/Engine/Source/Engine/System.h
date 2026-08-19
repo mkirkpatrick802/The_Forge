@@ -11,7 +11,9 @@
 #ifdef _DEBUG
 #define DEBUG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
 #else
-#define DBG_NEW new
+// Was DBG_NEW, which nothing referenced -- so every DEBUG_NEW in the codebase was
+// undefined outside Debug and Release simply did not compile.
+#define DEBUG_NEW new
 #endif
 
 #define DEBUG_LOG(Format, ...) Engine::System::GetInstance().LogToConsole(Format, ##__VA_ARGS__);

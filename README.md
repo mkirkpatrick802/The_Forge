@@ -1,41 +1,50 @@
-## Getting Started
-1. Clone the Repository – First, clone the repo to your local machine.
-2. Run Setup – Navigate to the scripts folder and run the .bat for your os. This will generate the .sln (solution) file needed to open the project in your IDE.
-3. When building the project in your IDE ensure that Project-Steel is the start-up project (Launcher is still in active development).
-## About
-I want this engine to focus on 2D pixel art games that provides lots of tools for sprite editing and network programming. My favorite games are multiplayer and pixel art based, and I would like a tool that makes it quick and easy for me to make games of these genres. This engine will be built in C++ and the build system will be using Premake and Lua. 
-### Current Features
-* Naïve JSON Serialization  
-* Basic Editor
-	- Level Creation / Selection
-	- Game Object Creation / Editing
-	- Content Browser
-	- Basic Prefab System
-- Component-Based Game Objects
-- Physics System
-	- Spatial Partitioning
-	- Rigidbodies
-* Flexible Render Pipeline
-	* Custom Shaders
-	* Visual Debugging Tools
-* Netcode
-	* Packet Splitting
-	* P2P Connections
-	* Client-Server Model (For Game Authority)
-	* Per Object Serialization
-### Planned Features
-* Enhanced Prefab Editing & Utilities
-* Debug Commands and Profiling
-* Streamlined JSON Serialization
-* Children Game Objects
-	* Local vs World Space
-* Enhanced Editor Readability
+# The Forge
 
-### Libraries
-* SDL2
-* Glad / OpenGL
-* FreeType
-* ImGui
-* Steam SDK
-* GLM
-* JSON
+A custom C++20 engine for 2D pixel-art games, focused on sprite tooling and network programming. Built with Premake and Lua. The demo game is **Project-Steel**.
+
+## Getting Started
+
+```
+Scripts\Setup-Solution-Windows.bat    once - installs premake and generates the solution
+Scripts\Build.bat                     reflect -> generate -> build
+Scripts\Run-Editor.bat                open the editor
+```
+
+Build through `Scripts\Build.bat` rather than the `.sln` directly. It runs reflection codegen, then premake, then MSBuild — in that order — which is what stops newly added source files from silently going missing from the build.
+
+### Running
+
+| Command | What it does | Needs Steam |
+|---|---|---|
+| `Scripts\Run-Editor.bat` | Editor / level authoring | No |
+| `Scripts\Run-Server.bat` | Headless dedicated server | No |
+| `Scripts\Run-Client.bat [address]` | Windowed client | No |
+| `Project-Steel.exe` | Steam P2P multiplayer | Yes |
+
+Useful flags: `--server`, `--connect <address>`, `--port <n>`, `--headless`, `--windowed`, `--no-steam`, `--net-loss <percent>`, `--net-selftest`.
+
+`Scripts\Clean.bat` removes generated artefacts.
+
+## Features
+
+**Core** — component-based game objects with pooling and a registry; physics with spatial partitioning and rigidbodies; quad-tree collision; JSON serialization for levels and prefabs.
+
+**Editor** — level creation and selection, game object editing, content browser, details panel, scene viewport, command terminal.
+
+**Rendering** — custom shaders, visual debugging tools, and lazy GPU resource creation so level loading touches no GPU.
+
+**Netcode** — host-authoritative world state replication with per-object serialization, client input replication, a Steam P2P transport, and a UDP transport with hand-rolled reliability, ordering and fragmentation.
+
+**Tooling** — reflection codegen via `REFLECT()` / `REPLICATE()`, import-time asset metadata sidecars, and a headless dedicated server mode that needs no GPU and no Steam client.
+
+## Status
+
+The dedicated server model is partly built. The UDP transport is complete and tested under simulated packet loss, but game data is not yet routed over it — a client connects successfully and shows no world. Steam P2P remains the working multiplayer path.
+
+## Libraries
+
+SDL2 · Glad/OpenGL · FreeType · ImGui · Steam SDK · GLM · nlohmann/json · stb_image
+
+## License
+
+See `LICENSE.txt`.

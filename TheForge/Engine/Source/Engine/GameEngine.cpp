@@ -15,6 +15,7 @@
 #include "System.h"
 #include "Time.h"
 #include "../../../Netcode/Source/GamerServices.h"
+#include "../../../Netcode/Source/Transport/UdpTransport.h"
 #include "Collisions/CollisionManager.h"
 #include "Components/ComponentManager.h"
 #include "Components/SpriteRenderer.h"
@@ -30,7 +31,11 @@ Engine::GameEngine::GameEngine()
 {
 	_renderer = std::make_unique<Renderer>();
 	_inputManager = std::make_unique<InputManager>();
-	_chat = std::make_unique<Chat>();
+
+	// Chat is an ImGui window driven by local key presses -- presentation only, and
+	// there is no ImGui context when headless.
+	if (!GetLaunchOptions().headless)
+		_chat = std::make_unique<Chat>();
 
 	EventSystem::GetInstance()->RegisterEvent("Editor Enabled", this, &GameEngine::SceneStartup);
 }
@@ -120,16 +125,14 @@ void Engine::GameEngine::StartGameplayLoop()
 			{
 				GetCollisionManager().Update();
 
-				// Both of these reach into Steam -- GamerServices directly, and the
-				// NetworkManager constructor via GetLocalPlayerID(). Neither is safe
-				// when Steam was opted out of, as a dedicated server does.
-				if (REQUIRE_GAMER_SERVICES)
-				{
-					NetCode::GetGamerService().Update();
-					NetCode::GetNetworkManager().Update();
-				}
+				// One call for every role. Whichever transport this process picked
+				// is pumped from inside, so nothing here needs to know whether Steam,
+				// UDP or nothing at all is underneath.
+				NetCode::GetNetworkManager().Update();
 
-				_chat->Update(deltaTime);
+				if (_chat)
+					_chat->Update(deltaTime);
+
 				GetComponentManager().UpdateComponents(deltaTime);
 				//std::cout << 1 / deltaTime << '\n';
 			}

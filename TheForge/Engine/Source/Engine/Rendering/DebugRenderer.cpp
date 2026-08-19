@@ -7,6 +7,7 @@
 #include "Font.h"
 #include "Engine/CommandRegistry.h"
 #include "Engine/CommandUtils.h"
+#include "Engine/LaunchOptions.h"
 #include "Engine/Time.h"
 
 Engine::DebugRenderer& Engine::DebugRenderer::GetInstance()
@@ -17,6 +18,11 @@ Engine::DebugRenderer& Engine::DebugRenderer::GetInstance()
 
 Engine::DebugRenderer::DebugRenderer()
 {
+    // Debug visualisation is pure presentation. Headless has no GL context, and
+    // this is a lazily-constructed singleton, so the first debug draw would
+    // otherwise build its GL resources here and crash.
+    if (GetLaunchOptions().headless) return;
+
     // Generate the VAO and VBO for line rendering
     glGenVertexArrays(1, &_lineVAO);
     glGenBuffers(1, &_lineVBO);
@@ -53,11 +59,16 @@ Engine::DebugRenderer::~DebugRenderer()
 
 void Engine::DebugRenderer::DrawLine(const glm::vec2& start, const glm::vec2& end, const glm::vec3& color)
 {
+    // Nothing consumes these when headless, and they would accumulate forever.
+    if (GetLaunchOptions().headless) return;
+
     _lines.emplace_back(GetCameraManager().ConvertWorldToScreen(glm::vec2(start.x, -start.y)), GetCameraManager().ConvertWorldToScreen(glm::vec2(end.x, -end.y)), color);
 }
 
 void Engine::DebugRenderer::DrawCircle(const glm::vec2& center, const float radius, const glm::vec3& color, const int segments)
 {
+    if (GetLaunchOptions().headless) return;
+
     const float angleStep = glm::two_pi<float>() / static_cast<float>(segments);
     for (int i = 0; i < segments; ++i)
     {

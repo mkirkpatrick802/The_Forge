@@ -17,6 +17,8 @@ namespace Engine
         
         void OnActivation() override;
         void Render(const ShaderUniformData& data) override;
+        void EnsureResourcesResident() override;
+        void InvalidateResources() override;
 
         virtual void Deserialize(const json& data) override;
         virtual nlohmann::json Serialize() override;
@@ -31,6 +33,9 @@ namespace Engine
         void RenderLine(glm::vec2 pos, glm::vec2 dir, glm::vec2 size);
         
     private:
+        // See SpriteRenderer: the path is the durable state, the texture is a GPU
+        // resource created lazily on first draw.
+        std::string _spritePath;
         std::unique_ptr<Texture> _texture;
         glm::vec2 _size;
         

@@ -22,6 +22,8 @@ namespace Engine
 
         void OnActivation() override;
         void Render(const ShaderUniformData& data) override;
+        void EnsureResourcesResident() override;
+        void InvalidateResources() override;
         
         void Deserialize(const json& data) override;
         nlohmann::json Serialize() override;

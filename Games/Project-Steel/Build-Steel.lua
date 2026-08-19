@@ -39,32 +39,45 @@ project "Project-Steel"
        "{COPY} \"../../TheForge/Engine/Assets\" \"Assets/Engine Assets\""
    }
    
+   -- Assets and Config are required to run, so they stay as {COPY}: if either is
+   -- missing the build should fail loudly. steam_appid.txt and imgui.ini are
+   -- optional -- the first only matters in Steam mode, and ImGui recreates the
+   -- second -- so a missing one must not fail the build.
    postbuildcommands
    {
-       "{COPY} Assets/steam_appid.txt %{cfg.targetdir}",
        "{COPY} Assets %{cfg.targetdir}/Assets",
        "{COPY} Config %{cfg.targetdir}/Config",
-       "{COPY} imgui.ini %{cfg.targetdir}"
+       'if exist "Assets\\steam_appid.txt" xcopy /Q /Y /I "Assets\\steam_appid.txt" "..\\..\\Binaries\\%{cfg.system}-%{cfg.architecture}\\%{cfg.buildcfg}\\%{prj.name}" > nul',
+       'if exist "imgui.ini" xcopy /Q /Y /I "imgui.ini" "..\\..\\Binaries\\%{cfg.system}-%{cfg.architecture}\\%{cfg.buildcfg}\\%{prj.name}" > nul'
    }
 
-   -- Generate the postbuild command to copy DLLs from each module
+   -- Copy each module's DLLs, and any assets it ships, out of that module's output
+   -- directory.
+   --
+   -- Both are guarded with "if exist" rather than premake's {COPY}: {COPY} always
+   -- invokes xcopy, which fails the whole build (MSB3073, xcopy exit code 4) when
+   -- the source is missing. That is a normal state here -- Netcode ships no Assets
+   -- folder, and a module may simply not have been built yet.
+   --
+   -- The module's DLLs are also deliberately NOT deleted after copying: every
+   -- consumer (this game, the Launcher) copies from the same module output dir, so
+   -- deleting them starves whichever project builds second.
+   -- Paths are spelled with backslashes rather than reusing %{cfg.targetdir}, which
+   -- expands with forward slashes. cmd's "if exist" silently evaluates false against
+   -- a forward-slash wildcard, which would turn every copy below into a no-op and
+   -- produce a clean build with no DLLs beside the exe.
+   local binRoot = "..\\..\\Binaries\\%{cfg.system}-%{cfg.architecture}\\%{cfg.buildcfg}"
+
    for _, module in ipairs(modules) do
 
-       local copyCommand = "{COPY} "
-       copyCommand = copyCommand .. "%{cfg.targetdir}/../" .. module .. "/*.dll"
-       copyCommand = copyCommand .. " %{cfg.targetdir}"
+       local moduleDir = binRoot .. "\\" .. module
+       local targetDir = binRoot .. "\\%{prj.name}"
 
-       postbuildcommands { copyCommand }
-
-       local assetCopy = "{COPY} "
-       assetCopy = assetCopy .. "%{cfg.targetdir}/../" .. module .. "/Assets"
-       assetCopy = assetCopy .. " %{cfg.targetdir}/Assets"
-
-       postbuildcommands { assetCopy }
-
-       -- The module's DLLs are deliberately NOT deleted after copying. Every
-       -- consumer (this game, the Launcher) copies from the same module output
-       -- dir, so deleting them starves whichever project builds second.
+       postbuildcommands
+       {
+           'if exist "' .. moduleDir .. '\\*.dll" xcopy /Q /Y /I "' .. moduleDir .. '\\*.dll" "' .. targetDir .. '" > nul',
+           'if exist "' .. moduleDir .. '\\Assets" xcopy /Q /E /Y /I "' .. moduleDir .. '\\Assets" "' .. targetDir .. '\\Assets" > nul'
+       }
    end
 
    targetdir ("../../Binaries/" .. OutputDir .. "/%{prj.name}")

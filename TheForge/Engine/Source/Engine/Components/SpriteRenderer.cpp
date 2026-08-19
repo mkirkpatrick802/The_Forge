@@ -6,6 +6,7 @@
 
 #include "ComponentRegistry.h"
 #include "imgui.h"
+#include "Engine/AssetMetadata.h"
 #include "Engine/GameEngine.h"
 #include "Engine/JsonKeywords.h"
 #include "Engine/Rendering/CameraHelper.h"
@@ -110,12 +111,13 @@ void Engine::SpriteRenderer::Deserialize(const json& data)
 
     if(data.contains(JsonKeywords::SPRITE_RENDERER_SPRITE))
     {
-        const std::string filepath = data[JsonKeywords::SPRITE_RENDERER_SPRITE];
-        _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
+        _spritePath = data[JsonKeywords::SPRITE_RENDERER_SPRITE];
+
+        // Size comes from the asset's import metadata, so no image is opened and no
+        // texture is uploaded until this sprite is actually drawn.
+        _size = GetImageSize(_spritePath);
+        InvalidateResources();
     }
-    
-    if(_texture)
-        _size = _texture->GetSize();
 
     if (data.contains("Is Screen Space"))
         _isScreenSpace = data["Is Screen Space"];
@@ -133,11 +135,8 @@ nlohmann::json Engine::SpriteRenderer::Serialize()
 {
     nlohmann::json data = IRenderable::Serialize();
 
-    if (_texture)
-    {
-        std::string filepath = _texture->GetFilePath();
-        data[JsonKeywords::SPRITE_RENDERER_SPRITE] = filepath;
-    }
+    if (!_spritePath.empty())
+        data[JsonKeywords::SPRITE_RENDERER_SPRITE] = _spritePath;
 
     data["Is Screen Space"] = _isScreenSpace;
     data["Screen Space X"] = _screenSpace.x;
@@ -149,23 +148,42 @@ nlohmann::json Engine::SpriteRenderer::Serialize()
 void Engine::SpriteRenderer::Write(NetCode::OutputByteStream& stream) const
 {
     IRenderable::Write(stream);
-    stream.Write(_texture->GetFilePath());
+    stream.Write(_spritePath);
 }
 
 void Engine::SpriteRenderer::Read(NetCode::InputByteStream& stream)
 {
     IRenderable::Read(stream);
-    
+
     std::string filepath;
     stream.Read(filepath);
 
-    if (!_texture)
+    if (_spritePath != filepath)
     {
-        _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
-        _size = _texture->GetSize();
+        _spritePath = filepath;
+        _size = GetImageSize(_spritePath);
+        InvalidateResources();
     }
 
     GetRenderer().AddComponentToRenderList(this);
+}
+
+void Engine::SpriteRenderer::EnsureResourcesResident()
+{
+    IRenderable::EnsureResourcesResident();
+
+    if (!_texture && !_spritePath.empty())
+    {
+        _texture = CreateTexture(_spritePath, Texture::TextureType::PIXEL);
+        if (_texture)
+            _size = _texture->GetSize();
+    }
+}
+
+void Engine::SpriteRenderer::InvalidateResources()
+{
+    IRenderable::InvalidateResources();
+    _texture.reset();
 }
 
 void Engine::SpriteRenderer::DrawDetails()
@@ -174,12 +192,15 @@ void Engine::SpriteRenderer::DrawDetails()
 
     if (std::string path; ImGuiHelper::DragDropFileButton("Sprite", path, "FILE_PATH"))
     {
-        _texture.reset();
-        _texture = CreateTexture(path, Texture::TextureType::PIXEL);
-        _size = _texture->GetSize();
+        // Importing here is what produces the sidecar a server later reads.
+        EnsureImageAssetImported(path);
+
+        _spritePath = path;
+        _size = GetImageSize(_spritePath);
+        InvalidateResources();
     }
 
-    ImGuiHelper::DisplayFilePath("Sprite Saved Path", _texture ? _texture->GetFilePath() : "");
+    ImGuiHelper::DisplayFilePath("Sprite Saved Path", _spritePath);
     ImGui::Spacing();
 
     ImGui::Checkbox("Is Screen Space", &_isScreenSpace);

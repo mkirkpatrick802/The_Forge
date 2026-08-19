@@ -3,6 +3,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "imgui.h"
+#include "Engine/AssetMetadata.h"
 #include "Engine/GameEngine.h"
 #include "Engine/JsonKeywords.h"
 #include "Engine/Rendering/CameraHelper.h"
@@ -72,30 +73,45 @@ void Engine::LineRenderer::RenderLine(glm::vec2 pos, glm::vec2 dir, glm::vec2 si
 void Engine::LineRenderer::Deserialize(const json& data)
 {
     IRenderable::Deserialize(data);
-    const std::string filepath = data[JsonKeywords::SPRITE_RENDERER_SPRITE];
-    _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
-    _size = _texture->GetSize();
+    _spritePath = data[JsonKeywords::SPRITE_RENDERER_SPRITE];
+    _size = GetImageSize(_spritePath);
+    InvalidateResources();
 
     GetRenderer().AddComponentToRenderList(this);
+}
+
+void Engine::LineRenderer::EnsureResourcesResident()
+{
+    IRenderable::EnsureResourcesResident();
+
+    if (!_texture && !_spritePath.empty())
+    {
+        _texture = CreateTexture(_spritePath, Texture::TextureType::PIXEL);
+        if (_texture)
+            _size = _texture->GetSize();
+    }
+}
+
+void Engine::LineRenderer::InvalidateResources()
+{
+    IRenderable::InvalidateResources();
+    _texture.reset();
 }
 
 nlohmann::json Engine::LineRenderer::Serialize()
 {
     nlohmann::json data = IRenderable::Serialize();
 
-    if (_texture)
-    {
-        std::string filepath = _texture->GetFilePath();
-        data[JsonKeywords::SPRITE_RENDERER_SPRITE] = filepath;
-    }
-    
+    if (!_spritePath.empty())
+        data[JsonKeywords::SPRITE_RENDERER_SPRITE] = _spritePath;
+
     return data;
 }
 
 void Engine::LineRenderer::Write(NetCode::OutputByteStream& stream) const
 {
     IRenderable::Write(stream);
-    stream.Write(_texture->GetFilePath());
+    stream.Write(_spritePath);
     stream.Write(_start);
     stream.Write(_end);
 }
@@ -107,10 +123,11 @@ void Engine::LineRenderer::Read(NetCode::InputByteStream& stream)
     std::string filepath;
     stream.Read(filepath);
 
-    if (!_texture)
+    if (_spritePath != filepath)
     {
-        _texture = CreateTexture(filepath, Texture::TextureType::PIXEL);
-        _size = _texture->GetSize();
+        _spritePath = filepath;
+        _size = GetImageSize(_spritePath);
+        InvalidateResources();
     }
 
     stream.Read(_start);
@@ -125,12 +142,14 @@ void Engine::LineRenderer::DrawDetails()
 
     if (std::string path; ImGuiHelper::DragDropFileButton("Sprite", path, "FILE_PATH"))
     {
-        _texture.reset();
-        _texture = CreateTexture(path, Texture::TextureType::PIXEL);
-        _size = _texture->GetSize();
+        EnsureImageAssetImported(path);
+
+        _spritePath = path;
+        _size = GetImageSize(_spritePath);
+        InvalidateResources();
     }
 
-    ImGuiHelper::DisplayFilePath("Sprite Saved Path", _texture ? _texture->GetFilePath() : "");
+    ImGuiHelper::DisplayFilePath("Sprite Saved Path", _spritePath);
 
     ImGui::Spacing();
 

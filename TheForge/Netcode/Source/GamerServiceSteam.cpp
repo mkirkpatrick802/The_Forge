@@ -3,6 +3,7 @@
 #include "ByteStream.h"
 #include "GamerServices.h"
 #include "NetworkManager.h"
+#include "Transport/SteamTransport.h"
 #include "Engine/System.h"
 #include "steam/steam_api.h"
 
@@ -81,7 +82,8 @@ void GamerServices::Impl::OnLobbyCreateCallback(LobbyCreated_t* inCallback, bool
         
         // Set our game so others can find this lobby
         SteamMatchmaking()->SetLobbyData(lobbyID, "game", GAME_NAME);
-        GetNetworkManager().EnterLobby(lobbyID.ConvertToUint64());
+        if (auto* transport = GetSteamTransport())
+            transport->EnterLobby(lobbyID.ConvertToUint64());
     }
 }
 
@@ -95,7 +97,8 @@ void GamerServices::Impl::OnLobbyEnteredCallback(LobbyEnter_t* inCallback, bool 
         DEBUG_LOG("Lobby joined!");
         DEBUG_LOG("Lobby host: %d", GetGamerService().GetOwnerID(lobbyID.ConvertToUint64()))
         
-        GetNetworkManager().EnterLobby(lobbyID.ConvertToUint64());
+        if (auto* transport = GetSteamTransport())
+            transport->EnterLobby(lobbyID.ConvertToUint64());
     }
     else
     {
@@ -105,28 +108,29 @@ void GamerServices::Impl::OnLobbyEnteredCallback(LobbyEnter_t* inCallback, bool 
 
 void GamerServices::Impl::OnLobbyChatUpdate(LobbyChatUpdate_t* inCallback)
 {
-    if (inCallback->m_rgfChatMemberStateChange & k_EChatMemberStateChangeLeft)
-    {
-        GetNetworkManager().HandleConnectionReset(inCallback->m_ulSteamIDUserChanged);
-    }
-    
-    if (inCallback->m_rgfChatMemberStateChange & k_EChatMemberStateChangeEntered)
-        if (GetNetworkManager().GetIsOwner())
-            GetNetworkManager().OnboardNewPlayer(inCallback->m_ulSteamIDUserChanged);
+    auto* transport = GetSteamTransport();
+    if (transport == nullptr) return;
 
-    GetNetworkManager().UpdateLobbyPlayers();
+    if (inCallback->m_rgfChatMemberStateChange & k_EChatMemberStateChangeLeft)
+        transport->OnPeerLeft(inCallback->m_ulSteamIDUserChanged);
+
+    if (inCallback->m_rgfChatMemberStateChange & k_EChatMemberStateChangeEntered)
+        transport->OnPeerEntered(inCallback->m_ulSteamIDUserChanged);
+
+    transport->UpdateLobbyPlayers();
 }
 
 void GamerServices::Impl::OnP2PSessionRequest( P2PSessionRequest_t* inCallback )
 {
     CSteamID playerID = inCallback->m_steamIDRemote;
-    if (GetNetworkManager().IsPlayerInGame(playerID.ConvertToUint64()))
+    if (const auto* transport = GetSteamTransport(); transport && transport->HasPeer(playerID.ConvertToUint64()))
         SteamNetworking()->AcceptP2PSessionWithUser(playerID);
 }
 
 void GamerServices::Impl::OnP2PSessionFail( P2PSessionConnectFail_t* inCallback )
 {
-    GetNetworkManager().HandleConnectionReset(inCallback->m_steamIDRemote.ConvertToUint64());
+    if (auto* transport = GetSteamTransport())
+        transport->OnPeerLeft(inCallback->m_steamIDRemote.ConvertToUint64());
 }
 /*
  *      Gamer Services Exclusive

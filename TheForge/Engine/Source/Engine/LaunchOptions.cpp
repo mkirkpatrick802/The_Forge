@@ -39,6 +39,19 @@ void Engine::ParseLaunchOptions(const int argc, char** argv)
 		{
 			options.headless = true;
 		}
+		else if (std::strcmp(arg, "--no-steam") == 0)
+		{
+			options.noSteam = true;
+		}
+		else if (std::strcmp(arg, "--net-loss") == 0 && hasValue)
+		{
+			const int percent = std::atoi(argv[++i]);
+			options.netLossPercent = static_cast<uint32_t>(percent < 0 ? 0 : (percent > 100 ? 100 : percent));
+		}
+		else if (std::strcmp(arg, "--net-selftest") == 0)
+		{
+			options.netSelfTest = true;
+		}
 		else if (std::strcmp(arg, "--windowed") == 0)
 		{
 			windowedRequested = true;

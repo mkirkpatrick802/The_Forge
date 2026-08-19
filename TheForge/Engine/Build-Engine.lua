@@ -1,4 +1,5 @@
-os.execute('del /S /Q "*.vcxproj" 2>nul')
+-- (Removed a recursive "del /S /Q *.vcxproj" that ran at include time against the
+--  current working directory. See the note at the top of Build.lua.)
 
 project "Engine"
    kind "StaticLib"

@@ -8,19 +8,32 @@
 #include "Engine/GameEngine.h"
 #include "Engine/JsonKeywords.h"
 
-Engine::IRenderable::IRenderable(): _quadVAO(0), _sortingLayer(0), _isHidden(false), _gameObject(nullptr)
+Engine::IRenderable::IRenderable(): _quadVAO(0), _resourcesResident(false), _sortingLayer(0), _isHidden(false), _gameObject(nullptr)
 {
 }
 
 Engine::IRenderable::~IRenderable()
 {
-    shader.Reset();
+    // Only touch GL if something was actually created. A headless build never
+    // renders, so it never has resources to release.
+    if (_resourcesResident)
+        shader.Reset();
+
     GetRenderer().RemoveComponentFromRenderList(this);
+}
+
+void Engine::IRenderable::EnsureResourcesResident()
+{
+    if (_resourcesResident) return;
+    _resourcesResident = true;
+
+    _quadVAO = RenderingUtils::GenerateVAO();
+    shader.Compile(_vertexShaderFilepath.c_str(), _fragmentShaderFilepath.c_str());
 }
 
 void Engine::IRenderable::InitRenderable(GameObject* go)
 {
-    _quadVAO = RenderingUtils::GenerateVAO();
+    // The VAO is deliberately not generated here -- see EnsureResourcesResident.
     _gameObject = go;
     GetRenderer().AddComponentToRenderList(this);
 }
@@ -33,7 +46,8 @@ void Engine::IRenderable::Deserialize(const nlohmann::json& data)
     if (data.contains(JsonKeywords::SPRITE_RENDERER_FRAGMENT_SHADER))
         _fragmentShaderFilepath = data[JsonKeywords::SPRITE_RENDERER_FRAGMENT_SHADER];
 
-    shader.Compile(_vertexShaderFilepath.c_str(), _fragmentShaderFilepath.c_str());
+    InvalidateResources();
+
     if (data.contains(JsonKeywords::SPRITE_RENDERER_SORTING_LAYER))
         _sortingLayer = data[JsonKeywords::SPRITE_RENDERER_SORTING_LAYER];
 
@@ -63,7 +77,7 @@ void Engine::IRenderable::Read(NetCode::InputByteStream& stream)
     stream.Read(_vertexShaderFilepath);
     stream.Read(_fragmentShaderFilepath);
 
-    shader.Compile(_vertexShaderFilepath.c_str(), _fragmentShaderFilepath.c_str());
+    InvalidateResources();
 }
 
 void Engine::IRenderable::DrawRenderableSettings()
@@ -79,14 +93,14 @@ void Engine::IRenderable::DrawRenderableSettings()
 
     if (ImGuiHelper::DragDropFileButton("Vert", _vertexShaderFilepath, "FILE_PATH"))
     {
-        shader.Compile(_vertexShaderFilepath.c_str(), _fragmentShaderFilepath.c_str());
+        InvalidateResources();
     }
 
     ImGui::SameLine();
 
     if (ImGuiHelper::DragDropFileButton("Frag", _fragmentShaderFilepath, "FILE_PATH"))
     {
-        shader.Compile(_vertexShaderFilepath.c_str(), _fragmentShaderFilepath.c_str());
+        InvalidateResources();
     }
 
     ImGui::Spacing();
