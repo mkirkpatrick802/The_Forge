@@ -1,7 +1,9 @@
 ﻿#pragma once
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace NetCode
 {
@@ -12,6 +14,23 @@ namespace NetCode
         static void Init();
         static void CleanUp();
         static std::unique_ptr<GamerServices> instance;
+
+        // --- authentication ---
+        // Asks Steam for a ticket proving this account is who it says it is, for a
+        // dedicated server to validate. Asynchronous: the ticket is not usable until
+        // IsAuthTicketReady returns true.
+        //
+        // Steam does hand back bytes immediately, but they are only guaranteed valid
+        // once it has confirmed the ticket with its backend -- sending early is the
+        // classic cause of a server seeing "auth ticket invalid" from a legitimate
+        // player, so this waits.
+        void RequestAuthTicket();
+        bool IsAuthTicketReady() const;
+        const std::vector<uint8_t>& GetAuthTicket() const;
+
+        // Releases the ticket. Called when leaving a server, so Steam stops believing
+        // this account is playing there.
+        void CancelAuthTicket();
 
         // General player functions
         uint64_t GetLocalPlayerID() const;

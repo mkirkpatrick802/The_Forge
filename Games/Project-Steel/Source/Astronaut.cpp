@@ -9,6 +9,7 @@
 
 #include "imgui_internal.h"
 #include "NetworkManager.h"
+#include "Engine/System.h"
 #include "ShipPiece.h"
 #include "Engine/Level.h"
 #include "Engine/LevelManager.h"
@@ -154,6 +155,11 @@ void Astronaut::ToggleBuildMode()
         glm::vec2 pos;
         GetInputManager().GetMousePos(pos);
         _placementPreview = LevelManager::GetCurrentLevel()->SpawnNewGameObject("Assets/Prefabs/Large Hallway Tile.prefab", GetCameraManager().ConvertScreenToWorld(pos));
+
+        // The preview carries the piece id that goes in the request. The prefab path
+        // above is only ever used locally -- what the server is told is the id.
+        if (const auto piece = _placementPreview->GetComponent<ShipPiece>())
+            piece->SetPieceType(EShipPieceType::Hallway);
     }
     else
     {
@@ -213,14 +219,16 @@ void Astronaut::FindPositionForShipPiece() const
 
 void Astronaut::PlaceShipPiece()
 {
-    if (const auto piece = _placementPreview->GetComponent<ShipPiece>())
-        if(!piece->Place())
-        {
-            return;
-        }
-    
-    _placementPreview = nullptr;
-    _placementPreview = LevelManager::GetCurrentLevel()->SpawnNewGameObject("Assets/Prefabs/Large Hallway Tile.prefab");
+    if (_placementPreview == nullptr) return;
+
+    const auto piece = _placementPreview->GetComponent<ShipPiece>();
+    if (piece == nullptr) return;
+
+    // Asks; does not build. The piece that ends up existing is spawned by the server
+    // and arrives through world state replication, so the preview stays a preview and
+    // is simply repositioned for the next placement.
+    if (!piece->RequestPlacement()) return;
+
     FindPositionForShipPiece();
 }
 

@@ -231,6 +231,25 @@ std::vector<NetCode::ReceivedMessage> NetCode::UdpTransport::TakeReceivedMessage
 	return out;
 }
 
+void NetCode::UdpTransport::KickConnection(const uint32_t connectionId)
+{
+	if (_mode != ETM_Server) return;
+
+	for (auto it = _connections.begin(); it != _connections.end(); ++it)
+	{
+		if (it->second.id != connectionId) continue;
+
+		// Best effort: the goodbye turns a kick into an immediate, explained
+		// disconnect on the client rather than a five second silence.
+		SendHeaderOnly(it->second.address, ETP_Disconnect, connectionId, &it->second.channel);
+
+		_connections.erase(it);
+		_disconnectedEvents.push_back(connectionId);
+		DEBUG_LOG("Transport: kicked client %u (%u remaining).", connectionId, GetConnectionCount())
+		return;
+	}
+}
+
 void NetCode::UdpTransport::TakeConnectionEvents(std::vector<uint32_t>& outConnected, std::vector<uint32_t>& outDisconnected)
 {
 	outConnected = std::move(_connectedEvents);

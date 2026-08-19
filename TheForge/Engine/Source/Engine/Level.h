@@ -56,6 +56,10 @@ namespace Engine
         
         std::vector<GameObject*> GetAllGameObjects() const;
         std::string GetName() { return _name; }
+
+        // Ticked by the gameplay loop. Authority only in practice -- a level that
+        // arrived over the wire has no game mode at all, by design.
+        void UpdateGameMode(float deltaTime) const;
         GameModeBase& GetGameMode() const { return *_gameMode; }
         
     private:
@@ -129,6 +133,7 @@ namespace Engine
         
         std::vector<std::unique_ptr<GameObject>> _gameObjects;
         std::unique_ptr<GameModeBase> _gameMode; // Only exists on the server
+        std::string _gameModeName;
 
         // One peer we replicate to. Destroyed objects are queued per peer for the same
         // reason dirty flags are tracked per peer: the old single list was drained by

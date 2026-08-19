@@ -3,7 +3,10 @@
 #include <vector>
 #include <memory>
 
-class GameObject;
+// GameObject is forward-declared by Component.h inside namespace Engine, which is
+// where the uses below resolve it. A second declaration at *global* scope used to sit
+// here: unused, and enough to make plain `GameObject` ambiguous in any translation
+// unit that says `using namespace Engine`.
 namespace Engine
 {
     const int INITIAL_POOL_SIZE = 50;

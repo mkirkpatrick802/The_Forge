@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "INetTransport.h"
 #include "UdpTransport.h"
 
@@ -24,6 +24,7 @@ namespace NetCode
 		std::vector<PeerID> GetRemotePeers() const override;
 		bool HasPeer(PeerID peer) const override;
 
+		void Disconnect(PeerID peer) override;
 		bool SendTo(PeerID peer, const OutputByteStream& stream, bool reliable) override;
 		std::vector<NetMessage> Receive() override;
 

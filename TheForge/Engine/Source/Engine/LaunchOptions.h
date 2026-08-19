@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <cstdint>
 #include <string>
 
@@ -21,6 +21,8 @@ namespace Engine
 	//   --no-steam           skip Steam entirely (editor / offline authoring)
 	//   --net-loss <percent> drop that %% of outgoing packets (transport testing)
 	//   --net-selftest       run the transport's reliable-delivery self-test
+	//   --insecure           dedicated server: accept players without Steam auth (dev only)
+	//   --gslt <token>       dedicated server: Steam game server login token
 	struct LaunchOptions
 	{
 		ENetRole role = ENetRole::ENR_Standalone;
@@ -34,15 +36,35 @@ namespace Engine
 		std::string serverAddress = "127.0.0.1";
 		uint16_t port = 7777;
 
+		// --- dedicated server authentication ---
+		// Accept players without proving who they are. Development and LAN only: it
+		// means a client's claimed SteamID is taken at its word, and anyone can claim
+		// any id. Opt-in rather than a fallback, so a server never quietly downgrades to
+		// unverified because the Steam redistributable happened to be missing.
+		bool insecure = false;
+
+		// Game Server Login Token from Steam's partner site. Ties the server to the
+		// appid and is what a publicly listed server needs; without one the server logs
+		// on anonymously, which Steam accepts for LAN and development.
+		std::string gsltToken;
+
 		bool IsDedicatedServer() const { return role == ENetRole::ENR_DedicatedServer; }
 		bool IsClient() const { return role == ENetRole::ENR_Client; }
 
 		// True for any role that talks to a dedicated server, i.e. not the Steam path.
 		bool UsesDedicatedServerModel() const { return role != ENetRole::ENR_Standalone; }
 
-		// Whether Steam should be initialised at all. The dedicated-server model has
-		// its own transport, and editor/offline work has no reason to need a client.
-		bool RequiresSteam() const { return !noSteam && !UsesDedicatedServerModel(); }
+		// Whether Steam should be initialised at all.
+		//
+		// A *client* wants Steam up even on the dedicated-server model, because that is
+		// where its identity comes from -- the SteamID and persona name a player is
+		// known by. Its game traffic still goes over UDP; transport and identity are
+		// separate concerns and only the transport is chosen by the role.
+		//
+		// A dedicated server does not: it has no local user to identify, and no Steam
+		// client to ask. Validating the identities its clients assert is a job for the
+		// Steam *game server* API, which is a separate dependency -- see PlayerIdentity.
+		bool RequiresSteam() const { return !noSteam && !IsDedicatedServer(); }
 	};
 
 	// Populates the process-wide options. Call once, first thing in main().

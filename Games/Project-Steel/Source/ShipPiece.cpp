@@ -6,6 +6,8 @@
 #include "Engine/Collisions/CollisionManager.h"
 #include "Engine/Components/RectangleCollider.h"
 #include "Engine/Rendering/DebugRenderer.h"
+#include "LinkingContext.h"
+#include "NetworkManager.h"
 
 using namespace Engine;
 
@@ -13,7 +15,11 @@ std::string SHIP_MANAGER_PREFAB = "Assets/Prefabs/Ship Manager.prefab";
 
 void ShipPiece::Start()
 {
-    gameObject->isReplicated = false;
+    // A preview is local scenery on one machine and must never go on the wire. A piece
+    // the server built is already past FinalizePlacement by the time this runs, so the
+    // flag is only cleared for pieces that really are previews.
+    if (_preview)
+        gameObject->isReplicated = false;
 
     _collider = gameObject->GetComponent<Collider>();
     if (gameObject->GetParent() == nullptr)
@@ -93,28 +99,116 @@ std::vector<glm::vec2> ShipPiece::GetGridPoints(glm::vec2 position, glm::vec2 si
     return gridPoints;
 }
 
-bool ShipPiece::Place()
+bool ShipPiece::RequestPlacement() const
 {
+    if (gameObject == nullptr) return false;
+
+    // A local overlap check first, so an obviously bad placement costs nothing and the
+    // player gets an immediate no. It is a courtesy, not a guarantee -- the server
+    // repeats it, because this one runs on a machine the server does not control.
     std::vector<Collider*> others;
-    if (GetCollisionManager().CheckCollisions(_collider, others)) return false;
-    
+    if (_collider != nullptr && GetCollisionManager().CheckCollisions(_collider, others))
+        return false;
+
+    const uint32_t attachID = _attachedToShip != nullptr
+        ? NetCode::GetLinkingContext().GetNetworkID(_attachedToShip->gameObject, false)
+        : NULL_ID;
+
+    NetCode::OutputByteStream payload;
+    payload.Write(static_cast<uint8_t>(_type));
+    payload.Write(gameObject->GetWorldPosition());
+    payload.Write(gameObject->GetWorldRotation());
+    payload.Write(attachID);
+
+    // The host runs its own request through the same handler a remote client's would
+    // reach, rather than calling the build code directly -- one set of rules, not two.
+    if (NetCode::GetNetworkManager().HasWorldAuthority())
+        return NetCode::GetNetworkManager().DispatchLocalRequest(SteelRequest::PlaceShipPiece, payload);
+
+    return NetCode::GetNetworkManager().SendRequest(SteelRequest::PlaceShipPiece, payload);
+}
+
+ShipPiece* ShipPiece::PlaceAuthoritative(const EShipPieceType type, const glm::vec2 position, const float rotation,
+                                         const uint32_t attachToNetworkID, Engine::GameObject* builder)
+{
+    const char* prefab = GetShipPiecePrefab(type);
+    if (prefab == nullptr) return nullptr;
+
+    // Range is checked against the builder's pawn, not against anything in the request.
+    // Without this a client can build anywhere on the map, including inside the other
+    // team's base.
+    if (builder != nullptr)
+    {
+        const glm::vec2 offset = position - builder->GetWorldPosition();
+        if (offset.x * offset.x + offset.y * offset.y > MAX_BUILD_DISTANCE * MAX_BUILD_DISTANCE)
+            return nullptr;
+    }
+
+    // Resolved through the linking context rather than trusted as a pointer: an id that
+    // names something which is not a ship piece is a request to refuse, not to follow.
+    ShipPiece* attachTo = nullptr;
+    if (attachToNetworkID != NULL_ID)
+    {
+        if (const auto attachGo = NetCode::GetLinkingContext().GetGameObject(attachToNetworkID))
+            attachTo = attachGo->GetComponent<ShipPiece>();
+
+        if (attachTo == nullptr) return nullptr;
+    }
+
+    Level* level = LevelManager::GetCurrentLevel();
+    if (level == nullptr) return nullptr;
+
+    GameObject* go = level->SpawnNewGameObject(prefab, position);
+    if (go == nullptr) return nullptr;
+
+    go->SetRotation(rotation);
+
+    const auto piece = go->GetComponent<ShipPiece>();
+    const auto collider = go->GetComponent<Collider>();
+    if (piece == nullptr || collider == nullptr)
+    {
+        level->RemoveGameObject(go, false);
+        return nullptr;
+    }
+
+    piece->_type = type;
+    piece->_collider = collider;
+
+    // The overlap test the client already did, repeated where it counts. Spawn-then-test
+    // rather than test-then-spawn because the collider is what gets tested, and it does
+    // not exist until the object does.
+    if (std::vector<Collider*> blocking; GetCollisionManager().CheckCollisions(collider, blocking))
+    {
+        level->RemoveGameObject(go, false);
+        return nullptr;
+    }
+
+    piece->FinalizePlacement(attachTo);
+    return piece;
+}
+
+void ShipPiece::FinalizePlacement(ShipPiece* attachTo)
+{
+    _preview = false;
+    _attachedToShip = attachTo;
+
     gameObject->isReplicated = true;
+
     _collider->SetCollisionResponseByObject(
-    ECollisionObjectType::ECOT_Player,
-        _collider->GetCollisionProfile().type == ECollisionObjectType::ECOT_Walkable 
+        ECollisionObjectType::ECOT_Player,
+        _collider->GetCollisionProfile().type == ECollisionObjectType::ECOT_Walkable
             ? ECollisionResponse::ECR_Overlap
             : ECollisionResponse::ECR_Block
     );
 
     if (_attachedToShip)
     {
-        const auto manager = _attachedToShip->gameObject->GetParent();
-        manager->AddChild(gameObject, true);
+        if (const auto manager = _attachedToShip->gameObject->GetParent())
+            manager->AddChild(gameObject, true);
     }
-    
+
     CreateShip();
     gameObject->MarkDirty();
-    return true;
 }
 
 void ShipPiece::CreateShip() const

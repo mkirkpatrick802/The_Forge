@@ -66,6 +66,11 @@ namespace NetCode
 		virtual std::vector<PeerID> GetRemotePeers() const = 0;
 		virtual bool HasPeer(PeerID peer) const = 0;
 
+		// Drops a peer, with a goodbye so it learns why rather than timing out. The
+		// disconnect is reported through TakeDisconnectedPeers like any other, so a
+		// kick and a departure clean up through exactly one path.
+		virtual void Disconnect(PeerID peer) {}
+
 		// --- messages ---
 		virtual bool SendTo(PeerID peer, const OutputByteStream& stream, bool reliable) = 0;
 

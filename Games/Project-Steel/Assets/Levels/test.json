@@ -1,4 +1,8 @@
 {
+    "Level Name": "test",
+    "Game Mode": "SteelGameMode",
+    "Size X": 10000.0,
+    "Size Y": 10000.0,
     "Level Game Objects": [
         {
             "Children": [],
@@ -1155,8 +1159,5 @@
             "Is Replicated": true,
             "Server Only": false
         }
-    ],
-    "Level Name": "test",
-    "Size X": 10000.0,
-    "Size Y": 10000.0
+    ]
 }

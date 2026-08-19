@@ -1,4 +1,4 @@
-#include "SteamTransport.h"
+﻿#include "SteamTransport.h"
 
 #include <ranges>
 
@@ -43,7 +43,8 @@ void NetCode::SteamTransport::Shutdown()
 void NetCode::SteamTransport::Update()
 {
 	// Pumps Steam's callbacks, which is what drives EnterLobby and the peer events.
-	GetGamerService().Update();
+	// Steam client callbacks are pumped by NetworkManager::Update for every transport,
+	// not just this one -- a UDP client still needs them for its auth ticket.
 }
 
 std::vector<NetCode::PeerID> NetCode::SteamTransport::GetRemotePeers() const

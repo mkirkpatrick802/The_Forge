@@ -38,16 +38,86 @@ struct GamerServices::Impl
     // Callback if the P2P connection fails
     STEAM_CALLBACK( Impl, OnP2PSessionFail, P2PSessionConnectFail_t, mSessionFailCallback );
 
+    // Confirms an auth ticket is ready to send to a server.
+    STEAM_CALLBACK( Impl, OnAuthTicketResponse, GetAuthSessionTicketResponse_t, mAuthTicketCallback );
+
     uint64_t gameID;
     CSteamID lobbyID;
+
+    // --- authentication ---
+    HAuthTicket authTicketHandle = k_HAuthTicketInvalid;
+    std::vector<uint8_t> authTicket;
+    bool authTicketReady = false;
 };
 
 GamerServices::Impl::Impl():
     mChatDataUpdateCallback(this, &Impl::OnLobbyChatUpdate),
     mSessionRequestCallback(this, &Impl::OnP2PSessionRequest),
     mSessionFailCallback(this, &Impl::OnP2PSessionFail),
+    mAuthTicketCallback(this, &Impl::OnAuthTicketResponse),
     gameID(SteamUtils()->GetAppID())
 {
+}
+
+void GamerServices::Impl::OnAuthTicketResponse(GetAuthSessionTicketResponse_t* inCallback)
+{
+    if (inCallback->m_hAuthTicket != authTicketHandle) return;
+
+    if (inCallback->m_eResult != k_EResultOK)
+    {
+        DEBUG_LOG("Auth: Steam could not issue an auth ticket (result %d).", inCallback->m_eResult)
+        authTicket.clear();
+        authTicketHandle = k_HAuthTicketInvalid;
+        return;
+    }
+
+    authTicketReady = true;
+    DEBUG_LOG("Auth: ticket ready (%zu bytes).", authTicket.size())
+}
+
+void GamerServices::RequestAuthTicket()
+{
+    if (_impl->authTicketHandle != k_HAuthTicketInvalid) return;
+
+    uint8_t buffer[1024];
+    uint32 written = 0;
+
+    // The identity argument names the service the ticket is meant for. Passed as null
+    // here, which produces a ticket not bound to one particular server -- see the note
+    // in Remote Actions on what that does and does not cost. Binding it needs the
+    // client to know an identity for the server that Steam will agree with, which the
+    // dedicated-server model does not currently give it.
+    _impl->authTicketHandle = SteamUser()->GetAuthSessionTicket(buffer, sizeof(buffer), &written, nullptr);
+
+    if (_impl->authTicketHandle == k_HAuthTicketInvalid || written == 0)
+    {
+        DEBUG_LOG("Auth: Steam refused to issue an auth ticket.")
+        _impl->authTicketHandle = k_HAuthTicketInvalid;
+        return;
+    }
+
+    _impl->authTicket.assign(buffer, buffer + written);
+    _impl->authTicketReady = false;
+}
+
+bool GamerServices::IsAuthTicketReady() const
+{
+    return _impl->authTicketReady;
+}
+
+const std::vector<uint8_t>& GamerServices::GetAuthTicket() const
+{
+    return _impl->authTicket;
+}
+
+void GamerServices::CancelAuthTicket()
+{
+    if (_impl->authTicketHandle == k_HAuthTicketInvalid) return;
+
+    SteamUser()->CancelAuthTicket(_impl->authTicketHandle);
+    _impl->authTicketHandle = k_HAuthTicketInvalid;
+    _impl->authTicket.clear();
+    _impl->authTicketReady = false;
 }
 
 void GamerServices::Impl::OnLobbyMatchListCallback(LobbyMatchList_t* inCallback, bool inIOFailure)

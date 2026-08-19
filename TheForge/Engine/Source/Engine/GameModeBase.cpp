@@ -3,6 +3,7 @@
 #include "Level.h"
 #include "LevelManager.h"
 #include "LinkingContext.h"
+#include "System.h"
 #include "../../../Netcode/Source/NetworkManager.h"
 #include "Components/ComponentUtils.h"
 #include "Components/PlayerController.h"
@@ -19,9 +20,9 @@ void Engine::GameModeBase::Start()
     NetCode::GetNetworkManager().StartNetCode();
 }
 
-Engine::GameObject* Engine::GameModeBase::SpawnPlayer(const uint64_t playerID) const
+Engine::GameObject* Engine::GameModeBase::SpawnPlayer(const uint64_t playerID)
 {
-    const auto go = LevelManager::GetCurrentLevel()->SpawnNewGameObject("Assets/Prefabs/Player.prefab");
+    const auto go = LevelManager::GetCurrentLevel()->SpawnNewGameObject(_playerPrefab);
     if (_playerStarts.empty())
     {
         go->SetPosition(glm::vec2(0));
@@ -36,6 +37,35 @@ Engine::GameObject* Engine::GameModeBase::SpawnPlayer(const uint64_t playerID) c
 
     if (const auto controller = go->GetComponent<PlayerController>())
         controller->_controllingPlayer = playerID;
-    
+
     return go;
+}
+
+std::unordered_map<std::string, Engine::GameModeRegistry::Factory>& Engine::GameModeRegistry::Factories()
+{
+    static std::unordered_map<std::string, Factory> factories;
+    return factories;
+}
+
+void Engine::GameModeRegistry::Register(const std::string& name, Factory factory)
+{
+    Factories()[name] = std::move(factory);
+}
+
+std::unique_ptr<Engine::GameModeBase> Engine::GameModeRegistry::Create(const std::string& name)
+{
+    // An unknown or absent name falls back to the base rather than failing, so a level
+    // authored before its mode existed -- or one loaded by a tool that has no game
+    // linked in, like the editor -- still comes up.
+    if (name.empty())
+        return std::make_unique<GameModeBase>();
+
+    const auto it = Factories().find(name);
+    if (it == Factories().end())
+    {
+        DEBUG_LOG("Level names game mode '%s', which is not registered; using the base mode.", name.c_str())
+        return std::make_unique<GameModeBase>();
+    }
+
+    return it->second();
 }

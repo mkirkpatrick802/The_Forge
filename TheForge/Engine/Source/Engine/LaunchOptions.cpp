@@ -1,4 +1,4 @@
-#include "LaunchOptions.h"
+﻿#include "LaunchOptions.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -51,6 +51,14 @@ void Engine::ParseLaunchOptions(const int argc, char** argv)
 		else if (std::strcmp(arg, "--net-selftest") == 0)
 		{
 			options.netSelfTest = true;
+		}
+		else if (std::strcmp(arg, "--insecure") == 0)
+		{
+			options.insecure = true;
+		}
+		else if (std::strcmp(arg, "--gslt") == 0 && hasValue)
+		{
+			options.gsltToken = argv[++i];
 		}
 		else if (std::strcmp(arg, "--windowed") == 0)
 		{

@@ -45,7 +45,14 @@ void Engine::Level::Load(nlohmann::json data)
         _gameObjects.push_back(std::move(go));
     }
 
-    _gameMode = std::make_unique<GameModeBase>();
+    // The mode is named by the level rather than hard-coded, so the engine never has
+    // to know a game's rules exist. Absent means the base mode.
+    const std::string modeName = data.contains(JsonKeywords::LEVEL_GAME_MODE)
+        ? data[JsonKeywords::LEVEL_GAME_MODE].get<std::string>()
+        : std::string();
+
+    _gameMode = GameModeRegistry::Create(modeName);
+    _gameModeName = modeName;
 }
 
 namespace
@@ -78,6 +85,12 @@ void Engine::Level::Load(NetCode::InputByteStream& stream)
 void Engine::Level::Start() const
 {
     _gameMode->Start();
+}
+
+void Engine::Level::UpdateGameMode(const float deltaTime) const
+{
+    if (_gameMode != nullptr)
+        _gameMode->Update(deltaTime);
 }
 
 Engine::GameObject* Engine::Level::SpawnNewGameObject(const std::string& filepath, const glm::vec2 position)
@@ -204,6 +217,8 @@ void Engine::Level::SaveLevel(const std::string& args)
     
     // Update level data
     data[JsonKeywords::LEVEL_NAME] = _name;
+    if (!_gameModeName.empty())
+        data[JsonKeywords::LEVEL_GAME_MODE] = _gameModeName;
     data["Size X"] = _size.x;
     data["Size Y"] = _size.y;
 

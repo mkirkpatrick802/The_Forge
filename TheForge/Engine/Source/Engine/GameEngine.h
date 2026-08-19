@@ -2,6 +2,7 @@
 #include <memory>
 
 #include "Chat.h"
+#include "ServerConsole.h"
 
 namespace Engine
 {
@@ -28,6 +29,7 @@ namespace Engine
 		std::unique_ptr<InputManager> _inputManager;
 		std::unique_ptr<LevelManager> _levelManager;
 		std::unique_ptr<Chat> _chat;
+		std::unique_ptr<ServerConsole> _console;
 		std::unique_ptr<GameObject> _loadingScreen;
 
 	public:

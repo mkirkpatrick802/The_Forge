@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <cstdint>
 #include <map>
 #include <string>
@@ -84,6 +84,10 @@ namespace NetCode
 		// Messages delivered since the last call. Reliable ones arrive in order and
 		// without duplicates; unreliable ones arrive however they turn up.
 		std::vector<ReceivedMessage> TakeReceivedMessages();
+
+		// Drops one client, telling it so rather than leaving it to time out. Reported
+		// through TakeConnectionEvents like any other disconnect. Server-side only.
+		void KickConnection(uint32_t connectionId);
 
 		// Connections opened and closed since the last call, as raw connection ids.
 		// A client reports the server as id 0, matching how ReceivedMessage tags it.

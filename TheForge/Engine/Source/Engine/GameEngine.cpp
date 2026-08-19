@@ -9,6 +9,7 @@
 #include "InputManager.h"
 #include "JsonKeywords.h"
 #include "LaunchOptions.h"
+#include "Level.h"
 #include "LevelManager.h"
 #include "NetworkManager.h"
 #include "Rendering/Renderer.h"
@@ -36,6 +37,8 @@ Engine::GameEngine::GameEngine()
 	// there is no ImGui context when headless.
 	if (!GetLaunchOptions().headless)
 		_chat = std::make_unique<Chat>();
+	else
+		_console = std::make_unique<ServerConsole>();
 
 	EventSystem::GetInstance()->RegisterEvent("Editor Enabled", this, &GameEngine::SceneStartup);
 }
@@ -133,8 +136,16 @@ void Engine::GameEngine::StartGameplayLoop()
 				if (_chat)
 					_chat->Update(deltaTime);
 
+				if (_console)
+					_console->Update();
+
 				GetComponentManager().UpdateComponents(deltaTime);
-				//std::cout << 1 / deltaTime << '\n';
+
+				// Match rules tick after the world does, so a phase change reacts to the
+				// state this frame produced rather than last frame's. A no-op on a client:
+				// a level that arrived over the wire deliberately has no game mode.
+				if (const Level* level = LevelManager::GetCurrentLevel())
+					level->UpdateGameMode(deltaTime);
 			}
 			else
 			{

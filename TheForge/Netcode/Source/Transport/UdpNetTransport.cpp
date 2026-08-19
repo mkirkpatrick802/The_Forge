@@ -79,6 +79,16 @@ bool NetCode::UdpNetTransport::HasPeer(const PeerID peer) const
 	return std::ranges::find(peers, peer) != peers.end();
 }
 
+void NetCode::UdpNetTransport::Disconnect(const PeerID peer)
+{
+	// Only a server kicks, and only a real client id. SERVER_PEER_ID here would mean a
+	// client trying to disconnect the server, which is not a thing this direction does.
+	if (!GetUdpTransport().IsServer()) return;
+	if (peer == SERVER_PEER_ID || peer == INVALID_PEER) return;
+
+	GetUdpTransport().KickConnection(static_cast<uint32_t>(peer));
+}
+
 bool NetCode::UdpNetTransport::SendTo(const PeerID peer, const OutputByteStream& stream, const bool reliable)
 {
 	UdpTransport& transport = GetUdpTransport();

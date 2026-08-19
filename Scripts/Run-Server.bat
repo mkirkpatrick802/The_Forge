@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 REM Headless dedicated server: no window, no GPU, no Steam.
 REM Logs go to this console and to server.log in the output folder.
 
@@ -17,6 +17,9 @@ if not exist "%TARGET%\Project-Steel.exe" (
 REM pushd sets the working directory so assets resolve; the exe is still invoked by
 REM full path, because cmd does not always search the current directory for it.
 pushd "%TARGET%"
-"%TARGET%\Project-Steel.exe" --server
+REM --insecure skips Steam authentication and takes each client's claimed identity at
+REM face value. Development and LAN only -- drop it for anything reachable publicly,
+REM and pass --gslt <token> so the server logs on under your appid.
+"%TARGET%\Project-Steel.exe" --server --insecure
 popd
 pause

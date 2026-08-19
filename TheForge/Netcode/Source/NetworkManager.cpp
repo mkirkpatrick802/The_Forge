@@ -3,6 +3,9 @@
 #include <memory>
 
 #include "LinkingContext.h"
+#include "GamerServices.h"
+#include "NetActions.h"
+#include "SteamGameServerAuth.h"
 #include "Transport/OfflineTransport.h"
 #include "Transport/SteamTransport.h"
 #include "Transport/UdpNetTransport.h"
@@ -34,6 +37,25 @@ NetCode::NetworkManager::NetworkManager()
         _transport = std::make_unique<SteamTransport>();
     else
         _transport = std::make_unique<OfflineTransport>();
+
+    RegisterEngineActions();
+}
+
+void NetCode::NetworkManager::RegisterEngineActions()
+{
+    NetActionRegistry::RegisterRequest(EngineRequest::Join,
+        [this](const PeerID from, InputByteStream& payload) { HandleJoinRequest(from, payload); });
+
+    NetActionRegistry::RegisterEvent(EngineEvent::JoinAccepted,
+        [this](InputByteStream&) { _hasJoined = true; DEBUG_LOG("Netcode: the server accepted our identity.") });
+
+    NetActionRegistry::RegisterEvent(EngineEvent::RequestDenied,
+        [](InputByteStream& payload)
+        {
+            std::string reason;
+            payload.Read(reason);
+            DEBUG_LOG("Netcode: the server refused a request -- %s", reason.c_str())
+        });
 }
 
 NetCode::NetworkManager::~NetworkManager()
@@ -48,12 +70,52 @@ void NetCode::NetworkManager::ShutdownNetCode()
     // any path that does not get that far.
     if (_shutdown) return;
     _shutdown = true;
+
+    // Released before the transport goes, so Steam is told about the departure rather
+    // than inferring it from a server that stopped answering.
+    if (Engine::REQUIRE_GAMER_SERVICES && GamerServices::instance != nullptr)
+        GetGamerService().CancelAuthTicket();
+
+    SteamGameServerAuth::Get().Shutdown();
     _transport->Shutdown();
 }
 
 void NetCode::NetworkManager::StartNetCode()
 {
     _state = NMS_Searching;
+
+    const Engine::LaunchOptions& options = Engine::GetLaunchOptions();
+
+    if (options.IsDedicatedServer())
+    {
+        _requireAuth = !options.insecure;
+
+        if (_requireAuth)
+        {
+            SteamGameServerAuth::Get().onValidated =
+                [this](const uint64_t steamID, const bool ok, const char* reason) { OnAuthValidated(steamID, ok, reason); };
+
+            // Refusing to start is the point. Falling back to accepting unverified
+            // players because Steam was missing would mean the security of a server
+            // depended on whether a DLL happened to be installed -- and nobody would
+            // notice until it mattered. --insecure is how you say you meant it.
+            // A query port of its own rather than sharing the game port: sharing means
+            // Steam does not open a socket and the game must forward server-browser
+            // packets itself through HandleIncomingPacket, which this transport does not.
+            if (!SteamGameServerAuth::Get().Start(options.port, static_cast<uint16_t>(options.port + 1), options.gsltToken))
+            {
+                DEBUG_LOG("Netcode: refusing to start. Steam authentication is unavailable and --insecure was not given.")
+                APPLICATION_CLOSING = true;
+                return;
+            }
+
+            DEBUG_LOG("Netcode: authenticating server -- players must prove their Steam identity.")
+        }
+        else
+        {
+            DEBUG_LOG("Netcode: *** INSECURE SERVER *** identities are taken at face value. Development and LAN only.")
+        }
+    }
 
     if (!_transport->Start())
     {
@@ -74,10 +136,23 @@ void NetCode::NetworkManager::StartNetCode()
 
 void NetCode::NetworkManager::Update()
 {
+    // Pumped here rather than inside a transport, because identity is not a transport
+    // concern: a client talking UDP to a dedicated server still needs Steam client
+    // callbacks for its auth ticket, and used to never get them -- GetAuthSessionTicket
+    // handed over a handle and the confirming callback simply never fired.
+    if (Engine::REQUIRE_GAMER_SERVICES && GamerServices::instance != nullptr)
+        GetGamerService().Update();
+
     _transport->Update();
+
+    // Pumped before anything reads the results: the validation verdict for a peer that
+    // joined last frame should land before this frame decides what to do about it.
+    SteamGameServerAuth::Get().Update();
 
     ProcessConnectionEvents();
     ProcessIncomingPackets();
+    UpdatePendingAuth();
+    SendJoinWhenReady();
     SendWorldStateUpdate();
     SendClientInput();
 }
@@ -85,7 +160,7 @@ void NetCode::NetworkManager::Update()
 void NetCode::NetworkManager::ProcessConnectionEvents()
 {
     for (const PeerID peer : _transport->TakeConnectedPeers())
-        OnboardNewPlayer(peer);
+        WelcomePeer(peer);
 
     for (const PeerID peer : _transport->TakeDisconnectedPeers())
         HandlePeerDisconnected(peer);
@@ -121,7 +196,17 @@ void NetCode::NetworkManager::ProcessPacket(InputByteStream& stream, const PeerI
     switch (type)
     {
     case PT_Hello:
-        DEBUG_LOG("Host has welcomed us into the server!")
+        {
+            DEBUG_LOG("Host has welcomed us; proving who we are.")
+
+            // Asking Steam for a ticket is asynchronous, so the Join goes out from
+            // SendJoinWhenReady once the ticket is usable rather than from here.
+            if (Engine::REQUIRE_GAMER_SERVICES && GamerServices::instance != nullptr)
+                GetGamerService().RequestAuthTicket();
+
+            _awaitingTicket = true;
+            _joinSent = false;
+        }
         break;
     case PT_WorldState:
         Engine::LevelManager::LoadLevel(stream);
@@ -133,6 +218,43 @@ void NetCode::NetworkManager::ProcessPacket(InputByteStream& stream, const PeerI
         break;
     case PT_ClientInput:
         ApplyClientInput(stream, peer);
+        break;
+    case PT_Request:
+        {
+            // Direction is enforced before the payload is looked at. A request is a
+            // petition to the authority; one arriving anywhere else is either a
+            // confused build or someone probing, and neither deserves parsing.
+            if (!HasWorldAuthority())
+            {
+                DEBUG_LOG("Netcode: ignoring a request received on a non-authority.")
+                return;
+            }
+
+            NetActionID id;
+            stream.Read(id);
+
+            // `peer` comes from the transport, not the payload. Every handler resolves
+            // the acting player from it, which is what stops a client acting as another.
+            if (!NetActionRegistry::DispatchRequest(id, peer, stream))
+                DEBUG_LOG("Netcode: no handler for request %u from peer %llu.", id, peer)
+        }
+        break;
+    case PT_Event:
+        {
+            // The mirror of the above: only the authority states facts, so an event
+            // arriving at the authority is not from anyone entitled to send it.
+            if (HasWorldAuthority())
+            {
+                DEBUG_LOG("Netcode: ignoring an event received on the authority.")
+                return;
+            }
+
+            NetActionID id;
+            stream.Read(id);
+
+            if (!NetActionRegistry::DispatchEvent(id, stream))
+                DEBUG_LOG("Netcode: no handler for event %u.", id)
+        }
         break;
     default:
         DEBUG_LOG("Unhandled Packet Received!")
@@ -214,6 +336,288 @@ void NetCode::NetworkManager::SendClientInput()
     _transport->SendToAuthority(stream, false);
 }
 
+bool NetCode::NetworkManager::SendRequest(const NetActionID id, const OutputByteStream& payload)
+{
+    if (HasWorldAuthority()) return false;
+
+    OutputByteStream stream;
+    stream.Write(PT_Request);
+    stream.Write(id);
+    stream.WriteBits(payload.GetBuffer(), payload.GetBitLength());
+
+    return _transport->SendToAuthority(stream, true);
+}
+
+bool NetCode::NetworkManager::SendEventTo(const PeerID peer, const NetActionID id, const OutputByteStream& payload)
+{
+    if (!HasWorldAuthority()) return false;
+
+    OutputByteStream stream;
+    stream.Write(PT_Event);
+    stream.Write(id);
+    stream.WriteBits(payload.GetBuffer(), payload.GetBitLength());
+
+    return _transport->SendTo(peer, stream, true);
+}
+
+void NetCode::NetworkManager::BroadcastEvent(const NetActionID id, const OutputByteStream& payload)
+{
+    if (!HasWorldAuthority()) return;
+
+    for (const PeerID peer : _transport->GetRemotePeers())
+        SendEventTo(peer, id, payload);
+}
+
+bool NetCode::NetworkManager::DispatchLocalRequest(const NetActionID id, const OutputByteStream& payload)
+{
+    if (!HasWorldAuthority()) return false;
+
+    InputByteStream stream(payload.GetBuffer(), payload.GetByteLength());
+    return NetActionRegistry::DispatchRequest(id, GetLocalUserID(), stream);
+}
+
+void NetCode::NetworkManager::DenyRequest(const PeerID peer, const std::string& reason)
+{
+    OutputByteStream payload;
+    payload.Write(reason);
+    SendEventTo(peer, EngineEvent::RequestDenied, payload);
+}
+
+const NetCode::PlayerIdentity* NetCode::NetworkManager::FindIdentity(const PeerID peer) const
+{
+    for (const ConnectedPlayer& player : _players)
+        if (player.peer == peer)
+            return &player.identity;
+
+    return nullptr;
+}
+
+NetCode::PeerID NetCode::NetworkManager::FindPeerByPlayerID(const uint64_t playerID) const
+{
+    for (const ConnectedPlayer& player : _players)
+        if (player.identity.id == playerID)
+            return player.peer;
+
+    return INVALID_PEER;
+}
+
+NetCode::PendingJoin* NetCode::NetworkManager::FindPendingJoin(const PeerID peer)
+{
+    for (PendingJoin& pending : _pendingAuth)
+        if (pending.peer == peer)
+            return &pending;
+
+    return nullptr;
+}
+
+void NetCode::NetworkManager::ErasePendingJoin(const PeerID peer)
+{
+    std::erase_if(_pendingAuth, [peer](const PendingJoin& pending) { return pending.peer == peer; });
+}
+
+void NetCode::NetworkManager::HandleJoinRequest(const PeerID from, InputByteStream& payload)
+{
+    PlayerIdentity identity;
+    identity.Read(payload);
+
+    if (!identity.IsValid())
+    {
+        KickPeer(from, "invalid player identity");
+        return;
+    }
+
+    // Sent once. A second Join from the same peer would let a player change who they
+    // are mid-session, which is the whole point of pinning identity to a connection.
+    if (FindIdentity(from) != nullptr)
+    {
+        DenyRequest(from, "already joined");
+        return;
+    }
+
+    PendingJoin* pending = FindPendingJoin(from);
+    if (pending == nullptr)
+    {
+        // No open window: either it expired, or this peer was never welcomed.
+        DenyRequest(from, "not expecting a join");
+        return;
+    }
+
+    if (pending->identity.IsValid())
+    {
+        DenyRequest(from, "already authenticating");
+        return;
+    }
+
+    // One id, one connection. Without this a second connection could claim an id that
+    // is already playing and, once verified, collide with them in every map keyed on it.
+    if (FindPeerByPlayerID(identity.id) != INVALID_PEER)
+    {
+        KickPeer(from, "that account is already on this server");
+        return;
+    }
+
+    for (const PendingJoin& other : _pendingAuth)
+    {
+        if (other.peer == from) continue;
+        if (other.identity.id == identity.id)
+        {
+            KickPeer(from, "that account is already authenticating");
+            return;
+        }
+    }
+
+    if (!_requireAuth)
+    {
+        // Insecure server: the claim is taken at its word. This is the branch that makes
+        // development and LAN play possible and the branch that must never run on a
+        // public server, which is why --insecure has to be typed.
+        ErasePendingJoin(from);
+        AdmitPlayer(from, identity);
+        return;
+    }
+
+    if (identity.authTicket.empty())
+    {
+        KickPeer(from, "this server requires Steam authentication");
+        return;
+    }
+
+    if (!SteamGameServerAuth::Get().BeginAuth(identity.id, identity.authTicket))
+    {
+        KickPeer(from, "Steam refused your auth ticket");
+        return;
+    }
+
+    // Connected, not admitted: no pawn, no world state, no replication slot until Steam
+    // says this really is who they say they are. The deadline is refreshed because what
+    // is being waited on has changed -- from "answer us" to "Steam answers us".
+    pending->identity = identity;
+    pending->deadlineTicks = Engine::Time::GetTicks() + AUTH_TIMEOUT_MS;
+
+    DEBUG_LOG("Netcode: peer %llu claims to be %s (%llu); waiting on Steam.", from, identity.name.c_str(), identity.id)
+}
+
+void NetCode::NetworkManager::OnAuthValidated(const uint64_t steamID, const bool ok, const char* reason)
+{
+    for (auto it = _pendingAuth.begin(); it != _pendingAuth.end(); ++it)
+    {
+        if (!it->identity.IsValid() || it->identity.id != steamID) continue;
+
+        const PendingJoin pending = *it;
+        _pendingAuth.erase(it);
+
+        if (!ok)
+        {
+            // The session was begun, so it has to be ended even though it failed.
+            SteamGameServerAuth::Get().EndAuth(steamID);
+            KickPeer(pending.peer, reason != nullptr ? reason : "Steam rejected your identity");
+            return;
+        }
+
+        AdmitPlayer(pending.peer, pending.identity);
+        return;
+    }
+
+    // A verdict for somebody who already left. The session still has to be ended, or
+    // Steam goes on believing they are playing here.
+    SteamGameServerAuth::Get().EndAuth(steamID);
+}
+
+void NetCode::NetworkManager::UpdatePendingAuth()
+{
+    const uint64_t now = Engine::Time::GetTicks();
+
+    for (auto it = _pendingKicks.begin(); it != _pendingKicks.end();)
+    {
+        if (now < it->atTicks) { ++it; continue; }
+
+        _transport->Disconnect(it->peer);
+        it = _pendingKicks.erase(it);
+    }
+
+    if (_pendingAuth.empty()) return;
+
+    for (auto it = _pendingAuth.begin(); it != _pendingAuth.end();)
+    {
+        if (now < it->deadlineTicks)
+        {
+            ++it;
+            continue;
+        }
+
+        // Steam never answered. Holding the connection open indefinitely would let
+        // anyone occupy a slot by connecting and saying nothing further.
+        const PendingJoin expired = *it;
+        it = _pendingAuth.erase(it);
+
+        if (expired.identity.IsValid())
+        {
+            SteamGameServerAuth::Get().EndAuth(expired.identity.id);
+            KickPeer(expired.peer, "authentication timed out");
+        }
+        else
+        {
+            KickPeer(expired.peer, "did not identify in time");
+        }
+    }
+}
+
+void NetCode::NetworkManager::AdmitPlayer(const PeerID peer, const PlayerIdentity& identity)
+{
+    if (!_transport->HasPeer(peer) && peer != _transport->GetLocalPeerID())
+    {
+        DEBUG_LOG("Netcode: %s was verified but has already left.", identity.name.c_str())
+        return;
+    }
+
+    _players.push_back(ConnectedPlayer{peer, identity});
+    DEBUG_LOG("Netcode: peer %llu is %s (%llu).", peer, identity.name.c_str(), identity.id)
+
+    SendEventTo(peer, EngineEvent::JoinAccepted, OutputByteStream());
+
+    // Only now does the player get a body and a copy of the world.
+    OnboardNewPlayer(peer);
+
+    if (Engine::Level* level = Engine::LevelManager::GetCurrentLevel())
+        level->GetGameMode().OnPlayerIdentified(peer, identity);
+}
+
+void NetCode::NetworkManager::KickPeer(const PeerID peer, const std::string& reason)
+{
+    DEBUG_LOG("Netcode: kicking peer %llu -- %s.", peer, reason.c_str())
+
+    for (const PendingKick& kick : _pendingKicks)
+        if (kick.peer == peer)
+            return;
+
+    // Told first, dropped a moment later. The delay is what lets the explanation
+    // actually arrive -- see KICK_GRACE_MS.
+    DenyRequest(peer, reason);
+    _pendingKicks.push_back(PendingKick{peer, Engine::Time::GetTicks() + KICK_GRACE_MS});
+}
+
+void NetCode::NetworkManager::SendJoinWhenReady()
+{
+    if (!_awaitingTicket || _joinSent) return;
+    if (HasWorldAuthority()) return;
+
+    const bool steamUp = Engine::REQUIRE_GAMER_SERVICES && GamerServices::instance != nullptr;
+
+    // Without Steam there is no ticket to wait for, and the server will either accept
+    // the bare claim (--insecure) or refuse it. Either way, sending immediately is the
+    // right move -- waiting would just stall until the auth window expired.
+    if (steamUp && !GetGamerService().IsAuthTicketReady())
+        return;
+
+    OutputByteStream join;
+    PlayerIdentity::Local().Write(join);
+
+    if (!SendRequest(EngineRequest::Join, join)) return;
+
+    _joinSent = true;
+    _awaitingTicket = false;
+}
+
 void NetCode::NetworkManager::ApplyClientInput(InputByteStream& stream, const PeerID peer)
 {
     // Only the authority consumes client input.
@@ -226,8 +630,10 @@ void NetCode::NetworkManager::ApplyClientInput(InputByteStream& stream, const Pe
         player->ReadInput(stream);
 }
 
-// Spawn a player for the peer, and bring it up to date with the world.
-void NetCode::NetworkManager::OnboardNewPlayer(const PeerID peer)
+// Says hello, and nothing else. A peer that has just connected has not proved anything
+// yet, so it gets no pawn, no world state and no replication slot -- only the chance to
+// send its identity. AdmitPlayer is where those things happen.
+void NetCode::NetworkManager::WelcomePeer(const PeerID peer)
 {
     if (!HasWorldAuthority()) return;
 
@@ -237,22 +643,44 @@ void NetCode::NetworkManager::OnboardNewPlayer(const PeerID peer)
         return;
     }
 
-    Engine::Level* level = Engine::LevelManager::GetCurrentLevel();
-    Engine::GameObject* pawn = level->GetGameMode().SpawnPlayer(peer);
-    _state = NMS_Playing;
+    // The local peer is not a remote arrival and has nothing to prove to itself.
+    if (peer == _transport->GetLocalPeerID())
+    {
+        if (FindIdentity(peer) == nullptr)
+        {
+            _players.push_back(ConnectedPlayer{peer, PlayerIdentity::Local()});
+            OnboardNewPlayer(peer);
+            Engine::LevelManager::GetCurrentLevel()->GetGameMode().OnPlayerIdentified(peer, _players.back().identity);
+        }
 
-    // A dedicated server is not a peer of its own, so it never takes this branch
-    // for itself -- which is exactly why it ends up with no pawn of its own.
-    if (peer == _transport->GetLocalPeerID()) return;
+        return;
+    }
+
+    // The clock starts here, not when the peer gets round to answering.
+    _pendingAuth.push_back(PendingJoin{peer, PlayerIdentity{}, Engine::Time::GetTicks() + AUTH_TIMEOUT_MS});
 
     OutputByteStream hello;
     hello.Write(PT_Hello);
     _transport->SendTo(peer, hello, true);
+}
 
-    // The slot is opened *before* the snapshot is written, not after, because the
-    // snapshot is now filtered to what this peer can actually see -- and that needs its
-    // pawn registered as a viewpoint first. It opens knowing nothing; the write below
-    // marks what it actually sends.
+// Spawn a player for the peer, and bring it up to date with the world.
+void NetCode::NetworkManager::OnboardNewPlayer(const PeerID peer)
+{
+    if (!HasWorldAuthority()) return;
+
+    Engine::Level* level = Engine::LevelManager::GetCurrentLevel();
+    if (level == nullptr) return;
+
+    Engine::GameObject* pawn = level->GetGameMode().SpawnPlayer(peer);
+    _state = NMS_Playing;
+
+    // A dedicated server is not a peer of its own, so it never takes this branch for
+    // itself -- which is exactly why it ends up with no pawn of its own.
+    if (peer == _transport->GetLocalPeerID()) return;
+
+    // The slot is opened before the snapshot is written, because the snapshot is
+    // filtered to what this peer can see and that needs its pawn as a viewpoint.
     level->AddReplicationPeer(peer, pawn);
 
     OutputByteStream worldState;
@@ -261,17 +689,29 @@ void NetCode::NetworkManager::OnboardNewPlayer(const PeerID peer)
 
     if (!_transport->SendTo(peer, worldState, true))
     {
-        // The peer now believes it is joining but has no world, and the objects the
-        // snapshot claimed are known to it are not. Rather than let it run on a false
-        // record, drop the slot -- it will time out and can reconnect cleanly.
         DEBUG_LOG("Netcode: could not send the world to peer %llu; dropping it.", peer)
         level->RemoveReplicationPeer(peer);
     }
 }
 
-// TODO: Should not use the player controller class
 void NetCode::NetworkManager::HandlePeerDisconnected(const PeerID peer)
 {
+    // Ended for anyone Steam is tracking, whether they were admitted or still pending.
+    // Skipping it leaves Steam believing the account is still on this server.
+    if (const PlayerIdentity* identity = FindIdentity(peer))
+        SteamGameServerAuth::Get().EndAuth(identity->id);
+
+    for (auto it = _pendingAuth.begin(); it != _pendingAuth.end();)
+    {
+        if (it->peer != peer) { ++it; continue; }
+        if (it->identity.IsValid())
+            SteamGameServerAuth::Get().EndAuth(it->identity.id);
+        it = _pendingAuth.erase(it);
+    }
+
+    // Already gone, so there is nothing left to drop.
+    std::erase_if(_pendingKicks, [peer](const PendingKick& kick) { return kick.peer == peer; });
+
     Engine::Level* level = Engine::LevelManager::GetCurrentLevel();
     if (level == nullptr) return;
 
@@ -282,6 +722,11 @@ void NetCode::NetworkManager::HandlePeerDisconnected(const PeerID peer)
 
     if (const auto player = FindPlayerController(peer))
         level->RemoveGameObject(player->gameObject);
+
+    if (const PlayerIdentity* identity = FindIdentity(peer))
+        level->GetGameMode().OnPlayerLeft(peer, *identity);
+
+    std::erase_if(_players, [peer](const ConnectedPlayer& player) { return player.peer == peer; });
 
     DEBUG_LOG("Player %llu disconnected", peer)
 }
