@@ -1,9 +1,10 @@
-@echo off
+﻿@echo off
 REM Windowed client pointed at a dedicated server. No Steam.
 REM Usage: Run-Client.bat [address] [config]     e.g. Run-Client.bat 127.0.0.1 Debug
 REM
-REM NOTE: the UDP transport does not exist yet, so this does not actually connect
-REM to anything. It runs as an isolated client until that milestone lands.
+REM Add --headless to run without a window, which is also what turns on file
+REM logging. Each headless client writes its own client-<pid>.log, so several can
+REM be run from this folder at once.
 
 set ADDRESS=%1
 if "%ADDRESS%"=="" set ADDRESS=127.0.0.1

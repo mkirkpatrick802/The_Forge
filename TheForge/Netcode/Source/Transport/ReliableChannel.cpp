@@ -1,4 +1,4 @@
-#include "ReliableChannel.h"
+﻿#include "ReliableChannel.h"
 
 #include <cstddef>
 #include <cstring>
@@ -58,7 +58,10 @@ bool NetCode::ReliableChannel::QueuePayload(const ETransportChannel channel, con
 
 	if (channel == ETC_Reliable && _unacked.size() + fragmentCount > MAX_UNACKED_RELIABLE)
 	{
-		DEBUG_LOG("Transport: reliable send window full (%u unacked, needed %u more).", GetUnackedCount(), fragmentCount)
+		// Names the connection: on a server with several clients, "the window is full"
+		// without saying whose cannot distinguish one stalled peer from a general
+		// backlog, and those want opposite responses.
+		DEBUG_LOG("Transport: reliable send window full for connection %u (%u unacked, needed %u more).", connectionId, GetUnackedCount(), fragmentCount)
 		return false;
 	}
 

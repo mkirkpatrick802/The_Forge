@@ -1,4 +1,4 @@
-#include "NetworkManager.h"
+﻿#include "NetworkManager.h"
 
 #include <memory>
 
@@ -152,12 +152,36 @@ void NetCode::NetworkManager::SendWorldStateUpdate()
     if (currentTicks - _lastUpdateSentTicks < _targetStateUpdateDelayMs) return;
     _lastUpdateSentTicks = currentTicks;
 
-    OutputByteStream stream;
-    stream.Write(PT_WorldStateUpdate);
-    Engine::LevelManager::GetCurrentLevel()->Write(stream, false);
+    Engine::Level* level = Engine::LevelManager::GetCurrentLevel();
+    if (level == nullptr) return;
+
+    // One pass over the dirty world, not one per peer: every object still owed to
+    // anybody is serialized once here, and each peer's update below is a splice of
+    // the blobs that peer is missing. At 32 players the difference is 32x the
+    // serialization work -- and object serialization is the expensive half, being
+    // string writes and virtual component dispatch.
+    level->BuildDeltaBlobs();
 
     for (const PeerID peer : peers)
-        _transport->SendTo(peer, stream, true);
+    {
+        if (!level->HasPendingDelta(peer)) continue;
+
+        OutputByteStream stream;
+        stream.Write(PT_WorldStateUpdate);
+        level->WriteDeltaFor(peer, stream);
+
+        // The peer's dirty bits are retired only once the transport has actually
+        // accepted the message. A refused send -- a full reliable window, which is
+        // exactly what a backed-up client produces -- leaves them set, so the update
+        // coalesces into the peer's next one instead of being silently lost.
+        //
+        // This is the whole point of tracking dirtiness per peer. While the flags were
+        // global there was no safe response to a refusal: the state had already been
+        // cleared for everyone, so the peer desynced with nothing able to detect it,
+        // and deliberately skipping a slow peer did the same damage.
+        if (_transport->SendTo(peer, stream, true))
+            level->CommitDeltaFor(peer);
+    }
 }
 
 void NetCode::NetworkManager::SendClientInput()
@@ -227,13 +251,26 @@ void NetCode::NetworkManager::OnboardNewPlayer(const PeerID peer)
     worldState.Write(PT_WorldState);
     Engine::LevelManager::GetCurrentLevel()->Write(worldState);
     _transport->SendTo(peer, worldState, true);
+
+    // Opened only after the complete world has gone out, so the peer starts owed
+    // nothing. Doing it earlier would queue deltas describing state it is about to be
+    // sent anyway, on top of a message it has not finished receiving.
+    Engine::LevelManager::GetCurrentLevel()->AddReplicationPeer(peer);
 }
 
 // TODO: Should not use the player controller class
 void NetCode::NetworkManager::HandlePeerDisconnected(const PeerID peer)
 {
+    Engine::Level* level = Engine::LevelManager::GetCurrentLevel();
+    if (level == nullptr) return;
+
+    // Freed before the pawn is removed, so the departing peer is not queued a
+    // destruction record for its own pawn -- and so its slot is available again to
+    // whoever connects next.
+    level->RemoveReplicationPeer(peer);
+
     if (const auto player = FindPlayerController(peer))
-        Engine::LevelManager::GetCurrentLevel()->RemoveGameObject(player->gameObject);
+        level->RemoveGameObject(player->gameObject);
 
     DEBUG_LOG("Player %llu disconnected", peer)
 }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <cstdint>
 
 namespace NetCode
@@ -72,7 +72,17 @@ namespace NetCode
 	constexpr uint64_t CONNECTION_TIMEOUT_MS = 5000;		// drop a silent peer
 
 	constexpr uint32_t MAX_TRANSPORT_PACKET_BYTES = 1200;	// conservative, under typical MTU
-	constexpr uint32_t MAX_CONNECTIONS = 8;
+	// Must stay within NetCode::MAX_REPLICATION_PEERS -- the authority cannot track
+	// per-peer replication state for a client it has no slot for. Asserted in
+	// UdpNetTransport.cpp, which sees both headers.
+	constexpr uint32_t MAX_CONNECTIONS = 32;
+
+	// Datagrams read from the socket in one tick, so a flood cannot stall the frame.
+	// The floor is what a full lobby generates: 32 clients sending input at 60Hz is
+	// ~32 datagrams per frame at 60fps before a single ack or retransmit, so the old
+	// hard-coded 64 left almost no headroom and dropping acks is what turns a
+	// backlog into a storm.
+	constexpr uint32_t MAX_RECEIVE_PER_TICK = 256;
 
 	// Reliability tuning.
 	constexpr uint64_t RELIABLE_RESEND_INTERVAL_MS = 100;	// resend an unacked packet after this

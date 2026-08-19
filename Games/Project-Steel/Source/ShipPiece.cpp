@@ -113,7 +113,7 @@ bool ShipPiece::Place()
     }
     
     CreateShip();
-    isDirty = true;
+    gameObject->MarkDirty();
     return true;
 }
 

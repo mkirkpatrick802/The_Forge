@@ -102,7 +102,7 @@ void Astronaut::ApplyInput(const float deltaTime)
     Move(_movementInput, deltaTime);
 
     gameObject->SetRotation(_aimRotation);
-    gameObject->isDirty = true;
+    gameObject->MarkDirty();
 }
 
 void Astronaut::WriteInput(NetCode::OutputByteStream& stream) const
@@ -143,7 +143,7 @@ void Astronaut::Move(const glm::vec2 movement, const float deltaTime)
         break;
     }
 
-    gameObject->isDirty = true;
+    gameObject->MarkDirty();
 }
 
 void Astronaut::ToggleBuildMode()

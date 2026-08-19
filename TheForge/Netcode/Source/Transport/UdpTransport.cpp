@@ -1,4 +1,4 @@
-#include "UdpTransport.h"
+﻿#include "UdpTransport.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -261,10 +261,16 @@ void NetCode::UdpTransport::ReceivePackets()
 	NetAddress from;
 
 	// Bounded so a flood cannot stall the frame.
-	for (int i = 0; i < 64; ++i)
+	for (uint32_t i = 0; i < MAX_RECEIVE_PER_TICK; ++i)
 	{
-		const uint32_t received = _socket.ReceiveFrom(from, buffer, sizeof(buffer));
-		if (received == 0) break;
+		uint32_t received = 0;
+		const UdpSocket::EReceiveResult result = _socket.ReceiveFrom(from, buffer, sizeof(buffer), received);
+
+		// Only an empty queue ends the drain. A datagram that failed says nothing about
+		// the ones behind it, and stopping on one used to cost every other peer their
+		// packets for the frame.
+		if (result == UdpSocket::EReceiveResult::Empty) break;
+		if (result == UdpSocket::EReceiveResult::Skipped) continue;
 
 		if (received < sizeof(TransportHeader))
 			continue; // too small to be ours

@@ -84,7 +84,7 @@ void FluxWrench::EnableWrench(Engine::GameObject* target, glm::vec2 mousePos, Wr
         break;
     }
     
-    gameObject->isDirty = true;
+    gameObject->MarkDirty();
 }
 
 void FluxWrench::DisableWrench()
@@ -94,7 +94,7 @@ void FluxWrench::DisableWrench()
 
     UpdateWrenchVisuals();
     
-    gameObject->isDirty = true;
+    gameObject->MarkDirty();
 }
 
 void FluxWrench::UpdateWrenchVisuals() const

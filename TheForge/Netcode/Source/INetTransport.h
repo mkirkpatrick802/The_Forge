@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <cstdint>
 #include <vector>
 
@@ -15,6 +15,11 @@ namespace NetCode
 	// The dedicated server's own peer id. Connection ids are handed out from 1 and
 	// capped at MAX_CONNECTIONS, so UINT32_MAX can never collide with a client.
 	constexpr PeerID SERVER_PEER_ID = 0xFFFFFFFFull;
+
+	// How many peers the authority can hold replication state for at once. This is
+	// the width of a GameObject's per-peer dirty mask, so it is a hard ceiling on
+	// players in a match and cannot be raised past 32 without widening that mask.
+	constexpr uint32_t MAX_REPLICATION_PEERS = 32;
 
 	// One whole game message, already reassembled and in order.
 	struct NetMessage

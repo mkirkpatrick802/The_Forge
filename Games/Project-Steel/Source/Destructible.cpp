@@ -23,7 +23,7 @@ void Destructible::Start()
 
 void Destructible::TakeDamage(Engine::GameObject* dealer, const float damage, int& resourceGain)
 {
-    gameObject->isDirty = true;
+    gameObject->MarkDirty();
     _health -= damage;
     if (_health <= 0)
     {

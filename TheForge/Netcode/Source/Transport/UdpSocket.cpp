@@ -1,6 +1,12 @@
-// Winsock must come before anything that may pull in windows.h.
+﻿// Winsock must come before anything that may pull in windows.h.
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <mstcpip.h>
+
+// Present in mstcpip.h on current SDKs, defined here so an older one still builds.
+#ifndef SIO_UDP_CONNRESET
+#define SIO_UDP_CONNRESET _WSAIOW(IOC_VENDOR, 12)
+#endif
 
 #include "UdpSocket.h"
 
@@ -105,6 +111,21 @@ bool NetCode::UdpSocket::Open(const uint16_t port)
 		return false;
 	}
 
+	// Stop Winsock reporting ICMP port-unreachable as an error on this socket.
+	//
+	// UDP has no connections, but Windows will still fail a *recvfrom* with
+	// WSAECONNRESET because an earlier sendto hit a closed port. On a server that is
+	// routine -- any client that exits without a goodbye produces it -- and it makes
+	// an unrelated peer's error surface while draining everyone else's packets.
+	// Not fatal if it fails: ReceiveFrom handles the error either way.
+	BOOL reportConnectionReset = FALSE;
+	DWORD bytesReturned = 0;
+	if (WSAIoctl(handle, SIO_UDP_CONNRESET, &reportConnectionReset, sizeof(reportConnectionReset),
+		nullptr, 0, &bytesReturned, nullptr, nullptr) == SOCKET_ERROR)
+	{
+		DEBUG_LOG("Could not disable SIO_UDP_CONNRESET (error %d); relying on the ReceiveFrom path.", WSAGetLastError())
+	}
+
 	// Read back the actual port, which is what was wanted when 0 was passed.
 	sockaddr_in bound{};
 	int boundSize = sizeof(bound);
@@ -145,9 +166,10 @@ bool NetCode::UdpSocket::SendTo(const NetAddress& to, const void* data, const ui
 	return static_cast<uint32_t>(sent) == size;
 }
 
-uint32_t NetCode::UdpSocket::ReceiveFrom(NetAddress& outFrom, void* buffer, const uint32_t bufferSize) const
+NetCode::UdpSocket::EReceiveResult NetCode::UdpSocket::ReceiveFrom(NetAddress& outFrom, void* buffer, const uint32_t bufferSize, uint32_t& outSize) const
 {
-	if (!IsOpen()) return 0;
+	outSize = 0;
+	if (!IsOpen()) return EReceiveResult::Empty;
 
 	sockaddr_in from{};
 	int fromSize = sizeof(from);
@@ -160,22 +182,32 @@ uint32_t NetCode::UdpSocket::ReceiveFrom(NetAddress& outFrom, void* buffer, cons
 		const int error = WSAGetLastError();
 
 		// Nothing pending is the normal case for a non-blocking socket.
-		if (error == WSAEWOULDBLOCK) return 0;
+		if (error == WSAEWOULDBLOCK) return EReceiveResult::Empty;
 
-		// A previous sendto to an unreachable port; the datagram is simply gone.
-		if (error == WSAECONNRESET) return 0;
+		// A previous sendto reached a closed port and Winsock is reporting the ICMP
+		// back on the *receive* call. Skipped, not Empty: the error says nothing about
+		// whether other peers have packets waiting, and treating it as an empty queue
+		// abandoned the rest of the tick's traffic. One client being killed then
+		// stalled every other client on the server, because their acks were among what
+		// went unread and their send windows filled.
+		//
+		// Open() also asks Winsock to stop reporting this at all; this stays as the
+		// belt to that braces, since the ioctl is not guaranteed on every stack.
+		if (error == WSAECONNRESET) return EReceiveResult::Skipped;
 
-		// A datagram larger than the buffer. Winsock has already discarded it.
+		// A datagram larger than the buffer. Winsock has already discarded it, but the
+		// rest of the queue is still fine.
 		if (error == WSAEMSGSIZE)
 		{
 			DEBUG_LOG("Discarded an oversized datagram.")
-			return 0;
+			return EReceiveResult::Skipped;
 		}
 
 		DEBUG_LOG("recvfrom failed (error %d).", error)
-		return 0;
+		return EReceiveResult::Empty;
 	}
 
 	outFrom = NetAddress(ntohl(from.sin_addr.s_addr), ntohs(from.sin_port));
-	return static_cast<uint32_t>(received);
+	outSize = static_cast<uint32_t>(received);
+	return EReceiveResult::Received;
 }

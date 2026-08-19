@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <filesystem>
+#include <process.h>
 #include <SDL.h>
 #include <imgui.h>
 #include <SDL_image.h>
@@ -172,11 +173,17 @@ void Engine::System::LogToConsole(const char* format, ...) const
 		std::fflush(stdout);
 
 		// Also mirrored to a file: a dedicated server's console is often not where
-		// anyone is looking, and this survives a crash. The name is per-role so a
-		// server and a client running from the same folder don't interleave.
-		const char* logName = GetLaunchOptions().IsDedicatedServer() ? "server.log" : "client.log";
+		// anyone is looking, and this survives a crash.
+		//
+		// The server keeps a fixed name -- there is one per machine, and the run
+		// scripts and docs point at it. Clients are suffixed with their process id,
+		// because testing this thing means running several from the same folder and a
+		// shared name interleaved them all into one unreadable file.
+		static const std::string logName = GetLaunchOptions().IsDedicatedServer()
+			? std::string("server.log")
+			: "client-" + std::to_string(_getpid()) + ".log";
 
-		if (FILE* logFile = nullptr; fopen_s(&logFile, logName, "a") == 0 && logFile)
+		if (FILE* logFile = nullptr; fopen_s(&logFile, logName.c_str(), "a") == 0 && logFile)
 		{
 			std::fputs(buffer, logFile);
 			std::fputc('\n', logFile);

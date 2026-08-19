@@ -1,8 +1,13 @@
-#include "UdpNetTransport.h"
+﻿#include "UdpNetTransport.h"
 
 #include <algorithm>
 
 #include "Engine/LaunchOptions.h"
+
+// The authority holds one replication slot per connected client, so the transport
+// must never accept more clients than there are slots to track them with.
+static_assert(NetCode::MAX_CONNECTIONS <= NetCode::MAX_REPLICATION_PEERS,
+              "MAX_CONNECTIONS exceeds the per-peer replication mask width");
 
 bool NetCode::UdpNetTransport::Start()
 {

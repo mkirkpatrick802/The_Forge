@@ -40,7 +40,6 @@ namespace Engine
     public:
         GameObject* gameObject = nullptr;
         bool isReplicated = false;
-        bool isDirty = false;
         
     };
 }
