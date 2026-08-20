@@ -1,10 +1,12 @@
-#include "CollisionManager.h"
+﻿#include "CollisionManager.h"
 
 #include <iostream>
+#include <limits>
 #include <memory>
 
 #include "Engine/Components/CircleCollider.h"
 #include "Engine/Components/ComponentManager.h"
+#include "Engine/Components/PolygonCollider.h"
 #include "Engine/Components/RectangleCollider.h"
 #include "Engine/Components/Rigidbody.h"
 #include <glm/glm.hpp>
@@ -30,13 +32,15 @@ void Engine::CollisionManager::Update()
     
     const auto circleColliders = GetComponentManager().GetAllComponents<CircleCollider>();
     const auto rectangleColliders = GetComponentManager().GetAllComponents<RectangleCollider>();
+    const auto polygonColliders = GetComponentManager().GetAllComponents<PolygonCollider>();
 
     // Reserve space to avoid multiple reallocations
-    colliders.reserve(circleColliders.size() + rectangleColliders.size());
+    colliders.reserve(circleColliders.size() + rectangleColliders.size() + polygonColliders.size());
 
-    // Insert both vectors into the colliders vector
+    // Insert each vector into the colliders vector
     colliders.insert(colliders.end(), circleColliders.begin(), circleColliders.end());
     colliders.insert(colliders.end(), rectangleColliders.begin(), rectangleColliders.end());
+    colliders.insert(colliders.end(), polygonColliders.begin(), polygonColliders.end());
     
     _quadTree.Clear();
 
@@ -119,13 +123,15 @@ void Engine::CollisionManager::CheckCollisions(const std::vector<Collider*>& col
                 else
                 {
                     // Non-overlap handling (e.g., resolve collision response like block or ignore)
-                    const glm::vec2 normal = glm::normalize(other->gameObject->GetWorldPosition() - collider->gameObject->GetWorldPosition());
-                    const auto a = collider->gameObject->GetComponent<Rigidbody>();
-                    const auto b = other->gameObject->GetComponent<Rigidbody>();
-                    if (a && b)
-                    {
-                        ResolveCollision(a, b, normal, pen);
-                    }
+                    const glm::vec2 separation = other->GetCenter() - collider->GetCenter();
+
+                    // Two colliders sharing a centre give no direction to push along, and
+                    // normalizing that is a divide by zero -- which produces NaN
+                    // positions that then propagate through everything they touch.
+                    if (dot(separation, separation) <= std::numeric_limits<float>::epsilon())
+                        continue;
+
+                    ResolveCollision(collider, other, normalize(separation), pen);
                 }
             }
             else
@@ -141,35 +147,68 @@ void Engine::CollisionManager::CheckCollisions(const std::vector<Collider*>& col
     }
 }
 
-void Engine::CollisionManager::ResolveCollision(Rigidbody* a, Rigidbody* b, const glm::vec2 normal, const float penetration) const
+namespace
 {
-    const glm::vec2 relativeVelocity = b->GetVelocity() - a->GetVelocity();
-    const float velocityAlongNormal = dot(relativeVelocity, normal);
+    // How much a body yields. Zero -- immovable -- for a body that is marked static, and
+    // for one that is not there at all.
+    //
+    // The absent case is the point. Resolution used to require a Rigidbody on *both*
+    // sides and silently do nothing otherwise, so a collider on plain level geometry --
+    // a wall, a hull plate, the top half of a cockpit -- was detected, matched, found to
+    // Block, and then ignored. It read as "that collider does not work", when what did
+    // not work was blocking against anything without a Rigidbody.
+    float InverseMassOf(const Engine::Rigidbody* body)
+    {
+        if (body == nullptr || body->IsStatic()) return 0.0f;
+        return body->GetInverseMass();
+    }
 
-    // If objects are already separating, do nothing
-    if (velocityAlongNormal > 0) return;
+    glm::vec2 VelocityOf(const Engine::Rigidbody* body)
+    {
+        return body != nullptr ? body->GetVelocity() : glm::vec2(0.0f);
+    }
+}
 
-    // Compute restitution (bounciness)
-    const float e = 0.1f;
+void Engine::CollisionManager::ResolveCollision(const Collider* a, const Collider* b, const glm::vec2 normal, const float penetration) const
+{
+    GameObject* objectA = a->gameObject;
+    GameObject* objectB = b->gameObject;
+    if (objectA == nullptr || objectB == nullptr) return;
 
-    // Compute impulse scalar
-    float j = -(1 + e) * velocityAlongNormal;
-    float invMassSum = a->GetInverseMass() + b->GetInverseMass();
-    if (invMassSum == 0.0f) return; // Avoid division by zero
+    // A child and its own parent overlapping is how a multi-part object is *built*, not
+    // a collision to push apart -- resolving it would drive the two halves off each
+    // other every frame.
+    if (objectA->GetParent() == objectB || objectB->GetParent() == objectA) return;
 
-    j /= invMassSum;
+    Rigidbody* bodyA = objectA->GetComponent<Rigidbody>();
+    Rigidbody* bodyB = objectB->GetComponent<Rigidbody>();
 
-    // Apply impulse
-    const glm::vec2 impulse = j * normal;
-    if (!a->IsStatic()) a->ApplyImpulse(-impulse);
-    if (!b->IsStatic()) b->ApplyImpulse(impulse);
+    const float inverseMassA = InverseMassOf(bodyA);
+    const float inverseMassB = InverseMassOf(bodyB);
+    const float inverseMassSum = inverseMassA + inverseMassB;
+
+    // Two immovable things cannot be separated, and neither can push the other.
+    if (inverseMassSum == 0.0f) return;
+
+    // Normal points from A to B, so a negative closing speed means they are approaching.
+    if (const float velocityAlongNormal = dot(VelocityOf(bodyB) - VelocityOf(bodyA), normal); velocityAlongNormal <= 0.0f)
+    {
+        constexpr float restitution = 0.1f;
+        const glm::vec2 impulse = (-(1.0f + restitution) * velocityAlongNormal / inverseMassSum) * normal;
+
+        if (inverseMassA > 0.0f) bodyA->ApplyImpulse(-impulse);
+        if (inverseMassB > 0.0f) bodyB->ApplyImpulse(impulse);
+    }
 
     // **Positional Correction (to separate overlapping objects)**
+    //
+    // Shared out by how much each body yields, so all of it lands on the moving body
+    // when the other is a wall.
     constexpr float percent = 0.6f;  // Penetration correction percentage
-    const glm::vec2 correction = (penetration / invMassSum) * percent * normal;
-        
-    if (!a->IsStatic()) a->gameObject->SetPosition(a->gameObject->GetWorldPosition() - a->GetInverseMass() * correction);
-    if (!b->IsStatic()) b->gameObject->SetPosition(b->gameObject->GetWorldPosition() + b->GetInverseMass() * correction);
+    const glm::vec2 correction = (penetration / inverseMassSum) * percent * normal;
+
+    if (inverseMassA > 0.0f) objectA->SetWorldPosition(objectA->GetWorldPosition() - inverseMassA * correction);
+    if (inverseMassB > 0.0f) objectB->SetWorldPosition(objectB->GetWorldPosition() + inverseMassB * correction);
 }
 
 

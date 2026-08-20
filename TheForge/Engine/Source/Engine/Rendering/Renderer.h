@@ -24,6 +24,25 @@ namespace Engine
 		
 		void Render();
 
+		// Draws the UI layer over a cleared backbuffer and presents it, without touching
+		// the scene at all.
+		//
+		// Exists for the loading screen. Level loading is one blocking call on the main
+		// thread, so while it runs the game loop is not turning and Render is not being
+		// called -- a loading screen that only drew from the loop would show its first
+		// frame after the load it was meant to cover had finished. This is what the
+		// loader's progress callback drives instead.
+		//
+		// Deliberately does not draw the scene: mid-load there is no coherent world to
+		// draw, and half a level with no camera is worse than a clean background.
+		void PresentUIOnly();
+
+		// Dumps why the screen looks the way it does: framebuffer size, how many
+		// renderables are queued, whether there is a camera, and what the matrices came
+		// out as. A degenerate projection draws nothing while still clearing, which on
+		// screen is indistinguishable from "the scene vanished".
+		void ReportRenderState() const;
+
 		void AddComponentToRenderList(IRenderable* renderable);
 		void RemoveComponentFromRenderList(IRenderable* renderable);
 		

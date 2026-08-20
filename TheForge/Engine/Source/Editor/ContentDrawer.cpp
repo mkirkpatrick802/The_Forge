@@ -2,9 +2,9 @@
 
 #include <fstream>
 
-#include "DetailsEditor.h"
 #include "Engine/GameObject.h"
-#include "Engine/GameObject.h"
+#include "Engine/LevelManager.h"
+#include "Engine/AssetMetadata.h"
 #include "Engine/System.h"
 #include "Engine/Rendering/TextureLoader.h"
 
@@ -35,6 +35,9 @@ void Editor::ContentDrawer::Render()
 
     ImGui::Begin("Content Drawer");
 
+    if (ImGui::Button("Reimport All"))
+        _reimportCurrentFolder = true;
+
     ImGui::SameLine();
 
     // Right Panel: Thumbnail Grid
@@ -43,6 +46,59 @@ void Editor::ContentDrawer::Render()
     ImGui::EndChild();
 
     ImGui::End();
+
+    // After the item loop, never during it.
+    ProcessPendingImports();
+}
+
+bool Editor::ContentDrawer::IsImageAsset(const std::string& name)
+{
+    return name.ends_with(".png") || name.ends_with(".jpg") || name.ends_with(".jpeg");
+}
+
+void Editor::ContentDrawer::ProcessPendingImports()
+{
+    if (!_assetToReimport.empty())
+    {
+        const std::string path = _assetToReimport;
+        _assetToReimport.clear();
+
+        if (Engine::ImportImageAsset(path))
+        {
+            DEBUG_LOG("Reimported %s", path.c_str())
+
+            // Dropped so the thumbnail is rebuilt from the file on disk. Without this a
+            // reimport of a changed image keeps showing the old picture.
+            _thumbnailCache.erase(path);
+        }
+    }
+
+    if (!_reimportCurrentFolder) return;
+    _reimportCurrentFolder = false;
+
+    int imported = 0;
+    int failed = 0;
+
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(_currentDirectory))
+    {
+        if (entry.is_directory()) continue;
+
+        const std::string path = entry.path().string();
+        if (!IsImageAsset(entry.path().filename().string())) continue;
+
+        if (Engine::ImportImageAsset(path))
+        {
+            ++imported;
+            _thumbnailCache.erase(path);
+        }
+        else
+        {
+            ++failed;
+        }
+    }
+
+    DEBUG_LOG("Reimported %d asset(s) under '%s'%s", imported, _currentDirectory.c_str(),
+        failed > 0 ? " (some failed, see above)" : "")
 }
 
 void Editor::ContentDrawer::DrawDirectoryContents()
@@ -86,14 +142,12 @@ void Editor::ContentDrawer::DrawDirectoryContents()
     for (auto& [name, fullPath, isDirectory, children] : selectedNode.children)
     {
         auto icon = isDirectory ? _folderIcon : _fileIcon;
-        if (name.ends_with(".png") || name.ends_with(".jpg"))
+        if (IsImageAsset(name))
         {
-            static std::unordered_map<std::string, std::shared_ptr<Engine::Texture>> iconCache;
+            if (!_thumbnailCache.contains(fullPath))
+                _thumbnailCache[fullPath] = CreateTexture(fullPath, Engine::Texture::TextureType::PIXEL);
 
-            if (!iconCache.contains(fullPath))
-                iconCache[fullPath] = CreateTexture(fullPath, Engine::Texture::TextureType::PIXEL);
-
-            icon = iconCache[fullPath];
+            icon = _thumbnailCache[fullPath];
         }
 
         // Create a selectable button-like image to enable drag
@@ -103,20 +157,23 @@ void Editor::ContentDrawer::DrawDirectoryContents()
             if (isDirectory)
                 _currentDirectory = fullPath;
 
-            // Edit prefab
+            // Edit prefab.
+            //
+            // Opened as the world, replacing the level -- the prefab is not built
+            // alongside it. Components live in global pools, so a prefab standing next to
+            // an open level draws into it, collides with it and can be picked out of the
+            // viewport while nothing in the level owns it.
             if (name.ends_with(".prefab"))
-            {
-                std::ifstream prefab(fullPath);
-                auto go = std::make_unique<Engine::GameObject>();
-                
-                nlohmann::json data;
-                prefab >> data;
-                prefab.close();
-                
-                go->Deserialize(data);
-                go->filepath = fullPath;
-                DetailsEditor::SetSelectedPrefab(std::move(go));
-            }
+                Engine::LevelManager::OpenPrefab(fullPath);
+        }
+
+        // Bound to the item above, so it must come before anything else is submitted.
+        if (!isDirectory && IsImageAsset(name) && ImGui::BeginPopupContextItem())
+        {
+            if (ImGui::MenuItem("Reimport"))
+                _assetToReimport = fullPath;
+
+            ImGui::EndPopup();
         }
 
         // Begin drag operation from the image button
@@ -149,6 +206,11 @@ void Editor::ContentDrawer::ScanDirectory(const std::filesystem::path& directory
     node.children.clear();
 
     for (const auto& entry : std::filesystem::directory_iterator(directory)) {
+        // Sidecars are engine bookkeeping that sits next to the asset it describes.
+        // Showing them doubles the apparent contents of every folder once assets are
+        // imported, and there is nothing useful to do with one.
+        if (entry.path().extension() == ".meta") continue;
+
         FileNode child;
         child.name = entry.path().filename().string();
         child.fullPath = entry.path().string();

@@ -17,15 +17,15 @@ namespace Editor
         void Render() override;
         
     public:
+        static Engine::GameObject* GetSelectedGameObject() { return _selectedGameObject; }
         static void SetSelectedGameObject(Engine::GameObject* go);
         static void ClearSelectedGameObject();
-
-        static void SetSelectedPrefab(std::unique_ptr<Engine::GameObject> prefab);
-        static void ClearSelectedPrefab();
         
     private:
 
+        // Never owns what it points at. A prefab being edited used to be owned here,
+        // which meant selecting anything else destroyed it mid-frame -- it is a level
+        // object now, and the level owns it like any other. See LevelManager::OpenPrefab.
         static Engine::GameObject* _selectedGameObject;
-        static std::unique_ptr<Engine::GameObject> _selectedPrefab;
     };
 }

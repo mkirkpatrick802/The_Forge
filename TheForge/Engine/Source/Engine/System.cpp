@@ -1,4 +1,4 @@
-﻿#include "System.h"
+#include "System.h"
 
 #include <cassert>
 #include <filesystem>
@@ -153,6 +153,23 @@ void Engine::System::DisplayMessageBox(const std::string& caption, const std::st
 	MessageBox(nullptr, wMessage.c_str(), wCaption.c_str(), MB_OK);
 }
 
+namespace
+{
+	// Process-wide: LogToConsole is const and logging can come from anywhere, so the
+	// mirror cannot live on an instance.
+	std::function<void(const std::string&)> g_logMirror;
+}
+
+void Engine::System::SetLogMirror(const std::function<void(const std::string&)>& mirror)
+{
+	g_logMirror = mirror;
+}
+
+const std::function<void(const std::string&)>& Engine::System::GetLogMirror()
+{
+	return g_logMirror;
+}
+
 void Engine::System::LogToConsole(const char* format, ...) const
 {
 	constexpr size_t bufferSize = 1024;
@@ -162,6 +179,11 @@ void Engine::System::LogToConsole(const char* format, ...) const
 	va_start(args, format);
 	std::vsnprintf(buffer, bufferSize, format, args);
 	va_end(args);
+
+	// Before every other destination, and before the Release early-out below, so a
+	// command's output reaches the window it was typed into in every configuration.
+	if (g_logMirror)
+		g_logMirror(buffer);
 
 	// A headless build has no in-engine console to receive the event, so logs go
 	// straight to stdout. Deliberately not gated on _DEBUG -- a dedicated server

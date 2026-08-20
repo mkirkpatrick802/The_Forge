@@ -14,6 +14,8 @@
 
 Engine::LineRenderer::LineRenderer(): _size(), _start(), _end()
 {
+    SetDefaultShaders(LINE_VERTEX_SHADER, LINE_FRAGMENT_SHADER);
+
     // The endpoints move with whatever is drawing the line -- the flux wrench beam,
     // for one -- so this has to be in the delta. See WriteDelta for what actually goes.
     isReplicated = true;

@@ -16,7 +16,9 @@ void Editor::MenuBar::Render()
         // Left-aligned menu items
         if (ImGui::BeginMenu("File"))
         {
-            if (ImGui::MenuItem("Save")) { Engine::LevelManager::GetCurrentLevel()->SaveLevel(); }
+            if (ImGui::MenuItem("Save"))
+                if (const auto level = Engine::LevelManager::GetCurrentLevel())
+                    level->SaveLevel();
             ImGui::EndMenu();
         }
 

@@ -1,4 +1,6 @@
-﻿#pragma once
+#pragma once
+#include <functional>
+#include <string>
 
 #define CRTDBG_MAP_ALLOC
 #include "Windows.h"
@@ -46,6 +48,21 @@ namespace Engine
 		void LogToErrorFile(const std::string& message);
 		void DisplayMessageBox(const std::string& caption, const std::string& message) const;
 		void LogToConsole(const char* format, ...) const;
+
+	// While a mirror is installed, every logged line is also handed to it.
+	//
+	// Exists so a command's output can be shown where the command was typed. A command
+	// handler just calls DEBUG_LOG; it does not know, and should not need to know,
+	// whether it was invoked from the editor terminal, the in-game chat or a headless
+	// server console. The caller installs a mirror for the duration of the call and
+	// takes it down afterwards.
+	static void SetLogMirror(const std::function<void(const std::string&)>& mirror);
+
+	// The mirror currently installed, so a caller can put it back rather than clearing
+	// it. There is only one slot, and it is shared by the editor terminal, the chat
+	// window and the loading screen -- a screen that set it to nullptr on the way out
+	// would silently switch the terminal's output off instead of restoring it.
+	static const std::function<void(const std::string&)>& GetLogMirror();
 
 		SDL_Window* GetWindow() const { return _window; }
 		glm::vec2 GetWindowSize() const;

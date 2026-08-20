@@ -32,6 +32,13 @@ namespace Engine
         // May not have access to other component on the game object 
         virtual void OnActivation() {}
 
+        // Triggers just before the pool reclaims this component, while it is still
+        // fully alive. Anything that handed a pointer to this component out to a
+        // system that outlives it -- a manager caching it, a list it registered
+        // itself with -- has to take it back here. The pool destroys the object
+        // immediately afterwards, so a pointer still held past this point dangles.
+        virtual void OnDeactivation() {}
+
         // The component in full. Used for the complete world state, and for any object a
         // peer has not seen before -- enough to construct the thing from nothing.
         virtual void Read(NetCode::InputByteStream& stream) {}

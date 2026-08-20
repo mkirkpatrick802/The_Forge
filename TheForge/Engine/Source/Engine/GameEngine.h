@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <memory>
 
 #include "Chat.h"
@@ -21,8 +21,18 @@ namespace Engine
 		void StartGameplayLoop();
 
 	private:
+		// Registered as the "Editor Enabled" event handler, and only that.
+		//
+		// Never opens the main menu, whatever the config says: this fires when the
+		// editor is toggled, and the editor's Play button toggles it off on its way into
+		// StartCurrentLevel. Loading the menu here would mean every Play loaded the menu
+		// and then immediately threw it away.
 		void SceneStartup(const void* p = nullptr);
-		void ToggleLoadingScreen(bool enabled);
+
+		// The level this process opens on. The menu, for a windowed client with one
+		// configured; the default level for the editor, a dedicated server and any build
+		// with no menu.
+		void LoadStartupLevel(bool allowMainMenu);
 		
 	private:
 		std::unique_ptr<Renderer> _renderer;
@@ -30,7 +40,6 @@ namespace Engine
 		std::unique_ptr<LevelManager> _levelManager;
 		std::unique_ptr<Chat> _chat;
 		std::unique_ptr<ServerConsole> _console;
-		std::unique_ptr<GameObject> _loadingScreen;
 
 	public:
 		Renderer& GetRenderer() const { return *_renderer; }

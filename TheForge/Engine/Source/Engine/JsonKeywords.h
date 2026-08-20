@@ -1,10 +1,20 @@
-﻿#pragma once
+#pragma once
 
 namespace JsonKeywords
 {
     namespace Config
     {
         const std::string DEFAULT_LEVEL = "Default Level";
+
+        // The level a windowed client boots into. Absent means "no menu" -- boot
+        // straight into DEFAULT_LEVEL, which is what every build did before menus
+        // existed and is still what a dedicated server and the editor do.
+        const std::string MAIN_MENU_LEVEL = "Main Menu Level";
+
+        // Where Play connects to. A text field on the menu would override it; until
+        // there is one, this is how you point a build at a server.
+        const std::string SERVER_ADDRESS = "Server Address";
+        const std::string SERVER_PORT = "Server Port";
     }
     
     const std::string LEVEL_NAME = "Level Name";

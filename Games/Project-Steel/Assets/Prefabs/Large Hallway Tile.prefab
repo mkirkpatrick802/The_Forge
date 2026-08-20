@@ -29,6 +29,8 @@
         },
         {
             "Component ID": 3505471502,
+            "Offset X": 0.0,
+            "Offset Y": 0.0,
             "Size X": 32.0,
             "Size Y": 32.0,
             "collisionProfile": {

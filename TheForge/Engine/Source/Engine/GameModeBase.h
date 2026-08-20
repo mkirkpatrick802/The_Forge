@@ -58,6 +58,11 @@ namespace Engine
         static void Register(const std::string& name, Factory factory);
         static std::unique_ptr<GameModeBase> Create(const std::string& name);
 
+        // Every registered mode, sorted. Lets the editor offer what the linked game
+        // actually provides rather than a hand-written list -- which is what the old
+        // hardcoded {"Main Menu", "Game"} dropdown was, and why it never worked.
+        static std::vector<std::string> GetNames();
+
     private:
         static std::unordered_map<std::string, Factory>& Factories();
     };

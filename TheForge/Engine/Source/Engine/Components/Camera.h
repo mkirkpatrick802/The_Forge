@@ -16,6 +16,7 @@ namespace Engine
         
         Camera();
         void OnActivation() override;
+        void OnDeactivation() override;
 
         void SetZoom(const float zoom) { _zoom = glm::clamp(zoom, _zoomBounds.x, _zoomBounds.y); }  // Clamping for stability
         void ZoomIn(const float amount) { SetZoom(_zoom - amount); }

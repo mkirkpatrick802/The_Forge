@@ -1,5 +1,6 @@
-﻿#include "Font.h"
+#include "Font.h"
 
+#include <algorithm>
 #include <iostream>
 #include <ostream>
 
@@ -57,6 +58,11 @@ void Engine::Font::LoadFont(const std::string& fontPath, unsigned int fontSize)
             glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
             static_cast<unsigned int>(face->glyph->advance.x)
         };
+
+        // Taken from the glyphs that were actually loaded rather than from the face's
+        // own metrics, so it agrees with what gets drawn even for a font whose declared
+        // ascender does not match its outlines.
+        _ascent = std::max(_ascent, static_cast<float>(face->glyph->bitmap_top));
     }
 
     FT_Done_Face(face);
@@ -88,20 +94,60 @@ void Engine::Font::SetFontSize(unsigned int fontSize)
     }
     _characters.clear(); // Remove old character data
 
+    // Stale otherwise: the ascent is in pixels at the loaded size, so a resize that did
+    // not clear it would keep positioning every label by the old size's baseline.
+    _ascent = 0.0f;
+    _fontSize = static_cast<int>(fontSize);
+
     // Reload the font with the new size
     LoadFont(_fontPath, fontSize);
 }
 
+glm::vec2 Engine::Font::MeasureText(const std::string& text, const float scale) const
+{
+    float width = 0.0f;
+    for (const char c : text)
+    {
+        const auto glyph = _characters.find(c);
+        if (glyph == _characters.end()) continue;
+
+        // The advance, not the bitmap width: trailing spaces take up room, and a glyph's
+        // ink is routinely narrower than the space it claims.
+        width += static_cast<float>(glyph->second.advance >> 6) * scale;
+    }
+
+    return {width, static_cast<float>(_fontSize) * scale};
+}
+
+float Engine::Font::GetAscent(const float scale) const
+{
+    return _ascent * scale;
+}
+
 void Engine::Font::RenderText(const std::string& text, glm::vec2 pos, float scale, glm::vec3 color)
+{
+    RenderText(text, pos, scale, color, GetProjectionMatrix());
+}
+
+void Engine::Font::RenderText(const std::string& text, glm::vec2 pos, float scale, glm::vec3 color, const glm::mat4& projection,
+                              const float opacity)
 {
     _shader.Use();
     _shader.SetVector3f("textColor", color);
-    _shader.SetMatrix4("projection", GetProjectionMatrix());
+    _shader.SetFloat("opacity", opacity);
+    _shader.SetMatrix4("projection", projection);
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(_vao);
 
     for (char c : text) {
-        Character ch = _characters[c];
+        // find, not operator[]. Indexing a std::map inserts a default-constructed
+        // Character for anything outside the loaded ASCII range -- textureID 0, zero
+        // advance -- so a single stray byte would permanently add a zero-width entry
+        // and bind texture 0 for it on every later draw.
+        const auto glyph = _characters.find(c);
+        if (glyph == _characters.end()) continue;
+
+        const Character& ch = glyph->second;
         
         float w = ch.size.x * scale;
         float h = ch.size.y * scale;

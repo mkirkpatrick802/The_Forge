@@ -7,7 +7,10 @@
 
 Engine::TextRenderer::TextRenderer()
 {
-    
+    // Text is actually drawn through Font, which owns its own shader -- but this is an
+    // IRenderable, so the base still tries to build the pair named here. Left empty it
+    // failed on every load and logged a link error for a shader nothing would have used.
+    SetDefaultShaders(TEXT_VERTEX_SHADER, TEXT_FRAGMENT_SHADER);
 }
 
 Engine::TextRenderer::~TextRenderer()

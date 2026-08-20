@@ -6,7 +6,9 @@
 #include "RenderingUtils.h"
 #include "Editor/Console.h"
 #include "Engine/GameEngine.h"
+#include "Engine/GameObject.h"
 #include "Engine/JsonKeywords.h"
+#include "Engine/System.h"
 
 Engine::IRenderable::IRenderable(): _quadVAO(0), _resourcesResident(false), _sortingLayer(0), _isHidden(false), _gameObject(nullptr)
 {
@@ -25,10 +27,36 @@ Engine::IRenderable::~IRenderable()
 void Engine::IRenderable::EnsureResourcesResident()
 {
     if (_resourcesResident) return;
-    _resourcesResident = true;
 
-    _quadVAO = RenderingUtils::GenerateVAO();
+    // A compile that failed is retried, but only once the paths differ from the ones
+    // that failed. Marking resources resident before knowing whether the shader built
+    // is what used to make a bad compile permanent for the life of the process.
+    if (_shaderCompileFailed
+        && _vertexShaderFilepath == _compiledVertexShader
+        && _fragmentShaderFilepath == _compiledFragmentShader)
+        return;
+
+    if (_quadVAO == 0)
+        _quadVAO = RenderingUtils::GenerateVAO();
+
+    _compiledVertexShader = _vertexShaderFilepath;
+    _compiledFragmentShader = _fragmentShaderFilepath;
+
     shader.Compile(_vertexShaderFilepath.c_str(), _fragmentShaderFilepath.c_str());
+
+    _shaderCompileFailed = !shader.IsValid();
+    if (_shaderCompileFailed)
+    {
+        // Named, because "a shader failed" on its own leaves you grepping the scene for
+        // which object it belongs to.
+        DEBUG_LOG("Shader failed to build on '%s': '%s' + '%s'",
+            _gameObject != nullptr ? _gameObject->GetName().c_str() : "(no object)",
+            _vertexShaderFilepath.empty() ? "(none)" : _vertexShaderFilepath.c_str(),
+            _fragmentShaderFilepath.empty() ? "(none)" : _fragmentShaderFilepath.c_str())
+        return;
+    }
+
+    _resourcesResident = true;
 }
 
 void Engine::IRenderable::InitRenderable(GameObject* go)
@@ -88,7 +116,18 @@ void Engine::IRenderable::DrawRenderableSettings()
     const std::string label = "Sorting Layer##" + std::to_string((uintptr_t)this);
     int temp = _sortingLayer;
     ImGui::InputInt(label.c_str(), &temp);
-    _sortingLayer = (int8_t)temp;
+
+    if (const auto layer = static_cast<int8_t>(temp); layer != _sortingLayer)
+    {
+        _sortingLayer = layer;
+
+        // The render list is keyed by sorting layer, so changing it here has no effect
+        // until the renderable is re-inserted. Without this the new value showed in the
+        // inspector but drew in the old order until the level was reloaded -- which is
+        // why hitting Play appeared to "fix" it.
+        GetRenderer().AddComponentToRenderList(this);
+    }
+
     ImGui::Spacing();
 
     if (ImGuiHelper::DragDropFileButton("Vert", _vertexShaderFilepath, "FILE_PATH"))

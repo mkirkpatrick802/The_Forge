@@ -22,6 +22,18 @@ void ShipPiece::Start()
         gameObject->isReplicated = false;
 
     _collider = gameObject->GetComponent<Collider>();
+
+    // A ship piece authored without a collider used to crash here, on the first frame,
+    // on every machine that loaded the level -- including a headless server, which
+    // takes the whole match down. Snapping and overlap need a collider, so a piece
+    // without one simply does not take part; that is a content problem to report, not
+    // a reason to die.
+    if (_collider == nullptr)
+    {
+        DEBUG_LOG("ShipPiece on '%s' has no Collider; it cannot be snapped to or built on.", gameObject->GetName().c_str())
+        return;
+    }
+
     if (gameObject->GetParent() == nullptr)
     {
         _collider->SetCollisionResponseToAllObjects(ECollisionResponse::ECR_Overlap);
@@ -39,7 +51,14 @@ void ShipPiece::Update(float deltaTime)
 
 glm::vec2 ShipPiece::GetNearestSnapLocation(glm::vec2 mouse, const ShipPiece* other) const
 {
-    glm::vec2 position = gameObject->GetWorldPosition();
+    // Both sides of a snap need bounds. A piece that survived Start without a collider
+    // reaches here otherwise, and the cast below would be reading through null.
+    if (_collider == nullptr || other == nullptr || other->_collider == nullptr)
+        return gameObject->GetWorldPosition();
+
+    // The grid is built around the *collider*, not the object's origin, so a piece
+    // whose collider is offset still snaps along the edges of its actual footprint.
+    glm::vec2 position = _collider->GetCenter();
     float rotation = gameObject->GetWorldRotation(); // You might need this if you're rotating grid points
     glm::vec2 size = ((RectangleCollider*)_collider)->GetSize();
     glm::vec2 otherSize = other->gameObject->GetComponent<RectangleCollider>()->GetSize();

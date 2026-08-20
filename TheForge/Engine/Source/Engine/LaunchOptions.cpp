@@ -1,4 +1,4 @@
-﻿#include "LaunchOptions.h"
+#include "LaunchOptions.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -80,4 +80,17 @@ void Engine::ParseLaunchOptions(const int argc, char** argv)
 const Engine::LaunchOptions& Engine::GetLaunchOptions()
 {
 	return g_launchOptions;
+}
+
+void Engine::SetSessionTarget(const ENetRole role, const std::string& address, const uint16_t port)
+{
+	g_launchOptions.role = role;
+
+	// An empty address means "keep whatever was on the command line", so a menu that
+	// only wants to change the role does not have to know the default.
+	if (!address.empty())
+		g_launchOptions.serverAddress = address;
+
+	if (port != 0)
+		g_launchOptions.port = port;
 }

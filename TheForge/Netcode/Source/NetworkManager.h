@@ -95,7 +95,24 @@ namespace NetCode
         // Joins or hosts a session. Called once the level exists, because onboarding
         // a peer spawns into it -- a transport brought up any earlier could accept a
         // connection with nothing to spawn into.
+        //
+        // Also where the transport is chosen. That used to happen in the constructor,
+        // which was fine while the role could only come from the command line -- but a
+        // main menu picks the role and the address at run time, long after this
+        // singleton first exists. It is still one decision made once, just once per
+        // session rather than once per process.
         void StartNetCode();
+
+        // Where the session has got to. What a loading screen shows while a client works
+        // through connect, authenticate and world-state.
+        NetworkManagerState GetState() const { return _state; }
+
+        // True once the world has arrived and the game is playable.
+        bool IsPlaying() const { return _state == NMS_Playing; }
+
+        // True between StartNetCode and the world arriving -- the window a loading
+        // screen covers.
+        bool IsConnecting() const { return _state == NMS_Searching || _state == NMS_Starting; }
 
         // Closes the session. Safe to call twice; the destructor calls it too.
         void ShutdownNetCode();
@@ -116,7 +133,14 @@ namespace NetCode
 
         // True when this machine simulates the world. Offline counts: a game with
         // nobody to talk to still has to run itself.
-        bool HasWorldAuthority() const { return _transport->IsAuthority(); }
+        // Null-guarded because the transport now only exists between StartNetCode and
+        // ShutdownNetCode. Before a session, nothing is authoritative over a world that
+        // does not exist yet -- and a main menu asking this is exactly that case.
+        bool HasWorldAuthority() const { return _transport != nullptr && _transport->IsAuthority(); }
+
+        // Only valid while a session is up. Callers outside one should be asking
+        // GetState instead.
+        bool HasTransport() const { return _transport != nullptr; }
 
         // Says hello and opens the window in which a peer must prove who it is. No pawn
         // is spawned and no world state is sent -- that is AdmitPlayer's job, and it
@@ -158,6 +182,11 @@ namespace NetCode
         INetTransport& GetTransport() const { return *_transport; }
 
     private:
+        // Picks UDP, Steam or Offline from the launch options as they stand now.
+        // Destroys any previous transport first, so reconnecting after a disconnect
+        // starts from a clean one rather than a shut-down one.
+        void SelectTransport();
+
         // Registered once at construction. Engine-level actions only; a game registers
         // its own against ids from GAME_ACTION_BASE up.
         void RegisterEngineActions();

@@ -12,7 +12,10 @@ glm::mat4 Engine::GetProjectionMatrix()
     if (const auto activeCamera = GetCameraManager().GetActiveCamera())
         return activeCamera->GetProjectionMatrix();
 
-    return {};
+    // Identity, not {}. A default-constructed glm::mat4 is all zeroes, which multiplies
+    // every vertex to the origin and renders a perfectly black screen -- the failure
+    // looks like "the renderer is broken" rather than "there is no camera".
+    return glm::mat4(1.0f);
 }
 
 glm::mat4 Engine::GetViewMatrix()
@@ -25,5 +28,5 @@ glm::mat4 Engine::GetViewMatrix()
     if (const auto activeCamera = GetCameraManager().GetActiveCamera())
         return activeCamera->GetViewMatrix();
 
-    return {};
+    return glm::mat4(1.0f);
 }

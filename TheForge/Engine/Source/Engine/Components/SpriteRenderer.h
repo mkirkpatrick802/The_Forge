@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Component.h"
 #include "ComponentUtils.h"
 #include "Engine/Rendering/IRenderable.h"
@@ -26,6 +26,14 @@ namespace Engine
         virtual void DrawDetails() override;
         
         glm::vec2 GetSize() const { return _size; }
+
+        // Which image this draws. A PolygonCollider on the same object takes its shape
+        // from here, which is what lets it be added with nothing to configure.
+        const std::string& GetSpritePath() const { return _spritePath; }
+
+        // A screen-space sprite bypasses the view matrix, so it has no world position
+        // and world-space queries -- editor picking, for one -- must skip it.
+        bool IsScreenSpace() const { return _isScreenSpace; }
 
     protected:
         void Render(const ShaderUniformData& data) override;

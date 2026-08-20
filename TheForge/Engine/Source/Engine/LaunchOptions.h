@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <cstdint>
 #include <string>
 
@@ -70,4 +70,15 @@ namespace Engine
 	// Populates the process-wide options. Call once, first thing in main().
 	void ParseLaunchOptions(int argc, char** argv);
 	const LaunchOptions& GetLaunchOptions();
+
+	// Points this process at a server, after startup.
+	//
+	// Everything else in here is parsed once and then read-only, which is what makes it
+	// safe to consult from anywhere. This is the deliberate exception: a main menu
+	// decides which server to join at run time, and the role and address are exactly
+	// what "join that one" means. Narrow on purpose -- a setter for the whole struct
+	// would let anything rewrite the headless or Steam flags mid-run.
+	//
+	// Must be called before NetworkManager::StartNetCode, which is what reads them.
+	void SetSessionTarget(ENetRole role, const std::string& address, uint16_t port);
 }

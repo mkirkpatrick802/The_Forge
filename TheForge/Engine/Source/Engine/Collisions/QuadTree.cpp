@@ -2,6 +2,7 @@
 
 #include "Engine/GameEngine.h"
 #include "Engine/Components/CircleCollider.h"
+#include "Engine/Components/PolygonCollider.h"
 #include "Engine/Components/RectangleCollider.h"
 #include "Engine/Rendering/Renderer.h"
 #include <glm/glm.hpp>
@@ -30,6 +31,7 @@ void Engine::QuadTree::DebugRender()
     // Define colors for colliders
     glm::vec3 circleColor(0.0f, 1.0f, 0.0f);   // Green for circles
     glm::vec3 rectColor(0.0f, 0.0f, 1.0f);     // Blue for rectangles
+    glm::vec3 polygonColor(0.0f, 0.8f, 1.0f);  // Cyan for traced outlines
     
     for (const auto collider : _objects)
     {
@@ -38,7 +40,7 @@ void Engine::QuadTree::DebugRender()
         if (collider->GetColliderType() == EColliderType::ECT_Circle)
         {
             const auto circle = dynamic_cast<CircleCollider*>(collider);
-            glm::vec2 center = circle->gameObject->GetWorldPosition();
+            glm::vec2 center = circle->GetCenter();
             const float radius = circle->GetRadius();
 
             // Draw circle using DebugRenderer
@@ -49,10 +51,19 @@ void Engine::QuadTree::DebugRender()
         {
             const auto rect = dynamic_cast<RectangleCollider*>(collider);
             glm::vec2 size = rect->GetSize();
-            glm::vec2 center = rect->gameObject->GetWorldPosition();
+            glm::vec2 center = rect->GetCenter();
 
             // Draw rectangle using DebugRenderer
             GetDebugRenderer().DrawRectangle(center, size, rectColor);
+        }
+
+        if (collider->GetColliderType() == EColliderType::ECT_Polygon)
+        {
+            // Each convex piece separately, so the decomposition itself is visible --
+            // which is what you want to look at when a traced shape misbehaves.
+            if (const auto polygon = dynamic_cast<PolygonCollider*>(collider))
+                for (const auto& piece : polygon->GetWorldPieces())
+                    GetDebugRenderer().DrawPolygon(piece, polygonColor);
         }
     }
 
@@ -71,7 +82,7 @@ void Engine::QuadTree::DebugRender()
 void Engine::QuadTree::Insert(Collider* collider)
 {
     // Ensure the collider is within the bounds of the QuadTree before proceeding
-    const glm::vec2 colliderPos = collider->gameObject->GetWorldPosition();
+    const glm::vec2 colliderPos = collider->GetCenter();
     
     // Check if the colliders position is inside the QuadTree's bounds
     const auto [min, max] = GetColliderMinMax(collider);
@@ -194,8 +205,8 @@ std::pair<glm::vec2, glm::vec2> Engine::QuadTree::GetColliderMinMax(const Collid
     {
         const auto* rect = dynamic_cast<const RectangleCollider*>(collider);
         const glm::vec2 halfSize = rect->GetSize() * 0.5f;
-        const glm::vec2 rectMin = rect->gameObject->GetWorldPosition() - halfSize;
-        const glm::vec2 rectMax = rect->gameObject->GetWorldPosition() + halfSize;
+        const glm::vec2 rectMin = rect->GetCenter() - halfSize;
+        const glm::vec2 rectMax = rect->GetCenter() + halfSize;
 
         return {rectMin, rectMax};
     }
@@ -203,12 +214,22 @@ std::pair<glm::vec2, glm::vec2> Engine::QuadTree::GetColliderMinMax(const Collid
     if (collider->GetColliderType() == EColliderType::ECT_Circle)
     {
         const auto* circle = dynamic_cast<const CircleCollider*>(collider);
-        const glm::vec2 center = circle->gameObject->GetWorldPosition();
+        const glm::vec2 center = circle->GetCenter();
         const float radius = circle->GetRadius();
 
         return {center - glm::vec2(radius), center + glm::vec2(radius)};
     }
     
+    if (collider->GetColliderType() == EColliderType::ECT_Polygon)
+    {
+        if (const auto* polygon = dynamic_cast<const PolygonCollider*>(collider))
+        {
+            glm::vec2 min, max;
+            polygon->GetWorldBounds(min, max);
+            return {min, max};
+        }
+    }
+
     return std::make_pair(glm::vec2(), glm::vec2());
 }
 

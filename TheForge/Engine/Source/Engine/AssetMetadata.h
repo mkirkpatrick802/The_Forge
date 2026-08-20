@@ -1,6 +1,8 @@
-#pragma once
+﻿#pragma once
 #include <string>
 #include <glm/vec2.hpp>
+
+#include "Collisions/SpriteOutline.h"
 
 namespace Engine
 {
@@ -25,4 +27,12 @@ namespace Engine
 	// falls back to reading the file header (and warns) so assets that predate the
 	// import step still work. Returns (0,0) if neither is available.
 	glm::vec2 GetImageSize(const std::string& imagePath);
+
+	// The image's solid area as convex pieces, traced from its alpha at import time.
+	//
+	// Read from the sidecar and never computed here: tracing decodes the image, and the
+	// whole point of the sidecar is that loading a level does no image work. An asset
+	// that has not been imported since outlines existed returns an empty outline, which
+	// a PolygonCollider reports rather than silently colliding with nothing.
+	SpriteOutline GetImageCollisionShape(const std::string& imagePath);
 }

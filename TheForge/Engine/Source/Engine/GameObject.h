@@ -75,8 +75,6 @@ namespace Engine
         // result against the slots that are really in use.
         void MarkDirty() { _dirtyPeers = ALL_PEERS_DIRTY; }
         
-        std::string filepath;
-        
     private:
         static constexpr uint32_t ALL_PEERS_DIRTY = 0xFFFFFFFFu;
 
@@ -106,7 +104,16 @@ namespace Engine
         void SetName(const std::string& name) { _name = name; }
         std::string GetName() const { return _name; }
 
+        // Sets the *local* position. Physics and collision resolution want the world
+        // one -- see SetWorldPosition.
         void SetPosition(const glm::vec2& position) const;
+
+        // Places the object at a world position, expressed in whatever frame its parent
+        // establishes. A Transform stores a local position, so writing a world position
+        // straight into it is correct only for an object that has no parent -- on a
+        // child it displaces the object by the parent's offset and rotation, every time.
+        void SetWorldPosition(const glm::vec2& position) const;
+
         glm::vec2 GetWorldPosition() const;
         glm::vec2 GetLocalPosition() const;
 

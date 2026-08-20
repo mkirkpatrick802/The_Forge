@@ -35,6 +35,12 @@ namespace Engine
     // re-send is a *full* record, which is precisely the traffic this exists to avoid.
     constexpr float RELEVANCE_LEAVE_RADIUS = 3600.0f;
 
+    // The world a prefab is edited in. A prefab has no authored extent of its own, but
+    // the level it stands in for is asked for one -- by the collision quadtree, and by
+    // anything that reasons about the world's bounds. Large enough that nothing sensibly
+    // sized falls outside it.
+    constexpr glm::vec2 PREFAB_EDIT_AREA = glm::vec2(4000.0f, 4000.0f);
+
     class GameModeBase;
     class Level;
     class GameObject;
@@ -52,10 +58,22 @@ namespace Engine
         GameObject* SpawnNewGameObjectFromInputStream(NetCode::InputByteStream& stream, uint32_t NID);
         bool RemoveGameObject(GameObject* go, bool replicate = true);
 
+        // Writes this level back to the file it came from. A prefab level writes its one
+        // root object instead of a level record -- see LoadPrefab -- so the editor's
+        // save, Ctrl+S and /save all do the right thing without knowing which is open.
         void SaveLevel(const std::string& args = "");
         
         std::vector<GameObject*> GetAllGameObjects() const;
         std::string GetName() { return _name; }
+
+        // True when this level is standing in for a single prefab being edited, rather
+        // than describing a world of its own.
+        bool IsPrefab() const { return _isPrefab; }
+
+        // The first object with no parent. For a prefab level that is the prefab itself;
+        // for a level it is whichever root happens to come first, which is only ever
+        // meaningful for a prefab. Null if the level is empty.
+        GameObject* FindRootObject() const;
 
         // Ticked by the gameplay loop. Authority only in practice -- a level that
         // arrived over the wire has no game mode at all, by design.
@@ -122,6 +140,22 @@ namespace Engine
         Level();
         void Load(nlohmann::json data);
         void Load(NetCode::InputByteStream& stream);
+
+        // Builds a level whose entire contents are one prefab, from that prefab's own
+        // JSON -- a GameObject record, not a level record.
+        //
+        // Editing a prefab in the level it happens to be sitting next to does not work:
+        // the prefab's components go live in the same global pools the level's do, so it
+        // ticks, draws, collides and can be picked, while nothing owns it. Giving it a
+        // world of its own means the editor has exactly one code path -- everything from
+        // the hierarchy to selection to child spawning treats the prefab root as what it
+        // now is, an ordinary object in the open level.
+        void LoadPrefab(const nlohmann::json& data);
+
+        // What SaveLevel does for a prefab level: writes the root object's own record,
+        // which is what a .prefab file is.
+        void SavePrefab();
+
         ~Level();
 
         void Start() const;
@@ -134,6 +168,10 @@ namespace Engine
         std::vector<std::unique_ptr<GameObject>> _gameObjects;
         std::unique_ptr<GameModeBase> _gameMode; // Only exists on the server
         std::string _gameModeName;
+
+        // Set by LoadPrefab. Changes what SaveLevel writes, and is what the editor asks
+        // to know whether it is looking at a world or at one prefab.
+        bool _isPrefab = false;
 
         // One peer we replicate to. Destroyed objects are queued per peer for the same
         // reason dirty flags are tracked per peer: the old single list was drained by

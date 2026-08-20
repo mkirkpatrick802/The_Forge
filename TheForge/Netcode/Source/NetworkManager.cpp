@@ -26,10 +26,29 @@ NetCode::NetworkManager& NetCode::NetworkManager::GetInstance()
 
 NetCode::NetworkManager::NetworkManager()
 {
-    // One decision, made once: which transport this process is going to use. Every
-    // "am I a server", "is Steam up", "who am I" question downstream resolves
+    // Deliberately no transport yet. It used to be chosen here, which was correct while
+    // the role could only come from the command line -- but a main menu picks the role
+    // and the server address at run time, and this singleton is constructed long before
+    // the player has pressed anything. Choosing at construction meant a client that
+    // booted into a menu had already committed to a transport by the time it was asked
+    // which server to join.
+    //
+    // Until StartNetCode runs, _transport is null and Update is a no-op.
+    RegisterEngineActions();
+}
+
+void NetCode::NetworkManager::SelectTransport()
+{
+    // One decision, made once per session: which transport this process is going to use.
+    // Every "am I a server", "is Steam up", "who am I" question downstream resolves
     // through the object chosen here rather than being re-derived from the role.
     const Engine::LaunchOptions& options = Engine::GetLaunchOptions();
+
+    // A previous session's transport is shut down and dropped first. Reusing one that
+    // has already been through Shutdown is how a second connect in one session ends up
+    // silently talking to a closed socket.
+    if (_transport != nullptr)
+        _transport->Shutdown();
 
     if (options.UsesDedicatedServerModel())
         _transport = std::make_unique<UdpNetTransport>();
@@ -37,8 +56,6 @@ NetCode::NetworkManager::NetworkManager()
         _transport = std::make_unique<SteamTransport>();
     else
         _transport = std::make_unique<OfflineTransport>();
-
-    RegisterEngineActions();
 }
 
 void NetCode::NetworkManager::RegisterEngineActions()
@@ -77,14 +94,38 @@ void NetCode::NetworkManager::ShutdownNetCode()
         GetGamerService().CancelAuthTicket();
 
     SteamGameServerAuth::Get().Shutdown();
-    _transport->Shutdown();
+
+    // Null before the first StartNetCode, which is the state a process that never got
+    // past the main menu exits in.
+    if (_transport != nullptr)
+        _transport->Shutdown();
+
+    _state = NMS_Unitialized;
 }
 
 void NetCode::NetworkManager::StartNetCode()
 {
     _state = NMS_Searching;
 
+    // Cleared, because ShutdownNetCode latches it to make itself idempotent. Leaving it
+    // set means a second session in the same process -- quit to the menu, then press
+    // Play again -- would skip its own shutdown later and never say goodbye.
+    _shutdown = false;
+
+    // Per-session client state. A reconnect that inherited the last session's "we have
+    // already joined" would never send its Join.
+    _hasJoined = false;
+    _joinSent = false;
+    _awaitingTicket = false;
+    _players.clear();
+    _pendingAuth.clear();
+    _pendingKicks.clear();
+
     const Engine::LaunchOptions& options = Engine::GetLaunchOptions();
+
+    // Reads the role and address as they stand now, which is what lets a menu choose
+    // them.
+    SelectTransport();
 
     if (options.IsDedicatedServer())
     {
@@ -130,12 +171,36 @@ void NetCode::NetworkManager::StartNetCode()
     // With no session there is nobody to announce us, so the local player would
     // never be spawned and the camera would have nothing to follow. This is what
     // makes an offline or editor-launched game come up with a player at all.
-    if (!_transport->IsSessionActive() && HasWorldAuthority())
-        OnboardNewPlayer(_transport->GetLocalPeerID());
+    // The authority always has a pawn of its own, unless it is a dedicated server --
+    // that is the one authority with no local player, which is exactly why it ends up
+    // with an empty world of its own.
+    //
+    // Deliberately *not* keyed on IsSessionActive(). It used to be, and that was wrong in
+    // a way that only showed on the second play of a session: the transport is owned by
+    // this singleton and outlives any level, so a Steam lobby joined during the first
+    // play is still open when the level reloads. The second play therefore saw an active
+    // session, skipped local onboarding entirely, and came up with no pawn, no camera and
+    // a blank screen. Whether a session exists says nothing about whether *this* machine
+    // already has a player in the level.
+    const bool isDedicatedServer = Engine::GetLaunchOptions().IsDedicatedServer();
+
+    if (HasWorldAuthority() && !isDedicatedServer)
+    {
+        // Idempotent: a level reload destroys the pawn, and StartNetCode runs again for
+        // every level that starts, so the test is "is there a pawn" rather than "is this
+        // the first time".
+        if (FindPlayerController(_transport->GetLocalPeerID()) == nullptr)
+            OnboardNewPlayer(_transport->GetLocalPeerID());
+    }
 }
 
 void NetCode::NetworkManager::Update()
 {
+    // No session yet. The game loop calls this every frame from the moment it starts, so
+    // while a client sits on the main menu -- before it has chosen a server -- there is
+    // no transport to pump and dereferencing one would be the first thing that happened.
+    if (_transport == nullptr || _state == NMS_Unitialized) return;
+
     // Pumped here rather than inside a transport, because identity is not a transport
     // concern: a client talking UDP to a dedicated server still needs Steam client
     // callbacks for its auth ticket, and used to never get them -- GetAuthSessionTicket
@@ -646,11 +711,18 @@ void NetCode::NetworkManager::WelcomePeer(const PeerID peer)
     // The local peer is not a remote arrival and has nothing to prove to itself.
     if (peer == _transport->GetLocalPeerID())
     {
+        // Identity is recorded once per session; the pawn is spawned whenever there is
+        // not one. Tying the spawn to the identity meant that after the first level the
+        // local player was never given a body again.
         if (FindIdentity(peer) == nullptr)
-        {
             _players.push_back(ConnectedPlayer{peer, PlayerIdentity::Local()});
+
+        if (FindPlayerController(peer) == nullptr)
+        {
             OnboardNewPlayer(peer);
-            Engine::LevelManager::GetCurrentLevel()->GetGameMode().OnPlayerIdentified(peer, _players.back().identity);
+
+            if (const PlayerIdentity* identity = FindIdentity(peer))
+                Engine::LevelManager::GetCurrentLevel()->GetGameMode().OnPlayerIdentified(peer, *identity);
         }
 
         return;
@@ -674,6 +746,8 @@ void NetCode::NetworkManager::OnboardNewPlayer(const PeerID peer)
 
     Engine::GameObject* pawn = level->GetGameMode().SpawnPlayer(peer);
     _state = NMS_Playing;
+
+    DEBUG_LOG("Netcode: onboarded peer %llu -- pawn %s", peer, pawn != nullptr ? "spawned" : "NOT SPAWNED")
 
     // A dedicated server is not a peer of its own, so it never takes this branch for
     // itself -- which is exactly why it ends up with no pawn of its own.

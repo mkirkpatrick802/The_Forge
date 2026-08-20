@@ -8,6 +8,7 @@
 #include "Engine/CommandRegistry.h"
 #include "Engine/CommandUtils.h"
 #include "Engine/LaunchOptions.h"
+#include "Engine/System.h"
 #include "Engine/Time.h"
 
 Engine::DebugRenderer& Engine::DebugRenderer::GetInstance()
@@ -49,7 +50,26 @@ Engine::DebugRenderer::DebugRenderer()
     _font = std::make_unique<Font>("Assets/Engine Assets/Fonts/Consolas.ttf", 15);
 
     // Commands
-    CommandRegistry::RegisterCommand("/debug", [this](const std::string& args){ enabled = CommandUtils::ParseBoolean(args); });
+    CommandRegistry::RegisterCommand("/debug", [this](const std::string& args)
+    {
+        // Bare "/debug" toggles -- that is what anyone typing it actually wants, and it
+        // used to throw std::invalid_argument straight through the ImGui frame.
+        if (args.empty())
+        {
+            enabled = !enabled;
+            DEBUG_LOG("Debug rendering %s.", enabled ? "on" : "off")
+            return;
+        }
+
+        if (bool value; CommandUtils::TryParseBoolean(args, value))
+        {
+            enabled = value;
+            DEBUG_LOG("Debug rendering %s.", enabled ? "on" : "off")
+            return;
+        }
+
+        DEBUG_LOG("usage: /debug [true|false]")
+    });
 }
 
 Engine::DebugRenderer::~DebugRenderer()
@@ -62,7 +82,8 @@ void Engine::DebugRenderer::DrawLine(const glm::vec2& start, const glm::vec2& en
     // Nothing consumes these when headless, and they would accumulate forever.
     if (GetLaunchOptions().headless) return;
 
-    _lines.emplace_back(GetCameraManager().ConvertWorldToScreen(glm::vec2(start.x, -start.y)), GetCameraManager().ConvertWorldToScreen(glm::vec2(end.x, -end.y)), color);
+    auto& target = _buildingOverlay ? _overlayLines : _lines;
+    target.emplace_back(GetCameraManager().ConvertWorldToScreen(glm::vec2(start.x, -start.y)), GetCameraManager().ConvertWorldToScreen(glm::vec2(end.x, -end.y)), color);
 }
 
 void Engine::DebugRenderer::DrawCircle(const glm::vec2& center, const float radius, const glm::vec3& color, const int segments)
@@ -78,7 +99,10 @@ void Engine::DebugRenderer::DrawCircle(const glm::vec2& center, const float radi
         glm::vec2 point1 = center + glm::vec2(cos(angle1) * radius, sin(angle1) * radius);
         glm::vec2 point2 = center + glm::vec2(cos(angle2) * radius, sin(angle2) * radius);
 
-        _lines.emplace_back(GetCameraManager().ConvertWorldToScreen(glm::vec2(point1.x, -point1.y)), GetCameraManager().ConvertWorldToScreen(glm::vec2(point2.x, -point2.y)), color);
+        // Through DrawLine, so _buildingOverlay is honoured. Emplacing into _lines here
+        // meant DrawOverlayCircle put its output in the list that is only drawn when
+        // debug rendering is on -- which is the one thing an overlay must not depend on.
+        DrawLine(point1, point2, color);
     }
 }
 
@@ -97,45 +121,83 @@ void Engine::DebugRenderer::DrawRectangle(const glm::vec2& center, const glm::ve
     DrawLine(bottomLeft, topLeft, color);  // Left
 }
 
+void Engine::DebugRenderer::DrawPolygon(const std::vector<glm::vec2>& points, const glm::vec3& color)
+{
+    if (points.size() < 2) return;
+
+    for (size_t i = 0; i < points.size(); ++i)
+        DrawLine(points[i], points[(i + 1) % points.size()], color);
+}
+
+void Engine::DebugRenderer::DrawOverlayCircle(const glm::vec2& center, const float radius, const glm::vec3& color, const int segments)
+{
+    _buildingOverlay = true;
+    DrawCircle(center, radius, color, segments);
+    _buildingOverlay = false;
+}
+
+void Engine::DebugRenderer::DrawOverlayRectangle(const glm::vec2& center, const glm::vec2& size, const glm::vec3& color)
+{
+    _buildingOverlay = true;
+    DrawRectangle(center, size, color);
+    _buildingOverlay = false;
+}
+
+void Engine::DebugRenderer::DrawOverlayPolygon(const std::vector<glm::vec2>& points, const glm::vec3& color)
+{
+    _buildingOverlay = true;
+    DrawPolygon(points, color);
+    _buildingOverlay = false;
+}
+
 void Engine::DebugRenderer::Render()
 {
-    if (!enabled) return;
+    if (GetLaunchOptions().headless) return;
 
-    std::stringstream fps;
-    fps << "FPS: ";
-    fps << 1 / Time::GetDeltaTime();
-    _font->RenderText(fps.str(), glm::vec2(5, 40), 1, glm::vec3(0, 1, 0));
-    
-    // Render all the lines stored in the _debugLines vector
-    for (const auto& line : _lines)
+    if (enabled)
+    {
+        std::stringstream fps;
+        fps << "FPS: ";
+        fps << 1 / Time::GetDeltaTime();
+        _font->RenderText(fps.str(), glm::vec2(5, 40), 1, glm::vec3(0, 1, 0));
+
+        RenderLines(_lines);
+    }
+
+    // Overlays are drawn regardless -- see DrawOverlayCircle.
+    RenderLines(_overlayLines);
+
+    // Cleared even when nothing was drawn. Previously this function returned early on
+    // !enabled *before* clearing, so anything still calling DrawLine with debug off
+    // grew the list forever.
+    _lines.clear();
+    _overlayLines.clear();
+}
+
+void Engine::DebugRenderer::RenderLines(const std::vector<DebugLine>& lines)
+{
+    for (const auto& line : lines)
     {
         GLfloat vertices[] = {
             line.start.x, line.start.y, // Start point
             line.end.x, line.end.y		// End point
         };
 
-        // Bind the VAO and VBO for the line
         glBindVertexArray(_lineVAO);
         glBindBuffer(GL_ARRAY_BUFFER, _lineVBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-        // Set up the shader program
         _lineShader.Use();
         _lineShader.SetVector4f("inColor", glm::vec4(line.color, 1));
         _lineShader.SetMatrix4("projection", GetProjectionMatrix());
         _lineShader.SetMatrix4("view", GetViewMatrix());
 
-        // Specify the layout of the vertex data (position)
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), static_cast<GLvoid*>(nullptr));
         glEnableVertexAttribArray(0);
 
-        // Draw the line using GL_LINES
         glDrawArrays(GL_LINES, 0, 2);
 
-        // Unbind VAO and VBO
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
-    
-    _lines.clear(); // Clear for next frame
 }

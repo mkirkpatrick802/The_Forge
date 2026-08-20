@@ -26,6 +26,11 @@ namespace Editor
         EditorManager();
         ~EditorManager();
 
+        // Outlines the selected object's colliders in the scene view. Drawn as an overlay
+        // rather than through /debug, because it is a selection aid: needing to remember
+        // a console command first would make it useless for the thing it is for.
+        static void DrawSelectionOverlay();
+
         void Update();
     
     private:

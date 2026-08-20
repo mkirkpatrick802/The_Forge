@@ -1,5 +1,7 @@
 ﻿#include "CommandTerminal.h"
 
+#include "Engine/System.h"
+
 #include "Engine/CommandRegistry.h"
 
 std::vector<std::string> Editor::CommandTerminal::_outputLines;
@@ -40,9 +42,18 @@ void Editor::CommandTerminal::Render()
                              ImGuiInputTextFlags_EnterReturnsTrue,
                              nullptr, nullptr))
         {
-            Engine::CommandRegistry::ExecuteCommand(_inputBuffer);
             const std::string input = _inputBuffer;
             AddOutput("> " + input);
+
+            // Anything the command logs lands in this window rather than only in the
+            // Console panel -- output belongs where the command was typed.
+            Engine::System::SetLogMirror([this](const std::string& line) { AddOutput(line); });
+            const bool handled = Engine::CommandRegistry::ExecuteCommand(input);
+            Engine::System::SetLogMirror(nullptr);
+
+            if (!handled)
+                AddOutput("Unknown command: " + input + "   (type /help)");
+
             _inputBuffer[0] = '\0'; // Clear input buffer
         }
 

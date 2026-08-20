@@ -1,4 +1,6 @@
 ﻿#include "CameraManager.h"
+
+#include "Engine/Components/ComponentManager.h"
 #include "Editor/EditorCamera.h"
 #include "Engine/EngineManager.h"
 #include "Engine/EventSystem.h"
@@ -45,4 +47,21 @@ glm::vec2 Engine::CameraManager::ConvertScreenToWorld(const glm::vec2 screenPos)
 void Engine::CameraManager::ResetActiveCamera(const void* p)
 {
     _currentCamera = nullptr;
+}
+
+Engine::Camera* Engine::CameraManager::GetActiveCamera() const
+{
+    if (_currentCamera != nullptr) return _currentCamera;
+
+    // Adopting rather than merely reporting null: a camera that exists but is not
+    // marked active is nearly always an ordering accident -- the Camera lives on the
+    // player prefab, which is spawned by the game mode *after* whoever wanted to pick a
+    // camera has already looked.
+    if (const auto pool = GetComponentManager().GetPool<Camera>())
+    {
+        if (const auto cameras = pool->GetActive(); !cameras.empty())
+            _currentCamera = cameras[0];
+    }
+
+    return _currentCamera;
 }

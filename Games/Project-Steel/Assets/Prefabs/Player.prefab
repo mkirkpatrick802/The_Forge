@@ -51,6 +51,8 @@
         },
         {
             "Component ID": 2717025849,
+            "Offset X": 0.0,
+            "Offset Y": 0.0,
             "collisionProfile": {
                 "responses": [
                     [

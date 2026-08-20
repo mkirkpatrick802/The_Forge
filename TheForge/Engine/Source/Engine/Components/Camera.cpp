@@ -7,6 +7,7 @@
 #include "Engine/Rendering/BufferRegistry.h"
 #include "Engine/JsonKeywords.h"
 #include "Engine/Rendering/CameraManager.h"
+#include "Engine/System.h"
 
 Engine::Camera::Camera(): _projection(), _view()
 {
@@ -16,6 +17,20 @@ Engine::Camera::Camera(): _projection(), _view()
 void Engine::Camera::OnActivation()
 {
     
+}
+
+void Engine::Camera::OnDeactivation()
+{
+    // The manager caches the active camera as a raw pointer and adopts one on its own
+    // when nothing is set -- so a camera that merely existed for a moment, such as the
+    // one on a prefab opened in the editor, can become the active camera and then be
+    // reclaimed by its pool with the manager still pointing at it.
+    //
+    // Order is not guaranteed between the two statics at shutdown, so the manager is
+    // left alone once the application is on its way out.
+    if (APPLICATION_CLOSING) return;
+
+    GetCameraManager().ForgetCamera(this);
 }
 
 glm::mat4 Engine::Camera::GetProjectionMatrix()

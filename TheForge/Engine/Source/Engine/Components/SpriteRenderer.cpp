@@ -1,4 +1,4 @@
-#include "SpriteRenderer.h"
+﻿#include "SpriteRenderer.h"
 
 #include "Engine/GameObject.h"
 #include <glm/ext/matrix_clip_space.hpp>
@@ -18,6 +18,9 @@
 
 Engine::SpriteRenderer::SpriteRenderer(): _size(), _isScreenSpace(false), _screenSpace()
 {
+    // Defaulted so a sprite renderer added in the editor draws immediately. A level or
+    // prefab that names its own shaders still overrides these on Deserialize.
+    SetDefaultShaders(SPRITE_VERTEX_SHADER, SPRITE_FRAGMENT_SHADER);
 }
 
 void Engine::SpriteRenderer::OnActivation()

@@ -6,6 +6,7 @@
 #include "CircleCollider.h"
 #include "imgui.h"
 #include "RectangleCollider.h"
+#include "Engine/GameObject.h"
 #include "Engine/System.h"
 
 Engine::Rigidbody::Rigidbody(): _velocity(), _acceleration(), _useAreaAsMass(true), _mass(10), _density(1),
@@ -58,8 +59,11 @@ void Engine::Rigidbody::Update(const float deltaTime)
     _velocity += _acceleration * deltaTime;
     if(length(_velocity) > std::numeric_limits<float>::epsilon())
     {
+        // Velocity is a world-space quantity, so the result is a world position -- this
+        // used to be written into SetPosition, which stores a *local* one. Identical for
+        // an object with no parent, and a teleport by the parent's offset for a child.
         const auto pos = gameObject->GetWorldPosition() + _velocity * deltaTime;
-        gameObject->SetPosition(pos);
+        gameObject->SetWorldPosition(pos);
         
         _velocity -= _velocity * _friction;
         _acceleration = glm::vec2(0.0f); // Reset acceleration after integration

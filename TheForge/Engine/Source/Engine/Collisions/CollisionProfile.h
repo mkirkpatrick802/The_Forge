@@ -1,7 +1,9 @@
 ﻿#pragma once
+#include <algorithm>
 #include <cstdint>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "json.hpp"
 #include "ByteStream.h"
@@ -19,6 +21,29 @@ namespace Engine
         ECOT_Max = 0xFFFFFFFF
     };
     
+    // Every object type that actually exists.
+    //
+    // This is a *flag* enum -- 1, 2, 4, 8, 16 -- so it cannot be walked by counting.
+    // Anything that needs to enumerate the types uses this.
+    inline const std::vector<ECollisionObjectType>& AllCollisionObjectTypes()
+    {
+        static const std::vector<ECollisionObjectType> types = {
+            ECollisionObjectType::ECOT_Default,
+            ECollisionObjectType::ECOT_PhysicsBody,
+            ECollisionObjectType::ECOT_Player,
+            ECollisionObjectType::ECOT_Projectile,
+            ECollisionObjectType::ECOT_Walkable,
+        };
+
+        return types;
+    }
+
+    inline bool IsRealCollisionObjectType(const ECollisionObjectType type)
+    {
+        const auto& types = AllCollisionObjectTypes();
+        return std::find(types.begin(), types.end(), type) != types.end();
+    }
+
     // Convert CollisionObjectType to string for UI/debugging
     inline std::string ToString(ECollisionObjectType type)
     {
@@ -91,7 +116,7 @@ namespace Engine
         {
             stream.Write(type);
 
-            const uint8_t size = responseMap.size();
+            const auto size = static_cast<uint8_t>(responseMap.size());
             stream.Write(size);
             for (const auto& [key, value] : responseMap)
             {
@@ -170,14 +195,23 @@ namespace Engine
             profile.responseMap = GetDefaultResponseMap();
         }
         
-        // Ensure all object types have an entry in the responseMap
-        for (uint8_t i = 0; i < static_cast<uint8_t>(ECollisionObjectType::ECOT_Max); ++i)
+        // Drop anything that is not a real object type.
+        //
+        // This used to walk `i` from 0 to (uint8_t)ECOT_Max -- which is 255, because the
+        // sentinel is 0xFFFFFFFF -- and insert an entry for every integer along the way.
+        // The enum is a bit field, so all but five of those are not types at all: they
+        // showed up in the inspector as "Unknown" and, once the level was saved, were
+        // written back out and reloaded forever.
+        std::erase_if(profile.responseMap, [](const auto& entry)
         {
-            if (auto type = static_cast<ECollisionObjectType>(i); !profile.responseMap.contains(type))
-            {
-                // Add missing object types with default response
+            return !IsRealCollisionObjectType(entry.first);
+        });
+
+        // And make sure every real one is present.
+        for (const ECollisionObjectType type : AllCollisionObjectTypes())
+        {
+            if (!profile.responseMap.contains(type))
                 profile.responseMap[type] = ECollisionResponse::ECR_Block;
-            }
         }
     }
 }

@@ -1,5 +1,8 @@
 ﻿#include "GameModeBase.h"
 
+#include <algorithm>
+#include <ranges>
+
 #include "Level.h"
 #include "LevelManager.h"
 #include "LinkingContext.h"
@@ -23,6 +26,14 @@ void Engine::GameModeBase::Start()
 Engine::GameObject* Engine::GameModeBase::SpawnPlayer(const uint64_t playerID)
 {
     const auto go = LevelManager::GetCurrentLevel()->SpawnNewGameObject(_playerPrefab);
+    if (go == nullptr)
+    {
+        // Without this the failure is silent and shows up much later as "no camera":
+        // the Camera rides on the player prefab.
+        DEBUG_LOG("GameMode: could not spawn the player prefab '%s'", _playerPrefab.c_str())
+        return nullptr;
+    }
+
     if (_playerStarts.empty())
     {
         go->SetPosition(glm::vec2(0));
@@ -68,4 +79,17 @@ std::unique_ptr<Engine::GameModeBase> Engine::GameModeRegistry::Create(const std
     }
 
     return it->second();
+}
+
+std::vector<std::string> Engine::GameModeRegistry::GetNames()
+{
+    std::vector<std::string> names;
+    names.reserve(Factories().size());
+
+    for (const auto& name : Factories() | std::views::keys)
+        names.push_back(name);
+
+    std::ranges::sort(names);
+
+    return names;
 }

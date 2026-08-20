@@ -27,7 +27,7 @@ SteelGameMode::SteelGameMode()
 
     // The concept asks for a way to start the match by hand. On a headless server this
     // is reachable through the console reader; in the editor it is reachable from chat.
-    CommandRegistry::RegisterCommand("startmatch", [this](const std::string&)
+    CommandRegistry::RegisterCommand("/startmatch", [this](const std::string&)
     {
         if (_state == EMatchState::Lobby || _state == EMatchState::PostMatch)
         {
@@ -41,7 +41,7 @@ SteelGameMode::SteelGameMode()
         }
     });
 
-    CommandRegistry::RegisterCommand("teams", [this](const std::string&)
+    CommandRegistry::RegisterCommand("/teams", [this](const std::string&)
     {
         DEBUG_LOG("Match: %s -- Red %d, Blue %d.", MatchStateName(_state), CountTeam(ETeam::Red), CountTeam(ETeam::Blue))
     });
@@ -51,8 +51,8 @@ SteelGameMode::~SteelGameMode()
 {
     NetActionRegistry::UnregisterRequest(SteelRequest::PlaceShipPiece);
     NetActionRegistry::UnregisterRequest(SteelRequest::SetTeamPreference);
-    CommandRegistry::UnregisterCommand("startmatch");
-    CommandRegistry::UnregisterCommand("teams");
+    CommandRegistry::UnregisterCommand("/startmatch");
+    CommandRegistry::UnregisterCommand("/teams");
 }
 
 void SteelGameMode::Start()

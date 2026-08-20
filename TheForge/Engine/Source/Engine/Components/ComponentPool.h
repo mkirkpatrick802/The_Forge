@@ -125,11 +125,17 @@ namespace Engine
             if (!isActive[i]) continue;
             if (components[i].get() == component)
             {
+                // While the component is still whole, so it can hand back any pointer
+                // to itself that a longer-lived system is holding. The slot is torn
+                // down on the very next line.
+                components[i]->OnDeactivation();
+
                 components[i].reset();
                 components[i] = std::make_unique<T>();
                 
                 isActive[i] = false;
                 isStarted[i] = false;
+                return;
             }
         }
     }

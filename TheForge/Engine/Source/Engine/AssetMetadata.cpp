@@ -1,4 +1,4 @@
-#include "AssetMetadata.h"
+﻿#include "AssetMetadata.h"
 
 #include <filesystem>
 #include <fstream>
@@ -13,11 +13,15 @@ namespace
 
 	// Bumped when the sidecar layout changes, so a stale file can be regenerated
 	// rather than silently misread.
-	constexpr int METADATA_VERSION = 1;
+	//
+	// 2 added the traced collision shape. Sidecars written before it are ignored, so
+	// every image wants a re-import -- Content Drawer, "Reimport All".
+	constexpr int METADATA_VERSION = 2;
 
 	constexpr const char* KEY_VERSION = "Version";
 	constexpr const char* KEY_WIDTH = "Width";
 	constexpr const char* KEY_HEIGHT = "Height";
+	constexpr const char* KEY_COLLISION_SHAPE = "Collision Shape";
 
 	std::string MetadataPathFor(const std::string& assetPath)
 	{
@@ -45,6 +49,10 @@ bool Engine::ImportImageAsset(const std::string& imagePath)
 	data[KEY_VERSION] = METADATA_VERSION;
 	data[KEY_WIDTH] = width;
 	data[KEY_HEIGHT] = height;
+
+	// The one genuinely expensive part of an import, and the reason it is done here
+	// rather than on load: this decodes the image and walks every pixel.
+	data[KEY_COLLISION_SHAPE] = BuildSpriteOutline(imagePath).Serialize();
 
 	std::ofstream file(MetadataPathFor(imagePath));
 	if (!file.is_open())
@@ -97,4 +105,25 @@ glm::vec2 Engine::GetImageSize(const std::string& imagePath)
 
 	DEBUG_LOG("Could not determine size of image: %s", imagePath.c_str())
 	return { 0.0f, 0.0f };
+}
+
+Engine::SpriteOutline Engine::GetImageCollisionShape(const std::string& imagePath)
+{
+	std::ifstream file(MetadataPathFor(imagePath));
+	if (!file.is_open()) return {};
+
+	try
+	{
+		nlohmann::json data;
+		file >> data;
+
+		if (!data.contains(KEY_VERSION) || data[KEY_VERSION] != METADATA_VERSION) return {};
+		if (!data.contains(KEY_COLLISION_SHAPE)) return {};
+
+		return SpriteOutline::Deserialize(data[KEY_COLLISION_SHAPE]);
+	}
+	catch (const std::exception&)
+	{
+		return {};
+	}
 }

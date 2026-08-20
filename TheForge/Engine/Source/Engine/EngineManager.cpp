@@ -20,6 +20,15 @@ Engine::EngineManager& Engine::EngineManager::GetInstance()
 Engine::EngineManager::EngineManager()
 {
 	CommandRegistry::RegisterCommand("/editor", [this](const std::string& args){ ToggleEditor(args); });
+
+	// Enumerated from the registry rather than hand-listed, so it cannot drift out of
+	// date as commands are added by the engine, the editor or the running game mode.
+	CommandRegistry::RegisterCommand("/help", [](const std::string&)
+	{
+		DEBUG_LOG("Available commands:")
+		for (const std::string& name : CommandRegistry::GetCommandNames())
+			DEBUG_LOG("  %s", name.c_str())
+	});
 	
 	//Find config file & if it does not exist make one
 	System::EnsureDirectoryExists(CONFIG_PATH);
@@ -40,8 +49,7 @@ Engine::EngineManager::~EngineManager()
 	
 	_editor.reset();
 	CommandRegistry::UnregisterCommand("/editor");
-	CommandRegistry::UnregisterCommand("/create");
-	CommandRegistry::UnregisterCommand("/join");
+	CommandRegistry::UnregisterCommand("/help");
 	EventSystem::DestroyInstance();
 }
 

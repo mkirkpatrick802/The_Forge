@@ -1,3 +1,6 @@
 {
-    "Default Level": "test"
+    "Default Level": "test",
+    "Main Menu Level": "MainMenu",
+    "Server Address": "127.0.0.1",
+    "Server Port": 7777
 }

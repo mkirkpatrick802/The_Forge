@@ -1,5 +1,9 @@
 {
+    "Children": [],
     "Components": [
+        {
+            "Component ID": 3309965179
+        },
         {
             "Component ID": 1457500923,
             "Rotation": 0.0,
@@ -7,7 +11,11 @@
             "Y position": 0.0
         },
         {
-            "Component ID": 3309965179
+            "Component ID": 3137815528,
+            "Density": 1.0,
+            "Mass": 10.0,
+            "Static": false,
+            "Use Area As Mass": true
         },
         {
             "Component ID": 2525770811,
@@ -20,14 +28,34 @@
             "Vertex Shader": "Assets\\Engine Assets\\Shaders\\Sprite.vert"
         },
         {
-            "Component ID": 3137815528,
-            "Density": 1.0,
-            "Mass": 10.0,
-            "Static": false,
-            "Use Area As Mass": true
-        },
-        {
             "Component ID": 2717025849,
+            "Offset X": 0.0,
+            "Offset Y": 0.0,
+            "collisionProfile": {
+                "responses": [
+                    [
+                        "Default",
+                        "Block"
+                    ],
+                    [
+                        "PhysicsBody",
+                        "Overlap"
+                    ],
+                    [
+                        "Player",
+                        "Block"
+                    ],
+                    [
+                        "Walkable",
+                        "Overlap"
+                    ],
+                    [
+                        "Projectile",
+                        "Overlap"
+                    ]
+                ],
+                "type": "Default"
+            },
             "radius": 16.0
         }
     ],

@@ -1,7 +1,8 @@
-﻿#include "Level.h"
+#include "Level.h"
 #include <fstream>
 
 #include "CommandRegistry.h"
+#include "LoadProgress.h"
 #include "GameModeBase.h"
 #include "Components/Component.h"
 #include "GameObject.h"
@@ -39,10 +40,24 @@ void Engine::Level::Load(nlohmann::json data)
     //Load Game Objects From Json Data
     if (!data.contains(JsonKeywords::GAMEOBJECT_ARRAY)) return;
 
-    for (const auto& go_data : data[JsonKeywords::GAMEOBJECT_ARRAY])
+    const auto& objects = data[JsonKeywords::GAMEOBJECT_ARRAY];
+    const size_t total = objects.size();
+
+    // Reported in batches rather than per object. Every report is a chance for the
+    // loading screen to present a frame, and vsync means a frame costs a full display
+    // refresh -- reporting each of forty objects individually would spend more time
+    // waiting on the compositor than on the load itself.
+    constexpr size_t REPORT_EVERY = 16;
+
+    size_t index = 0;
+    for (const auto& go_data : objects)
     {
         auto go = std::make_unique<GameObject>(go_data);
         _gameObjects.push_back(std::move(go));
+
+        ++index;
+        if (index % REPORT_EVERY == 0 || index == total)
+            ReportLoadProgress(static_cast<float>(index) / static_cast<float>(total), "Spawning objects");
     }
 
     // The mode is named by the level rather than hard-coded, so the engine never has
@@ -53,6 +68,28 @@ void Engine::Level::Load(nlohmann::json data)
 
     _gameMode = GameModeRegistry::Create(modeName);
     _gameModeName = modeName;
+}
+
+void Engine::Level::LoadPrefab(const nlohmann::json& data)
+{
+    _isPrefab = true;
+    _name = data.contains(JsonKeywords::GAMEOBJECT_NAME)
+        ? data[JsonKeywords::GAMEOBJECT_NAME].get<std::string>()
+        : std::string("Prefab");
+
+    _size = PREFAB_EDIT_AREA;
+
+    // The base mode, not none. A prefab has no rules of its own, but UpdateGameMode and
+    // Start are written against a mode that exists -- only a level that arrived over the
+    // wire is allowed to have none.
+    _gameMode = GameModeRegistry::Create(std::string());
+
+    // Through the ordinary spawn path, so the prefab's children are built by exactly the
+    // code that builds a level object's. GameObject::Deserialize spawns children into
+    // LevelManager::GetCurrentLevel(), which is why LevelManager makes this level current
+    // before calling here -- otherwise a nested prefab's children would be loaded into
+    // the level the user was editing a moment ago.
+    SpawnNewGameObjectFromJson(data);
 }
 
 namespace
@@ -211,8 +248,58 @@ bool Engine::Level::RemoveGameObject(GameObject* go, bool replicate)
     return true;
 }
 
+Engine::GameObject* Engine::Level::FindRootObject() const
+{
+    for (const auto& go : _gameObjects)
+        if (go->GetParent() == nullptr)
+            return go.get();
+
+    return nullptr;
+}
+
+void Engine::Level::SavePrefab()
+{
+    // The prefab is whatever is left at the root. Anything reparented under it during
+    // the edit is already inside that object's own Serialize, and anything dragged out
+    // to the root is a second prefab the file has no way to express -- so it is dropped
+    // rather than silently changing what the file means.
+    GameObject* root = FindRootObject();
+
+    int rootCount = 0;
+    for (const auto& go : _gameObjects)
+        if (go->GetParent() == nullptr)
+            ++rootCount;
+
+    if (root == nullptr)
+    {
+        DEBUG_LOG("Prefab: '%s' has no root object left, so nothing was written", _path.c_str())
+        return;
+    }
+
+    if (rootCount > 1)
+        DEBUG_LOG("Prefab: '%s' has %d root objects; only '%s' was saved -- parent the rest under it to keep them",
+            _path.c_str(), rootCount, root->GetName().c_str())
+
+    const nlohmann::json data = root->Serialize();
+    if (std::ofstream outputFile(_path); outputFile.is_open())
+    {
+        outputFile << data.dump(4);
+        outputFile.close();
+        DEBUG_LOG("Prefab: saved '%s'", _path.c_str())
+        return;
+    }
+
+    DEBUG_LOG("Prefab: could not open '%s' for writing", _path.c_str())
+}
+
 void Engine::Level::SaveLevel(const std::string& args)
 {
+    if (_isPrefab)
+    {
+        SavePrefab();
+        return;
+    }
+
     nlohmann::json data;
     
     // Update level data

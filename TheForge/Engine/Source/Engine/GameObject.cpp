@@ -1,5 +1,7 @@
 ﻿#include "GameObject.h"
 
+#include <glm/glm.hpp>
+
 #include "Components/Component.h"
 #include "JsonKeywords.h"
 #include "Level.h"
@@ -26,6 +28,19 @@ Engine::GameObject::GameObject(const nlohmann::json& data): _parent(nullptr)
 
 Engine::GameObject::~GameObject()
 {
+    // Neither end of a parent-child link owns the other, so both ends have to be cut
+    // by hand. A prefab opened in the editor is the case that makes this matter: its
+    // children are spawned into the current level and outlive it, so leaving their
+    // _parent set points them at freed memory that UpdateWorldTransform walks.
+    if (_parent != nullptr)
+        _parent->_children.erase(this);
+
+    for (const auto child : _children)
+        if (child != nullptr && child->_parent == this)
+            child->_parent = nullptr;
+
+    _children.clear();
+
     for (const auto val : _components | std::views::values)
     {
         if (val)
@@ -65,7 +80,10 @@ void Engine::GameObject::AddChild(GameObject* child, const bool keepWorldPositio
     {
         const glm::vec2 pos = child->GetWorldPosition();
         child->UpdateWorldTransform();
-        child->SetPosition(pos - GetWorldPosition());
+
+        // Not `pos - GetWorldPosition()`: that is only the right local position while
+        // the new parent is unrotated.
+        child->SetWorldPosition(pos);
     }
     else
     {
@@ -101,6 +119,29 @@ void Engine::GameObject::SetPosition(const glm::vec2& position) const
 {
     if (const auto transform = GetComponent<Transform>())
         transform->SetLocalPosition(position);
+
+    UpdateWorldTransform();
+}
+
+void Engine::GameObject::SetWorldPosition(const glm::vec2& position) const
+{
+    const auto transform = GetComponent<Transform>();
+    if (transform == nullptr) return;
+
+    const Transform* parentTransform = _parent != nullptr ? _parent->GetComponent<Transform>() : nullptr;
+    if (parentTransform == nullptr)
+    {
+        // No parent, so local and world are the same frame.
+        transform->SetLocalPosition(position);
+    }
+    else
+    {
+        // Into the parent's frame: undo its translation, then its rotation. The parent's
+        // rotation is in degrees, which is why it is converted here -- RotateVector
+        // works in radians.
+        const glm::vec2 offset = position - parentTransform->GetWorldPosition();
+        transform->SetLocalPosition(RotateVector(offset, glm::radians(-parentTransform->GetWorldRotation())));
+    }
 
     UpdateWorldTransform();
 }

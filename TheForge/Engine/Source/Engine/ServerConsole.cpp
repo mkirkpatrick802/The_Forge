@@ -1,4 +1,4 @@
-#include "ServerConsole.h"
+﻿#include "ServerConsole.h"
 
 #include <iostream>
 
@@ -48,15 +48,10 @@ void Engine::ServerConsole::Update()
 		const std::string command = commands.front();
 		commands.pop();
 
-		if (command == "help")
-		{
-			DEBUG_LOG("Commands are registered by the engine and the running game mode.")
-			DEBUG_LOG("  startmatch   force the match to begin")
-			DEBUG_LOG("  teams        report the current match state and team sizes")
-			continue;
-		}
-
+		// Typed at without a slash, but commands are registered with one. ExecuteCommand
+		// accepts either form, so "startmatch" and "/startmatch" both work here and the
+		// operator does not have to know the convention.
 		if (!CommandRegistry::ExecuteCommand(command))
-			DEBUG_LOG("Unknown command: %s", command.c_str())
+			DEBUG_LOG("Unknown command: %s  (type help)", command.c_str())
 	}
 }

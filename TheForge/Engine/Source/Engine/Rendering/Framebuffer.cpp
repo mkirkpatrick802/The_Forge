@@ -54,6 +54,14 @@ void Engine::Framebuffer::Unbind() const
 
 void Engine::Framebuffer::Resize(const glm::vec2 size)
 {
+    // A resize to the size it already is is not a resize.
+    //
+    // Renderer::Render calls this every frame in play mode with the window size, and
+    // without this guard CheckResize then destroyed and rebuilt the framebuffer and its
+    // texture on *every frame* -- a full GL object churn per frame for nothing. The
+    // editor path was already guarded by a comparison; the play path was not.
+    if (size == _size) return;
+
     _size = size;
     _shouldResize = true;
 }

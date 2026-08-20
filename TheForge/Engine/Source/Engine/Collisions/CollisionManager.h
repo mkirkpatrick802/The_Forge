@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <unordered_map>
 #include <unordered_set>
 
@@ -23,7 +23,9 @@ namespace Engine
         bool CheckCollisions(const Collider* collider, std::vector<Collider*>& returnObjects);
         
     private:
-        void ResolveCollision(Rigidbody* a, Rigidbody* b, glm::vec2 normal, float penetration) const;
+        // Separates two overlapping colliders. Either side may have no Rigidbody at all:
+        // that is what level geometry looks like, and it means immovable, not absent.
+        void ResolveCollision(const Collider* a, const Collider* b, glm::vec2 normal, float penetration) const;
         void CheckCollisions(const std::vector<Collider*>& colliders);
         
     private:

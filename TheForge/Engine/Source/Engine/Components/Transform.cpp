@@ -1,5 +1,7 @@
 ﻿#include "Transform.h"
 
+#include <glm/glm.hpp>
+
 #include "imgui.h"
 #include "Engine/JsonKeywords.h"
 #include "Engine/Rendering/ImGuiHelper.h"
@@ -16,8 +18,14 @@ void Engine::Transform::UpdateWorldTransform(const Transform* parent)
 {
     if(parent)
     {
-        // Update position
-        const glm::vec2 rotatedPos = RotateVector(_localPosition, parent->_rotation);
+        // Update position.
+        //
+        // Converted, because rotations are stored in degrees here -- every other reader
+        // of _rotation converts (SpriteRenderer does glm::radians on it before building
+        // its model matrix) but this one handed the raw degree count to sin/cos. A child
+        // was placed correctly only while its parent's rotation was 0; at 90 degrees the
+        // offset came out rotated by about 5157 degrees instead.
+        const glm::vec2 rotatedPos = RotateVector(_localPosition, glm::radians(parent->_rotation));
         _position = parent->_position + rotatedPos;
         
         // Update rotation

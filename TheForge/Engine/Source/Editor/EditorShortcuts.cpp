@@ -19,6 +19,7 @@ void Editor::EditorShortcuts::Update()
 {
     if (Engine::GetInputManager().GetKeyDown(SDL_SCANCODE_S) && Engine::GetInputManager().GetKey(SDL_SCANCODE_LCTRL))
     {
-        Engine::GetLevelManager().GetCurrentLevel()->SaveLevel();
+        if (const auto level = Engine::LevelManager::GetCurrentLevel())
+            level->SaveLevel();
     }
 }

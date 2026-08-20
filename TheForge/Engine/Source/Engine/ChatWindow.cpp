@@ -1,5 +1,8 @@
 ﻿#include "ChatWindow.h"
 
+#include "UI/UIRoot.h"
+#include "UI/UIScreen.h"
+
 #include "CommandRegistry.h"
 #include "EventData.h"
 #include "EventSystem.h"
@@ -17,6 +20,16 @@ Engine::ChatWindow::~ChatWindow()
 
 void Engine::ChatWindow::Render()
 {
+    // Nothing over an opaque UI screen.
+    //
+    // A loading screen already shows the engine's log -- that feed is the whole point of
+    // it -- so drawing the chat's copy of the same lines on top produced every message
+    // twice, in two different fonts, overlapping. The test is opacity rather than
+    // modality on purpose: a pause menu is transparent, sits over a live game, and
+    // should still let the chat through.
+    if (const UIScreen* top = UIRoot::GetTop(); top != nullptr && !top->IsTransparent())
+        return;
+
     // Get the main viewport
     ImGuiViewport* mainViewport = ImGui::GetMainViewport();
 
@@ -116,7 +129,17 @@ void Engine::ChatWindow::Terminal()
             std::string input = _inputBuffer;
             if (!input.empty()) {
                 AddOutput(input);           // Add input to history
-                CommandRegistry::ExecuteCommand(input); // Execute command
+
+                // Anything the command logs is shown here too, and an unknown command
+                // is reported -- it used to be swallowed silently, which is
+                // indistinguishable from a command that ran and did nothing.
+                System::SetLogMirror([this](const std::string& line) { AddOutput(line); });
+                const bool handled = CommandRegistry::ExecuteCommand(input);
+                System::SetLogMirror(nullptr);
+
+                if (!handled)
+                    AddOutput("Unknown command: " + input + "   (type /help)");
+
                 _inputBuffer[0] = '\0';            // Clear the input buffer
             }
             ImGui::SetKeyboardFocusHere(-1);      // Keep focus on the input field

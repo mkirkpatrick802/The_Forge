@@ -1,4 +1,6 @@
-﻿#include "GameEngine.h"
+#include "GameEngine.h"
+
+#include "GameSession.h"
 
 #include <fstream>
 #include <SDL_timer.h>
@@ -21,6 +23,12 @@
 #include "Components/ComponentManager.h"
 #include "Components/SpriteRenderer.h"
 #include "Editor/EditorManager.h"
+#include <SDL_scancode.h>
+
+#include "UI/PauseScreen.h"
+#include "UI/SettingsScreen.h"
+#include "UI/UIDebugScreen.h"
+#include "UI/UIRoot.h"
 
 Engine::GameEngine& Engine::GameEngine::GetInstance()
 {
@@ -40,6 +48,14 @@ Engine::GameEngine::GameEngine()
 	else
 		_console = std::make_unique<ServerConsole>();
 
+	// Registered even in the editor: the test card is the quickest way to confirm the
+	// UI layer still draws after a change, and the command terminal is in the editor.
+	if (!GetLaunchOptions().headless)
+	{
+		UIDebugScreen::RegisterCommand();
+		GameSession::RegisterCommands();
+	}
+
 	EventSystem::GetInstance()->RegisterEvent("Editor Enabled", this, &GameEngine::SceneStartup);
 }
 
@@ -50,65 +66,68 @@ Engine::GameEngine::~GameEngine()
 	EventSystem::GetInstance()->DeregisterEvent("Editor Enabled", this);
 }
 
-void Engine::GameEngine::ToggleLoadingScreen(bool enabled)
-{
-	// TODO: Finish this
-	return;
-	if (enabled)
-	{
-		_loadingScreen = std::make_unique<GameObject>();
-		std::string filepath = "Assets/Loading Screen.prefab";
-		if (!filepath.empty())
-		{
-			std::ifstream file(filepath);
-			if (!file.is_open())
-			{
-				std::cerr << "Failed to open loading screen file " << filepath << '\n';
-				return;
-			}
-        
-			json j;
-			file >> j; // Parse JSON from the file stream
-			_loadingScreen->Deserialize(j);
-			return;
-		}
-	}
-
-	_loadingScreen.reset();
-}
-
 void Engine::GameEngine::SceneStartup(const void* p)
 {
-	if (const auto defaultData = GetEngineManager().GetConfigData(DEFAULTS_FILE, JsonKeywords::Config::DEFAULT_LEVEL); defaultData.is_string())
+	LoadStartupLevel(false);
+}
+
+void Engine::GameEngine::LoadStartupLevel(const bool allowMainMenu)
+{
+	std::string filename;
+
+	// A menu is for a player looking at a window. A dedicated server hosts rather than
+	// joins, and the editor is an authoring tool -- both want the level they are there
+	// to work on, not a title screen in front of it.
+	const bool wantsMenu = allowMainMenu
+		&& !GetLaunchOptions().headless
+		&& !GetLaunchOptions().IsDedicatedServer()
+		&& !GetEngineManager().IsEditorEnabled();
+
+	if (wantsMenu)
 	{
-		const std::string filename = defaultData;
-		const std::string filepath = LEVEL_PATH + filename + ".json";
-		if (_levelManager)
-		{
-			LevelManager::LoadLevel(filepath);
-		}
-		else
-		{
-			_levelManager = std::make_unique<LevelManager>(filepath);
-		}
+		// Absent means this build has no menu, which is what every build was before one
+		// existed -- so it boots straight into its default level rather than failing.
+		filename = GameSession::GetMainMenuLevel();
 	}
-	else
+
+	if (filename.empty())
+	{
+		if (const auto defaultData = GetEngineManager().GetConfigData(DEFAULTS_FILE, JsonKeywords::Config::DEFAULT_LEVEL);
+			defaultData.is_string())
+			filename = defaultData.get<std::string>();
+	}
+
+	if (filename.empty())
 	{
 		System::GetInstance().DisplayMessageBox("ERROR", "Could not load default level!!");
+		return;
 	}
+
+	const std::string filepath = LEVEL_PATH + filename + ".json";
+
+	if (_levelManager)
+		LevelManager::LoadLevel(filepath);
+	else
+		_levelManager = std::make_unique<LevelManager>(filepath);
 }
 
 void Engine::GameEngine::StartGameplayLoop()
 {
 	const bool headless = GetLaunchOptions().headless;
 
-	if (!headless && !GetEngineManager().IsEditorEnabled())
-		ToggleLoadingScreen(true);
+	// Before the first frame, so a resolution or fullscreen choice from a previous
+	// session is in effect rather than snapping into place once the player opens
+	// settings.
+	if (!headless)
+		SettingsScreen::ApplyStoredSettings();
 
-	SceneStartup();
+	// The one place the main menu is allowed to be the startup level -- see the note on
+	// SceneStartup, which does the same work minus that.
+	LoadStartupLevel(true);
 
 	if (headless)
 		DEBUG_LOG("Scene loaded. Dedicated server running headless.")
+
 
 	float frameStart = static_cast<float>(Time::GetTicks());
 	if (!headless)
@@ -135,6 +154,30 @@ void Engine::GameEngine::StartGameplayLoop()
 
 				if (_chat)
 					_chat->Update(deltaTime);
+
+				// Before the components tick, so a button press is acted on in the same
+				// frame it was made rather than a frame later -- and so a screen that
+				// blocks input has already said so by the time gameplay reads the mouse.
+				if (!headless)
+				{
+					// Esc opens the pause menu, and the pause menu's own Resume closes
+					// it. Only while a level is actually being played: on the main menu
+					// there is nothing to pause, and while a loading screen is up the
+					// session is still being established.
+					if (GetInputManager().GetKeyDown(SDL_SCANCODE_ESCAPE)
+						&& UIRoot::IsEmpty()
+						&& !GameSession::IsInMainMenu())
+					{
+						UIRoot::Push(std::make_unique<PauseScreen>());
+					}
+
+					UIRoot::Update(deltaTime);
+
+					// After the UI, so a Play pressed this frame has already put the
+					// loading screen up and started the session by the time this looks
+					// at it.
+					GameSession::Update(deltaTime);
+				}
 
 				if (_console)
 					_console->Update();

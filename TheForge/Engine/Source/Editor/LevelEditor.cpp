@@ -1,5 +1,7 @@
 ﻿#include "LevelEditor.h"
 
+#include "Engine/GameModeBase.h"
+
 #include <fstream>
 #include <iostream>
 
@@ -14,6 +16,29 @@
 
 std::vector<nlohmann::json> Editor::LevelEditor::levelData;
 std::vector<std::string> Editor::LevelEditor::filepaths;
+
+int Editor::LevelEditor::_selectedGameObject = -1;
+
+void Editor::LevelEditor::SelectGameObject(Engine::GameObject* go)
+{
+    DetailsEditor::SetSelectedGameObject(go);
+
+    _selectedGameObject = -1;
+    if (go == nullptr) return;
+
+    const auto currentLevel = Engine::LevelManager::GetCurrentLevel();
+    if (currentLevel == nullptr) return;
+
+    // The hierarchy highlights by index, so the object has to be located in the same
+    // list the hierarchy walks.
+    const auto levelObjects = currentLevel->GetAllGameObjects();
+    for (size_t i = 0; i < levelObjects.size(); ++i)
+    {
+        if (levelObjects[i] != go) continue;
+        _selectedGameObject = static_cast<int>(i);
+        return;
+    }
+}
 
 Editor::LevelEditor::LevelEditor()
 {
@@ -33,6 +58,18 @@ Editor::LevelEditor::~LevelEditor()
 void Editor::LevelEditor::Render()
 {
     ImGui::Begin("Level Editor", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse);
+
+    // A prefab is opened as the world, so the level pickers below would be describing
+    // something that is not on screen. The way out is the one button, which writes the
+    // prefab back and returns to the level it was opened from.
+    if (Engine::LevelManager::IsEditingPrefab())
+    {
+        if (PrefabBar())
+            LevelSettings();
+
+        ImGui::End();
+        return;
+    }
 
     ImGui::Columns(2, nullptr, false); // Two fixed columns
 
@@ -101,6 +138,34 @@ void Editor::LevelEditor::Render()
     ImGui::End();
 }
 
+bool Editor::LevelEditor::PrefabBar()
+{
+    const auto currentLevel = Engine::LevelManager::GetCurrentLevel();
+    if (currentLevel == nullptr) return false;
+
+    ImGui::TextColored(ImVec4(0.95f, 0.75f, 0.25f, 1.0f), "Editing Prefab");
+    ImGui::SameLine();
+    ImGui::TextUnformatted(currentLevel->GetName().c_str());
+
+    ImGui::Spacing();
+
+    if (ImGui::Button("Save & Close", ImVec2(120, 0)))
+    {
+        Engine::LevelManager::ClosePrefab();
+
+        // False, because everything the caller draws next reads the level that just
+        // went away and was replaced by a different one.
+        return false;
+    }
+
+    ImGui::SameLine();
+    if (ImGui::Button("Save", ImVec2(80, 0)))
+        currentLevel->SaveLevel();
+
+    ImGui::Spacing();
+    return true;
+}
+
 std::vector<const char*> Editor::LevelEditor::ConvertLevelDataToNameList(const std::vector<nlohmann::json>& levelData)
 {
     // Extract level names from the JSON data
@@ -137,24 +202,47 @@ void Editor::LevelEditor::LevelSettings()
     const auto currentLevel = Engine::LevelManager::GetCurrentLevel();
     if (currentLevel == nullptr) return;
 
-    // Game Mode
-    ImGui::Separator();
-    ImGui::Text("Level Settings");
-    ImGui::Text("Level Game Mode:");
-    ImGui::SameLine();
-
-    // TODO: Make game mode objects
-    ImGui::PushItemWidth(100);
-    std::vector gamemodes = {"Main Menu", "Game"};
-    static int selectedGameMode = 0;
-    if (ImGui::Combo("##GameMode", &selectedGameMode, gamemodes.data(), static_cast<int>(gamemodes.size())))
+    // A prefab has no game mode and no extent of its own -- both belong to the level it
+    // is placed in, not to the prefab.
+    if (!currentLevel->IsPrefab())
     {
-        
-    }
-    ImGui::PopItemWidth();
+        // Game Mode
+        ImGui::Separator();
+        ImGui::Text("Level Settings");
+        ImGui::Text("Level Game Mode:");
+        ImGui::SameLine();
 
-    ImGui::Spacing();
-    Engine::ImGuiHelper::InputVector2("Level Size: ", currentLevel->_size, 100);
+        // Was a hardcoded {"Main Menu", "Game"} with an empty handler, so the level's
+        // mode could not actually be set from here. Driven off the registry now, which
+        // means it lists exactly the modes the linked game registered -- and an empty
+        // entry, because "no mode" is a real choice that falls back to the base.
+        //
+        // The name is written straight to the level; it is instantiated on the next
+        // load, the same way it is when a level is opened from disk.
+        ImGui::PushItemWidth(160);
+
+        const std::vector<std::string> gamemodes = Engine::GameModeRegistry::GetNames();
+        const std::string current = currentLevel->_gameModeName.empty() ? "(none)" : currentLevel->_gameModeName;
+
+        if (ImGui::BeginCombo("##GameMode", current.c_str()))
+        {
+            if (ImGui::Selectable("(none)", currentLevel->_gameModeName.empty()))
+                currentLevel->_gameModeName.clear();
+
+            for (const std::string& mode : gamemodes)
+            {
+                if (ImGui::Selectable(mode.c_str(), mode == currentLevel->_gameModeName))
+                    currentLevel->_gameModeName = mode;
+            }
+
+            ImGui::EndCombo();
+        }
+
+        ImGui::PopItemWidth();
+
+        ImGui::Spacing();
+        Engine::ImGuiHelper::InputVector2("Level Size: ", currentLevel->_size, 100);
+    }
     
     // Game Objects
     ImGui::Separator();
@@ -281,10 +369,7 @@ void Editor::LevelEditor::RenderGameObjectHierarchy(const int index)
     ImGui::PopID();
 
     if (ImGui::IsItemClicked())
-    {
-        _selectedGameObject = index;  // Set the selected object
-        DetailsEditor::SetSelectedGameObject(parentObject);  // Update the editor with the selected game object
-    }
+        SelectGameObject(parentObject);
 
     // Handle drag source (dragging the object itself)
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
